@@ -101,8 +101,17 @@ public class Robot extends LoggedRobot {
         break;
     }
 
+    // CTRE Hoot logging
+    // do not call the setPath and hoot log will be logged to rio at "/home/lvuser/logs"
+    SignalLogger.enableAutoLogging(false);
+    // SignalLogger.setPath("//media/sda1/logs");
+    // SignalLogger.start();
+
     // Set up auto logging for RobotState
     AutoLogOutputManager.addObject(new RobotState());
+
+    // Start AdvantageKit logger
+    Logger.start();
 
     // Adjust loop overrun warning timeout
     try {
@@ -142,15 +151,6 @@ public class Robot extends LoggedRobot {
     // TODO: These are 2 different commands. Do we need both?
     CommandScheduler.getInstance().schedule(FollowPathCommand.warmupCommand());
     CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand());
-
-    // CTRE Hoot logging
-    // do not call the setPath and hoot log will be logged to rio at "/home/lvuser/logs"
-    SignalLogger.enableAutoLogging(false);
-    // SignalLogger.setPath("//media/sda1/logs");
-    // SignalLogger.start();
-
-    // Start AdvantageKit logger
-    Logger.start();
   }
 
   /** This function is called periodically during all modes. */

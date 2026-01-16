@@ -145,7 +145,7 @@ public class RobotContainer {
                         drive.setPose(
                             new Pose2d(
                                 drive.getPose().getTranslation(),
-                                AllianceFlipUtil.apply(new Rotation2d()))))
+                                AllianceFlipUtil.apply(Rotation2d.kZero))))
                 .ignoringDisable(true));
 
     driverController.start().onTrue(Commands.runOnce(() -> stopSubsystems()).ignoringDisable(true));

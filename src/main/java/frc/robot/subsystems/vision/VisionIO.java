@@ -16,7 +16,7 @@ public interface VisionIO {
     public double cpuTemperature = 0.0;
     public double Temperature = 0.0;
     public TargetObservation latestTargetObservation =
-        new TargetObservation(new Rotation2d(), new Rotation2d());
+        new TargetObservation(Rotation2d.kZero, Rotation2d.kZero);
     public PoseObservation[] poseObservations = new PoseObservation[0];
     public int[] tagIds = new int[0];
     public ObjectObservation[] objectObservations = new ObjectObservation[0];

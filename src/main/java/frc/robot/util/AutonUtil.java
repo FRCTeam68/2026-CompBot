@@ -90,7 +90,7 @@ public class AutonUtil {
     } else {
       System.out.println(
           "Error getting starting pose: Starting pose is null. Using origin pose as fall back.");
-      return new Pose2d();
+      return Pose2d.kZero;
     }
   }
 

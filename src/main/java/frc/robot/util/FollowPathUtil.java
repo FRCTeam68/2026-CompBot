@@ -80,7 +80,7 @@ public class FollowPathUtil {
       System.out.println("Error getting starting pose: Path not initialized.");
     }
 
-    return new Pose2d();
+    return Pose2d.kZero;
   }
 
   /**

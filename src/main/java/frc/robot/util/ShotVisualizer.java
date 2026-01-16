@@ -19,13 +19,13 @@ import org.littletonrobotics.junction.Logger;
 
 public class ShotVisualizer {
   private static final Transform3d launcherTransform =
-      new Transform3d(0.24, 0, 2.17, new Rotation3d());
+      new Transform3d(0.24, 0, 2.17, Rotation3d.kZero);
   private static final double shotSpeed = 3.5; // Meters per sec
   private static final double shotPitch = Units.degreesToRadians(50); // Degrees from horizontal
   private static final double gravity = 9.8; // Meters per sec²
   private static final double targetHeight = 2.2; // Meters: height from ground to end visualization
 
-  private static Supplier<Pose2d> robotPoseSupplier = () -> new Pose2d();
+  private static Supplier<Pose2d> robotPoseSupplier = () -> Pose2d.kZero;
 
   private static final Translation3d blueSpeaker = new Translation3d(0.225, 5.55, 2.1);
   private static final Translation3d redSpeaker = new Translation3d(16.317, 5.55, 2.1);

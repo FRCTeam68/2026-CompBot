@@ -35,7 +35,7 @@ public class VisionIOLimelight implements VisionIO {
   private final DoubleArraySubscriber megatag2Subscriber;
   private final DoubleArraySubscriber objectSubscriber;
 
-  private Supplier<Rotation2d> rotationSupplier = () -> new Rotation2d();
+  private Supplier<Rotation2d> rotationSupplier = () -> Rotation2d.kZero;
 
   /**
    * Creates a new Limelight camera.
