@@ -1,11 +1,12 @@
 package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
-import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import frc.robot.Constants;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
+import frc.robot.subsystems.shooter.hood.HoodIO;
+import frc.robot.subsystems.shooter.turret.TurretIO;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
 import lombok.Getter;
@@ -13,10 +14,12 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter {
-  // private final MotorTemplateIO io;
-  // private final MotorTemplateIO io;
-  // private final MotorTemplateIO io;
-  // protected final MotorTemplateIOInputsAutoLogged inputs = new MotorTemplateIOInputsAutoLogged();
+  private final FlywheelIO flywheelIO;
+  private final HoodIO hoodIO;
+  private final TurretIO turretIO;
+  protected final FlyWheelIOInputsAutoLogged flywheelinputs = new FlyWheelIOInputsAutoLogged();
+  protected final HoodIOInputsAutoLogged hoodinputs = new HoodIOInputsAutoLogged();
+  protected final TurretIOInputsAutoLogged turretinputs = new TurretIOInputsAutoLogged();
   private final Alert disconnectedAlert =
       new Alert("Template motor disconnected!", AlertType.kError);
   private final Alert tempAlert = new Alert("Template motor is too hot.", AlertType.kWarning);
@@ -68,10 +71,10 @@ public class Shooter {
         || mmAcceleration.hasChanged(hashCode())
         || mmJerk.hasChanged(hashCode())) {
       // io.setMotionMagic(
-          new MotionMagicConfigs()
-              .withMotionMagicCruiseVelocity(mmVelocity.get())
-              .withMotionMagicAcceleration(mmAcceleration.get())
-              .withMotionMagicJerk(mmJerk.get());
+      new MotionMagicConfigs()
+          .withMotionMagicCruiseVelocity(mmVelocity.get())
+          .withMotionMagicAcceleration(mmAcceleration.get())
+          .withMotionMagicJerk(mmJerk.get());
     }
   }
 
@@ -131,7 +134,7 @@ public class Shooter {
    * @return Velocity
    */
   // public double getVelocity() {
-    // return inputs.velocityRotsPerSec;
+  // return inputs.velocityRotsPerSec;
   // }
 
   /**
@@ -140,7 +143,7 @@ public class Shooter {
    * @return Elevation of the wrist
    */
   // public double getPosition() {
-    // return inputs.positionRots;
+  // return inputs.positionRots;
   // }
 
   /**
@@ -153,7 +156,7 @@ public class Shooter {
    * @return Lead motor torque current
    */
   // public double getTorqueCurrent() {
-    // return inputs.torqueCurrentAmps;
+  // return inputs.torqueCurrentAmps;
   // }
 
   /**
@@ -164,8 +167,9 @@ public class Shooter {
   @AutoLogOutput(key = "MotorTemplate/atSetpoint")
   public boolean atSetpoint() {
     return switch (mode) {
-      // case Velocity -> Math.abs(setpoint - inputs.velocityRotsPerSec) < setpointBandVelocity.get();
-      // case Position -> Math.abs(setpoint - inputs.positionRots) < setpointBandPosition.get();
+        // case Velocity -> Math.abs(setpoint - inputs.velocityRotsPerSec) <
+        // setpointBandVelocity.get();
+        // case Position -> Math.abs(setpoint - inputs.positionRots) < setpointBandPosition.get();
       default -> false;
     };
   }

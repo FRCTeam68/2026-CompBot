@@ -24,8 +24,7 @@ public class HoodIOSim implements HoodIO {
   public HoodIOSim() {
     sim =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(motor, .1, HoodIOReal.getReduction()),
-            motor);
+            LinearSystemId.createDCMotorSystem(motor, .1, HoodIOReal.getReduction()), motor);
   }
 
   @Override
