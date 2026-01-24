@@ -24,8 +24,7 @@ public class TurretIOSim implements TurretIO {
   public TurretIOSim() {
     sim =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(motor, .1, TurretIOReal.getReduction()),
-            motor);
+            LinearSystemId.createDCMotorSystem(motor, .1, TurretIOReal.getReduction()), motor);
   }
 
   @Override

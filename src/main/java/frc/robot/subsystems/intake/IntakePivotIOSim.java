@@ -1,4 +1,4 @@
-package frc.robot.subsystems.shooter.hood;
+package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.MathUtil;
@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 import frc.robot.util.PhoenixUtil.ControlMode;
 
-public class HoodIOSim implements HoodIO {
+public class IntakePivotIOSim implements IntakePivotIO {
   private final DCMotor motor = DCMotor.getFalcon500Foc(1);
 
   private final DCMotorSim sim;
@@ -21,10 +21,10 @@ public class HoodIOSim implements HoodIO {
   private ControlMode mode = ControlMode.Neutral;
   private double appliedVoltage = 0;
 
-  public HoodIOSim() {
+  public IntakePivotIOSim() {
     sim =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(motor, .1, HoodIOReal.getReduction()), motor);
+            LinearSystemId.createDCMotorSystem(motor, .1, IntakePivotIOReal.getReduction()), motor);
   }
 
   @Override
