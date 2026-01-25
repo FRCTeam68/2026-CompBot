@@ -9,20 +9,18 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobotBase;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.util.CanbusReader;
+import frc.robot.util.CanBusReader;
 import frc.robot.util.LoggedTracer;
 import frc.robot.util.PhoenixUtil;
 import java.lang.reflect.Field;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.LogFileUtil;
-import org.littletonrobotics.junction.LoggedPowerDistribution;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
@@ -36,28 +34,35 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  * project.
  */
 public class Robot extends LoggedRobot {
-  // TODO: consider additional low bat alarms. see MA
-  private static final double loopOverrunWarningTimeout = 0.2; // seconds
+  private static final double lowBatteryVoltage = 11.0; // Volts
+  private static final double lowBatteryDisabledTime = 2.0; // Seconds
+  private static final double loopOverrunWarningTimeout = 0.2; // Seconds
   private static final double canErrorTimeThreshold = 0.5; // Seconds to disable alert
   private static final double rioErrorTimeThreshold = 0.5; // Seconds to disable alert
+  private static final boolean enableHootLogging = false;
 
   private Command autonomousCommand;
   private RobotContainer robotContainer;
   private final Timer canInitialErrorTimer = new Timer();
   private final Timer canErrorTimer = new Timer();
   private final Timer rioErrorTimer = new Timer();
-  private final CanbusReader rioReader = new CanbusReader(new CANBus("rio"));
+  private final Timer disabledTimer = new Timer();
+  private final CanBusReader rioReader = new CanBusReader(new CANBus("rio"));
 
   private final Alert canErrorAlert =
       new Alert("CAN errors detected, robot may not be controllable.", AlertType.kError);
   private final Alert rioErrorAlert =
-      new Alert("CANivore errors detected, robot may not be controllable.", AlertType.kError);
+      new Alert("Rio CAN errors detected, robot may not be controllable.", AlertType.kError);
+  private final Alert lowBatteryAlert =
+      new Alert(
+          "Battery voltage is very low, turn off the robot or replace the battery to avoid damage.",
+          AlertType.kWarning);
   private final Alert jitAlert =
       new Alert("Please wait to enable, JITing in progress.", AlertType.kWarning);
 
   public Robot() {
     // Record metadata
-    Logger.recordMetadata("Robot", "2024");
+    Logger.recordMetadata("Robot", "2026");
     Logger.recordMetadata("TuningMode", Boolean.toString(Constants.tuningMode));
     Logger.recordMetadata("RuntimeType", getRuntimeType().toString());
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
@@ -65,26 +70,20 @@ public class Robot extends LoggedRobot {
     Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
     Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
     Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
-    switch (BuildConstants.DIRTY) {
-      case 0:
-        Logger.recordMetadata("GitDirty", "All changes committed");
-        break;
-      case 1:
-        Logger.recordMetadata("GitDirty", "Uncomitted changes");
-        break;
-      default:
-        Logger.recordMetadata("GitDirty", "Unknown");
-        break;
-    }
+    Logger.recordMetadata(
+        "GitDirty",
+        switch (BuildConstants.DIRTY) {
+          case 0 -> "All changes committed";
+          case 1 -> "Uncommitted changes";
+          default -> "Unknown";
+        });
 
     // Set up data receivers & replay source
-    // TODO: MA is logging using RLOGServer instead of NT4Publisher. What is better?
     switch (Constants.getMode()) {
       case REAL:
-        // Running on a real robot, log to a USB stick ("/U/logs")
+        // Running on a real robot
         Logger.addDataReceiver(new WPILOGWriter());
         Logger.addDataReceiver(new NT4Publisher());
-        LoggedPowerDistribution.getInstance(35, ModuleType.kRev);
         break;
 
       case SIM:
@@ -94,21 +93,23 @@ public class Robot extends LoggedRobot {
 
       case REPLAY:
         // Replaying a log, set up replay source
-        setUseTiming(false); // Run as fast as possible
-        String logPath = LogFileUtil.findReplayLog();
-        Logger.setReplaySource(new WPILOGReader(logPath));
-        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_replay")));
+        String inPath = LogFileUtil.findReplayLog();
+        String outPath = LogFileUtil.addPathSuffix(inPath, "_sim");
+        Logger.setReplaySource(new WPILOGReader(inPath));
+        Logger.addDataReceiver(new WPILOGWriter(outPath));
         break;
     }
 
-    // CTRE Hoot logging
-    // do not call the setPath and hoot log will be logged to rio at "/home/lvuser/logs"
-    SignalLogger.enableAutoLogging(false);
-    // SignalLogger.setPath("//media/sda1/logs");
-    // SignalLogger.start();
+    // Set AdvantageKit timing mode
+    setUseTiming(Constants.getMode() != frc.robot.Constants.Mode.REPLAY);
 
-    // Set up auto logging for RobotState
-    AutoLogOutputManager.addObject(new RobotState());
+    // CTRE Hoot logging
+    if (enableHootLogging) {
+      SignalLogger.setPath("//media/sda1/logs");
+      SignalLogger.start();
+    } else {
+      SignalLogger.enableAutoLogging(false);
+    }
 
     // Start AdvantageKit logger
     Logger.start();
@@ -130,25 +131,26 @@ public class Robot extends LoggedRobot {
     // Configure DriverStation for sim
     if (Constants.getMode() == frc.robot.Constants.Mode.SIM) {
       DriverStationSim.setAllianceStationId(AllianceStationID.Blue1);
-      DriverStationSim.setAutonomous(false);
-      DriverStationSim.setEnabled(true);
       DriverStationSim.notifyNewData();
     }
 
     // Configure brownout voltage
+    // This only does anything on the roboRIO 2. On the roboRIO 1 it is a no-op.
     RobotController.setBrownoutVoltage(6.0);
 
     // Reset alert timers
     canInitialErrorTimer.restart();
     canErrorTimer.restart();
     rioErrorTimer.restart();
+    disabledTimer.restart();
 
-    // Instantiate our RobotContainer. This will perform all our button bindings.
+    // Set up auto logging for RobotState
+    AutoLogOutputManager.addObject(new RobotState());
+
+    // Instantiate our RobotContainer
     robotContainer = new RobotContainer();
 
     // Warmup pathplanner libraries
-    // This must be done after instantiate RobotContainer
-    // TODO: These are 2 different commands. Do we need both?
     CommandScheduler.getInstance().schedule(FollowPathCommand.warmupCommand());
     CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand());
   }
@@ -156,9 +158,7 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically during all modes. */
   @Override
   public void robotPeriodic() {
-    // Optionally switch the thread to high priority to improve loop
-    // timing (see the template project documentation for details)
-    // TODO: Learn more about thead priority. MA has it always set to 1.
+    // Optionally switch the thread to high priority to improve loop timing
     // Threads.setCurrentThreadPriority(true, 99);
 
     // Refresh all Phoenix signals
@@ -176,6 +176,16 @@ public class Robot extends LoggedRobot {
 
     // Return to non-RT thread priority
     // Threads.setCurrentThreadPriority(false, 10);
+
+    // Low battery alert
+    if (DriverStation.isEnabled()) {
+      disabledTimer.reset();
+    }
+    if (RobotController.getBatteryVoltage() > 0.0
+        && RobotController.getBatteryVoltage() <= lowBatteryVoltage
+        && disabledTimer.hasElapsed(lowBatteryDisabledTime)) {
+      lowBatteryAlert.set(true);
+    }
 
     // Robot container periodic method
     robotContainer.updateAlerts();
@@ -225,7 +235,8 @@ public class Robot extends LoggedRobot {
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
-    robotContainer.setCameraThrottle(true);
+    // Throttle LL4 to reduce heat buildup
+    robotContainer.getVision().throttleLL4(true);
 
     robotContainer.stopSubsystems();
   }
@@ -243,7 +254,8 @@ public class Robot extends LoggedRobot {
   /** This function is called once when the robot is enabled in any mode. */
   @Override
   public void disabledExit() {
-    robotContainer.setCameraThrottle(false);
+    // Disable LL4 throttling when the robot enables
+    robotContainer.getVision().throttleLL4(false);
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */

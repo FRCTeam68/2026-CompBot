@@ -25,7 +25,6 @@ import frc.robot.Constants.Mode;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
-import frc.robot.util.LoggedTunableNumber;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -44,11 +43,6 @@ public class Vision extends SubsystemBase {
   private final Alert[] disconnectedAlerts;
 
   @Getter private Optional<Translation2d> targetNote = Optional.empty();
-
-  // TODO: this currently isn't implemented. We need to see if it is needed.
-  @SuppressWarnings("unused")
-  private LoggedTunableNumber targetRetainSeconds =
-      new LoggedTunableNumber("Vision/TargetRetainSeconds", 0.5);
 
   public Vision(
       VisionConsumer consumer,
@@ -81,7 +75,7 @@ public class Vision extends SubsystemBase {
    * @param cameraIndex The index of the camera to use.
    */
   public Rotation2d getTargetX(int cameraIndex) {
-    return poseSupplier.get().getRotation().minus(inputs[cameraIndex].latestTargetObservation.tx());
+    return inputs[cameraIndex].latestTargetObservation.tx();
   }
 
   public Pose2d getTagPose(int cameraIndex) {
@@ -89,7 +83,7 @@ public class Vision extends SubsystemBase {
 
     if (inputs[cameraIndex].tagIds.length > 0) {
       int tagId = inputs[cameraIndex].tagIds[0];
-      var tagPose = FieldConstants.defaultAprilTagLayout.getTagPose(tagId);
+      var tagPose = FieldConstants.defaultAprilTagType.getLayout().getTagPose(tagId);
 
       if (tagPose.isPresent()) {
         tagPose2d = tagPose.get().toPose2d();
@@ -105,12 +99,10 @@ public class Vision extends SubsystemBase {
   /**
    * Throttle the number of processed frames. This is used to reduce the tempature of the camera.
    * Outputs are not zeroed during skipped frames.
-   *
-   * <p>This is only applied to the Limelight 4.
    */
-  public void setThrottle(boolean throttleCamera) {
+  public void throttleLL4(boolean shouldThrottle) {
     for (int i = 0; i < io.length; i++) {
-      if (cameraInfo[i].name == "limelight-four") io[i].setThrottle(throttleCamera ? 200 : 0);
+      if (cameraInfo[i].name == "limelight-four") io[i].setThrottle(shouldThrottle ? 200 : 0);
     }
   }
 
@@ -146,7 +138,7 @@ public class Vision extends SubsystemBase {
 
       // Add tag poses
       for (int tagId : inputs[cameraIndex].tagIds) {
-        var tagPose = FieldConstants.defaultAprilTagLayout.getTagPose(tagId);
+        var tagPose = FieldConstants.defaultAprilTagType.getLayout().getTagPose(tagId);
         if (tagPose.isPresent()) {
           tagPoses.add(tagPose.get());
         }
@@ -294,7 +286,7 @@ public class Vision extends SubsystemBase {
       allObjectPosesNote.addAll(objectPosesNote);
     }
 
-    // calculate target object
+    // Calculate target object
     List<Pose2d> allObjectPosesNotePose2d = new LinkedList<>();
     for (Pose3d objectPose3d : allObjectPosesNote) {
       allObjectPosesNotePose2d.add(objectPose3d.toPose2d());

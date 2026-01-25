@@ -46,7 +46,7 @@ public class LightsIOCANdle implements LightsIO {
 
     tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(50.0, outputCurrent));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(candle));
-    PhoenixUtil.registerSignals(false, outputCurrent, tempCelsius);
+    PhoenixUtil.registerSignals(new CANBus("rio"), outputCurrent, tempCelsius);
 
     // clear animation slots
     for (int i = 0; i < candle.getMaxSimultaneousAnimationCount().getValue(); i++) {

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Filesystem;
-import frc.robot.util.AllianceFlipUtil.SymmetryType;
+import frc.robot.util.geometry.AllianceFlipUtil.SymmetryType;
 import java.io.IOException;
 import java.nio.file.Path;
 import lombok.Getter;
@@ -18,6 +18,7 @@ public class FieldConstants {
   public static final SymmetryType symmetryType = SymmetryType.Mirrored;
   public static final AprilTagFieldLayout defaultAprilTagLayout =
       AprilTagLayoutType.OFFICIAL_2026.getLayout();
+  public static final AprilTagLayoutType defaultAprilTagType = AprilTagLayoutType.OFFICIAL_2026;
 
   public static final double fieldLength = defaultAprilTagLayout.getFieldLength();
   public static final double fieldWidth = defaultAprilTagLayout.getFieldWidth();

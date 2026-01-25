@@ -56,6 +56,5 @@ public interface ModuleIO {
   public default void setTurnPID(Slot0Configs config) {}
 
   /** Set brake mode on drive motor */
-  // TODO: do we want this?
   public default void setBrakeMode(boolean enabled) {}
 }

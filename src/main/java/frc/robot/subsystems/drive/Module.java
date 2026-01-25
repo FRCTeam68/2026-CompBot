@@ -91,15 +91,6 @@ public class Module {
             AlertType.kWarning);
     inputsKey =
         "Drive/" + DriveConstants.moduleNames[index].replace(" ", "").replaceFirst("m", "M");
-
-    io.setDrivePID(
-        new Slot0Configs()
-            .withKS(drivekS.get())
-            .withKV(drivekV.get())
-            .withKP(drivekP.get())
-            .withKD(drivekD.get()));
-    io.setTurnPID(
-        new Slot0Configs().withKS(turnkS.get()).withKP(turnkP.get()).withKD(turnkD.get()));
   }
 
   public void updateInputs() {
@@ -108,24 +99,22 @@ public class Module {
   }
 
   public void periodic() {
-    if (Constants.tuningMode) {
-      if (drivekS.hasChanged(hashCode())
-          || drivekV.hasChanged(hashCode())
-          || drivekP.hasChanged(hashCode())
-          || drivekD.hasChanged(hashCode())) {
-        io.setDrivePID(
-            new Slot0Configs()
-                .withKS(drivekS.get())
-                .withKV(drivekV.get())
-                .withKP(drivekP.get())
-                .withKD(drivekD.get()));
-      }
-      if (turnkS.hasChanged(hashCode())
-          || turnkP.hasChanged(hashCode())
-          || turnkD.hasChanged(hashCode())) {
-        io.setTurnPID(
-            new Slot0Configs().withKS(turnkS.get()).withKP(turnkP.get()).withKD(turnkD.get()));
-      }
+    if (drivekS.hasChanged(hashCode())
+        | drivekV.hasChanged(hashCode())
+        | drivekP.hasChanged(hashCode())
+        | drivekD.hasChanged(hashCode())) {
+      io.setDrivePID(
+          new Slot0Configs()
+              .withKS(drivekS.get())
+              .withKV(drivekV.get())
+              .withKP(drivekP.get())
+              .withKD(drivekD.get()));
+    }
+    if (turnkS.hasChanged(hashCode())
+        | turnkP.hasChanged(hashCode())
+        | turnkD.hasChanged(hashCode())) {
+      io.setTurnPID(
+          new Slot0Configs().withKS(turnkS.get()).withKP(turnkP.get()).withKD(turnkD.get()));
     }
 
     // Calculate positions for odometry

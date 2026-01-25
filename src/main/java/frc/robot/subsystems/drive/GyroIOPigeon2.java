@@ -15,22 +15,24 @@ import java.util.Queue;
 
 /** IO implementation for Pigeon 2. */
 public class GyroIOPigeon2 implements GyroIO {
+  // Hardware object
   private final Pigeon2 pigeon =
-      new Pigeon2(DriveConstants.GyroConstants.id, DriveConstants.canbus);
+      new Pigeon2(DriveConstants.GyroConstants.id, DriveConstants.canBus);
+
+  // Configuration
+  private final Pigeon2Configuration pigeonConfig = new Pigeon2Configuration();
+
   private final StatusSignal<Angle> yaw = pigeon.getYaw();
-  private final Queue<Double> yawPositionQueue;
-  private final Queue<Double> yawTimestampQueue;
   private final StatusSignal<Angle> pitch = pigeon.getPitch();
   private final StatusSignal<Angle> roll = pigeon.getRoll();
   private final StatusSignal<AngularVelocity> yawVelocity = pigeon.getAngularVelocityZWorld();
   private final StatusSignal<AngularVelocity> pitchVelocity = pigeon.getAngularVelocityXWorld();
   private final StatusSignal<AngularVelocity> rollVelocity = pigeon.getAngularVelocityYWorld();
+  private final Queue<Double> yawPositionQueue;
+  private final Queue<Double> yawTimestampQueue;
 
-  @SuppressWarnings("unused")
   public GyroIOPigeon2() {
-    pigeon.getConfigurator().apply(new Pigeon2Configuration());
-    // TODO: why is this set twice?
-    pigeon.getConfigurator().setYaw(0.0);
+    pigeonConfig.MountPose = DriveConstants.GyroConstants.mountPose;
     yaw.setUpdateFrequency(DriveConstants.odometryFrequency);
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0, yawVelocity, pitch, pitchVelocity, roll, rollVelocity);
@@ -38,13 +40,7 @@ public class GyroIOPigeon2 implements GyroIO {
     yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
     yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(pigeon.getYaw());
     PhoenixUtil.registerSignals(
-        (DriveConstants.canbus.getName() == "rio") ? false : true,
-        yaw,
-        yawVelocity,
-        pitch,
-        pitchVelocity,
-        roll,
-        rollVelocity);
+        DriveConstants.canBus, yaw, yawVelocity, pitch, pitchVelocity, roll, rollVelocity);
     tryUntilOk(5, () -> pigeon.setYaw(0.0, 0.25));
   }
 
@@ -53,10 +49,10 @@ public class GyroIOPigeon2 implements GyroIO {
     inputs.connected =
         BaseStatusSignal.isAllGood(yaw, yawVelocity, pitch, pitchVelocity, roll, rollVelocity);
     inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
-    inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.getValueAsDouble());
     inputs.pitchPosition = Rotation2d.fromDegrees(pitch.getValueAsDouble());
-    inputs.pitchVelocityRadPerSec = Units.degreesToRadians(pitchVelocity.getValueAsDouble());
     inputs.rollPosition = Rotation2d.fromDegrees(roll.getValueAsDouble());
+    inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.getValueAsDouble());
+    inputs.pitchVelocityRadPerSec = Units.degreesToRadians(pitchVelocity.getValueAsDouble());
     inputs.rollVelocityRadPerSec = Units.degreesToRadians(rollVelocity.getValueAsDouble());
 
     inputs.odometryYawTimestamps =

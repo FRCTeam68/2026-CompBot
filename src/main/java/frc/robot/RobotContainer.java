@@ -25,10 +25,10 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
-import frc.robot.subsystems.vision.VisionIOSim;
-import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.AutonUtil;
 import frc.robot.util.FollowPathUtil;
+import frc.robot.util.geometry.AllianceFlipUtil;
+import lombok.Getter;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -40,7 +40,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private Drive drive;
-  private Vision vision;
+  @Getter private Vision vision;
 
   // Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
@@ -89,12 +89,7 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim());
 
-        vision =
-            new Vision(
-                drive::addVisionMeasurement,
-                drive::getPose,
-                drive::getFieldVelocity,
-                new VisionIOSim());
+        vision = new Vision(drive::addVisionMeasurement, drive::getPose, drive::getFieldVelocity);
       }
       case REPLAY -> {
         drive =
@@ -163,16 +158,6 @@ public class RobotContainer {
   /** Loads autonomous paths from storage. This method can be safely be called periodically. */
   public void loadAutonomousPath() {
     AutonUtil.loadPaths(autonChooser.get() != null ? autonChooser.get().getPathNames() : null);
-  }
-
-  /**
-   * Throttle the number of processed frames. This is used to reduce the tempature of the camera.
-   * Outputs are not zeroed during skipped frames.
-   *
-   * <p>This is only applied to the Limelight 4.
-   */
-  public void setCameraThrottle(boolean throttleCamera) {
-    vision.setThrottle(throttleCamera);
   }
 
   /** Stops all subsystems and cancels all scheduled commands. */

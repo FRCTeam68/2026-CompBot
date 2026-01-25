@@ -167,7 +167,6 @@ public class VisionIOLimelight implements VisionIO {
 
     var rawSample = objectSubscriber.get(new double[] {});
     for (int i = 0; i < rawSample.length; i += 12) {
-      // TODO: make sure this works
       ObjectObservationType objectObservationType;
       try {
         objectObservationType = ObjectObservationType.values()[(int) rawSample[i]];

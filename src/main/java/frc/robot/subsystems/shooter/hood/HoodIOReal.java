@@ -91,7 +91,13 @@ public class HoodIOReal implements HoodIO {
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon));
     PhoenixUtil.registerSignals(
         // TEMPLATE: Set whether motor is attached to a CANivore
-        false, position, velocity, appliedVoltage, supplyCurrent, torqueCurrent, tempCelsius);
+        new CANBus("rio"),
+        position,
+        velocity,
+        appliedVoltage,
+        supplyCurrent,
+        torqueCurrent,
+        tempCelsius);
   }
 
   @Override

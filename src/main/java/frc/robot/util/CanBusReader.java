@@ -4,18 +4,18 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.CANBus.CANBusStatus;
 import java.util.Optional;
 
-public class CanbusReader {
-  private final CANBus canbus;
+public class CanBusReader {
+  private final CANBus canBus;
   private final Thread thread;
   private Optional<CANBusStatus> status = Optional.empty();
 
-  public CanbusReader(CANBus canbus) {
-    this.canbus = canbus;
+  public CanBusReader(CANBus canBus) {
+    this.canBus = canBus;
     thread =
         new Thread(
             () -> {
               while (true) {
-                var statusTemp = Optional.of(this.canbus.getStatus());
+                var statusTemp = Optional.of(this.canBus.getStatus());
                 synchronized (this) {
                   status = statusTemp;
                 }
@@ -26,7 +26,7 @@ public class CanbusReader {
                 }
               }
             });
-    thread.setName("CanbusReader");
+    thread.setName("CanBusReader");
     thread.start();
   }
 

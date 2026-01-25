@@ -43,7 +43,6 @@ public class ModuleIOReal implements ModuleIO {
   private final CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
 
   // Control requests
-  // TODO: MA uses update freq 0. investigate
   private final TorqueCurrentFOC torqueCurrentRequest = new TorqueCurrentFOC(0);
 
   @SuppressWarnings("unused")
@@ -84,42 +83,33 @@ public class ModuleIOReal implements ModuleIO {
 
   // private final StatusSignal<Boolean> turnEncoderSyncStickyFault;
 
-  @SuppressWarnings("unused")
   public ModuleIOReal(ModuleConfig constants) {
-    driveTalon = new TalonFX(constants.driveMotorId(), DriveConstants.canbus);
-    turnTalon = new TalonFX(constants.turnMotorId(), DriveConstants.canbus);
-    cancoder = new CANcoder(constants.encoderId(), DriveConstants.canbus);
+    driveTalon = new TalonFX(constants.driveMotorId(), DriveConstants.canBus);
+    turnTalon = new TalonFX(constants.turnMotorId(), DriveConstants.canBus);
+    cancoder = new CANcoder(constants.encoderId(), DriveConstants.canBus);
 
     // Configure drive motor
     driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    driveConfig.Slot0 = new Slot0Configs().withKP(0).withKI(0).withKD(0);
     driveConfig.Feedback.SensorToMechanismRatio = DriveConstants.driveReduction;
-    driveConfig.TorqueCurrent.PeakForwardTorqueCurrent = DriveConstants.driveCurrentLimitAmps;
-    driveConfig.TorqueCurrent.PeakReverseTorqueCurrent = -DriveConstants.driveCurrentLimitAmps;
-    driveConfig.CurrentLimits.StatorCurrentLimit = DriveConstants.driveCurrentLimitAmps;
+    driveConfig.TorqueCurrent.PeakForwardTorqueCurrent = DriveConstants.driveStatorCurrentLimitAmps;
+    driveConfig.TorqueCurrent.PeakReverseTorqueCurrent =
+        -DriveConstants.driveStatorCurrentLimitAmps;
+    driveConfig.CurrentLimits.StatorCurrentLimit = DriveConstants.driveStatorCurrentLimitAmps;
     driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    // TODO: mechanical advantage had this, but I don't know if we want it
     driveConfig.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.02;
     tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfig, 0.25));
     tryUntilOk(5, () -> driveTalon.setPosition(0.0, 0.25));
 
     // Configure turn motor
     turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    turnConfig.Slot0 = new Slot0Configs().withKP(0).withKI(0).withKD(0);
     turnConfig.Feedback.FeedbackRemoteSensorID = constants.encoderId();
     turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     turnConfig.Feedback.RotorToSensorRatio = DriveConstants.turnReduction;
     turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
-    turnConfig.TorqueCurrent.PeakForwardTorqueCurrent = DriveConstants.turnCurrentLimitAmps;
-    turnConfig.TorqueCurrent.PeakReverseTorqueCurrent = -DriveConstants.turnCurrentLimitAmps;
-    turnConfig.CurrentLimits.StatorCurrentLimit = DriveConstants.turnCurrentLimitAmps;
+    turnConfig.TorqueCurrent.PeakForwardTorqueCurrent = DriveConstants.turnStatorCurrentLimitAmps;
+    turnConfig.TorqueCurrent.PeakReverseTorqueCurrent = -DriveConstants.turnStatorCurrentLimitAmps;
+    turnConfig.CurrentLimits.StatorCurrentLimit = DriveConstants.turnStatorCurrentLimitAmps;
     turnConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    // TODO: do we want these?
-    // turnConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0 / DriveConstants.turnGearRatio;
-    // turnConfig.MotionMagic.MotionMagicAcceleration =
-    //     turnConfig.MotionMagic.MotionMagicCruiseVelocity / 0.100;
-    // turnConfig.MotionMagic.MotionMagicExpo_kV = 0.12 * DriveConstants.turnGearRatio;
-    // turnConfig.MotionMagic.MotionMagicExpo_kA = 0.1;
     turnConfig.MotorOutput.Inverted =
         constants.turnInverted()
             ? InvertedValue.Clockwise_Positive
@@ -135,7 +125,6 @@ public class ModuleIOReal implements ModuleIO {
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
 
     // Create timestamp queue
-    // TODO: mechanical advantage is not using timestamp queue in this place. need to investigate
     // more
     timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
 
@@ -181,7 +170,7 @@ public class ModuleIOReal implements ModuleIO {
         turnMagnetHealth);
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(driveTalon, turnTalon, cancoder));
     PhoenixUtil.registerSignals(
-        (DriveConstants.canbus.getName() == "rio") ? false : true,
+        DriveConstants.canBus,
         drivePosition,
         driveVelocity,
         driveAppliedVolts,
@@ -231,13 +220,10 @@ public class ModuleIOReal implements ModuleIO {
     // Update turn encoder inputs
     inputs.turnEncoderConnected =
         BaseStatusSignal.isAllGood(turnAbsolutePosition, turnMagnetHealth);
-    // TODO: MA subtracts the encoder offset, this would normalize the values. should we do it? Or
-    // does the cancoder already do this?
     inputs.turnAbsolutePosition = Rotation2d.fromRotations(turnAbsolutePosition.getValueAsDouble());
     inputs.turnEncoderMagnetHealth = turnMagnetHealth.getValue();
 
     // Update odometry inputs
-    // TODO: MA does this different. investigate
     inputs.odometryTimestamps =
         timestampQueue.stream().mapToDouble((Double value) -> value).toArray();
     inputs.odometryDrivePositionsRad =
@@ -265,7 +251,6 @@ public class ModuleIOReal implements ModuleIO {
 
   @Override
   public void runDriveVelocity(double velocityRadPerSec) {
-    // TODO: how to hadle ff, kS or in this method
     driveTalon.setControl(
         velocityVoltageRequest.withVelocity(Units.radiansToRotations(velocityRadPerSec)));
   }
@@ -287,7 +272,6 @@ public class ModuleIOReal implements ModuleIO {
     tryUntilOk(5, () -> turnTalon.getConfigurator().apply(turnConfig, 0.25));
   }
 
-  // TODO: do we want a setBrakeMode method?
   @Override
   public void setBrakeMode(boolean enabled) {
     driveConfig.MotorOutput.NeutralMode = enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast;
