@@ -12,7 +12,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class Intake {
   private final IntakePivotIO io;
-  protected final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
+  // protected final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
   private final Alert disconnectedAlert =
       new Alert("Template motor disconnected!", AlertType.kError);
   private final Alert tempAlert = new Alert("Template motor is too hot.", AlertType.kWarning);

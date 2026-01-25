@@ -1,11 +1,9 @@
 package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
-import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
 import lombok.Getter;
@@ -13,12 +11,12 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter {
-  private final FlywheelIO flywheelIO;
-  private final HoodIO hoodIO;
-  private final TurretIO turretIO;
-  protected final FlyWheelIOInputsAutoLogged flywheelinputs = new FlyWheelIOInputsAutoLogged();
-  protected final HoodIOInputsAutoLogged hoodinputs = new HoodIOInputsAutoLogged();
-  protected final TurretIOInputsAutoLogged turretinputs = new TurretIOInputsAutoLogged();
+  // private final FlywheelIO flywheelIO;
+  // private final HoodIO hoodIO;
+  // private final TurretIO turretIO;
+  // protected final FlyWheelIOInputsAutoLogged flywheelinputs = new FlyWheelIOInputsAutoLogged();
+  // protected final HoodIOInputsAutoLogged hoodinputs = new HoodIOInputsAutoLogged();
+  // protected final TurretIOInputsAutoLogged turretinputs = new TurretIOInputsAutoLogged();
   private final Alert disconnectedAlert =
       new Alert("Template motor disconnected!", AlertType.kError);
   private final Alert tempAlert = new Alert("Template motor is too hot.", AlertType.kWarning);
