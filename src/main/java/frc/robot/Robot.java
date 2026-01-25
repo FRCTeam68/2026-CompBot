@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.util.CanBusReader;
 import frc.robot.util.LoggedTracer;
 import frc.robot.util.PhoenixUtil;
+import frc.robot.util.ShiftUtil;
 import java.lang.reflect.Field;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -275,6 +276,7 @@ public class Robot extends LoggedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
+    ShiftUtil.seedMatchTime();
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
@@ -286,7 +288,9 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    ShiftUtil.calculate();
+  }
 
   /** This function is called once when test mode is enabled. */
   @Override
