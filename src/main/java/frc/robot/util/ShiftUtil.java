@@ -1,15 +1,18 @@
 package frc.robot.util;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import java.util.Optional;
+import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.Setter;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class ShiftUtil {
   // These must be positive
-  // TODO: these should move to shooterconstants
+  // TODO: should move to shooterconstants
   private static final LoggedTunableNumber preShiftTime =
       new LoggedTunableNumber("Shift/PreShiftSec", 1.0);
   private static final LoggedTunableNumber postShiftTime =
@@ -17,86 +20,101 @@ public class ShiftUtil {
 
   private static Optional<Boolean> blueActiveFirst = Optional.empty();
   private static double teleopStartTime = -1.0;
-  @Getter private static double teleopTime = 140.0;
-  private static Shift currentShift = Shift.Transition;
-  @Getter private static Alliance currentActive = Alliance.Both;
-  @Getter private static Alliance nextActive = Alliance.Both;
-  @Getter private static double shiftTime = 30.0;
-  @Getter private static boolean canShoot = true;
-  @Setter private static boolean override = false;
+  private static double prevTeleopStartTime = -1.0;
+  private static Shift prevShift = Shift.Transition;
+  @Getter private static Supplier<Double> teleopTime = () -> 140.0;
+  @Getter private static Supplier<Double> shiftTime = () -> 30.0;
+  @Getter private static Optional<Alliance> currentActive = Optional.empty();
+  @Getter private static Optional<Alliance> nextActive = Optional.empty();
 
-  public static void calculate() {
+  @AutoLogOutput(key = "Shift/CurrentShift")
+  @Getter
+  private static Shift currentShift = Shift.Transition;
+
+  @AutoLogOutput(key = "Shift/Override")
+  @Setter
+  private static boolean override = false;
+
+  public static void update() {
     seedAlliance();
 
-    teleopTime =
-        (teleopStartTime == -1) ? 140.0 : 140.0 - (Timer.getFPGATimestamp() - teleopStartTime);
+    if (teleopStartTime != prevTeleopStartTime || getActiveShift() != prevShift) {
+      teleopTime =
+          () ->
+              (teleopStartTime == -1)
+                  ? 140.0
+                  : 140.0 - (Timer.getFPGATimestamp() - teleopStartTime);
 
-    if (teleopStartTime == -1.0 || blueActiveFirst.isEmpty()) {
-      currentShift = Shift.Transition;
-      currentActive = Alliance.Both;
-      nextActive = Alliance.Both;
-      shiftTime = 30.0;
-    } else {
-      currentShift = getCurrentShift();
-      switch (currentShift) {
-        case Transition:
-          currentActive = Alliance.Both;
-          nextActive = blueActiveFirst.get() ? Alliance.Blue : Alliance.Red;
-          shiftTime = getTeleopTime() - Shift.Shift1.startTime;
-          break;
+      if (teleopStartTime == -1.0 || blueActiveFirst.isEmpty()) {
+        currentShift = Shift.Transition;
+        currentActive = Optional.empty();
+        nextActive = Optional.empty();
+        shiftTime = () -> 30.0;
+      } else {
+        currentShift = getActiveShift();
+        switch (currentShift) {
+          case Transition:
+            currentActive = Optional.empty();
+            nextActive =
+                blueActiveFirst.get() ? Optional.of(Alliance.Blue) : Optional.of(Alliance.Red);
+            shiftTime = () -> getTeleopTime().get() - Shift.Shift1.startTime;
+            break;
 
-        case Shift1:
-          currentActive = blueActiveFirst.get() ? Alliance.Blue : Alliance.Red;
-          nextActive = blueActiveFirst.get() ? Alliance.Red : Alliance.Blue;
-          shiftTime = getTeleopTime() - Shift.Shift2.startTime;
-          break;
+          case Shift1:
+            currentActive =
+                blueActiveFirst.get() ? Optional.of(Alliance.Blue) : Optional.of(Alliance.Red);
+            nextActive =
+                blueActiveFirst.get() ? Optional.of(Alliance.Red) : Optional.of(Alliance.Blue);
+            shiftTime = () -> getTeleopTime().get() - Shift.Shift2.startTime;
+            break;
 
-        case Shift2:
-          currentActive = blueActiveFirst.get() ? Alliance.Red : Alliance.Blue;
-          nextActive = blueActiveFirst.get() ? Alliance.Blue : Alliance.Red;
-          shiftTime = getTeleopTime() - Shift.Shift3.startTime;
-          break;
+          case Shift2:
+            currentActive =
+                blueActiveFirst.get() ? Optional.of(Alliance.Red) : Optional.of(Alliance.Blue);
+            nextActive =
+                blueActiveFirst.get() ? Optional.of(Alliance.Blue) : Optional.of(Alliance.Red);
+            shiftTime = () -> getTeleopTime().get() - Shift.Shift3.startTime;
+            break;
 
-        case Shift3:
-          currentActive = blueActiveFirst.get() ? Alliance.Blue : Alliance.Red;
-          nextActive = blueActiveFirst.get() ? Alliance.Red : Alliance.Blue;
-          shiftTime = getTeleopTime() - Shift.Shift4.startTime;
-          break;
+          case Shift3:
+            currentActive =
+                blueActiveFirst.get() ? Optional.of(Alliance.Blue) : Optional.of(Alliance.Red);
+            nextActive =
+                blueActiveFirst.get() ? Optional.of(Alliance.Red) : Optional.of(Alliance.Blue);
+            shiftTime = () -> getTeleopTime().get() - Shift.Shift4.startTime;
+            break;
 
-        case Shift4:
-          currentActive = blueActiveFirst.get() ? Alliance.Red : Alliance.Blue;
-          nextActive = Alliance.Both;
-          shiftTime = getTeleopTime() - Shift.EndGame.startTime;
-          break;
+          case Shift4:
+            currentActive =
+                blueActiveFirst.get() ? Optional.of(Alliance.Red) : Optional.of(Alliance.Blue);
+            nextActive = Optional.empty();
+            shiftTime = () -> getTeleopTime().get() - Shift.EndGame.startTime;
+            break;
 
-        case EndGame:
-          currentActive = Alliance.Both;
-          nextActive = Alliance.Both;
-          shiftTime = Math.max(getTeleopTime(), 0.0);
-          break;
+          case EndGame:
+            currentActive = Optional.empty();
+            nextActive = Optional.empty();
+            shiftTime = () -> Math.max(getTeleopTime().get(), 0.0);
+            break;
+        }
+        ;
       }
-      ;
     }
 
-    if (currentActive == Alliance.Both
-        || DriverStation.getAlliance().get() == currentActive.toWPIAlliance().get()
-        || override) {
-      canShoot = true;
-    } else if (shiftTime + postShiftTime.get() > 25.0 || shiftTime - preShiftTime.get() < 0.0) {
-      canShoot = true;
-    } else {
-      canShoot = false;
-    }
+    Logger.recordOutput("Shift/ShiftSec", shiftTime.get());
 
-    Logger.recordOutput("Shift/CurrentActive", currentActive);
-    Logger.recordOutput("Shift/ShiftTimeSec", shiftTime);
-    Logger.recordOutput("Shift/CanShoot", canShoot);
+    prevTeleopStartTime = teleopStartTime;
+    prevShift = currentShift;
   }
 
-  /** Call this once at teleop init. */
-  public static void seedMatchTime() {
-    // TODO: I hate that I have to do it this way, but there is no way to know if we are in practice
-    // mode or not
+  /**
+   * Seeds the current remaining teleop time.
+   *
+   * <p>This is no-op when the DS is in teleop mode.
+   *
+   * <p>Call this once at teleop init.
+   */
+  public static void seedTeleopTime() {
     if (DriverStation.isFMSAttached() || DriverStation.getMatchTime() > 5.0) {
       teleopStartTime = Timer.getFPGATimestamp() - 140.0 + DriverStation.getMatchTime();
     } else {
@@ -104,28 +122,79 @@ public class ShiftUtil {
     }
   }
 
+  /**
+   * Returns true when the robot will be able to shoot and have the fuel score.
+   *
+   * <p>This is preferred for shooting over isHubActive since it accounts for flight time and the 3
+   * seconds fuel can score after the hub deactivates.
+   */
+  @AutoLogOutput(key = "Shift/CanShoot")
+  public static boolean canShoot() {
+    // TODO: do we tie this to robot distance from goal or is a static number good enough
+    return ishubActive()
+        || shiftTime.get() + postShiftTime.get() > 25.0
+        || shiftTime.get() - preShiftTime.get() < 0.0
+        || override;
+  }
+
+  /** Returns true if our hub is currently active. */
+  @AutoLogOutput(key = "Shift/HubActive")
+  public static boolean ishubActive() {
+    return currentActive.isEmpty()
+        || (DriverStation.getAlliance().isPresent()
+            && DriverStation.getAlliance().get() == currentActive.get())
+        || override;
+  }
+
+  /**
+   * Returns true when the hub is about to go active.
+   *
+   * <p>This will remain true for the time specified before the hub is active.
+   */
+  public static boolean hubToActiveWarning(double warningTime) {
+    return !ishubActive() && shiftTime.get() < warningTime;
+  }
+
+  /**
+   * Returns true when the hub is about to go active.
+   *
+   * <p>This will remain true for the time specified before the hub is active.
+   */
+  public static boolean hubToInactiveWarning(double warningTime) {
+    return ishubActive()
+        && nextActive.isPresent()
+        && (DriverStation.getAlliance().isPresent()
+            && DriverStation.getAlliance().get() != nextActive.get())
+        && shiftTime.get() < warningTime;
+  }
+
+  /**
+   * Seed blueActiveFirst from game specific message.
+   *
+   * <p>If FMS is not present, this will continually seed.
+   *
+   * <p>this can safely be called periodically.
+   */
   private static void seedAlliance() {
     // TODO: This way we don't need to read the string once it is declared. It the perfromance hit
     // even that bad?
     if (blueActiveFirst.isEmpty() || !DriverStation.isFMSAttached()) {
-      switch (DriverStation.getGameSpecificMessage()) {
-        case "R":
-          blueActiveFirst = Optional.of(true);
-          break;
-
-        case "B":
-          blueActiveFirst = Optional.of(false);
-          break;
-
-        default:
-          blueActiveFirst = Optional.empty();
-          break;
-      }
+      blueActiveFirst =
+          switch (DriverStation.getGameSpecificMessage()) {
+            case "R" -> Optional.of(true);
+            case "B" -> Optional.of(false);
+            default -> Optional.empty();
+          };
     }
   }
 
-  private static Shift getCurrentShift() {
-    double teleopTime = getTeleopTime();
+  /**
+   * Returns the current active shift.
+   *
+   * <p>If teleop time hasn't been seeded this will return the transition shift.
+   */
+  private static Shift getActiveShift() {
+    double teleopTime = getTeleopTime().get();
     Shift shift;
 
     if (teleopTime > Shift.Shift1.startTime) {
@@ -157,20 +226,6 @@ public class ShiftUtil {
 
     private Shift(int startTime) {
       this.startTime = startTime;
-    }
-  }
-
-  public enum Alliance {
-    Red,
-    Blue,
-    Both;
-
-    public Optional<edu.wpi.first.wpilibj.DriverStation.Alliance> toWPIAlliance() {
-      return switch (this) {
-        case Red -> Optional.of(edu.wpi.first.wpilibj.DriverStation.Alliance.Red);
-        case Blue -> Optional.of(edu.wpi.first.wpilibj.DriverStation.Alliance.Blue);
-        case Both -> Optional.empty();
-      };
     }
   }
 }

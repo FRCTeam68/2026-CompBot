@@ -147,6 +147,7 @@ public class Robot extends LoggedRobot {
 
     // Set up auto logging for RobotState
     AutoLogOutputManager.addObject(new RobotState());
+    AutoLogOutputManager.addObject(new ShiftUtil());
 
     // Instantiate our RobotContainer
     robotContainer = new RobotContainer();
@@ -276,7 +277,8 @@ public class Robot extends LoggedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    ShiftUtil.seedMatchTime();
+    ShiftUtil.seedTeleopTime();
+
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
@@ -289,7 +291,7 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    ShiftUtil.calculate();
+    ShiftUtil.update();
   }
 
   /** This function is called once when test mode is enabled. */
