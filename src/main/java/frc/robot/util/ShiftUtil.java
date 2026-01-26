@@ -12,7 +12,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class ShiftUtil {
   // These must be positive
-  // TODO: should move to shooterconstants
+  // TODO: should move to shooterconstants. Do we tie this to robot distance.
   private static final LoggedTunableNumber preShiftTime =
       new LoggedTunableNumber("Shift/PreShiftSec", 1.0);
   private static final LoggedTunableNumber postShiftTime =
@@ -35,16 +35,35 @@ public class ShiftUtil {
   @Setter
   private static boolean override = false;
 
+  /**
+   * Update Shift conditions.
+   *
+   * <p>This should be called periodically during teleop mode.
+   */
   public static void update() {
-    seedAlliance();
+    // TODO: This way we don't need to read the string once it is declared. It the perfromance hit
+    // even that bad?
+    // Seed first active alliance
+    if (blueActiveFirst.isEmpty() || !DriverStation.isFMSAttached()) {
+      blueActiveFirst =
+          switch (DriverStation.getGameSpecificMessage()) {
+            case "R" -> Optional.of(true);
+            case "B" -> Optional.of(false);
+            default -> Optional.empty();
+          };
+    }
 
+    // If conditions have changed
     if (teleopStartTime != prevTeleopStartTime || getActiveShift() != prevShift) {
+
+      // Configure teleop time
       teleopTime =
           () ->
               (teleopStartTime == -1)
                   ? 140.0
                   : 140.0 - (Timer.getFPGATimestamp() - teleopStartTime);
 
+      // If values are not seeded, set to default. Otherwise, set based on current shift
       if (teleopStartTime == -1.0 || blueActiveFirst.isEmpty()) {
         currentShift = Shift.Transition;
         currentActive = Optional.empty();
@@ -97,14 +116,15 @@ public class ShiftUtil {
             shiftTime = () -> Math.max(getTeleopTime().get(), 0.0);
             break;
         }
-        ;
       }
+
+      // Update previous values
+      prevTeleopStartTime = teleopStartTime;
+      prevShift = currentShift;
     }
 
+    // Logging
     Logger.recordOutput("Shift/ShiftSec", shiftTime.get());
-
-    prevTeleopStartTime = teleopStartTime;
-    prevShift = currentShift;
   }
 
   /**
@@ -130,7 +150,6 @@ public class ShiftUtil {
    */
   @AutoLogOutput(key = "Shift/CanShoot")
   public static boolean canShoot() {
-    // TODO: do we tie this to robot distance from goal or is a static number good enough
     return ishubActive()
         || shiftTime.get() + postShiftTime.get() > 25.0
         || shiftTime.get() - preShiftTime.get() < 0.0
@@ -149,16 +168,16 @@ public class ShiftUtil {
   /**
    * Returns true when the hub is about to go active.
    *
-   * <p>This will remain true for the time specified before the hub is active.
+   * <p>This will remain true for the specified time before the hub is active.
    */
   public static boolean hubToActiveWarning(double warningTime) {
     return !ishubActive() && shiftTime.get() < warningTime;
   }
 
   /**
-   * Returns true when the hub is about to go active.
+   * Returns true when the hub is about to go inactive.
    *
-   * <p>This will remain true for the time specified before the hub is active.
+   * <p>This will remain true for the specified time before the hub is inactive.
    */
   public static boolean hubToInactiveWarning(double warningTime) {
     return ishubActive()
@@ -166,26 +185,6 @@ public class ShiftUtil {
         && (DriverStation.getAlliance().isPresent()
             && DriverStation.getAlliance().get() != nextActive.get())
         && shiftTime.get() < warningTime;
-  }
-
-  /**
-   * Seed blueActiveFirst from game specific message.
-   *
-   * <p>If FMS is not present, this will continually seed.
-   *
-   * <p>this can safely be called periodically.
-   */
-  private static void seedAlliance() {
-    // TODO: This way we don't need to read the string once it is declared. It the perfromance hit
-    // even that bad?
-    if (blueActiveFirst.isEmpty() || !DriverStation.isFMSAttached()) {
-      blueActiveFirst =
-          switch (DriverStation.getGameSpecificMessage()) {
-            case "R" -> Optional.of(true);
-            case "B" -> Optional.of(false);
-            default -> Optional.empty();
-          };
-    }
   }
 
   /**
@@ -197,7 +196,7 @@ public class ShiftUtil {
     double teleopTime = getTeleopTime().get();
     Shift shift;
 
-    if (teleopTime > Shift.Shift1.startTime) {
+    if (teleopTime == -1.0 || teleopTime > Shift.Shift1.startTime) {
       shift = Shift.Transition;
     } else if (teleopTime > Shift.Shift2.startTime) {
       shift = Shift.Shift1;
