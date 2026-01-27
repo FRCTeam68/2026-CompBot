@@ -12,13 +12,6 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class ShiftUtil {
-  // These must be positive
-  // TODO: should move to shooterconstants. Do we tie this to robot distance.
-  private static final LoggedTunableNumber preShiftTime =
-      new LoggedTunableNumber("Shift/PreShiftSec", 1.0);
-  private static final LoggedTunableNumber postShiftTime =
-      new LoggedTunableNumber("Shift/PostShiftSec", 1.0);
-
   private static Optional<Boolean> blueActiveFirst = Optional.empty();
   private static double teleopStartTime = -1.0;
   private static double prevTeleopStartTime = -1.0;
@@ -53,10 +46,7 @@ public class ShiftUtil {
   @Getter
   private static Shift currentShift = Shift.Transition;
 
-  /**
-   * Override hub active status to always be active. This only affects {@link #canShoot()} and
-   * {@link #isHubActive()}.
-   */
+  /** Override hub active status to always be active. This only affects {@link #isHubActive()}. */
   @AutoLogOutput(key = "Shift/Override")
   @Setter
   private static boolean override = false;
@@ -182,20 +172,6 @@ public class ShiftUtil {
     } else {
       teleopStartTime = -1.0;
     }
-  }
-
-  /**
-   * Returns true when the robot will be able to shoot and have the fuel score.
-   *
-   * <p>This is preferred for shooting over isHubActive since it accounts for flight time and the 3
-   * seconds fuel can score after the hub deactivates.
-   */
-  @AutoLogOutput(key = "Shift/CanShoot")
-  public static boolean canShoot() {
-    return isHubActive()
-        || shiftTime.get() + postShiftTime.get() > 25.0
-        || shiftTime.get() - preShiftTime.get() < 0.0
-        || override;
   }
 
   /** Returns true if our hub is currently active. */
