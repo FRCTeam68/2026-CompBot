@@ -162,12 +162,12 @@ public class ShiftUtil {
   /**
    * Seeds the current remaining match time.
    *
-   * <p>If the DS is in teleop or auton mode this will set all fields to default.
+   * <p>If in autonomous or the DS is in teleop or auton mode this will set all fields to default.
    *
    * <p>Call this once at disabled exit.
    */
   public static void seedMatchTime() {
-    if (DriverStation.isFMSAttached() || DriverStation.getMatchTime() > 21.0) {
+    if (!DriverStation.isAutonomous() && DriverStation.getMatchTime() > 5.0) {
       teleopStartTime = Timer.getFPGATimestamp() - 140.0 + DriverStation.getMatchTime();
     } else {
       teleopStartTime = -1.0;

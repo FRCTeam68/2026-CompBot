@@ -152,8 +152,8 @@ public class RobotContainer {
     driverController.start().onTrue(Commands.runOnce(() -> stopSubsystems()).ignoringDisable(true));
 
     hubTransitionWarningTrigger.onTrue(
-        Commands.run(() -> driverController.setRumble(RumbleType.kBothRumble, 1))
-            .withTimeout(1)
+        Commands.runOnce(() -> driverController.setRumble(RumbleType.kBothRumble, 1))
+            .andThen(Commands.waitSeconds(1))
             .andThen(() -> driverController.setRumble(RumbleType.kBothRumble, 0)));
   }
 
@@ -171,9 +171,11 @@ public class RobotContainer {
     AutonUtil.loadPaths(autonChooser.get() != null ? autonChooser.get().getPathNames() : null);
   }
 
-  /** Stops all subsystems and cancels all scheduled commands. */
+  /** Stops all subsystems, cancels all scheduled commands, and stops controller rumble. */
   public void stopSubsystems() {
     CommandScheduler.getInstance().cancelAll();
+    driverController.setRumble(RumbleType.kBothRumble, 0);
+    operatorController.setRumble(RumbleType.kBothRumble, 0);
     drive.stop();
   }
 
