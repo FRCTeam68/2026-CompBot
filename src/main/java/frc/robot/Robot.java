@@ -168,6 +168,10 @@ public class Robot extends LoggedRobot {
     PhoenixUtil.refreshAll();
     LoggedTracer.record("PhoenixRefresh");
 
+    // Update shift conditions
+    ShiftUtil.update();
+    LoggedTracer.reset();
+
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled commands, running already-scheduled commands, removing
     // finished or interrupted commands, and running subsystem periodic() methods.
@@ -258,6 +262,9 @@ public class Robot extends LoggedRobot {
   public void disabledExit() {
     // Disable LL4 throttling when the robot enables
     robotContainer.getVision().throttleLL4(false);
+
+    // This must be done here to reset time for repeated practice matches
+    ShiftUtil.seedMatchTime();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
@@ -277,7 +284,6 @@ public class Robot extends LoggedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    ShiftUtil.seedTeleopTime();
 
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
@@ -290,9 +296,7 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {
-    ShiftUtil.update();
-  }
+  public void teleopPeriodic() {}
 
   /** This function is called once when test mode is enabled. */
   @Override
