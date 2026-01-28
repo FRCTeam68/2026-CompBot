@@ -28,7 +28,7 @@ public class FlywheelIOSim implements FlywheelIO {
   }
 
   @Override
-  public void updateInputs(MotorTemplateIOInputs inputs) {
+  public void updateInputs(FlyWheelIOInputs inputs) {
     if (DriverStation.isDisabled()) {
       runVolts(0);
     } else {

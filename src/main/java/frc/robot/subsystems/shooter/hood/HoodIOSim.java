@@ -28,7 +28,7 @@ public class HoodIOSim implements HoodIO {
   }
 
   @Override
-  public void updateInputs(MotorTemplateIOInputs inputs) {
+  public void updateInputs(HoodIOInputs inputs) {
     if (DriverStation.isDisabled()) {
       runVolts(0);
     } else {

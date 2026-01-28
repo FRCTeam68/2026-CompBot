@@ -101,7 +101,7 @@ public class FlywheelIOReal implements FlywheelIO {
   }
 
   @Override
-  public void updateInputs(MotorTemplateIOInputs inputs) {
+  public void updateInputs(FlyWheelIOInputs inputs) {
     inputs.connected =
         BaseStatusSignal.isAllGood(
             position, velocity, appliedVoltage, supplyCurrent, torqueCurrent);

@@ -101,7 +101,7 @@ public class HoodIOReal implements HoodIO {
   }
 
   @Override
-  public void updateInputs(MotorTemplateIOInputs inputs) {
+  public void updateInputs(HoodIOInputs inputs) {
     inputs.connected =
         BaseStatusSignal.isAllGood(
             position, velocity, appliedVoltage, supplyCurrent, torqueCurrent);

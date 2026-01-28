@@ -4,6 +4,13 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import frc.robot.Constants;
+import frc.robot.subsystems.shooter.flywheel.FlyWheelIOInputsAutoLogged;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
+import frc.robot.subsystems.shooter.hood.HoodIO;
+import frc.robot.subsystems.shooter.hood.HoodIOInputsAutoLogged;
+import frc.robot.subsystems.shooter.turret.TurretIO;
+import frc.robot.subsystems.shooter.turret.TurretIOInputsAutoLogged;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
 import lombok.Getter;
@@ -11,12 +18,12 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter {
-  // private final FlywheelIO flywheelIO;
-  // private final HoodIO hoodIO;
-  // private final TurretIO turretIO;
-  // protected final FlyWheelIOInputsAutoLogged flywheelinputs = new FlyWheelIOInputsAutoLogged();
-  // protected final HoodIOInputsAutoLogged hoodinputs = new HoodIOInputsAutoLogged();
-  // protected final TurretIOInputsAutoLogged turretinputs = new TurretIOInputsAutoLogged();
+  private final FlywheelIO flywheelIO;
+  private final HoodIO hoodIO;
+  private final TurretIO turretIO;
+  protected final FlyWheelIOInputsAutoLogged flywheelinputs = new FlyWheelIOInputsAutoLogged();
+  protected final HoodIOInputsAutoLogged hoodinputs = new HoodIOInputsAutoLogged();
+  protected final TurretIOInputsAutoLogged turretinputs = new TurretIOInputsAutoLogged();
   private final Alert disconnectedAlert =
       new Alert("Template motor disconnected!", AlertType.kError);
   private final Alert tempAlert = new Alert("Template motor is too hot.", AlertType.kWarning);
@@ -40,15 +47,27 @@ public class Shooter {
 
   @Getter private ControlMode mode = ControlMode.Neutral;
 
-  public Shooter() {
-    // this.io = io;
+  public Shooter(FlywheelIO flywheelIO, HoodIO hoodIO, TurretIO turretIO) {
+    this.flywheelIO = flywheelIO;
+    this.hoodIO = hoodIO;
+    this.turretIO = turretIO;
   }
 
   public void periodic() {
-    // io.updateInputs(inputs);
-    // Logger.processInputs("MotorTemplate", inputs);
-    // disconnectedAlert.set(!inputs.connected);
-    // tempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
+    flywheelIO.updateInputs(flywheelinputs);
+    Logger.processInputs("Flywheel", flywheelinputs);
+    disconnectedAlert.set(!flywheelinputs.connected);
+    tempAlert.set(flywheelinputs.tempCelsius > Constants.warningTempCelsius);
+
+    hoodIO.updateInputs(hoodinputs);
+    Logger.processInputs("Hood", hoodinputs);
+    disconnectedAlert.set(!hoodinputs.connected);
+    tempAlert.set(hoodinputs.tempCelsius > Constants.warningTempCelsius);
+
+    turretIO.updateInputs(turretinputs);
+    Logger.processInputs("Turret", turretinputs);
+    disconnectedAlert.set(!turretinputs.connected);
+    tempAlert.set(turretinputs.tempCelsius > Constants.warningTempCelsius);
 
     Logger.recordOutput(
         "MotorTemplate/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);

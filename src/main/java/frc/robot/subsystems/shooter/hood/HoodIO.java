@@ -6,7 +6,7 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface HoodIO {
   @AutoLog
-  static class MotorTemplateIOInputs {
+  static class HoodIOInputs {
     public boolean connected = false;
     public double positionRots = 0.0;
     public double velocityRotsPerSec = 0.0;
@@ -16,7 +16,7 @@ public interface HoodIO {
     public double tempCelsius = 0.0;
   }
 
-  default void updateInputs(MotorTemplateIOInputs inputs) {}
+  default void updateInputs(HoodIOInputs inputs) {}
 
   /**
    * Run motor at volts.

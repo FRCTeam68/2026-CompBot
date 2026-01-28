@@ -23,6 +23,16 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOReal;
 import frc.robot.subsystems.drive.ModuleIOSim;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIOReal;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIOSim;
+import frc.robot.subsystems.shooter.hood.HoodIO;
+import frc.robot.subsystems.shooter.hood.HoodIOReal;
+import frc.robot.subsystems.shooter.hood.HoodIOSim;
+import frc.robot.subsystems.shooter.turret.TurretIO;
+import frc.robot.subsystems.shooter.turret.TurretIOReal;
+import frc.robot.subsystems.shooter.turret.TurretIOSim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO;
@@ -44,6 +54,7 @@ public class RobotContainer {
   // Subsystems
   private Drive drive;
   @Getter private Vision vision;
+  private Shooter shooter;
 
   // Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
@@ -85,6 +96,8 @@ public class RobotContainer {
                 drive::getPose,
                 drive::getFieldVelocity,
                 new VisionIOLimelight(CameraInfo.LL_4));
+
+        shooter = new Shooter(new FlywheelIOReal(), new HoodIOReal(), new TurretIOReal());
       }
       case SIM -> {
         drive =
@@ -96,6 +109,8 @@ public class RobotContainer {
                 new ModuleIOSim());
 
         vision = new Vision(drive::addVisionMeasurement, drive::getPose, drive::getFieldVelocity);
+
+        shooter = new Shooter(new FlywheelIOSim(), new HoodIOSim(), new TurretIOSim());
       }
       case REPLAY -> {
         drive =
@@ -112,6 +127,8 @@ public class RobotContainer {
                 drive::getPose,
                 drive::getFieldVelocity,
                 new VisionIO() {});
+
+        shooter = new Shooter(new FlywheelIO() {}, new HoodIO() {}, new TurretIO() {});
       }
     }
 
