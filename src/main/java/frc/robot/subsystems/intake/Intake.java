@@ -5,6 +5,7 @@ import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
 import lombok.Getter;
@@ -12,11 +13,10 @@ import org.littletonrobotics.junction.Logger;
 
 public class Intake {
   private final IntakePivotIO io;
-  // protected final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
+  protected final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
   private final Alert disconnectedAlert =
-      new Alert("Template motor disconnected!", AlertType.kError);
-  private final Alert tempAlert = new Alert("Template motor is too hot.", AlertType.kWarning);
-
+      new Alert("Intake pivot motor disconnected!", AlertType.kError);
+  private final Alert tempAlert = new Alert("Intake pivot motor is too hot.", AlertType.kWarning);
   private LoggedTunableNumber kP0 = new LoggedTunableNumber("MotorTemplate/Slot0/kP", 0);
   private LoggedTunableNumber kD0 = new LoggedTunableNumber("MotorTemplate/Slot0/kD", 0);
   private LoggedTunableNumber kS0 = new LoggedTunableNumber("MotorTemplate/Slot0/kS", 0);
@@ -41,10 +41,10 @@ public class Intake {
   }
 
   public void periodic() {
-    // io.updateInputs(inputs);
-    // Logger.processInputs("MotorTemplate", inputs);
-    // disconnectedAlert.set(!inputs.connected);
-    // tempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
+    io.updateInputs(inputs);
+    Logger.processInputs("IntakePivot", inputs);
+    disconnectedAlert.set(!inputs.connected);
+    tempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
     Logger.recordOutput(
         "MotorTemplate/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);

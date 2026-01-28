@@ -28,7 +28,7 @@ public class IntakePivotIOSim implements IntakePivotIO {
   }
 
   @Override
-  public void updateInputs(MotorTemplateIOInputs inputs) {
+  public void updateInputs(IntakePivotIOInputs inputs) {
     if (DriverStation.isDisabled()) {
       runVolts(0);
     } else {

@@ -1,7 +1,11 @@
 package frc.robot;
 
+import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -23,6 +27,14 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOReal;
 import frc.robot.subsystems.drive.ModuleIOSim;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakePivotIO;
+import frc.robot.subsystems.intake.IntakePivotIOReal;
+import frc.robot.subsystems.intake.IntakePivotIOSim;
+import frc.robot.subsystems.rollers.RollerSystem;
+import frc.robot.subsystems.rollers.RollerSystemIO;
+import frc.robot.subsystems.rollers.RollerSystemIOSim;
+import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO;
@@ -44,6 +56,8 @@ public class RobotContainer {
   // Subsystems
   private Drive drive;
   @Getter private Vision vision;
+  private Intake intakePivot;
+  private RollerSystem intakeSpin;
 
   // Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
@@ -85,6 +99,18 @@ public class RobotContainer {
                 drive::getPose,
                 drive::getFieldVelocity,
                 new VisionIOLimelight(CameraInfo.LL_4));
+
+        intakePivot = new Intake(new IntakePivotIOReal());
+        intakeSpin =
+            new RollerSystem(
+                "intakeSpin",
+                new RollerSystemIOTalonFX(
+                    1,
+                    new CANBus("*"),
+                    40,
+                    InvertedValue.Clockwise_Positive,
+                    NeutralModeValue.Coast,
+                    1));
       }
       case SIM -> {
         drive =
@@ -96,6 +122,12 @@ public class RobotContainer {
                 new ModuleIOSim());
 
         vision = new Vision(drive::addVisionMeasurement, drive::getPose, drive::getFieldVelocity);
+
+        intakePivot = new Intake(new IntakePivotIOSim());
+
+        intakeSpin =
+            new RollerSystem(
+                "intakeSpin", new RollerSystemIOSim(DCMotor.getKrakenX44Foc(1), 1, 0.1));
       }
       case REPLAY -> {
         drive =
@@ -112,6 +144,10 @@ public class RobotContainer {
                 drive::getPose,
                 drive::getFieldVelocity,
                 new VisionIO() {});
+
+        intakePivot = new Intake(new IntakePivotIO() {});
+
+        intakeSpin = new RollerSystem("intakeSpin", new RollerSystemIO() {});
       }
     }
 

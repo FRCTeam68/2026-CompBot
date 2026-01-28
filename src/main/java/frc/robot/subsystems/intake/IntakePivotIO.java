@@ -6,7 +6,7 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface IntakePivotIO {
   @AutoLog
-  static class MotorTemplateIOInputs {
+  static class IntakePivotIOInputs {
     public boolean connected = false;
     public double positionRots = 0.0;
     public double velocityRotsPerSec = 0.0;
@@ -16,7 +16,7 @@ public interface IntakePivotIO {
     public double tempCelsius = 0.0;
   }
 
-  default void updateInputs(MotorTemplateIOInputs inputs) {}
+  default void updateInputs(IntakePivotIOInputs inputs) {}
 
   /**
    * Run motor at volts.

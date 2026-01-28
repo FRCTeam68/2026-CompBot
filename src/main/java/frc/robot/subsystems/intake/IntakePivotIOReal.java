@@ -101,7 +101,7 @@ public class IntakePivotIOReal implements IntakePivotIO {
   }
 
   @Override
-  public void updateInputs(MotorTemplateIOInputs inputs) {
+  public void updateInputs(IntakePivotIOInputs inputs) {
     inputs.connected =
         BaseStatusSignal.isAllGood(
             position, velocity, appliedVoltage, supplyCurrent, torqueCurrent);
