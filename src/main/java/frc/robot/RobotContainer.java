@@ -15,6 +15,7 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.commands.auton.AutonCommands;
 import frc.robot.commands.auton.AutonSequence;
 import frc.robot.commands.auton.AutonSequenceCenter;
+import frc.robot.commands.auton.AutonSequenceRightTrench;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.drive.GyroIO;
@@ -127,6 +128,7 @@ public class RobotContainer {
     autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
     autonChooser.addDefaultOption("NONE", null);
     autonChooser.addOption("Middle Depot Auto", new AutonSequenceCenter());
+    autonChooser.addOption("Right Trench Auto", new AutonSequenceRightTrench());
   }
 
   /** Use this method to define button -> command mappings. */
