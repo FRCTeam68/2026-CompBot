@@ -5,7 +5,7 @@ import frc.robot.FieldConstants.FieldType;
 
 public final class Constants {
   private static final Mode simType = Mode.SIM;
-  public static final FieldType fieldtype = FieldType.PRACTICE;
+  public static final FieldType fieldtype = FieldType.WELDED;
   public static final Boolean tuningMode = true;
   public static final Double loopPeriodSecs = 0.02;
   public static final Double warningTempCelsius = 60.0;
