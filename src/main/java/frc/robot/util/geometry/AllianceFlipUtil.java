@@ -1,4 +1,4 @@
-package frc.robot.util;
+package frc.robot.util.geometry;
 
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -41,7 +41,6 @@ public class AllianceFlipUtil {
   }
 
   public static Rotation3d apply(Rotation3d rotation) {
-    // TODO: make sure this works as expected
     return shouldFlip()
         ? switch (FieldConstants.symmetryType) {
           case Mirrored ->

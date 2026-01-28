@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.therekrab.autopilot.APConstraints;
@@ -16,7 +17,7 @@ import lombok.Builder;
 
 public final class DriveConstants {
   // Hardware Configuration
-  public static final CANBus canbus = new CANBus("rio");
+  public static final CANBus canBus = new CANBus("rio");
   public static final double trackWidthX = Units.inchesToMeters(22.5); // meters
   public static final double trackWidthY = Units.inchesToMeters(22.5); // meters
   public static final double driveReduction = 5.14;
@@ -27,17 +28,13 @@ public final class DriveConstants {
   private static final double moi = 1; // kilogram*meters^2
 
   // Control Configuration
-  // TODO: do we want to limit torque, stator, and or supply current
-  // public static final double driveTorqueCurrentLimit = 80; // amps
-  // public static final double driveSupplyCurrentLimit = 80; // amps
-  // public static final double turnSupplyCurrentLimit = 40; // amps
-  public static final double driveCurrentLimitAmps = 80; // amps
-  public static final double turnCurrentLimitAmps = 40; // amps
+  public static final double driveStatorCurrentLimitAmps = 80; // amps
+  public static final double turnStatorCurrentLimitAmps = 40; // amps
   public static final double maxLinearAcceleration = 22; // meters/second^2
   public static final double maxAngularAcceleration = 22;
 
   // Derived values (No need to change)
-  public static final double odometryFrequency = canbus.isNetworkFD() ? 250.0 : 100.0;
+  public static final double odometryFrequency = canBus.isNetworkFD() ? 250.0 : 100.0;
   public static final double driveBaseRadius = Math.hypot(trackWidthX / 2, trackWidthY / 2);
   public static final double maxAngularVelocity = maxLinearVelocity / driveBaseRadius;
   public static final Translation2d[] moduleTranslations = {
@@ -74,7 +71,7 @@ public final class DriveConstants {
               maxLinearVelocity,
               1,
               DCMotor.getKrakenX60Foc(1).withReduction(driveReduction),
-              driveCurrentLimitAmps,
+              driveStatorCurrentLimitAmps,
               1),
           moduleTranslations);
 
@@ -126,6 +123,8 @@ public final class DriveConstants {
 
   public static class GyroConstants {
     public static final int id = 50;
+    public static final MountPoseConfigs mountPose =
+        new MountPoseConfigs().withMountPoseYaw(0.0).withMountPosePitch(0.0).withMountPoseRoll(0.0);
   }
 
   @Builder

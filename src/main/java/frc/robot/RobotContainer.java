@@ -5,12 +5,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.auton.AutonCommands;
 import frc.robot.commands.auton.AutonSequence;
@@ -27,10 +29,11 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
-import frc.robot.subsystems.vision.VisionIOSim;
-import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.AutonUtil;
 import frc.robot.util.FollowPathUtil;
+import frc.robot.util.ShiftUtil;
+import frc.robot.util.geometry.AllianceFlipUtil;
+import lombok.Getter;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -42,7 +45,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private Drive drive;
-  private Vision vision;
+  @Getter private Vision vision;
 
   // Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
@@ -62,6 +65,9 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<AutonSequence> autonChooser;
+
+  private final Trigger hubTransitionWarningTrigger =
+      new Trigger(() -> ShiftUtil.hubToActiveWarning(3) || ShiftUtil.hubToInactiveWarning(3));
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -91,12 +97,7 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim());
 
-        vision =
-            new Vision(
-                drive::addVisionMeasurement,
-                drive::getPose,
-                drive::getFieldVelocity,
-                new VisionIOSim());
+        vision = new Vision(drive::addVisionMeasurement, drive::getPose, drive::getFieldVelocity);
       }
       case REPLAY -> {
         drive =
@@ -149,10 +150,15 @@ public class RobotContainer {
                         drive.setPose(
                             new Pose2d(
                                 drive.getPose().getTranslation(),
-                                AllianceFlipUtil.apply(new Rotation2d()))))
+                                AllianceFlipUtil.apply(Rotation2d.kZero))))
                 .ignoringDisable(true));
 
     driverController.start().onTrue(Commands.runOnce(() -> stopSubsystems()).ignoringDisable(true));
+
+    hubTransitionWarningTrigger.onTrue(
+        Commands.runOnce(() -> driverController.setRumble(RumbleType.kBothRumble, 1))
+            .andThen(Commands.waitSeconds(1))
+            .andThen(() -> driverController.setRumble(RumbleType.kBothRumble, 0)));
   }
 
   /**
@@ -169,19 +175,11 @@ public class RobotContainer {
     AutonUtil.loadPaths(autonChooser.get() != null ? autonChooser.get().getPathNames() : null);
   }
 
-  /**
-   * Throttle the number of processed frames. This is used to reduce the tempature of the camera.
-   * Outputs are not zeroed during skipped frames.
-   *
-   * <p>This is only applied to the Limelight 4.
-   */
-  public void setCameraThrottle(boolean throttleCamera) {
-    vision.setThrottle(throttleCamera);
-  }
-
-  /** Stops all subsystems and cancels all scheduled commands. */
+  /** Stops all subsystems, cancels all scheduled commands, and stops controller rumble. */
   public void stopSubsystems() {
     CommandScheduler.getInstance().cancelAll();
+    driverController.setRumble(RumbleType.kBothRumble, 0);
+    operatorController.setRumble(RumbleType.kBothRumble, 0);
     drive.stop();
   }
 

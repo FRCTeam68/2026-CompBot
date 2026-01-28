@@ -9,27 +9,29 @@ import java.util.function.DoubleBinaryOperator;
 public class VisionConstants {
   // Camera information
   public static enum CameraInfo {
-    // Intake camera pose - new Pose3d(new Translation3d(-0.425914, 0.0, 0.254286), new
+    // Intake camera pose (low) - new Pose3d(new Translation3d(-0.425914, 0.0, 0.254286), new
     //                      Rotation3d(0.0, Units.degreesToRadians(-15.0), Math.PI))
+    // Intake camera pose (high) - new Pose3d(new Translation3d(-0.401129, 0.0, 0.258806),
+    //                      new Rotation3d(0.0, Units.degreesToRadians(10.0), Math.PI))
     LL_2(
         "limelight-two",
         new Pose3d(
-            new Translation3d(-0.425914, 0.0, 0.254286),
-            new Rotation3d(0.0, Units.degreesToRadians(-35.0), Math.PI)),
+            new Translation3d(-0.401129, 0.0, 0.258806),
+            new Rotation3d(0.0, Units.degreesToRadians(10.0), Math.PI)),
         1.0,
         new double[] {}),
     LL_3G(
         "limelight-threeg",
         new Pose3d(
-            new Translation3d(-0.425914, 0.0, 0.254286),
-            new Rotation3d(0.0, Units.degreesToRadians(-15.0), Math.PI)),
+            new Translation3d(-0.401129, 0.0, 0.258806),
+            new Rotation3d(0.0, Units.degreesToRadians(10.0), Math.PI)),
         1.0,
         new double[] {}),
     LL_4(
         "limelight-four",
         new Pose3d(
-            new Translation3d(-0.425914, 0.0, 0.254286),
-            new Rotation3d(0.0, Units.degreesToRadians(-15.0), Math.PI)),
+            new Translation3d(-0.401129, 0.0, 0.258806),
+            new Rotation3d(0.0, Units.degreesToRadians(10.0), Math.PI)),
         1.0,
         new double[] {0, 100, 0, 100});
 

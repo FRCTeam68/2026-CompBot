@@ -1,4 +1,4 @@
-// Copyright (c) 2025 FRC 6328
+// Copyright (c) 2025-2026 Littleton Robotics
 // http://github.com/Mechanical-Advantage
 //
 // Use of this source code is governed by an MIT-style
@@ -10,6 +10,7 @@ package frc.robot.util;
 import edu.wpi.first.wpilibj.Timer;
 import org.littletonrobotics.junction.Logger;
 
+/** Utility class for logging code execution times. */
 public class LoggedTracer {
   private LoggedTracer() {}
 

@@ -5,11 +5,8 @@ import static frc.robot.util.PhoenixUtil.tryUntilOk;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.NeutralOut;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -40,13 +37,11 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
 
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true);
-  private final VelocityVoltage velocityOut = new VelocityVoltage(0).withEnableFOC(true);
-  private final PositionVoltage positionOut = new PositionVoltage(0).withEnableFOC(true);
   private final NeutralOut neutralOut = new NeutralOut();
 
   /**
    * @param id CAN id of motor.
-   * @param canbus CAN bus this device is on.
+   * @param canBus CAN bus this device is on.
    * @param currentLimitAmps Max supply current. Supply current is limited to 40 amps after 1
    *     second.
    * @param invertedValue Positive direction of the motor when looking at the face of the motor.
@@ -56,19 +51,17 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
    */
   public RollerSystemIOTalonFX(
       int id,
-      CANBus canbus,
+      CANBus canBus,
       int currentLimitAmps,
       InvertedValue invertedValue,
       NeutralModeValue neutralModeValue,
       double reduction) {
-    talon = new TalonFX(id, canbus);
+    talon = new TalonFX(id, canBus);
 
-    // TODO: should we intially set pid to zero. need to do this if they are saved on the device.
     // Configure Motor
     config.MotorOutput.Inverted = invertedValue;
     config.MotorOutput.NeutralMode = neutralModeValue;
     // Current limits
-    // TODO: Should we limit supply or torque current?
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = currentLimitAmps;
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
@@ -91,13 +84,7 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
                 50, position, velocity, appliedVoltage, supplyCurrent, torqueCurrent));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon));
     PhoenixUtil.registerSignals(
-        (canbus.getName() == "rio") ? false : true,
-        position,
-        velocity,
-        appliedVoltage,
-        supplyCurrent,
-        torqueCurrent,
-        tempCelsius);
+        canBus, position, velocity, appliedVoltage, supplyCurrent, torqueCurrent, tempCelsius);
   }
 
   @Override
@@ -119,27 +106,7 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   }
 
   @Override
-  public void runVelocity(double velocity) {
-    talon.setControl(velocityOut.withVelocity(velocity));
-  }
-
-  @Override
-  public void runPosition(double rotations) {
-    talon.setControl(positionOut.withPosition(rotations));
-  }
-
-  @Override
   public void stop() {
     talon.setControl(neutralOut);
-  }
-
-  @Override
-  public void setPosition(double rotations) {
-    talon.setPosition(rotations);
-  }
-
-  @Override
-  public void setPID(Slot0Configs newConfig) {
-    tryUntilOk(5, () -> talon.getConfigurator().apply(newConfig, 0.25));
   }
 }

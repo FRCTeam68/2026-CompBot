@@ -1,6 +1,6 @@
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2026.1.1"
+    id "edu.wpi.first.GradleRIO" version "2026.2.1"
     id "com.peterabeles.gversion" version "1.10"
     id "com.diffplug.spotless" version "6.25.0"
     id "io.freefair.lombok" version "8.4"
@@ -36,11 +36,10 @@ deploy {
                     jvmArgs.add("-XX:MaxGCPauseMillis=50")
 
                     // The options below may improve performance, but should only be enabled on the RIO 2
-                    //
-                    // final MAX_JAVA_HEAP_SIZE_MB = 100;
-                    // jvmArgs.add("-Xmx" + MAX_JAVA_HEAP_SIZE_MB + "M")
-                    // jvmArgs.add("-Xms" + MAX_JAVA_HEAP_SIZE_MB + "M")
-                    // jvmArgs.add("-XX:+AlwaysPreTouch")
+                    final MAX_JAVA_HEAP_SIZE_MB = 100;
+                    jvmArgs.add("-Xmx" + MAX_JAVA_HEAP_SIZE_MB + "M")
+                    jvmArgs.add("-Xms" + MAX_JAVA_HEAP_SIZE_MB + "M")
+                    jvmArgs.add("-XX:+AlwaysPreTouch")
 
                     // VisualVM connection
                     //
@@ -196,8 +195,8 @@ project.compileJava.dependsOn(spotlessApply)
 spotless {
     java {
         target fileTree(".") {
-            include "**/*.java"
-            exclude "**/build/**", "**/build-*/**"
+            include "src/**/*.java"
+            exclude "**/build/**", "**/build-*/**", "src/main/java/frc/robot/BuildConstants.java"
         }
         toggleOffOn()
         googleJavaFormat()
@@ -218,7 +217,7 @@ spotless {
     json {
         target fileTree(".") {
             include "**/*.json"
-            exclude "**/build/**", "**/build-*/**"
+            exclude "**/build/**", "**/build-*/**", ".wpilib/**"
         }
         gson().indentWithSpaces(2)
     }

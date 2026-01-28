@@ -17,7 +17,7 @@ public interface ModuleIO {
     public double driveTempCelsius = 0.0;
 
     public boolean turnConnected = false;
-    public Rotation2d turnPosition = new Rotation2d();
+    public Rotation2d turnPosition = Rotation2d.kZero;
     public double turnVelocityRadPerSec = 0.0;
     public double turnAppliedVolts = 0.0;
     public double turnSupplyCurrentAmps = 0.0;
@@ -26,7 +26,7 @@ public interface ModuleIO {
     public boolean turnEncoderSyncStickyFault = true;
 
     public boolean turnEncoderConnected = false;
-    public Rotation2d turnAbsolutePosition = new Rotation2d();
+    public Rotation2d turnAbsolutePosition = Rotation2d.kZero;
     public MagnetHealthValue turnEncoderMagnetHealth = MagnetHealthValue.Magnet_Invalid;
 
     public double[] odometryTimestamps = new double[] {};
@@ -56,6 +56,5 @@ public interface ModuleIO {
   public default void setTurnPID(Slot0Configs config) {}
 
   /** Set brake mode on drive motor */
-  // TODO: do we want this?
   public default void setBrakeMode(boolean enabled) {}
 }

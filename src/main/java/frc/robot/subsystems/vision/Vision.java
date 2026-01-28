@@ -25,7 +25,6 @@ import frc.robot.Constants.Mode;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
-import frc.robot.util.LoggedTunableNumber;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -44,11 +43,6 @@ public class Vision extends SubsystemBase {
   private final Alert[] disconnectedAlerts;
 
   @Getter private Optional<Translation2d> targetNote = Optional.empty();
-
-  // TODO: this currently isn't implemented. We need to see if it is needed.
-  @SuppressWarnings("unused")
-  private LoggedTunableNumber targetRetainSeconds =
-      new LoggedTunableNumber("Vision/TargetRetainSeconds", 0.5);
 
   public Vision(
       VisionConsumer consumer,
@@ -81,7 +75,7 @@ public class Vision extends SubsystemBase {
    * @param cameraIndex The index of the camera to use.
    */
   public Rotation2d getTargetX(int cameraIndex) {
-    return poseSupplier.get().getRotation().minus(inputs[cameraIndex].latestTargetObservation.tx());
+    return inputs[cameraIndex].latestTargetObservation.tx();
   }
 
   public Pose2d getTagPose(int cameraIndex) {
@@ -89,15 +83,15 @@ public class Vision extends SubsystemBase {
 
     if (inputs[cameraIndex].tagIds.length > 0) {
       int tagId = inputs[cameraIndex].tagIds[0];
-      var tagPose = FieldConstants.defaultAprilTagLayout.getTagPose(tagId);
+      var tagPose = FieldConstants.defaultAprilTagType.getLayout().getTagPose(tagId);
 
       if (tagPose.isPresent()) {
         tagPose2d = tagPose.get().toPose2d();
       } else {
-        tagPose2d = new Pose2d();
+        tagPose2d = Pose2d.kZero;
       }
     } else {
-      tagPose2d = new Pose2d();
+      tagPose2d = Pose2d.kZero;
     }
     return tagPose2d;
   }
@@ -105,12 +99,10 @@ public class Vision extends SubsystemBase {
   /**
    * Throttle the number of processed frames. This is used to reduce the tempature of the camera.
    * Outputs are not zeroed during skipped frames.
-   *
-   * <p>This is only applied to the Limelight 4.
    */
-  public void setThrottle(boolean throttleCamera) {
+  public void throttleLL4(boolean shouldThrottle) {
     for (int i = 0; i < io.length; i++) {
-      if (cameraInfo[i].name == "limelight-four") io[i].setThrottle(throttleCamera ? 200 : 0);
+      if (cameraInfo[i].name == "limelight-four") io[i].setThrottle(shouldThrottle ? 200 : 0);
     }
   }
 
@@ -146,7 +138,7 @@ public class Vision extends SubsystemBase {
 
       // Add tag poses
       for (int tagId : inputs[cameraIndex].tagIds) {
-        var tagPose = FieldConstants.defaultAprilTagLayout.getTagPose(tagId);
+        var tagPose = FieldConstants.defaultAprilTagType.getLayout().getTagPose(tagId);
         if (tagPose.isPresent()) {
           tagPoses.add(tagPose.get());
         }
@@ -223,28 +215,27 @@ public class Vision extends SubsystemBase {
             VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
       }
 
-      // Log camera datadata
+      // Log camera metadata
       Logger.recordOutput(
-          "Vision/" + cameraInfo[cameraIndex].name + "/TagPoses",
-          tagPoses.toArray(new Pose3d[tagPoses.size()]));
+          "Vision/" + cameraInfo[cameraIndex].name + "/TagPoses", tagPoses.toArray(new Pose3d[0]));
       Logger.recordOutput(
           "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag1/RobotPosesAll",
-          robotPosesMT1.toArray(new Pose3d[robotPosesMT1.size()]));
+          robotPosesMT1.toArray(new Pose3d[0]));
       Logger.recordOutput(
           "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag2/RobotPosesAll",
-          robotPosesMT2.toArray(new Pose3d[robotPosesMT2.size()]));
+          robotPosesMT2.toArray(new Pose3d[0]));
       Logger.recordOutput(
           "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag1/RobotPosesAccepted",
-          robotPosesAcceptedMT1.toArray(new Pose3d[robotPosesAcceptedMT1.size()]));
+          robotPosesAcceptedMT1.toArray(new Pose3d[0]));
       Logger.recordOutput(
           "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag1/RobotPosesRejected",
-          robotPosesRejectedMT1.toArray(new Pose3d[robotPosesRejectedMT1.size()]));
+          robotPosesRejectedMT1.toArray(new Pose3d[0]));
       Logger.recordOutput(
           "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag2/RobotPosesAccepted",
-          robotPosesAcceptedMT2.toArray(new Pose3d[robotPosesAcceptedMT2.size()]));
+          robotPosesAcceptedMT2.toArray(new Pose3d[0]));
       Logger.recordOutput(
           "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag2/RobotPosesRejected",
-          robotPosesRejectedMT2.toArray(new Pose3d[robotPosesRejectedMT2.size()]));
+          robotPosesRejectedMT2.toArray(new Pose3d[0]));
       allTagPoses.addAll(tagPoses);
       allRobotPoses.addAll(robotPosesMT1);
       allRobotPoses.addAll(robotPosesMT2);
@@ -260,7 +251,7 @@ public class Vision extends SubsystemBase {
             new Pose3d(poseSupplier.get())
                 .transformBy(
                     new Transform3d(
-                        new Translation3d(),
+                        Translation3d.kZero,
                         new Rotation3d(
                             0.0,
                             0.0,
@@ -276,7 +267,7 @@ public class Vision extends SubsystemBase {
                 // Object specific distance and height
                 .transformBy(
                     switch (observation.type()) {
-                      case ALGAE -> new Transform3d();
+                      case ALGAE -> Transform3d.kZero;
 
                       case NOTE ->
                           new Transform3d(
@@ -285,17 +276,17 @@ public class Vision extends SubsystemBase {
                                       observation.widthPixels(), observation.heightPixels()),
                                   0.0,
                                   Units.inchesToMeters(1)),
-                              new Rotation3d());
+                              Rotation3d.kZero);
                     }));
       }
 
       Logger.recordOutput(
           "Vision/" + cameraInfo[cameraIndex].name + "/ObjectDetection/NotePoses",
-          objectPosesNote.toArray(new Pose3d[objectPosesNote.size()]));
+          objectPosesNote.toArray(new Pose3d[0]));
       allObjectPosesNote.addAll(objectPosesNote);
     }
 
-    // calculate target object
+    // Calculate target object
     List<Pose2d> allObjectPosesNotePose2d = new LinkedList<>();
     for (Pose3d objectPose3d : allObjectPosesNote) {
       allObjectPosesNotePose2d.add(objectPose3d.toPose2d());
@@ -312,25 +303,19 @@ public class Vision extends SubsystemBase {
         };
 
     // Log summary data
+    Logger.recordOutput("Vision/Summary/TagPoses", allTagPoses.toArray(new Pose3d[0]));
+    Logger.recordOutput("Vision/Summary/RobotPosesAll", allRobotPoses.toArray(new Pose3d[0]));
     Logger.recordOutput(
-        "Vision/Summary/TagPoses", allTagPoses.toArray(new Pose3d[allTagPoses.size()]));
+        "Vision/Summary/RobotPosesAccepted", allRobotPosesAccepted.toArray(new Pose3d[0]));
     Logger.recordOutput(
-        "Vision/Summary/RobotPosesAll", allRobotPoses.toArray(new Pose3d[allRobotPoses.size()]));
-    Logger.recordOutput(
-        "Vision/Summary/RobotPosesAccepted",
-        allRobotPosesAccepted.toArray(new Pose3d[allRobotPosesAccepted.size()]));
-    Logger.recordOutput(
-        "Vision/Summary/RobotPosesRejected",
-        allRobotPosesRejected.toArray(new Pose3d[allRobotPosesRejected.size()]));
-    Logger.recordOutput(
-        "Vision/Summary/NotePosesAll",
-        allObjectPosesNote.toArray(new Pose3d[allObjectPosesNote.size()]));
+        "Vision/Summary/RobotPosesRejected", allRobotPosesRejected.toArray(new Pose3d[0]));
+    Logger.recordOutput("Vision/Summary/NotePosesAll", allObjectPosesNote.toArray(new Pose3d[0]));
     Logger.recordOutput(
         "Vision/Summary/NoteTarget",
         targetNote.isPresent()
             ? new Pose3d[] {
-              new Pose3d(new Pose2d(targetNote.get(), new Rotation2d()))
-                  .transformBy(new Transform3d(0.0, 0.0, Units.inchesToMeters(1), new Rotation3d()))
+              new Pose3d(new Pose2d(targetNote.get(), Rotation2d.kZero))
+                  .transformBy(new Transform3d(0.0, 0.0, Units.inchesToMeters(1), Rotation3d.kZero))
             }
             : new Pose3d[] {});
   }
