@@ -3,6 +3,7 @@ package frc.robot;
 import com.therekrab.autopilot.APTarget;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -34,7 +35,6 @@ import frc.robot.util.AutonUtil;
 import frc.robot.util.FollowPathUtil;
 import frc.robot.util.ShiftUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
-import frc.robot.util.geometry.GeomUtil;
 import lombok.Getter;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -163,7 +163,10 @@ public class RobotContainer {
                 drive,
                 () ->
                     new APTarget(
-                        GeomUtil.toPose2d(FieldConstants.Hub.topCenterPoint.toTranslation2d()))));
+                            FieldConstants.Hub.nearFace.transformBy(
+                                new Transform2d(
+                                    Constants.RobotSize.width / 2, 0.0, Rotation2d.kPi)))
+                        .withEntryAngle(Rotation2d.fromDegrees(0))));
 
     hubTransitionWarningTrigger.onTrue(
         Commands.runOnce(() -> driverController.setRumble(RumbleType.kBothRumble, 1))

@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.FieldConstants.FieldType;
 
@@ -27,5 +28,11 @@ public final class Constants {
 
     /** Replaying from a log file. */
     REPLAY
+  }
+
+  public static final class RobotSize {
+    public static final double width =
+        Units.inchesToMeters(27 + 5 + 5); // 27" + 5" bumpers both sides
+    public static final double length = Units.inchesToMeters(27 + 5 + 5);
   }
 }
