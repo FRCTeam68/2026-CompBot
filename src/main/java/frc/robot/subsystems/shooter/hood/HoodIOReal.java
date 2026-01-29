@@ -15,6 +15,7 @@ import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -28,10 +29,15 @@ import frc.robot.util.PhoenixUtil;
 import lombok.Getter;
 
 public class HoodIOReal implements HoodIO {
-  @Getter private static final double reduction = 1;
+ private static final double rotorToSensorReduction = (48.0/12.0)*(16.0/40.0);
+private static final double sensorToMechanismReduction = (295.0/30.0);
+ @Getter private static final double reduction = rotorToSensorReduction*sensorToMechanismReduction;
+ private static final CANBus canBus = new CANBus("rio");
+ private static final int cancoderID = 1;
 
   // Hardware
   private final TalonFX talon;
+  private final CANcoder cancoder;
 
   // Configuration
   private final TalonFXConfiguration config = new TalonFXConfiguration();
@@ -61,8 +67,8 @@ public class HoodIOReal implements HoodIO {
 
   public HoodIOReal() {
     // TEMPLATE: Set CAN id and bus
-    talon = new TalonFX(0, new CANBus("rio"));
-
+    talon = new TalonFX(0, canBus);
+cancoder = new CANcoder(cancoderID, canBus);
     // Configure Motor
     // TEMPLATE: Set configuration
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -73,7 +79,9 @@ public class HoodIOReal implements HoodIO {
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
     // Feedback
-    config.Feedback.SensorToMechanismRatio = reduction;
+    config.Feedback.FeedbackRemoteSensorID = 
+    config.Feedback.RotorToSensorRatio = rotorToSensorReduction;
+    config.Feedback.SensorToMechanismRatio = sensorToMechanismReduction;
     tryUntilOk(5, () -> talon.getConfigurator().apply(config, 0.25));
 
     position = talon.getPosition();
@@ -91,7 +99,7 @@ public class HoodIOReal implements HoodIO {
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon));
     PhoenixUtil.registerSignals(
         // TEMPLATE: Set whether motor is attached to a CANivore
-        new CANBus("rio"),
+        canBus,
         position,
         velocity,
         appliedVoltage,
