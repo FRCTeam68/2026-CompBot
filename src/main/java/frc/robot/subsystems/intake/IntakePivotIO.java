@@ -2,6 +2,7 @@ package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
+import com.ctre.phoenix6.signals.MagnetHealthValue;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface IntakePivotIO {
@@ -14,6 +15,7 @@ public interface IntakePivotIO {
     public double supplyCurrentAmps = 0.0;
     public double torqueCurrentAmps = 0.0;
     public double tempCelsius = 0.0;
+    public MagnetHealthValue magnetHealth = MagnetHealthValue.Magnet_Invalid;
   }
 
   default void updateInputs(IntakePivotIOInputs inputs) {}
