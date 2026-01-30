@@ -17,11 +17,14 @@ import com.ctre.phoenix6.signals.StripTypeValue;
 import com.ctre.phoenix6.signals.VBatOutputModeValue;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
+import frc.robot.util.CanBusUtil;
 import frc.robot.util.PhoenixUtil;
 
 public class LightsIOCANdle implements LightsIO {
+  private final CANBus canBus = CanBusUtil.getRioBus();
+
   // Hardware
-  private final CANdle candle = new CANdle(60, new CANBus("rio"));
+  private final CANdle candle = new CANdle(60, canBus);
 
   // Config
   private final CANdleConfiguration config = new CANdleConfiguration();
@@ -46,7 +49,7 @@ public class LightsIOCANdle implements LightsIO {
 
     tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(50.0, outputCurrent));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(candle));
-    PhoenixUtil.registerSignals(new CANBus("rio"), outputCurrent, tempCelsius);
+    PhoenixUtil.registerSignals(canBus, outputCurrent, tempCelsius);
 
     // clear animation slots
     for (int i = 0; i < candle.getMaxSimultaneousAnimationCount().getValue(); i++) {
