@@ -164,8 +164,9 @@ public class RobotContainer {
                 drive,
                 () ->
                     new APTarget(
-                        (FieldConstants.Hub.nearFace.transformBy(
-                            new Transform2d(2.0, 0.0, Rotation2d.kPi))))));
+                        AllianceFlipUtil.apply(
+                            FieldConstants.Hub.nearFace.transformBy(
+                                new Transform2d(2.0, 0.0, Rotation2d.kPi))))));
 
     hubTransitionWarningTrigger.onTrue(
         Commands.runOnce(() -> driverController.setRumble(RumbleType.kBothRumble, 1))
