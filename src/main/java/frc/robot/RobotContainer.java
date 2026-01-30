@@ -34,7 +34,6 @@ import frc.robot.util.AutonUtil;
 import frc.robot.util.FollowPathUtil;
 import frc.robot.util.ShiftUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
-import frc.robot.util.geometry.GeomUtil;
 import lombok.Getter;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -160,10 +159,7 @@ public class RobotContainer {
         .povUp()
         .onTrue(
             DriveCommands.autopilotDriveToPose(
-                drive,
-                () ->
-                    new APTarget(
-                        GeomUtil.toPose2d(FieldConstants.Hub.topCenterPoint.toTranslation2d()))));
+                drive, () -> new APTarget((FieldConstants.Hub.nearFace))));
 
     hubTransitionWarningTrigger.onTrue(
         Commands.runOnce(() -> driverController.setRumble(RumbleType.kBothRumble, 1))
