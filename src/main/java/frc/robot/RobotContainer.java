@@ -131,7 +131,8 @@ public class RobotContainer {
     autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
     autonChooser.addDefaultOption("NONE", null);
     autonChooser.addOption("Middle Depot Auto", new AutonSequenceCenter());
-    autonChooser.addOption("Right Trench Auto", new AutonSequenceRightTrench());
+    autonChooser.addOption("Right Trench Auto Climber", new AutonSequenceRightTrench(false));
+    autonChooser.addOption("Right Trench Auto Feeder", new AutonSequenceRightTrench(true));
   }
 
   /** Use this method to define button -> command mappings. */
