@@ -3,6 +3,7 @@ package frc.robot;
 import com.therekrab.autopilot.APTarget;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -159,7 +160,11 @@ public class RobotContainer {
         .povUp()
         .onTrue(
             DriveCommands.autopilotDriveToPose(
-                drive, () -> new APTarget((FieldConstants.Hub.nearFace))));
+                drive,
+                () ->
+                    new APTarget(
+                        (FieldConstants.Hub.nearFace.transformBy(
+                            new Transform2d(2.0, 0.0, Rotation2d.kPi))))));
 
     hubTransitionWarningTrigger.onTrue(
         Commands.runOnce(() -> driverController.setRumble(RumbleType.kBothRumble, 1))
