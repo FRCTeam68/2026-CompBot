@@ -21,7 +21,7 @@ import frc.robot.util.PhoenixUtil;
 
 public class LightsIOCANdle implements LightsIO {
   // Hardware
-  private final CANdle candle = new CANdle(60, new CANBus("rio"));
+  private final CANdle candle = new CANdle(60, new CANBus("DRIVEbus"));
 
   // Config
   private final CANdleConfiguration config = new CANdleConfiguration();
@@ -46,7 +46,7 @@ public class LightsIOCANdle implements LightsIO {
 
     tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(50.0, outputCurrent));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(candle));
-    PhoenixUtil.registerSignals(new CANBus("rio"), outputCurrent, tempCelsius);
+    PhoenixUtil.registerSignals(new CANBus("DRIVEbus"), outputCurrent, tempCelsius);
 
     // clear animation slots
     for (int i = 0; i < candle.getMaxSimultaneousAnimationCount().getValue(); i++) {

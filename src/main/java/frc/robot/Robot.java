@@ -48,7 +48,7 @@ public class Robot extends LoggedRobot {
   private final Timer canErrorTimer = new Timer();
   private final Timer rioErrorTimer = new Timer();
   private final Timer disabledTimer = new Timer();
-  private final CanBusReader rioReader = new CanBusReader(new CANBus("rio"));
+  private final CanBusReader rioReader = new CanBusReader(new CANBus("DRIVEbus"));
 
   private final Alert canErrorAlert =
       new Alert("CAN errors detected, robot may not be controllable.", AlertType.kError);

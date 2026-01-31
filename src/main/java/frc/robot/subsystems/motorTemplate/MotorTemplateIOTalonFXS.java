@@ -63,7 +63,7 @@ public class MotorTemplateIOTalonFXS implements MotorTemplateIO {
 
   public MotorTemplateIOTalonFXS() {
     // TEMPLATE: Set CAN id and bus
-    talon = new TalonFXS(0, new CANBus("rio"));
+    talon = new TalonFXS(0, new CANBus("DRIVEbus"));
 
     // Configure Motor
     config.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
@@ -97,7 +97,7 @@ public class MotorTemplateIOTalonFXS implements MotorTemplateIO {
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon));
     PhoenixUtil.registerSignals(
         // TEMPLATE: Set whether motor is attached to a CANivore
-        new CANBus("rio"),
+        new CANBus("DRIVEbus"),
         position,
         velocity,
         appliedVoltage,
