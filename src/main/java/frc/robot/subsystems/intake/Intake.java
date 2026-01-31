@@ -12,6 +12,8 @@ import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake {
+  @Getter private static final double packaged = 0;
+  @Getter private static final double extended = 0.1;
   private final IntakePivotIO io;
   protected final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
   private final Alert disconnectedAlert =
@@ -35,6 +37,7 @@ public class Intake {
   @Getter private double setpoint = 0.0;
 
   @Getter private ControlMode mode = ControlMode.Neutral;
+  public double getPosition;
 
   public Intake(IntakePivotIO io) {
     this.io = io;
