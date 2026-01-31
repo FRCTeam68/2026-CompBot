@@ -1,7 +1,9 @@
 package frc.robot;
 
+import com.therekrab.autopilot.APTarget;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -129,7 +131,8 @@ public class RobotContainer {
     autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
     autonChooser.addDefaultOption("NONE", null);
     autonChooser.addOption("Middle Depot Auto", new AutonSequenceCenter());
-    autonChooser.addOption("Right Trench Auto", new AutonSequenceRightTrench());
+    autonChooser.addOption("Right Trench Auto Climber", new AutonSequenceRightTrench(false));
+    autonChooser.addOption("Right Trench Auto Feeder", new AutonSequenceRightTrench(true));
   }
 
   /** Use this method to define button -> command mappings. */
@@ -154,6 +157,16 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     driverController.start().onTrue(Commands.runOnce(() -> stopSubsystems()).ignoringDisable(true));
+    driverController
+        .povUp()
+        .onTrue(
+            DriveCommands.autopilotDriveToPose(
+                drive,
+                () ->
+                    new APTarget(
+                        AllianceFlipUtil.apply(
+                            FieldConstants.Hub.nearFace.transformBy(
+                                new Transform2d(2.0, 0.0, Rotation2d.kPi))))));
 
     hubTransitionWarningTrigger.onTrue(
         Commands.runOnce(() -> driverController.setRumble(RumbleType.kBothRumble, 1))

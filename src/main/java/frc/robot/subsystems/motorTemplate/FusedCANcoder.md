@@ -27,7 +27,7 @@ private final CANcoderConfiguration cancoderConfig = new CANcoderConfiguration()
 // Status signals
 private final StatusSignal<MagnetHealthValue> magnetHealth;
 
-cancoder = new CANcoder(0, new CANBus("rio"));
+cancoder = new CANcoder(0, new CANBus("DRIVEbus"));
 
 // Feedback
 talonConfig.Feedback.FeedbackRemoteSensorID = cancoder.getDeviceID();
