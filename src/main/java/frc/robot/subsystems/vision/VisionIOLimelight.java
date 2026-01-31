@@ -28,6 +28,8 @@ public class VisionIOLimelight implements VisionIO {
   private final DoublePublisher pipelinePublisher;
   private final IntegerSubscriber pipelineSubscriber;
   private final DoubleArraySubscriber hardwareSubscriber;
+  private final DoubleArrayPublisher rewindPublisher;
+  private final DoubleArraySubscriber rewindSubscriber;
   private final DoubleSubscriber latencySubscriber;
   private final DoubleSubscriber txSubscriber;
   private final DoubleSubscriber tySubscriber;
@@ -52,6 +54,9 @@ public class VisionIOLimelight implements VisionIO {
     pipelineSubscriber = table.getIntegerTopic("getpipe").subscribe(0);
     hardwareSubscriber =
         table.getDoubleArrayTopic("hw").subscribe(new double[] {0.0, 0.0, 0.0, 0.0});
+    rewindPublisher = table.getDoubleArrayTopic("capture_rewind").publish();
+    rewindSubscriber =
+        table.getDoubleArrayTopic("capture_rewind").subscribe(new double[] {0.0, 0.0});
     latencySubscriber = table.getDoubleTopic("tl").subscribe(0.0);
     txSubscriber = table.getDoubleTopic("tx").subscribe(0.0);
     tySubscriber = table.getDoubleTopic("ty").subscribe(0.0);
@@ -213,6 +218,11 @@ public class VisionIOLimelight implements VisionIO {
   @Override
   public void setThrottle(int skippedFrames) {
     throttlePublisher.accept(skippedFrames);
+  }
+
+  @Override
+  public void saveRewind() {
+    rewindPublisher.accept(new double[] {rewindSubscriber.get()[0] + 1.0, 165});
   }
 
   /** Parses the 3D pose from a Limelight botpose array. */

@@ -19,12 +19,17 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
+import frc.robot.util.ElasticUtil;
+import frc.robot.util.ElasticUtil.Notification;
+import frc.robot.util.ElasticUtil.NotificationLevel;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -67,6 +72,10 @@ public class Vision extends SubsystemBase {
       disconnectedAlerts[i] =
           new Alert("Camera" + cameraInfo[i].name + " is disconnected.", AlertType.kError);
     }
+
+    // Initialize capture rewind dashboard button
+    SmartDashboard.putData(
+        "Vision/CaptureRewind", Commands.runOnce(() -> saveRewind()).ignoringDisable(true));
   }
 
   /**
@@ -98,12 +107,23 @@ public class Vision extends SubsystemBase {
 
   /**
    * Throttle the number of processed frames. This is used to reduce the tempature of the camera.
-   * Outputs are not zeroed during skipped frames.
+   * Outputs are not zeroed during skipped frames. This is only funtional on the Limelight 4.
    */
   public void throttleLL4(boolean shouldThrottle) {
     for (int i = 0; i < io.length; i++) {
-      if (cameraInfo[i].name == "limelight-four") io[i].setThrottle(shouldThrottle ? 200 : 0);
+      if (cameraInfo[i].name.startsWith("limelight-four"))
+        io[i].setThrottle(shouldThrottle ? 200 : 0);
     }
+  }
+
+  /** Save Limelight 4 rewind to disc. This is only functional on the Limelight 4. */
+  public void saveRewind() {
+    for (int i = 0; i < io.length; i++) {
+      if (cameraInfo[i].name.startsWith("limelight-four")) io[i].saveRewind();
+    }
+    ElasticUtil.sendNotification(
+        new Notification(
+            NotificationLevel.INFO, "Rewind Saved", "Saved Limelight 4 rewind to disc."));
   }
 
   @Override

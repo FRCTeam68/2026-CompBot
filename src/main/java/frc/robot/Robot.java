@@ -241,10 +241,12 @@ public class Robot extends LoggedRobot {
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
-    // Throttle LL4 to reduce heat buildup
-    robotContainer.getVision().throttleLL4(true);
-
     robotContainer.stopSubsystems();
+
+    // Save Limelight 4 rewind when the robot disables at the end of a real match.
+    if (DriverStation.isFMSAttached()
+        && !DriverStation.isAutonomous()
+        && DriverStation.getMatchTime() == 0) robotContainer.getVision().saveRewind();
   }
 
   /** This function is called periodically when disabled. */
@@ -260,9 +262,6 @@ public class Robot extends LoggedRobot {
   /** This function is called once when the robot is enabled in any mode. */
   @Override
   public void disabledExit() {
-    // Disable LL4 throttling when the robot enables
-    robotContainer.getVision().throttleLL4(false);
-
     // This must be done here to reset time for repeated practice matches
     ShiftUtil.seedMatchTime();
   }
