@@ -41,12 +41,14 @@ public class HoodIOSim implements HoodIO {
 
     sim.update(Constants.loopPeriodSecs);
 
-    inputs.connected = true;
-    inputs.positionRots = sim.getAngularPositionRotations();
-    inputs.velocityRotsPerSec = sim.getAngularVelocityRPM() / 60.0;
+    inputs.motorConnected = true;
+    inputs.cancoderConnected = true;
+    inputs.positionElvation = sim.getAngularPositionRotations() * 360.0;
+    inputs.velocityDegPerSec = sim.getAngularVelocityRPM() / 60.0 * 360.0;
     inputs.appliedVoltage = appliedVoltage;
     inputs.supplyCurrentAmps = sim.getCurrentDrawAmps();
     inputs.torqueCurrentAmps = sim.getCurrentDrawAmps() * 12.0 / appliedVoltage;
+    inputs.absolutePosition = sim.getAngularPositionRotations();
   }
 
   @Override
@@ -59,14 +61,14 @@ public class HoodIOSim implements HoodIO {
   public void runVelocity(double velocity, int slot) {
     mode = ControlMode.Velocity;
     controller.setPID(slotConfigs[slot].kP, slotConfigs[slot].kI, slotConfigs[slot].kD);
-    controller.setSetpoint(velocity);
+    controller.setSetpoint(velocity / 360.0);
   }
 
   @Override
   public void runPosition(double position, int slot) {
     mode = ControlMode.Position;
     controller.setPID(slotConfigs[slot].kP, slotConfigs[slot].kI, slotConfigs[slot].kD);
-    controller.setSetpoint(position);
+    controller.setSetpoint(position / 360.0);
   }
 
   @Override

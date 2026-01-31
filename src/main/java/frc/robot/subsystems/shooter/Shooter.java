@@ -1,6 +1,8 @@
 package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -24,9 +26,31 @@ public class Shooter {
   protected final FlyWheelIOInputsAutoLogged flywheelinputs = new FlyWheelIOInputsAutoLogged();
   protected final HoodIOInputsAutoLogged hoodinputs = new HoodIOInputsAutoLogged();
   protected final TurretIOInputsAutoLogged turretinputs = new TurretIOInputsAutoLogged();
-  private final Alert disconnectedAlert =
-      new Alert("Template motor disconnected!", AlertType.kError);
-  private final Alert tempAlert = new Alert("Template motor is too hot.", AlertType.kWarning);
+  private final Alert flywheelLeaderDisconnectedAlert =
+      new Alert("Flywheel(left) disconnected!", AlertType.kError);
+  private final Alert flywheelFollowerDisconnectedAlert =
+      new Alert("Flywheel(right) disconnected!", AlertType.kError);
+  private final Alert hoodMotorDisconnectedAlert =
+      new Alert("Hood motor disconnected!", AlertType.kError);
+  private final Alert hoodCancoderDisconnectedAlert =
+      new Alert("Hood cancoder disconnected!", AlertType.kError);
+  private final Alert turretMotorDisconnectedAlert =
+      new Alert("Turret motor disconnected!", AlertType.kError);
+
+  private final Alert flywheelLeaderTempAlert =
+      new Alert("Flywheel(left) is too hot.", AlertType.kWarning);
+  private final Alert flywheelFollowerTempAlert =
+      new Alert("Flywheel(right) is too hot.", AlertType.kWarning);
+  private final Alert hoodMotorTempAlert = new Alert("Hood motor is too hot.", AlertType.kWarning);
+  private final Alert hoodCancoderTempAlert =
+      new Alert("Hood cancoder is too hot.", AlertType.kWarning);
+  private final Alert turretMotorTempAlert =
+      new Alert("Turret motor is too hot.", AlertType.kWarning);
+  private final Debouncer flywheelLeaderDebouncer = new Debouncer(0.5, DebounceType.kRising);
+  private final Debouncer flywheelFollowerDebouncer = new Debouncer(0.5, DebounceType.kRising);
+  private final Debouncer hoodMotorDebouncer = new Debouncer(0.5, DebounceType.kRising);
+  private final Debouncer hoodCancoderDebouncer = new Debouncer(0.5, DebounceType.kRising);
+  private final Debouncer turretMotorDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
   private LoggedTunableNumber kP0 = new LoggedTunableNumber("MotorTemplate/Slot0/kP", 0);
   private LoggedTunableNumber kD0 = new LoggedTunableNumber("MotorTemplate/Slot0/kD", 0);
@@ -56,18 +80,25 @@ public class Shooter {
   public void periodic() {
     flywheelIO.updateInputs(flywheelinputs);
     Logger.processInputs("Flywheel", flywheelinputs);
-    disconnectedAlert.set(!flywheelinputs.connected);
-    tempAlert.set(flywheelinputs.tempCelsius > Constants.warningTempCelsius);
+    flywheelLeaderDisconnectedAlert.set(
+        !flywheelLeaderDebouncer.calculate(flywheelinputs.connected));
+    flywheelFollowerDisconnectedAlert.set(
+        !flywheelFollowerDebouncer.calculate(flywheelinputs.connected));
+    flywheelLeaderTempAlert.set(flywheelinputs.tempCelsius > Constants.warningTempCelsius);
+    flywheelFollowerTempAlert.set(flywheelinputs.tempCelsius > Constants.warningTempCelsius);
 
     hoodIO.updateInputs(hoodinputs);
     Logger.processInputs("Hood", hoodinputs);
-    disconnectedAlert.set(!hoodinputs.connected);
-    tempAlert.set(hoodinputs.tempCelsius > Constants.warningTempCelsius);
+    hoodMotorDisconnectedAlert.set(!hoodMotorDebouncer.calculate(hoodinputs.motorConnected));
+    hoodCancoderDisconnectedAlert.set(
+        !hoodCancoderDebouncer.calculate(hoodinputs.cancoderConnected));
+    hoodMotorTempAlert.set(hoodinputs.tempCelsius > Constants.warningTempCelsius);
+    hoodCancoderTempAlert.set(hoodinputs.tempCelsius > Constants.warningTempCelsius);
 
     turretIO.updateInputs(turretinputs);
     Logger.processInputs("Turret", turretinputs);
-    disconnectedAlert.set(!turretinputs.connected);
-    tempAlert.set(turretinputs.tempCelsius > Constants.warningTempCelsius);
+    turretMotorDisconnectedAlert.set(!turretMotorDebouncer.calculate(turretinputs.connected));
+    turretMotorTempAlert.set(turretinputs.tempCelsius > Constants.warningTempCelsius);
 
     Logger.recordOutput(
         "MotorTemplate/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);

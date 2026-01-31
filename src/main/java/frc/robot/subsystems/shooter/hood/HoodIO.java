@@ -7,13 +7,15 @@ import org.littletonrobotics.junction.AutoLog;
 public interface HoodIO {
   @AutoLog
   static class HoodIOInputs {
-    public boolean connected = false;
-    public double positionRots = 0.0;
-    public double velocityRotsPerSec = 0.0;
+    public boolean motorConnected = false;
+    public boolean cancoderConnected = false;
+    public double positionElvation = 0.0;
+    public double velocityDegPerSec = 0.0;
     public double appliedVoltage = 0.0;
     public double supplyCurrentAmps = 0.0;
     public double torqueCurrentAmps = 0.0;
     public double tempCelsius = 0.0;
+    public double absolutePosition = 0.0;
   }
 
   default void updateInputs(HoodIOInputs inputs) {}
