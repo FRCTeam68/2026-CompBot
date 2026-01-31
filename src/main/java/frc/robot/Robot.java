@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.util.CanBusUtil;
 import frc.robot.util.LoggedTracer;
 import frc.robot.util.PhoenixUtil;
 import frc.robot.util.ShiftUtil;
@@ -183,7 +184,7 @@ public class Robot extends LoggedRobot {
 
     // JIT alert
     jitAlert.set(isJITing());
-
+    CanBusUtil.logStatus();
     // Record cycle time
     LoggedTracer.record("RobotPeriodic");
   }

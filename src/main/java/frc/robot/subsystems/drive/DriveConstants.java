@@ -18,7 +18,7 @@ import lombok.Builder;
 
 public final class DriveConstants {
   // Hardware Configuration
-  public static final CANBus canBus = CanBusUtil.getRioBus();
+  public static final CANBus canBus = CanBusUtil.getCanivoreBus();
   public static final double trackWidthX = Units.inchesToMeters(22.5); // meters
   public static final double trackWidthY = Units.inchesToMeters(22.5); // meters
   public static final double driveReduction = 5.14;

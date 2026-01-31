@@ -84,7 +84,7 @@ public class CanBusUtil {
 
   public static CANBus getRioBus() {
     if (rioBus == null) {
-      rioBus = new CANBus("rio");
+      rioBus = new CANBus("DRIVEbus");
       rioReader = new CanBusReader(rioBus);
     }
     return rioBus;

@@ -21,7 +21,7 @@ import frc.robot.util.CanBusUtil;
 import frc.robot.util.PhoenixUtil;
 
 public class LightsIOCANdle implements LightsIO {
-  private final CANBus canBus = CanBusUtil.getRioBus();
+  private final CANBus canBus = CanBusUtil.getCanivoreBus();
 
   // Hardware
   private final CANdle candle = new CANdle(60, canBus);
