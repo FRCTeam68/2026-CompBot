@@ -32,7 +32,6 @@ import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.util.AutonUtil;
-import frc.robot.util.FollowPathUtil;
 import frc.robot.util.ShiftUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
 import lombok.Getter;
@@ -218,12 +217,9 @@ public class RobotContainer {
       noAutoSelectedAlert.set(autonChooser.get() == null);
       startingPoseAlert.set(
           autonChooser.get() != null
-              && (FollowPathUtil.getStartingPose().minus(drive.getPose()).getTranslation().getNorm()
+              && (AutonUtil.getStartingPose().minus(drive.getPose()).getTranslation().getNorm()
                       > 0.25
-                  || FollowPathUtil.getStartingPose()
-                          .minus(drive.getPose())
-                          .getRotation()
-                          .getDegrees()
+                  || AutonUtil.getStartingPose().minus(drive.getPose()).getRotation().getDegrees()
                       > 20));
     } else {
       noAutoSelectedAlert.set(false);
