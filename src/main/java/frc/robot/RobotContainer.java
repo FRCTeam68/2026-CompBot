@@ -167,6 +167,28 @@ public class RobotContainer {
                         AllianceFlipUtil.apply(
                             FieldConstants.Hub.nearFace.transformBy(
                                 new Transform2d(2.0, 0.0, Rotation2d.kPi))))));
+    driverController
+        .povLeft()
+        .onTrue(
+            DriveCommands.autopilotDriveToPose(
+                drive,
+                () ->
+                    new APTarget(
+                            AllianceFlipUtil.apply(
+                                new Pose2d(FieldConstants.Hub.nearLeftCorner, new Rotation2d())
+                                    .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
+                        .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
+    driverController
+        .povDown()
+        .onTrue(
+            DriveCommands.autopilotDriveToPose(
+                drive,
+                () ->
+                    new APTarget(
+                            AllianceFlipUtil.apply(
+                                new Pose2d(FieldConstants.Hub.nearRightCorner, new Rotation2d())
+                                    .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
+                        .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
 
     hubTransitionWarningTrigger.onTrue(
         Commands.runOnce(() -> driverController.setRumble(RumbleType.kBothRumble, 1))
