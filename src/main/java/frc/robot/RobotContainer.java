@@ -4,6 +4,7 @@ import com.therekrab.autopilot.APTarget;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -27,6 +28,7 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOReal;
 import frc.robot.subsystems.drive.ModuleIOSim;
+import frc.robot.subsystems.shooter.ShotVisualizer;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO;
@@ -45,8 +47,10 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   // Subsystems
-  private Drive drive;
-  @Getter private Vision vision;
+  private final Drive drive;
+  @Getter private final Vision vision;
+
+  private final ShotVisualizer shotVisualizer;
 
   // Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
@@ -73,7 +77,7 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     switch (Constants.getMode()) {
-      case REAL -> {
+      case REAL:
         drive =
             new Drive(
                 new GyroIOPigeon2(),
@@ -88,8 +92,11 @@ public class RobotContainer {
                 drive::getPose,
                 drive::getFieldVelocity,
                 new VisionIOLimelight(CameraInfo.LL_4));
-      }
-      case SIM -> {
+
+        shotVisualizer = null;
+        break;
+
+      case SIM:
         drive =
             new Drive(
                 new GyroIO() {},
@@ -99,8 +106,18 @@ public class RobotContainer {
                 new ModuleIOSim());
 
         vision = new Vision(drive::addVisionMeasurement, drive::getPose, drive::getFieldVelocity);
-      }
-      case REPLAY -> {
+
+        shotVisualizer =
+            new ShotVisualizer(
+                drive::getPose,
+                () -> 2000.0 / 60.0,
+                () -> 70.0,
+                () -> new Rotation2d(Units.degreesToRadians(25.0)),
+                () -> 1.0);
+        break;
+
+      case REPLAY:
+      default:
         drive =
             new Drive(
                 new GyroIO() {},
@@ -115,7 +132,14 @@ public class RobotContainer {
                 drive::getPose,
                 drive::getFieldVelocity,
                 new VisionIO() {});
-      }
+
+        shotVisualizer =
+            new ShotVisualizer(
+                drive::getPose,
+                () -> 3000.0 / 60.0,
+                () -> 45.0,
+                () -> new Rotation2d(Units.degreesToRadians(10.0)),
+                () -> 1.0);
     }
 
     // Configure the button bindings
