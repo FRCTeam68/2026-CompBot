@@ -61,7 +61,7 @@ public class FlywheelIOReal implements FlywheelIO {
 
   public FlywheelIOReal() {
     // TEMPLATE: Set CAN id and bus
-    talon = new TalonFX(0, new CANBus("rio"));
+    talon = new TalonFX(0, new CANBus("DRIVEbus"));
 
     // Configure Motor
     // TEMPLATE: Set configuration
@@ -91,7 +91,7 @@ public class FlywheelIOReal implements FlywheelIO {
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon));
     PhoenixUtil.registerSignals(
         // TEMPLATE: Set whether motor is attached to a CANivore
-        new CANBus("rio"),
+        new CANBus("DRIVEbus"),
         position,
         velocity,
         appliedVoltage,
