@@ -5,14 +5,13 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 import frc.robot.util.PhoenixUtil.ControlMode;
 
 public class FlywheelIOSim implements FlywheelIO {
-  private final DCMotor motor = DCMotor.getFalcon500Foc(1);
+  private final DCMotor motor = DCMotor.getKrakenX60Foc(2);
 
   private final DCMotorSim sim;
   private final PIDController controller = new PIDController(0, 0, 0);
@@ -41,12 +40,14 @@ public class FlywheelIOSim implements FlywheelIO {
 
     sim.update(Constants.loopPeriodSecs);
 
-    inputs.connected = true;
+    inputs.leaderConnected = true;
+    inputs.followerConnected = true;
     inputs.positionRots = sim.getAngularPositionRotations();
     inputs.velocityRotsPerSec = sim.getAngularVelocityRPM() / 60.0;
-    inputs.appliedVoltage = appliedVoltage;
-    inputs.supplyCurrentAmps = sim.getCurrentDrawAmps();
-    inputs.torqueCurrentAmps = sim.getCurrentDrawAmps() * 12.0 / appliedVoltage;
+    inputs.leaderAppliedVoltage = appliedVoltage;
+    inputs.followerAppliedVoltage = appliedVoltage;
+    inputs.leaderSupplyCurrentAmps = sim.getCurrentDrawAmps();
+    inputs.leaderTorqueCurrentAmps = sim.getCurrentDrawAmps() * 12.0 / appliedVoltage;
   }
 
   @Override
@@ -63,20 +64,8 @@ public class FlywheelIOSim implements FlywheelIO {
   }
 
   @Override
-  public void runPosition(double position, int slot) {
-    mode = ControlMode.Position;
-    controller.setPID(slotConfigs[slot].kP, slotConfigs[slot].kI, slotConfigs[slot].kD);
-    controller.setSetpoint(position);
-  }
-
-  @Override
   public void stop() {
     runVolts(0);
-  }
-
-  @Override
-  public void setPosition(double rotations) {
-    sim.setAngle(Units.rotationsToRadians(rotations));
   }
 
   @Override

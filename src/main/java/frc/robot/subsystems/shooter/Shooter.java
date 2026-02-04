@@ -81,11 +81,12 @@ public class Shooter {
     flywheelIO.updateInputs(flywheelinputs);
     Logger.processInputs("Flywheel", flywheelinputs);
     flywheelLeaderDisconnectedAlert.set(
-        !flywheelLeaderDebouncer.calculate(flywheelinputs.connected));
+        !flywheelLeaderDebouncer.calculate(flywheelinputs.leaderConnected));
     flywheelFollowerDisconnectedAlert.set(
-        !flywheelFollowerDebouncer.calculate(flywheelinputs.connected));
-    flywheelLeaderTempAlert.set(flywheelinputs.tempCelsius > Constants.warningTempCelsius);
-    flywheelFollowerTempAlert.set(flywheelinputs.tempCelsius > Constants.warningTempCelsius);
+        !flywheelFollowerDebouncer.calculate(flywheelinputs.followerConnected));
+    flywheelLeaderTempAlert.set(flywheelinputs.leaderTempCelsius > Constants.warningTempCelsius);
+    flywheelFollowerTempAlert.set(
+        flywheelinputs.followerTempCelsius > Constants.warningTempCelsius);
 
     hoodIO.updateInputs(hoodinputs);
     Logger.processInputs("Hood", hoodinputs);
