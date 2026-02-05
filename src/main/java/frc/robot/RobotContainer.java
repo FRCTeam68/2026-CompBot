@@ -112,7 +112,6 @@ public class RobotContainer {
         .povLeft()
         .onTrue(
             DriveCommands.autopilotDriveToPose(
-                drive,
                 () ->
                     new APTarget(
                             AllianceFlipUtil.apply(
@@ -123,7 +122,6 @@ public class RobotContainer {
         .povDown()
         .onTrue(
             DriveCommands.autopilotDriveToPose(
-                drive,
                 () ->
                     new APTarget(
                             AllianceFlipUtil.apply(
