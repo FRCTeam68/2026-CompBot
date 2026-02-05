@@ -16,6 +16,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.System;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.util.geometry.AllianceFlipUtil;
@@ -29,6 +30,12 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class DriveCommands {
+  // Complete system
+  private static final System system = System.getInstance();
+
+  // Subsystems
+  private static final Drive drive = system.getDrive();
+
   private static final double DEADBAND = 0.1;
   private static final double FF_START_DELAY = 2.0; // Secs
   private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
@@ -53,10 +60,7 @@ public class DriveCommands {
    * Field relative drive command using two joysticks (controlling linear and angular velocities).
    */
   public static Command joystickDrive(
-      Drive drive,
-      DoubleSupplier xSupplier,
-      DoubleSupplier ySupplier,
-      DoubleSupplier omegaSupplier) {
+      DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier omegaSupplier) {
     return Commands.run(
         () -> {
           // Get linear velocity
@@ -91,10 +95,7 @@ public class DriveCommands {
    * joystick.
    */
   public static Command joystickDriveAtAngle(
-      Drive drive,
-      DoubleSupplier xSupplier,
-      DoubleSupplier ySupplier,
-      Supplier<Rotation2d> rotationSupplier) {
+      DoubleSupplier xSupplier, DoubleSupplier ySupplier, Supplier<Rotation2d> rotationSupplier) {
 
     // Configure PID controller
     ProfiledPIDController angleController =
@@ -147,10 +148,7 @@ public class DriveCommands {
    * single point.
    */
   public static Command joystickDriveAtTarget(
-      Drive drive,
-      DoubleSupplier xSupplier,
-      DoubleSupplier ySupplier,
-      Supplier<Translation2d> targetSupplier) {
+      DoubleSupplier xSupplier, DoubleSupplier ySupplier, Supplier<Translation2d> targetSupplier) {
 
     // Configure PID controller
     ProfiledPIDController angleController =
@@ -208,7 +206,6 @@ public class DriveCommands {
    * single point.
    */
   public static Command joystickDriveAtOptionalTarget(
-      Drive drive,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       DoubleSupplier omegaSupplier,
@@ -299,7 +296,7 @@ public class DriveCommands {
    *       </ul>
    * </ul>
    */
-  public static Command autopilotDriveToPose(Drive drive, Supplier<APTarget> targetSupplier) {
+  public static Command autopilotDriveToPose(Supplier<APTarget> targetSupplier) {
     // Configure Autopilot controller
     Autopilot autopilot;
     if (targetSupplier.get().getVelocity() == 0.0) {
@@ -385,7 +382,7 @@ public class DriveCommands {
    *
    * <p>This command should only be used in voltage control mode.
    */
-  public static Command feedforwardCharacterization(Drive drive) {
+  public static Command feedforwardCharacterization() {
     List<Double> velocitySamples = new LinkedList<>();
     List<Double> voltageSamples = new LinkedList<>();
     Timer timer = new Timer();
@@ -437,14 +434,15 @@ public class DriveCommands {
                   double kV = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
 
                   NumberFormat formatter = new DecimalFormat("#0.00000");
-                  System.out.println("********** Drive FF Characterization Results **********");
-                  System.out.println("\tkS: " + formatter.format(kS));
-                  System.out.println("\tkV: " + formatter.format(kV));
+                  java.lang.System.out.println(
+                      "********** Drive FF Characterization Results **********");
+                  java.lang.System.out.println("\tkS: " + formatter.format(kS));
+                  java.lang.System.out.println("\tkV: " + formatter.format(kV));
                 }));
   }
 
   /** Measures the robot's wheel radius by spinning in a circle. */
-  public static Command wheelRadiusCharacterization(Drive drive) {
+  public static Command wheelRadiusCharacterization() {
     SlewRateLimiter limiter = new SlewRateLimiter(WHEEL_RADIUS_RAMP_RATE);
     WheelRadiusCharacterizationState state = new WheelRadiusCharacterizationState();
 
@@ -498,13 +496,13 @@ public class DriveCommands {
                           (state.gyroDelta * DriveConstants.driveBaseRadius) / wheelDelta;
 
                       NumberFormat formatter = new DecimalFormat("#0.000");
-                      System.out.println(
+                      java.lang.System.out.println(
                           "********** Wheel Radius Characterization Results **********");
-                      System.out.println(
+                      java.lang.System.out.println(
                           "\tWheel Delta: " + formatter.format(wheelDelta) + " radians");
-                      System.out.println(
+                      java.lang.System.out.println(
                           "\tGyro Delta: " + formatter.format(state.gyroDelta) + " radians");
-                      System.out.println(
+                      java.lang.System.out.println(
                           "\tWheel Radius: "
                               + formatter.format(wheelRadius)
                               + " meters, "

@@ -197,8 +197,8 @@ public class Robot extends LoggedRobot {
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
-    // Throttle LL4 to reduce heat buildup
-    robotContainer.getVision().throttleLL4(true);
+    // // Throttle LL4 to reduce heat buildup
+    // robotContainer.getVision().throttleLL4(true);
 
     robotContainer.stopSubsystems();
   }
@@ -216,8 +216,8 @@ public class Robot extends LoggedRobot {
   /** This function is called once when the robot is enabled in any mode. */
   @Override
   public void disabledExit() {
-    // Disable LL4 throttling when the robot enables
-    robotContainer.getVision().throttleLL4(false);
+    // // Disable LL4 throttling when the robot enables
+    // robotContainer.getVision().throttleLL4(false);
 
     // This must be done here to reset time for repeated practice matches
     ShiftUtil.seedMatchTime();

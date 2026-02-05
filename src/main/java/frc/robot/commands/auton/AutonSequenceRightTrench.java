@@ -3,6 +3,7 @@ package frc.robot.commands.auton;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
+import frc.robot.System;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.AutonUtil;
 import java.util.ArrayList;
@@ -10,6 +11,12 @@ import java.util.List;
 import java.util.Set;
 
 public class AutonSequenceRightTrench implements AutonSequence {
+  // Complete system
+  private static final System system = System.getInstance();
+
+  // Subsystems
+  private static final Drive drive = system.getDrive();
+
   private static final List<String> pathNames = new ArrayList<>();
   private boolean climbpath = false;
 
@@ -43,7 +50,7 @@ public class AutonSequenceRightTrench implements AutonSequence {
   }
 
   @Override
-  public Command sequence(Drive drive) {
+  public Command sequence() {
     return new DeferredCommand(
         () -> {
           // initialization

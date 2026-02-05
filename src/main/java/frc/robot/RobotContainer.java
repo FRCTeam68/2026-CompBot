@@ -4,7 +4,6 @@ import com.therekrab.autopilot.APTarget;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -21,22 +20,9 @@ import frc.robot.commands.auton.AutonCommands;
 import frc.robot.commands.auton.AutonSequence;
 import frc.robot.commands.auton.AutonSequenceCenter;
 import frc.robot.commands.auton.AutonSequenceRightTrench;
-import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.DriveConstants;
-import frc.robot.subsystems.drive.GyroIO;
-import frc.robot.subsystems.drive.GyroIOPigeon2;
-import frc.robot.subsystems.drive.ModuleIO;
-import frc.robot.subsystems.drive.ModuleIOReal;
-import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.shooter.ShotVisualizer;
-import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
-import frc.robot.subsystems.vision.VisionIO;
-import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.util.AutonUtil;
 import frc.robot.util.ShiftUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
-import lombok.Getter;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -46,12 +32,8 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  // Subsystems
-  private final Drive drive;
-  @Getter private final Vision vision;
-
-  private final ShotVisualizer shotVisualizer;
-
+  // System
+  private final System system = System.getInstance();
   // Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
   private final CommandPS4Controller operatorController = new CommandPS4Controller(1);
@@ -76,72 +58,6 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    switch (Constants.getMode()) {
-      case REAL:
-        drive =
-            new Drive(
-                new GyroIOPigeon2(),
-                new ModuleIOReal(DriveConstants.moduleConfigs[0]),
-                new ModuleIOReal(DriveConstants.moduleConfigs[1]),
-                new ModuleIOReal(DriveConstants.moduleConfigs[2]),
-                new ModuleIOReal(DriveConstants.moduleConfigs[3]));
-
-        vision =
-            new Vision(
-                drive::addVisionMeasurement,
-                drive::getPose,
-                drive::getFieldVelocity,
-                new VisionIOLimelight(CameraInfo.LL_4));
-
-        shotVisualizer = null;
-        break;
-
-      case SIM:
-        drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                new ModuleIOSim());
-
-        vision = new Vision(drive::addVisionMeasurement, drive::getPose, drive::getFieldVelocity);
-
-        shotVisualizer =
-            new ShotVisualizer(
-                drive::getPose,
-                () -> 2000.0 / 60.0,
-                () -> 70.0,
-                () -> new Rotation2d(Units.degreesToRadians(25.0)),
-                () -> 1.0);
-        break;
-
-      case REPLAY:
-      default:
-        drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {});
-
-        vision =
-            new Vision(
-                drive::addVisionMeasurement,
-                drive::getPose,
-                drive::getFieldVelocity,
-                new VisionIO() {});
-
-        shotVisualizer =
-            new ShotVisualizer(
-                drive::getPose,
-                () -> 3000.0 / 60.0,
-                () -> 45.0,
-                () -> new Rotation2d(Units.degreesToRadians(10.0)),
-                () -> 1.0);
-    }
-
     // Configure the button bindings
     configureButtonBindings();
 
@@ -161,22 +77,25 @@ public class RobotContainer {
   /** Use this method to define button -> command mappings. */
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
-    drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
-            drive,
-            () -> -driverController.getLeftY(),
-            () -> -driverController.getLeftX(),
-            () -> -driverController.getRightX()));
+    system
+        .getDrive()
+        .setDefaultCommand(
+            DriveCommands.joystickDrive(
+                () -> -driverController.getLeftY(),
+                () -> -driverController.getLeftX(),
+                () -> -driverController.getRightX()));
 
     driverController
         .back()
         .onTrue(
             Commands.runOnce(
                     () ->
-                        drive.setPose(
-                            new Pose2d(
-                                drive.getPose().getTranslation(),
-                                AllianceFlipUtil.apply(Rotation2d.kZero))))
+                        system
+                            .getDrive()
+                            .setPose(
+                                new Pose2d(
+                                    system.getDrive().getPose().getTranslation(),
+                                    AllianceFlipUtil.apply(Rotation2d.kZero))))
                 .ignoringDisable(true));
 
     driverController.start().onTrue(Commands.runOnce(() -> stopSubsystems()).ignoringDisable(true));
@@ -184,7 +103,6 @@ public class RobotContainer {
         .povUp()
         .onTrue(
             DriveCommands.autopilotDriveToPose(
-                drive,
                 () ->
                     new APTarget(
                         AllianceFlipUtil.apply(
@@ -203,7 +121,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return AutonCommands.autonCommand(drive, autonChooser.get());
+    return AutonCommands.autonCommand(autonChooser.get());
   }
 
   /** Loads autonomous paths from storage. This method can be safely be called periodically. */
@@ -216,7 +134,7 @@ public class RobotContainer {
     CommandScheduler.getInstance().cancelAll();
     driverController.setRumble(RumbleType.kBothRumble, 0);
     operatorController.setRumble(RumbleType.kBothRumble, 0);
-    drive.stop();
+    system.getDrive().stop();
   }
 
   /**
@@ -241,9 +159,15 @@ public class RobotContainer {
       noAutoSelectedAlert.set(autonChooser.get() == null);
       startingPoseAlert.set(
           autonChooser.get() != null
-              && (AutonUtil.getStartingPose().minus(drive.getPose()).getTranslation().getNorm()
+              && (AutonUtil.getStartingPose()
+                          .minus(system.getDrive().getPose())
+                          .getTranslation()
+                          .getNorm()
                       > 0.25
-                  || AutonUtil.getStartingPose().minus(drive.getPose()).getRotation().getDegrees()
+                  || AutonUtil.getStartingPose()
+                          .minus(system.getDrive().getPose())
+                          .getRotation()
+                          .getDegrees()
                       > 20));
     } else {
       noAutoSelectedAlert.set(false);
