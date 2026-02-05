@@ -8,39 +8,34 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.System;
+import frc.robot.subsystems.drive.Drive;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
-public class ShotVisualizer extends SubsystemBase {
-  private final Translation3d shooterPosition =
+public class ShotVisualizer {
+  private static final Translation3d shooterPosition =
       new Translation3d(-0.160018476, 0.1335875408, 0.4431027206); // robot relative
-  private final double stepSecs = 0.04;
-  private final double FlywheelDiameter = 4.0;
-  private final double gravity = 9.8;
+  private static final double stepSecs = 0.04;
+  private static final double FlywheelDiameter = 4.0;
+  private static final double gravity = 9.8;
 
-  private final Supplier<Pose2d> robotPoseSupplier;
-  private final Supplier<Double> flywheelVelocitySupplier;
-  private final Supplier<Double> hoodElevationSupplier;
-  private final Supplier<Rotation2d> turretAngleSupplier;
-  private final Supplier<Double> feederSetpointSupplier;
+  // Complete system
+  private static final System system = System.getInstance();
 
-  public ShotVisualizer(
-      Supplier<Pose2d> robotPoseSupplier,
-      Supplier<Double> flywheelVelocitySupplier,
-      Supplier<Double> hoodElevationSupplier,
-      Supplier<Rotation2d> turretAngleSupplier,
-      Supplier<Double> feederSetpointSupplier) {
-    this.robotPoseSupplier = robotPoseSupplier;
-    this.flywheelVelocitySupplier = flywheelVelocitySupplier;
-    this.hoodElevationSupplier = hoodElevationSupplier;
-    this.turretAngleSupplier = turretAngleSupplier;
-    this.feederSetpointSupplier = feederSetpointSupplier;
-  }
+  // Subsystems
+  private static final Drive drive = system.getDrive();
+  private static final Shooter shooter = system.getShooter();
 
-  public void periodic() {
+  private static final Supplier<Pose2d> robotPoseSupplier = drive::getPose;
+  private static final Supplier<Double> flywheelVelocitySupplier = () -> 0.0;
+  private static final Supplier<Double> hoodElevationSupplier = () -> 0.0;
+  private static final Supplier<Rotation2d> turretAngleSupplier = () -> new Rotation2d();
+  private static final Supplier<Double> feederSetpointSupplier = () -> 0.0;
+
+  public static void visualize() {
     List<Pose3d> trajectory = new LinkedList<>();
 
     if (feederSetpointSupplier.get() > 0.0) {
