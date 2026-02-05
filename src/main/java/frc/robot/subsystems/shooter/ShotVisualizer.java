@@ -17,7 +17,7 @@ import org.littletonrobotics.junction.Logger;
 public class ShotVisualizer extends SubsystemBase {
   private final Translation3d shooterPosition =
       new Translation3d(-0.160018476, 0.1335875408, 0.4431027206); // robot relative
-  private final double stepSecs = 0.02;
+  private final double stepSecs = 0.04;
   private final double FlywheelDiameter = 4.0;
   private final double gravity = 9.8;
 
@@ -73,8 +73,10 @@ public class ShotVisualizer extends SubsystemBase {
                     new Rotation3d())));
         time += stepSecs;
       }
+
+      trajectory.remove(trajectory.size() - 1);
     }
 
-    Logger.recordOutput("Shooter/ShotVisualizer/Trajectory", trajectory.toArray(new Pose3d[0]));
+    Logger.recordOutput("Shooter/ShotVisualizer", trajectory.toArray(new Pose3d[0]));
   }
 }
