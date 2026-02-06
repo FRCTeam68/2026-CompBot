@@ -23,10 +23,8 @@ public class ShotVisualizer {
   private static final double FlywheelDiameter = 4.0;
   private static final double gravity = 9.8;
 
-  // Complete system
-  private static final System system = System.getInstance();
-
   // Subsystems
+  private static final System system = System.getInstance();
   private static final Drive drive = system.getDrive();
   private static final Shooter shooter = system.getShooter();
   private static final RollerSystem feeder = system.getFeeder();
@@ -41,7 +39,10 @@ public class ShotVisualizer {
   public static void visualize() {
     List<Pose3d> trajectory = new LinkedList<>();
 
+    // Only calculate trajectory point if the feeder is running
     if (feederSetpointSupplier.get() > 0.0) {
+      double time = 0;
+
       // All calcuations are field relative
       Translation3d initialPose =
           shooterPosition
@@ -80,8 +81,7 @@ public class ShotVisualizer {
                               .rotateBy(robotPoseSupplier.get().getRotation())
                               .rotateBy(Rotation2d.kCCW_90deg))));
 
-      double time = 0;
-
+      // Loop over trajectory points
       while (trajectory.size() == 0 || trajectory.get(trajectory.size() - 1).getZ() > 0.0) {
         trajectory.add(
             new Pose3d(
@@ -94,6 +94,7 @@ public class ShotVisualizer {
         time += stepSecs;
       }
 
+      // Remove last point which will always be below the ground
       trajectory.remove(trajectory.size() - 1);
     }
 
