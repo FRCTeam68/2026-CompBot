@@ -17,6 +17,7 @@ import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import lombok.Getter;
+import org.littletonrobotics.junction.AutoLogOutputManager;
 
 public class System {
   private static System instance = null;
@@ -24,16 +25,15 @@ public class System {
   // Subsystems
   @Getter private final Drive drive;
   @Getter private final Vision vision;
-  @Getter private final Intake intakePivot = new Intake(new IntakePivotIO() {});
-
-  @Getter
-  private final RollerSystem intakeSpin = new RollerSystem("null1", new RollerSystemIO() {});
-
-  @Getter private final Shooter shooter = new Shooter();
-  @Getter private final RollerSystem spindexer = new RollerSystem("null2", new RollerSystemIO() {});
-  @Getter private final RollerSystem feeder = new RollerSystem("null3", new RollerSystemIO() {});
+  @Getter private final Intake intakePivot;
+  @Getter private final RollerSystem intakeSpin;
+  @Getter private final Shooter shooter;
+  @Getter private final RollerSystem spindexer;
+  @Getter private final RollerSystem feeder;
 
   public System() {
+    AutoLogOutputManager.addObject(this);
+
     switch (Constants.getMode()) {
       case REAL:
         drive =
@@ -44,7 +44,13 @@ public class System {
                 new ModuleIOReal(DriveConstants.moduleConfigs[2]),
                 new ModuleIOReal(DriveConstants.moduleConfigs[3]));
 
-        vision = new Vision(new VisionIOLimelight(CameraInfo.LL_4));
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                drive::getPose,
+                drive::getFieldVelocity,
+                new VisionIOLimelight(CameraInfo.LL_4),
+                new VisionIOLimelight(CameraInfo.LL_3G));
         break;
 
       case SIM:
@@ -56,7 +62,7 @@ public class System {
                 new ModuleIOSim(),
                 new ModuleIOSim());
 
-        vision = new Vision();
+        vision = new Vision(drive::addVisionMeasurement, drive::getPose, drive::getFieldVelocity);
         break;
 
       default:
@@ -68,8 +74,20 @@ public class System {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
-        vision = new Vision(new VisionIO() {});
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                drive::getPose,
+                drive::getFieldVelocity,
+                new VisionIO() {},
+                new VisionIO() {});
     }
+
+    intakePivot = new Intake(new IntakePivotIO() {});
+    intakeSpin = new RollerSystem("null1", new RollerSystemIO() {});
+    shooter = new Shooter();
+    spindexer = new RollerSystem("null2", new RollerSystemIO() {});
+    feeder = new RollerSystem("null3", new RollerSystemIO() {});
   }
 
   /**

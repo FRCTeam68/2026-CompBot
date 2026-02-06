@@ -23,8 +23,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.FieldConstants;
-import frc.robot.System;
-import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import java.util.LinkedList;
@@ -35,11 +33,9 @@ import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
-  private final System system = System.getInstance();
-  private final Drive drive = system.getDrive();
-  private final VisionConsumer consumer = drive::addVisionMeasurement;
-  private final Supplier<Pose2d> poseSupplier = drive::getPose;
-  private final Supplier<ChassisSpeeds> chassisSpeedSupplier = drive::getFieldVelocity;
+  private final VisionConsumer consumer;
+  private final Supplier<Pose2d> poseSupplier;
+  private final Supplier<ChassisSpeeds> chassisSpeedSupplier;
   private final VisionIO[] io;
   private final CameraInfo[] cameraInfo;
   private final VisionIOInputsAutoLogged[] inputs;
@@ -48,7 +44,14 @@ public class Vision extends SubsystemBase {
 
   @Getter private Optional<Translation2d> targetNote = Optional.empty();
 
-  public Vision(VisionIO... io) {
+  public Vision(
+      VisionConsumer consumer,
+      Supplier<Pose2d> poseSupplier,
+      Supplier<ChassisSpeeds> chassisSpeedSupplier,
+      VisionIO... io) {
+    this.consumer = consumer;
+    this.poseSupplier = poseSupplier;
+    this.chassisSpeedSupplier = chassisSpeedSupplier;
     this.io = io;
 
     // Initialize camera specific information

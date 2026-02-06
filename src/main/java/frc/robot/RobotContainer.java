@@ -20,6 +20,7 @@ import frc.robot.commands.auton.AutonCommands;
 import frc.robot.commands.auton.AutonSequence;
 import frc.robot.commands.auton.AutonSequenceCenter;
 import frc.robot.commands.auton.AutonSequenceRightTrench;
+import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.AutonUtil;
 import frc.robot.util.ShiftUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
@@ -34,6 +35,8 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // System
   private final System system = System.getInstance();
+
+  private final Drive drive = system.getDrive();
   // Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
   private final CommandPS4Controller operatorController = new CommandPS4Controller(1);
@@ -53,6 +56,7 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<AutonSequence> autonChooser;
 
+  // Triggers
   private final Trigger hubTransitionWarningTrigger =
       new Trigger(() -> ShiftUtil.hubToActiveWarning(3) || ShiftUtil.hubToInactiveWarning(3));
 
@@ -77,25 +81,21 @@ public class RobotContainer {
   /** Use this method to define button -> command mappings. */
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
-    system
-        .getDrive()
-        .setDefaultCommand(
-            DriveCommands.joystickDrive(
-                () -> -driverController.getLeftY(),
-                () -> -driverController.getLeftX(),
-                () -> -driverController.getRightX()));
+    drive.setDefaultCommand(
+        DriveCommands.joystickDrive(
+            () -> -driverController.getLeftY(),
+            () -> -driverController.getLeftX(),
+            () -> -driverController.getRightX()));
 
     driverController
         .back()
         .onTrue(
             Commands.runOnce(
                     () ->
-                        system
-                            .getDrive()
-                            .setPose(
-                                new Pose2d(
-                                    system.getDrive().getPose().getTranslation(),
-                                    AllianceFlipUtil.apply(Rotation2d.kZero))))
+                        drive.setPose(
+                            new Pose2d(
+                                drive.getPose().getTranslation(),
+                                AllianceFlipUtil.apply(Rotation2d.kZero))))
                 .ignoringDisable(true));
 
     driverController.start().onTrue(Commands.runOnce(() -> stopSubsystems()).ignoringDisable(true));
@@ -154,7 +154,7 @@ public class RobotContainer {
     CommandScheduler.getInstance().cancelAll();
     driverController.setRumble(RumbleType.kBothRumble, 0);
     operatorController.setRumble(RumbleType.kBothRumble, 0);
-    system.getDrive().stop();
+    drive.stop();
   }
 
   /**
@@ -179,15 +179,9 @@ public class RobotContainer {
       noAutoSelectedAlert.set(autonChooser.get() == null);
       startingPoseAlert.set(
           autonChooser.get() != null
-              && (AutonUtil.getStartingPose()
-                          .minus(system.getDrive().getPose())
-                          .getTranslation()
-                          .getNorm()
+              && (AutonUtil.getStartingPose().minus(drive.getPose()).getTranslation().getNorm()
                       > 0.25
-                  || AutonUtil.getStartingPose()
-                          .minus(system.getDrive().getPose())
-                          .getRotation()
-                          .getDegrees()
+                  || AutonUtil.getStartingPose().minus(drive.getPose()).getRotation().getDegrees()
                       > 20));
     } else {
       noAutoSelectedAlert.set(false);

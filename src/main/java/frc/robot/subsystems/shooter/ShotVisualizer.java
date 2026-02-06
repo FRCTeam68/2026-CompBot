@@ -4,12 +4,13 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import frc.robot.System;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.rollers.RollerSystem;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -28,44 +29,68 @@ public class ShotVisualizer {
   // Subsystems
   private static final Drive drive = system.getDrive();
   private static final Shooter shooter = system.getShooter();
+  private static final RollerSystem feeder = system.getFeeder();
 
   private static final Supplier<Pose2d> robotPoseSupplier = drive::getPose;
-  private static final Supplier<Double> flywheelVelocitySupplier = () -> 0.0;
-  private static final Supplier<Double> hoodElevationSupplier = () -> 0.0;
+  private static final Supplier<ChassisSpeeds> fieldVelocitySupplier = drive::getFieldVelocity;
+  private static final Supplier<Double> flywheelVelocitySupplier = () -> 2500.0 / 60.0;
+  private static final Supplier<Double> hoodElevationSupplier = () -> 53.0;
   private static final Supplier<Rotation2d> turretAngleSupplier = () -> new Rotation2d();
-  private static final Supplier<Double> feederSetpointSupplier = () -> 0.0;
+  private static final Supplier<Double> feederSetpointSupplier = feeder::getSetpointVolts;
 
   public static void visualize() {
     List<Pose3d> trajectory = new LinkedList<>();
 
     if (feederSetpointSupplier.get() > 0.0) {
-      Pose3d initialPose =
-          new Pose3d(
-              shooterPosition
-                  .rotateBy(new Rotation3d(robotPoseSupplier.get().getRotation()))
-                  .plus(new Translation3d(robotPoseSupplier.get().getTranslation())),
-              new Rotation3d(
-                  0.0,
-                  0.0,
-                  turretAngleSupplier.get().getRadians()
-                      + robotPoseSupplier.get().getRotation().getRadians()
-                      + Math.PI));
+      // All calcuations are field relative
+      Translation3d initialPose =
+          shooterPosition
+              .rotateBy(new Rotation3d(robotPoseSupplier.get().getRotation()))
+              .plus(new Translation3d(robotPoseSupplier.get().getTranslation()));
 
-      Translation2d initialVelocity =
-          new Translation2d(
-              Units.inchesToMeters(flywheelVelocitySupplier.get() * FlywheelDiameter * Math.PI),
-              new Rotation2d(Units.degreesToRadians(hoodElevationSupplier.get())));
+      Translation3d initialVelocity =
+          // Shooter velocity component
+          new Translation3d(
+                  Units.inchesToMeters(
+                      flywheelVelocitySupplier.get() * FlywheelDiameter * Math.PI / 2.0),
+                  new Rotation3d(
+                      0.0,
+                      -Units.degreesToRadians(hoodElevationSupplier.get()),
+                      turretAngleSupplier.get().getRadians()
+                          + robotPoseSupplier.get().getRotation().getRadians()))
+              // Chassis translation velocity component
+              .plus(
+                  new Translation3d(
+                      fieldVelocitySupplier.get().vxMetersPerSecond,
+                      fieldVelocitySupplier.get().vyMetersPerSecond,
+                      0.0))
+              // Chassis rotation velocity component
+              .plus(
+                  new Translation3d(
+                      new Translation2d(
+                          Units.radiansToRotations(
+                                  fieldVelocitySupplier.get().omegaRadiansPerSecond)
+                              * 2.0
+                              * shooterPosition.toTranslation2d().getNorm()
+                              * Math.PI
+                              * 4,
+                          shooterPosition
+                              .toTranslation2d()
+                              .getAngle()
+                              .rotateBy(robotPoseSupplier.get().getRotation())
+                              .rotateBy(Rotation2d.kCCW_90deg))));
 
       double time = 0;
 
       while (trajectory.size() == 0 || trajectory.get(trajectory.size() - 1).getZ() > 0.0) {
         trajectory.add(
-            initialPose.transformBy(
-                new Transform3d(
-                    initialVelocity.getX() * time,
-                    0.0,
-                    (initialVelocity.getY() * time) - (0.5 * gravity * Math.pow(time, 2)),
-                    new Rotation3d())));
+            new Pose3d(
+                initialPose.plus(
+                    new Translation3d(
+                        initialVelocity.getX() * time,
+                        initialVelocity.getY() * time,
+                        (initialVelocity.getZ() * time) - (0.5 * gravity * Math.pow(time, 2)))),
+                Rotation3d.kZero));
         time += stepSecs;
       }
 
