@@ -33,9 +33,8 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  // System
+  // Subsystems
   private final System system = System.getInstance();
-
   private final Drive drive = system.getDrive();
   // Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
@@ -96,9 +95,15 @@ public class RobotContainer {
                             new Pose2d(
                                 drive.getPose().getTranslation(),
                                 AllianceFlipUtil.apply(Rotation2d.kZero))))
-                .ignoringDisable(true));
+                .ignoringDisable(true)
+                .withName("ResetRobotRotation"));
 
-    driverController.start().onTrue(Commands.runOnce(() -> stopSubsystems()).ignoringDisable(true));
+    driverController
+        .start()
+        .onTrue(
+            Commands.runOnce(() -> stopSubsystems())
+                .ignoringDisable(true)
+                .withName("StopSubsystems"));
     driverController
         .povUp()
         .onTrue(
@@ -132,7 +137,8 @@ public class RobotContainer {
     hubTransitionWarningTrigger.onTrue(
         Commands.runOnce(() -> driverController.setRumble(RumbleType.kBothRumble, 1))
             .andThen(Commands.waitSeconds(1))
-            .andThen(() -> driverController.setRumble(RumbleType.kBothRumble, 0)));
+            .andThen(() -> driverController.setRumble(RumbleType.kBothRumble, 0))
+            .withName("HubTransitionWarning"));
   }
 
   /**

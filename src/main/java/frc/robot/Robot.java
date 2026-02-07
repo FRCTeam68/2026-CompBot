@@ -2,7 +2,6 @@ package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.commands.FollowPathCommand;
-import com.pathplanner.lib.commands.PathfindingCommand;
 import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -19,6 +18,9 @@ import frc.robot.util.LoggedTracer;
 import frc.robot.util.PhoenixUtil;
 import frc.robot.util.ShiftUtil;
 import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiConsumer;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -34,10 +36,9 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  * project.
  */
 public class Robot extends LoggedRobot {
-  private static final double lowBatteryVoltage = 11.0; // Volts
-  private static final double lowBatteryDisabledTime = 2.0; // Seconds
-  private static final double loopOverrunWarningTimeout = 0.2; // Seconds
-  private static final boolean enableHootLogging = false;
+  private static final double lowBatteryDisabledVoltage = 11.0;
+  private static final double lowBatteryEnabledVoltage = 8.0;
+  private static final double lowBatteryDisabledTime = 2.0;
 
   private Command autonomousCommand;
   private RobotContainer robotContainer;
@@ -47,12 +48,9 @@ public class Robot extends LoggedRobot {
       new Alert(
           "Battery voltage is very low, turn off the robot or replace the battery to avoid damage.",
           AlertType.kWarning);
-  private final Alert jitAlert =
-      new Alert("Please wait to enable, JITing in progress.", AlertType.kWarning);
 
   public Robot() {
     // Record metadata
-    Logger.recordMetadata("Robot", "2026");
     Logger.recordMetadata("TuningMode", Boolean.toString(Constants.tuningMode));
     Logger.recordMetadata("RuntimeType", getRuntimeType().toString());
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
@@ -67,7 +65,6 @@ public class Robot extends LoggedRobot {
           case 1 -> "Uncommitted changes";
           default -> "Unknown";
         });
-
     // Set up data receivers & replay source
     switch (Constants.getMode()) {
       case REAL:
@@ -94,7 +91,7 @@ public class Robot extends LoggedRobot {
     setUseTiming(Constants.getMode() != frc.robot.Constants.Mode.REPLAY);
 
     // CTRE Hoot logging
-    if (enableHootLogging) {
+    if (Constants.hootLogging) {
       SignalLogger.setPath("//media/sda1/logs");
       SignalLogger.start();
     } else {
@@ -109,14 +106,32 @@ public class Robot extends LoggedRobot {
       Field watchdogField = IterativeRobotBase.class.getDeclaredField("m_watchdog");
       watchdogField.setAccessible(true);
       Watchdog watchdog = (Watchdog) watchdogField.get(this);
-      watchdog.setTimeout(loopOverrunWarningTimeout);
+      watchdog.setTimeout(Constants.loopOverrunWarningSecs);
     } catch (Exception e) {
       DriverStation.reportWarning("Failed to disable loop overrun warnings.", false);
     }
-    CommandScheduler.getInstance().setPeriod(loopOverrunWarningTimeout);
+    CommandScheduler.getInstance().setPeriod(Constants.loopOverrunWarningSecs);
 
     // Rely on our custom alerts for disconnected controllers
     DriverStation.silenceJoystickConnectionWarning(true);
+
+    // Log active commands
+    Map<String, Integer> commandCounts = new HashMap<>();
+    BiConsumer<Command, Boolean> logCommandFunction =
+        (Command command, Boolean active) -> {
+          String name = command.getName();
+          int count = commandCounts.getOrDefault(name, 0) + (active ? 1 : -1);
+          commandCounts.put(name, count);
+          Logger.recordOutput(
+              "CommandsUnique/" + name + "_" + Integer.toHexString(command.hashCode()), active);
+          Logger.recordOutput("CommandsAll/" + name, count > 0);
+        };
+    CommandScheduler.getInstance()
+        .onCommandInitialize((Command command) -> logCommandFunction.accept(command, true));
+    CommandScheduler.getInstance()
+        .onCommandFinish((Command command) -> logCommandFunction.accept(command, false));
+    CommandScheduler.getInstance()
+        .onCommandInterrupt((Command command) -> logCommandFunction.accept(command, false));
 
     // Configure DriverStation for sim
     if (Constants.getMode() == frc.robot.Constants.Mode.SIM) {
@@ -131,7 +146,7 @@ public class Robot extends LoggedRobot {
     // Reset alert timers
     disabledTimer.restart();
 
-    // Set up auto logging for RobotState
+    // Set up auto logging
     AutoLogOutputManager.addObject(new RobotState());
     AutoLogOutputManager.addObject(new ShiftUtil());
 
@@ -139,8 +154,10 @@ public class Robot extends LoggedRobot {
     robotContainer = new RobotContainer();
 
     // Warmup pathplanner libraries
-    CommandScheduler.getInstance().schedule(FollowPathCommand.warmupCommand());
-    CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand());
+    CommandScheduler.getInstance()
+        .schedule(FollowPathCommand.warmupCommand().withName("PathplannerFollowPathWarmup"));
+    // Uncomment the warmup command below if using pathplanner pathfinding
+    // CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand().withName("PathplannerPathfindingWarmup"));
   }
 
   /** This function is called periodically during all modes. */
@@ -149,14 +166,13 @@ public class Robot extends LoggedRobot {
     // Optionally switch the thread to high priority to improve loop timing
     // Threads.setCurrentThreadPriority(true, 99);
 
+    // Update shift conditions
+    ShiftUtil.update();
+
     // Refresh all Phoenix signals
     LoggedTracer.reset();
     PhoenixUtil.refreshAll();
     LoggedTracer.record("PhoenixRefresh");
-
-    // Update shift conditions
-    ShiftUtil.update();
-    LoggedTracer.reset();
 
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled commands, running already-scheduled commands, removing
@@ -173,33 +189,27 @@ public class Robot extends LoggedRobot {
     if (DriverStation.isEnabled()) {
       disabledTimer.reset();
     }
-    if (RobotController.getBatteryVoltage() > 0.0
-        && RobotController.getBatteryVoltage() <= lowBatteryVoltage
-        && disabledTimer.hasElapsed(lowBatteryDisabledTime)) {
+    if ((RobotController.getBatteryVoltage() > 0.0
+                && (RobotController.getBatteryVoltage() <= lowBatteryEnabledVoltage)
+            || (RobotController.getBatteryVoltage() <= lowBatteryDisabledVoltage
+                && disabledTimer.hasElapsed(lowBatteryDisabledTime)))
+        || lowBatteryAlert.get() == true) {
       lowBatteryAlert.set(true);
     }
 
     // Robot container periodic method
     robotContainer.updateAlerts();
 
-    // JIT alert
-    jitAlert.set(isJITing());
+    // Log status of CAN buses
     CanBusUtil.logStatus();
+
     // Record cycle time
     LoggedTracer.record("RobotPeriodic");
-  }
-
-  /** Returns whether we should wait to enable because JIT optimizations are in progress. */
-  public static boolean isJITing() {
-    return Timer.getTimestamp() < 45.0;
   }
 
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
-    // // Throttle LL4 to reduce heat buildup
-    // robotContainer.getVision().throttleLL4(true);
-
     robotContainer.stopSubsystems();
   }
 
@@ -216,9 +226,6 @@ public class Robot extends LoggedRobot {
   /** This function is called once when the robot is enabled in any mode. */
   @Override
   public void disabledExit() {
-    // // Disable LL4 throttling when the robot enables
-    // robotContainer.getVision().throttleLL4(false);
-
     // This must be done here to reset time for repeated practice matches
     ShiftUtil.seedMatchTime();
   }

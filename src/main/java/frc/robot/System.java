@@ -17,7 +17,6 @@ import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import lombok.Getter;
-import org.littletonrobotics.junction.AutoLogOutputManager;
 
 public class System {
   private static System instance = null;
@@ -32,8 +31,6 @@ public class System {
   @Getter private final RollerSystem feeder;
 
   public System() {
-    AutoLogOutputManager.addObject(this);
-
     switch (Constants.getMode()) {
       case REAL:
         drive =
