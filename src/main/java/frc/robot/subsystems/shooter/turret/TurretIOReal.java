@@ -101,7 +101,7 @@ public class TurretIOReal implements TurretIO {
   }
 
   @Override
-  public void updateInputs(MotorTemplateIOInputs inputs) {
+  public void updateInputs(TurretIOInputs inputs) {
     inputs.connected =
         BaseStatusSignal.isAllGood(
             position, velocity, appliedVoltage, supplyCurrent, torqueCurrent);

@@ -28,7 +28,7 @@ public class TurretIOSim implements TurretIO {
   }
 
   @Override
-  public void updateInputs(MotorTemplateIOInputs inputs) {
+  public void updateInputs(TurretIOInputs inputs) {
     if (DriverStation.isDisabled()) {
       runVolts(0);
     } else {
