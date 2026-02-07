@@ -82,7 +82,7 @@ public class System {
 
     intakePivot = new Intake(new IntakePivotIO() {});
     intakeSpin = new RollerSystem("null1", new RollerSystemIO() {});
-    shooter = new Shooter();
+    shooter = null;
     spindexer = new RollerSystem("null2", new RollerSystemIO() {});
     feeder = new RollerSystem("null3", new RollerSystemIO() {});
   }
