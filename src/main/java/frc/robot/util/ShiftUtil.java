@@ -14,8 +14,9 @@ import org.littletonrobotics.junction.Logger;
 public class ShiftUtil {
   private static Optional<Boolean> blueActiveFirst = Optional.empty();
   private static double teleopStartTime = -1.0;
-  private static double prevTeleopStartTime = -1.0;
+  private static double prevTeleopStartTime = 0.0;
   private static Shift prevShift = Shift.Transition;
+  private static Optional<Boolean> prevBlueActiveFirst = Optional.empty();
 
   /**
    * The remaining time in teleop mode. Before teleop starts, when not connected to FMS, or if not
@@ -57,23 +58,22 @@ public class ShiftUtil {
    * <p>This should be called periodically.
    */
   public static void update() {
-    // FIXME: this can cause a bug when the robot connects from the DS to FMS and will retain the
-    // old game message from the DS. This can be fixed by always checking the game message (how long
-    // does it take to compare a single character string) or by resetting blueActiveFirst on
-    // disabled exit (by then the fms will be reporting the correct data)
+    // Read game specific data
+    // DriverStation.getGameSpecificMessage() is not cleared when no data is entered
+    blueActiveFirst =
+        switch (DriverStation.getGameSpecificMessage()) {
+          case "R" -> Optional.of(true);
+          case "B" -> Optional.of(false);
+          default -> Optional.empty();
+        };
 
-    // Seed first active alliance
-    // When FMS is not attached this will continually seed
-    if (blueActiveFirst.isEmpty() || !DriverStation.isFMSAttached()) {
-      blueActiveFirst =
-          switch (DriverStation.getGameSpecificMessage()) {
-            case "R" -> Optional.of(true);
-            case "B" -> Optional.of(false);
-            default -> Optional.empty();
-          };
-
+    // If conditions have changed
+    if (teleopStartTime != prevTeleopStartTime
+        || (shiftTime.get() != -1.0 && getActiveShift() != prevShift)
+        || (blueActiveFirst.isPresent() ^ prevBlueActiveFirst.isPresent())
+        || !blueActiveFirst.equals(prevBlueActiveFirst)) {
       // Print if our hub will be active in shift 1
-      // White means data is missing
+      // None/grey means no vlaid game data is available
       if (blueActiveFirst.isPresent() && DriverStation.getAlliance().isPresent()) {
         SmartDashboard.putString(
             "HubActiveFirst",
@@ -85,10 +85,6 @@ public class ShiftUtil {
       } else {
         SmartDashboard.putString("HubActiveFirst", "");
       }
-    }
-
-    // If conditions have changed
-    if (teleopStartTime != prevTeleopStartTime || getActiveShift() != prevShift) {
 
       // Configure teleop time
       teleopTime =
@@ -153,6 +149,7 @@ public class ShiftUtil {
       // Update previous values
       prevTeleopStartTime = teleopStartTime;
       prevShift = currentShift;
+      prevBlueActiveFirst = blueActiveFirst;
     }
 
     // Logging
@@ -212,23 +209,20 @@ public class ShiftUtil {
    */
   private static Shift getActiveShift() {
     double teleopTime = getTeleopTime().get();
-    Shift shift;
 
     if (teleopTime == -1.0 || teleopTime > Shift.Shift1.startTime) {
-      shift = Shift.Transition;
+      return Shift.Transition;
     } else if (teleopTime > Shift.Shift2.startTime) {
-      shift = Shift.Shift1;
+      return Shift.Shift1;
     } else if (teleopTime > Shift.Shift3.startTime) {
-      shift = Shift.Shift2;
+      return Shift.Shift2;
     } else if (teleopTime > Shift.Shift4.startTime) {
-      shift = Shift.Shift3;
+      return Shift.Shift3;
     } else if (teleopTime > Shift.EndGame.startTime) {
-      shift = Shift.Shift4;
+      return Shift.Shift4;
     } else {
-      shift = Shift.EndGame;
+      return Shift.EndGame;
     }
-
-    return shift;
   }
 
   public enum Shift {

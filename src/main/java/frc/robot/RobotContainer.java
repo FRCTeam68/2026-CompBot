@@ -1,11 +1,9 @@
 package frc.robot;
 
-import com.ctre.phoenix6.CANBus;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.therekrab.autopilot.APTarget;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -20,31 +18,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.auton.AutonCommands;
 import frc.robot.commands.auton.AutonSequence;
-import frc.robot.commands.auton.IntakeCommands;
+import frc.robot.commands.auton.AutonSequenceCenter;
+import frc.robot.commands.auton.AutonSequenceRightTrench;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.DriveConstants;
-import frc.robot.subsystems.drive.GyroIO;
-import frc.robot.subsystems.drive.GyroIOPigeon2;
-import frc.robot.subsystems.drive.ModuleIO;
-import frc.robot.subsystems.drive.ModuleIOReal;
-import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.IntakePivotIO;
-import frc.robot.subsystems.intake.IntakePivotIOReal;
-import frc.robot.subsystems.intake.IntakePivotIOSim;
-import frc.robot.subsystems.rollers.RollerSystem;
-import frc.robot.subsystems.rollers.RollerSystemIO;
-import frc.robot.subsystems.rollers.RollerSystemIOSim;
-import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
-import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
-import frc.robot.subsystems.vision.VisionIO;
-import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.util.AutonUtil;
-import frc.robot.util.FollowPathUtil;
 import frc.robot.util.ShiftUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
-import lombok.Getter;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -55,11 +34,8 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   // Subsystems
-  private Drive drive;
-  @Getter private Vision vision;
-  private Intake intakePivot;
-  private RollerSystem intakeSpin;
-
+  private final System system = System.getInstance();
+  private final Drive drive = system.getDrive();
   // Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
   private final CommandPS4Controller operatorController = new CommandPS4Controller(1);
@@ -79,79 +55,12 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<AutonSequence> autonChooser;
 
+  // Triggers
   private final Trigger hubTransitionWarningTrigger =
       new Trigger(() -> ShiftUtil.hubToActiveWarning(3) || ShiftUtil.hubToInactiveWarning(3));
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    switch (Constants.getMode()) {
-      case REAL -> {
-        drive =
-            new Drive(
-                new GyroIOPigeon2(),
-                new ModuleIOReal(DriveConstants.moduleConfigs[0]),
-                new ModuleIOReal(DriveConstants.moduleConfigs[1]),
-                new ModuleIOReal(DriveConstants.moduleConfigs[2]),
-                new ModuleIOReal(DriveConstants.moduleConfigs[3]));
-
-        vision =
-            new Vision(
-                drive::addVisionMeasurement,
-                drive::getPose,
-                drive::getFieldVelocity,
-                new VisionIOLimelight(CameraInfo.LL_4));
-
-        intakePivot = new Intake(new IntakePivotIOReal());
-        intakeSpin =
-            new RollerSystem(
-                "intakeSpin",
-                new RollerSystemIOTalonFX(
-                    1,
-                    new CANBus("*"),
-                    40,
-                    InvertedValue.Clockwise_Positive,
-                    NeutralModeValue.Coast,
-                    1));
-      }
-      case SIM -> {
-        drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                new ModuleIOSim());
-
-        vision = new Vision(drive::addVisionMeasurement, drive::getPose, drive::getFieldVelocity);
-
-        intakePivot = new Intake(new IntakePivotIOSim());
-
-        intakeSpin =
-            new RollerSystem(
-                "intakeSpin", new RollerSystemIOSim(DCMotor.getKrakenX44Foc(1), 1, 0.1));
-      }
-      case REPLAY -> {
-        drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {});
-
-        vision =
-            new Vision(
-                drive::addVisionMeasurement,
-                drive::getPose,
-                drive::getFieldVelocity,
-                new VisionIO() {});
-
-        intakePivot = new Intake(new IntakePivotIO() {});
-
-        intakeSpin = new RollerSystem("intakeSpin", new RollerSystemIO() {});
-      }
-    }
-
     // Configure the button bindings
     configureButtonBindings();
 
@@ -163,6 +72,9 @@ public class RobotContainer {
     // Configure auton chooser
     autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
     autonChooser.addDefaultOption("NONE", null);
+    autonChooser.addOption("Middle Depot Auto", new AutonSequenceCenter());
+    autonChooser.addOption("Right Trench Auto Climber", new AutonSequenceRightTrench(false));
+    autonChooser.addOption("Right Trench Auto Feeder", new AutonSequenceRightTrench(true));
   }
 
   /** Use this method to define button -> command mappings. */
@@ -170,11 +82,9 @@ public class RobotContainer {
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
-            drive,
             () -> -driverController.getLeftY(),
             () -> -driverController.getLeftX(),
             () -> -driverController.getRightX()));
-    driverController.leftTrigger().whileTrue(IntakeCommands.intake(intakePivot, intakeSpin));
 
     driverController
         .back()
@@ -185,14 +95,50 @@ public class RobotContainer {
                             new Pose2d(
                                 drive.getPose().getTranslation(),
                                 AllianceFlipUtil.apply(Rotation2d.kZero))))
-                .ignoringDisable(true));
+                .ignoringDisable(true)
+                .withName("ResetRobotRotation"));
 
-    driverController.start().onTrue(Commands.runOnce(() -> stopSubsystems()).ignoringDisable(true));
+    driverController
+        .start()
+        .onTrue(
+            Commands.runOnce(() -> stopSubsystems())
+                .ignoringDisable(true)
+                .withName("StopSubsystems"));
+    driverController
+        .povUp()
+        .onTrue(
+            DriveCommands.autopilotDriveToPose(
+                () ->
+                    new APTarget(
+                        AllianceFlipUtil.apply(
+                            FieldConstants.Hub.nearFace.transformBy(
+                                new Transform2d(2.0, 0.0, Rotation2d.kPi))))));
+    driverController
+        .povLeft()
+        .onTrue(
+            DriveCommands.autopilotDriveToPose(
+                () ->
+                    new APTarget(
+                            AllianceFlipUtil.apply(
+                                new Pose2d(FieldConstants.Hub.nearLeftCorner, new Rotation2d())
+                                    .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
+                        .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
+    driverController
+        .povDown()
+        .onTrue(
+            DriveCommands.autopilotDriveToPose(
+                () ->
+                    new APTarget(
+                            AllianceFlipUtil.apply(
+                                new Pose2d(FieldConstants.Hub.nearRightCorner, new Rotation2d())
+                                    .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
+                        .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
 
     hubTransitionWarningTrigger.onTrue(
         Commands.runOnce(() -> driverController.setRumble(RumbleType.kBothRumble, 1))
             .andThen(Commands.waitSeconds(1))
-            .andThen(() -> driverController.setRumble(RumbleType.kBothRumble, 0)));
+            .andThen(() -> driverController.setRumble(RumbleType.kBothRumble, 0))
+            .withName("HubTransitionWarning"));
   }
 
   /**
@@ -201,7 +147,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return AutonCommands.autonCommand(drive, autonChooser.get());
+    return AutonCommands.autonCommand(autonChooser.get());
   }
 
   /** Loads autonomous paths from storage. This method can be safely be called periodically. */
@@ -239,12 +185,9 @@ public class RobotContainer {
       noAutoSelectedAlert.set(autonChooser.get() == null);
       startingPoseAlert.set(
           autonChooser.get() != null
-              && (FollowPathUtil.getStartingPose().minus(drive.getPose()).getTranslation().getNorm()
+              && (AutonUtil.getStartingPose().minus(drive.getPose()).getTranslation().getNorm()
                       > 0.25
-                  || FollowPathUtil.getStartingPose()
-                          .minus(drive.getPose())
-                          .getRotation()
-                          .getDegrees()
+                  || AutonUtil.getStartingPose().minus(drive.getPose()).getRotation().getDegrees()
                       > 20));
     } else {
       noAutoSelectedAlert.set(false);

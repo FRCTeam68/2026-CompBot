@@ -41,6 +41,7 @@ public class AutonUtil {
       return;
     }
 
+    System.out.println("load paths");
     // Reset variables
     paths.clear();
     startingPose = null;
@@ -49,6 +50,7 @@ public class AutonUtil {
 
     // Load paths from storage
     if (pathNames != null && pathNames.size() > 0) {
+      System.out.println("path size: " + pathNames.size());
       for (int i = 0; i < pathNames.size(); i++) {
         try {
           if (pathNames.get(i).toLowerCase().contains(autoGroupKey.toLowerCase())) {

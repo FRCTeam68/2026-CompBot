@@ -33,16 +33,20 @@ public class FollowPathUtil {
    */
   public static void loadPathFromList(List<String> pathNames) {
     if (pathNames == loadedPathNames) {
+      System.out.print("path names equal ");
       return;
     }
 
     if (pathNames == null) {
+      System.out.print("pathnames null: ");
       path.clear();
       loadedPathNames = pathNames;
       return;
     }
 
     boolean pathLoadError = false;
+
+    System.out.print("path size: " + pathNames.size());
 
     for (int i = 0; i < pathNames.size(); i++) {
       try {
