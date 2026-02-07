@@ -103,7 +103,7 @@ public class FlywheelIOReal implements FlywheelIO {
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(leaderTalon));
     PhoenixUtil.registerSignals(
         // TEMPLATE: Set whether motor is attached to a CANivore
-        new CANBus("rio"),
+        new CANBus("DRIVEbus"),
         position,
         velocity,
         leaderAppliedVoltage,

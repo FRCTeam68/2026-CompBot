@@ -13,12 +13,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import frc.robot.util.CanBusUtil;
 import lombok.Builder;
 
 public final class DriveConstants {
   // Hardware Configuration
-  public static final CANBus canBus = new CANBus("rio");
-  public static final double trackWidthX = Units.inchesToMeters(22.5); // meters
+  public static final CANBus canBus = CanBusUtil.getCanivoreBus();
+  public static final double trackWidthX = Units.inchesToMeters(19.5); // meters
   public static final double trackWidthY = Units.inchesToMeters(22.5); // meters
   public static final double driveReduction = 5.14;
   public static final double turnReduction = 12.8;
@@ -50,10 +51,10 @@ public final class DriveConstants {
 
   // Autopilot configuration
   public static final APProfile apConfigStatic =
-      new APProfile(new APConstraints(100.0, 100.0))
-          .withErrorXY(Inches.of(3))
-          .withErrorTheta(Degrees.of(3))
-          .withBeelineRadius(Inches.of(12));
+      new APProfile(new APConstraints(64.0, 14.0))
+          .withErrorXY(Inches.of(1))
+          .withErrorTheta(Degrees.of(1))
+          .withBeelineRadius(Inches.of(5));
 
   public static final APProfile apConfigDynamic =
       new APProfile(new APConstraints(100.0, 10))

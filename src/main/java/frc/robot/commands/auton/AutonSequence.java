@@ -1,7 +1,6 @@
 package frc.robot.commands.auton;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.drive.Drive;
 import java.util.List;
 
 public interface AutonSequence {
@@ -9,7 +8,7 @@ public interface AutonSequence {
     return null;
   }
 
-  default Command sequence(Drive drive) {
+  default Command sequence() {
     return null;
   }
 }

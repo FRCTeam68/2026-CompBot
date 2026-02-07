@@ -1,13 +1,16 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
-import frc.robot.FieldConstants.FieldType;
 
 public final class Constants {
   private static final Mode simType = Mode.SIM;
-  public static final FieldType fieldtype = FieldType.PRACTICE;
+  public static final Boolean lowCeiling = false; // Keep shots low to avoid ceiling
   public static final Boolean tuningMode = true;
+  public static final Boolean hootLogging = false;
+
   public static final Double loopPeriodSecs = 0.02;
+  public static final double loopOverrunWarningSecs = 0.2;
+
   public static final Double warningTempCelsius = 60.0;
 
   public static Mode getMode() {
