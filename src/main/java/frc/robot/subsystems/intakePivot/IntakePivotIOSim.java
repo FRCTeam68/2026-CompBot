@@ -1,4 +1,4 @@
-package frc.robot.subsystems.intake;
+package frc.robot.subsystems.intakePivot;
 
 import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.MathUtil;
@@ -12,7 +12,7 @@ import frc.robot.Constants;
 import frc.robot.util.PhoenixUtil.ControlMode;
 
 public class IntakePivotIOSim implements IntakePivotIO {
-  private final DCMotor motor = DCMotor.getFalcon500Foc(1);
+  private final DCMotor motor = DCMotor.getKrakenX60Foc(1);
 
   private final DCMotorSim sim;
   private final PIDController controller = new PIDController(0, 0, 0);
@@ -32,15 +32,21 @@ public class IntakePivotIOSim implements IntakePivotIO {
     if (DriverStation.isDisabled()) {
       runVolts(0);
     } else {
-      if (mode == ControlMode.Velocity) {
-        setInputVoltage(controller.calculate(sim.getAngularVelocityRPM() / 60.0));
-      } else if (mode == ControlMode.Position) {
+      if (mode == ControlMode.Position) {
         setInputVoltage(controller.calculate(sim.getAngularPositionRotations()));
       }
     }
 
     sim.update(Constants.loopPeriodSecs);
-
+    if (sim.getAngularPositionRotations() > IntakePivot.getExtended()
+        || sim.getAngularPositionRotations() < IntakePivot.getPackaged()) {
+      sim.setAngle(
+          Units.rotationsToRadians(
+              MathUtil.clamp(
+                  sim.getAngularPositionRotations(),
+                  IntakePivot.getPackaged(),
+                  IntakePivot.getExtended())));
+    }
     inputs.connected = true;
     inputs.positionRots = sim.getAngularPositionRotations();
     inputs.velocityRotsPerSec = sim.getAngularVelocityRPM() / 60.0;
@@ -56,17 +62,11 @@ public class IntakePivotIOSim implements IntakePivotIO {
   }
 
   @Override
-  public void runVelocity(double velocity, int slot) {
-    mode = ControlMode.Velocity;
-    controller.setPID(slotConfigs[slot].kP, slotConfigs[slot].kI, slotConfigs[slot].kD);
-    controller.setSetpoint(velocity);
-  }
-
-  @Override
   public void runPosition(double position, int slot) {
     mode = ControlMode.Position;
     controller.setPID(slotConfigs[slot].kP, slotConfigs[slot].kI, slotConfigs[slot].kD);
-    controller.setSetpoint(position);
+    controller.setSetpoint(
+        MathUtil.clamp(position, IntakePivot.getPackaged(), IntakePivot.getExtended()));
   }
 
   @Override

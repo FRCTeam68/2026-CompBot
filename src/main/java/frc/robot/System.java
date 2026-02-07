@@ -7,8 +7,8 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOReal;
 import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.IntakePivotIO;
+import frc.robot.subsystems.intakePivot.IntakePivot;
+import frc.robot.subsystems.intakePivot.IntakePivotIO;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIO;
 import frc.robot.subsystems.shooter.Shooter;
@@ -24,7 +24,7 @@ public class System {
   // Subsystems
   @Getter private final Drive drive;
   @Getter private final Vision vision;
-  @Getter private final Intake intakePivot;
+  @Getter private final IntakePivot intakePivot;
   @Getter private final RollerSystem intakeSpin;
   @Getter private final Shooter shooter;
   @Getter private final RollerSystem spindexer;
@@ -80,7 +80,7 @@ public class System {
                 new VisionIO() {});
     }
 
-    intakePivot = new Intake(new IntakePivotIO() {});
+    intakePivot = new IntakePivot(new IntakePivotIO() {});
     intakeSpin = new RollerSystem("null1", new RollerSystemIO() {});
     shooter = new Shooter();
     spindexer = new RollerSystem("null2", new RollerSystemIO() {});

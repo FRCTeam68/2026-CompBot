@@ -1,4 +1,4 @@
-package frc.robot.subsystems.intake;
+package frc.robot.subsystems.intakePivot;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
@@ -11,11 +11,11 @@ public interface IntakePivotIO {
     public boolean connected = false;
     public double positionRots = 0.0;
     public double velocityRotsPerSec = 0.0;
-    public double appliedVoltage = 0.0;
     public double supplyCurrentAmps = 0.0;
     public double torqueCurrentAmps = 0.0;
     public double tempCelsius = 0.0;
     public MagnetHealthValue magnetHealth = MagnetHealthValue.Magnet_Invalid;
+    public double appliedVoltage;
   }
 
   default void updateInputs(IntakePivotIOInputs inputs) {}
@@ -26,14 +26,6 @@ public interface IntakePivotIO {
    * @param volts Voltage
    */
   default void runVolts(double volts) {}
-
-  /**
-   * Run motor at velocity.
-   *
-   * @param velocity Velocity in mechanism rotations per second
-   * @param slot
-   */
-  default void runVelocity(double velocity, int slot) {}
 
   /**
    * Run motor to position.

@@ -1,4 +1,4 @@
-package frc.robot.subsystems.intake;
+package frc.robot.subsystems.intakePivot;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
@@ -14,7 +14,6 @@ import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
@@ -63,12 +62,6 @@ public class IntakePivotIOReal implements IntakePivotIO {
   // Control requests
   // TEMPLATE: Choose desired control methods
   private final VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true);
-  private final VelocityVoltage velocityOut = new VelocityVoltage(0).withEnableFOC(true);
-  //   private final MotionMagicVelocityVoltage velocityOut = new
-  // MotionMagicVelocityVoltage(0).withEnableFOC(true);
-  //   private final VelocityTorqueCurrentFOC velocityOut = new VelocityTorqueCurrentFOC(0);
-  //   private final MotionMagicVelocityTorqueCurrentFOC velocityOut = new
-  // MotionMagicVelocityTorqueCurrentFOC(0);
   private final PositionVoltage positionOut = new PositionVoltage(0).withEnableFOC(true);
   //   private final MotionMagicVoltage positionOut = new MotionMagicVoltage(0).withEnableFOC(true);
   //   private final TorqueCurrentFOC positionOut = new TorqueCurrentFOC(0);
@@ -123,8 +116,7 @@ public class IntakePivotIOReal implements IntakePivotIO {
   @Override
   public void updateInputs(IntakePivotIOInputs inputs) {
     inputs.connected =
-        BaseStatusSignal.isAllGood(
-            position, velocity, appliedVoltage, supplyCurrent, torqueCurrent);
+        BaseStatusSignal.isAllGood(position, appliedVoltage, supplyCurrent, torqueCurrent);
     inputs.positionRots = position.getValueAsDouble();
     inputs.velocityRotsPerSec = velocity.getValueAsDouble();
     inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
@@ -137,11 +129,6 @@ public class IntakePivotIOReal implements IntakePivotIO {
   @Override
   public void runVolts(double volts) {
     talon.setControl(voltageOut.withOutput(volts));
-  }
-
-  @Override
-  public void runVelocity(double velocity, int slot) {
-    talon.setControl(velocityOut.withVelocity(velocity).withSlot(slot));
   }
 
   @Override

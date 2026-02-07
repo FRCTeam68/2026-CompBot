@@ -14,7 +14,7 @@ public class RollerSystem extends SubsystemBase {
   private final RollerSystemIO io;
   protected final RollerSystemIOInputsAutoLogged inputs = new RollerSystemIOInputsAutoLogged();
 
-  private final Debouncer connectedDebouncer = new Debouncer(0.5, DebounceType.kFalling);
+  private final Debouncer connectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
   private final Alert disconnectedAlert;
   private final Alert tempAlert;
 

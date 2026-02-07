@@ -1,21 +1,28 @@
-package frc.robot.subsystems.intake;
+package frc.robot.subsystems.intakePivot;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
 import lombok.Getter;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class Intake {
+public class IntakePivot extends SubsystemBase {
   @Getter private static final double packaged = 0;
-  @Getter private static final double extended = 0.1;
+  @Getter private static final double extended = 0.23;
   private final IntakePivotIO io;
   protected final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
+  private final Debouncer connectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
   private final Alert disconnectedAlert =
       new Alert("Intake pivot motor disconnected!", AlertType.kError);
   private final Alert tempAlert = new Alert("Intake pivot motor is too hot.", AlertType.kWarning);
@@ -25,12 +32,11 @@ public class Intake {
 
   private LoggedTunableNumber mmVelocity =
       new LoggedTunableNumber("MotorTemplate/MotionMagic/Velocity", 0);
+
   private LoggedTunableNumber mmAcceleration =
       new LoggedTunableNumber("MotorTemplate/MotionMagic/Acceleration", 0);
   private LoggedTunableNumber mmJerk = new LoggedTunableNumber("MotorTemplate/MotionMagic/Jerk", 0);
 
-  private LoggedTunableNumber setpointBandVelocity =
-      new LoggedTunableNumber("MotorTemplate/VelocitySetpointBand", 0);
   private LoggedTunableNumber setpointBandPosition =
       new LoggedTunableNumber("MotorTemplate/PositionSetpointBand", 0);
 
@@ -39,24 +45,25 @@ public class Intake {
   @Getter private ControlMode mode = ControlMode.Neutral;
   public double getPosition;
 
-  public Intake(IntakePivotIO io) {
+  public IntakePivot(IntakePivotIO io) {
     this.io = io;
   }
 
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("IntakePivot", inputs);
-    disconnectedAlert.set(!inputs.connected);
+    disconnectedAlert.set(!connectedDebouncer.calculate(inputs.connected));
     tempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
     Logger.recordOutput(
         "MotorTemplate/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput(
-        "MotorTemplate/SetpointVelocityRotsPerSec", (mode == ControlMode.Velocity) ? setpoint : 0);
-    Logger.recordOutput(
         "MotorTemplate/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
 
-    Logger.recordOutput("RobotPose/MotorTemplate", Pose3d.kZero);
+    Logger.recordOutput(
+        "RobotPose/Intake",
+        new Pose3d(
+            inputs.positionRots / extended * Units.inchesToMeters(12), 0, 0, Rotation3d.kZero));
 
     // Update tunable numbers
     if (kP0.hasChanged(hashCode()) || kD0.hasChanged(hashCode()) || kS0.hasChanged(hashCode())) {
@@ -68,7 +75,6 @@ public class Intake {
         || mmJerk.hasChanged(hashCode())) {
       io.setMotionMagic(
           new MotionMagicConfigs()
-              .withMotionMagicCruiseVelocity(mmVelocity.get())
               .withMotionMagicAcceleration(mmAcceleration.get())
               .withMotionMagicJerk(mmJerk.get()));
     }
@@ -89,17 +95,13 @@ public class Intake {
     io.runVolts(volts);
   }
 
-  public void runVelocity(double velocity, int slot) {
-    mode = ControlMode.Velocity;
-    io.runVelocity(velocity, 0);
-  }
-
   /**
    * Set goal position in mechanism rotations
    *
    * @param position Goal position
    */
   public void runPosition(double position, int slot) {
+    setpoint = position;
     mode = ControlMode.Position;
     io.runPosition(position, 0);
   }
@@ -124,52 +126,47 @@ public class Intake {
     io.setPosition(rotations);
   }
 
-  //   /**
-  //    * Velocity of the mechanism in degrees of elevation per second
-  //    *
-  //    * @return Velocity
-  //    */
-  //   public double getVelocity() {
-  //     return inputs.velocityRotsPerSec;
-  //   }
+  /**
+   * Velocity of the mechanism in degrees of elevation per second
+   *
+   * @return Velocity
+   */
+  public double getVelocity() {
+    return inputs.velocityRotsPerSec;
+  }
 
-  //   /**
-  //    * Position of the mechanism in degrees of elevation
-  //    *
-  //    * @return Elevation of the wrist
-  //    */
-  //   public double getPosition() {
-  //     return inputs.positionRots;
-  //   }
+  /**
+   * Position of the mechanism in degrees of elevation
+   *
+   * @return Elevation of the wrist
+   */
+  public double getPosition() {
+    return inputs.positionRots;
+  }
 
-  //   /**
-  //    * Current corresponding to the torque output by the lead motor. Similar to StatorCurrent.
-  // Users
-  //    * will likely prefer this current to calculate the applied torque to the rotor.
-  //    *
-  //    * <p>Stator current where positive current means torque is applied in the forward direction
-  // as
-  //    * determined by the Inverted setting.
-  //    *
-  //    * @return Lead motor torque current
-  //    */
-  //   public double getTorqueCurrent() {
-  //     return inputs.torqueCurrentAmps;
-  //   }
+  /**
+   * Current corresponding to the torque output by the lead motor. Similar to StatorCurrent. Users
+   * will likely prefer this current to calculate the applied torque to the rotor.
+   *
+   * <p>Stator current where positive current means torque is applied in the forward direction as
+   * determined by the Inverted setting.
+   *
+   * @return Lead motor torque current
+   */
+  public double getTorqueCurrent() {
+    return inputs.torqueCurrentAmps;
+  }
 
-  //   /**
-  //    * Check if mechanism is at goal position with error of setpointBandPosition
-  //    *
-  //    * @return True if in position control mode and mechanism is at goal position, false
-  // otherwise
-  //    */
-  //   @AutoLogOutput(key = "MotorTemplate/atSetpoint")
-  //   public boolean atSetpoint() {
-  //     return switch (mode) {
-  //       case Velocity -> Math.abs(setpoint - inputs.velocityRotsPerSec) <
-  // setpointBandVelocity.get();
-  //       case Position -> Math.abs(setpoint - inputs.positionRots) < setpointBandPosition.get();
-  //       default -> false;
-  //     };
-  //   }
+  /**
+   * Check if mechanism is at goal position with error of setpointBandPosition
+   *
+   * @return True if in position control mode and mechanism is at goal position, false otherwise
+   */
+  @AutoLogOutput(key = "MotorTemplate/atSetpoint")
+  public boolean atSetpoint() {
+    return switch (mode) {
+      case Position -> Math.abs(setpoint - inputs.positionRots) < setpointBandPosition.get();
+      default -> false;
+    };
+  }
 }
