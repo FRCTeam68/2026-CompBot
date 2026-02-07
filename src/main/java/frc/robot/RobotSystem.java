@@ -18,8 +18,8 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import lombok.Getter;
 
-public class System {
-  private static System instance = null;
+public class RobotSystem {
+  private static RobotSystem instance = null;
 
   // Subsystems
   @Getter private final Drive drive;
@@ -30,7 +30,7 @@ public class System {
   @Getter private final RollerSystem spindexer;
   @Getter private final RollerSystem feeder;
 
-  public System() {
+  public RobotSystem() {
     switch (Constants.getMode()) {
       case REAL:
         drive =
@@ -92,9 +92,9 @@ public class System {
    *
    * @return The single instance of the System class.
    */
-  public static System getInstance() {
+  public static RobotSystem getInstance() {
     if (instance == null) {
-      instance = new System();
+      instance = new RobotSystem();
     }
     return instance;
   }

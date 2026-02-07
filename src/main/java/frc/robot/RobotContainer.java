@@ -34,7 +34,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   // Subsystems
-  private final System system = System.getInstance();
+  private final RobotSystem system = RobotSystem.getInstance();
   private final Drive drive = system.getDrive();
   // Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);

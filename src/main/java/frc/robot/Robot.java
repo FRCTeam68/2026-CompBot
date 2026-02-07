@@ -147,7 +147,6 @@ public class Robot extends LoggedRobot {
     disabledTimer.restart();
 
     // Set up auto logging
-    AutoLogOutputManager.addObject(new RobotState());
     AutoLogOutputManager.addObject(new ShiftUtil());
 
     // Instantiate our RobotContainer

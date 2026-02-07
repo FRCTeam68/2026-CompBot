@@ -8,7 +8,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import frc.robot.System;
+import frc.robot.RobotSystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.rollers.RollerSystem;
 import java.util.LinkedList;
@@ -24,7 +24,7 @@ public class ShotVisualizer {
   private static final double gravity = 9.8;
 
   // Subsystems
-  private static final System system = System.getInstance();
+  private static final RobotSystem system = RobotSystem.getInstance();
   private static final Drive drive = system.getDrive();
   private static final Shooter shooter = system.getShooter();
   private static final RollerSystem feeder = system.getFeeder();
