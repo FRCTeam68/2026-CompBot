@@ -16,7 +16,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.System;
+import frc.robot.RobotSystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.util.geometry.AllianceFlipUtil;
@@ -31,7 +31,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class DriveCommands {
   // Complete system
-  private static final System system = System.getInstance();
+  private static final RobotSystem system = RobotSystem.getInstance();
 
   // Subsystems
   private static final Drive drive = system.getDrive();

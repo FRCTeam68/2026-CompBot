@@ -1,5 +1,9 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.drive.GyroIO;
@@ -12,14 +16,27 @@ import frc.robot.subsystems.intakePivot.IntakePivotIO;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIO;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.flywheel.Flywheel;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIOReal;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIOSim;
+import frc.robot.subsystems.shooter.hood.Hood;
+import frc.robot.subsystems.shooter.hood.HoodIO;
+import frc.robot.subsystems.shooter.hood.HoodIOReal;
+import frc.robot.subsystems.shooter.hood.HoodIOSim;
+import frc.robot.subsystems.shooter.turret.Turret;
+import frc.robot.subsystems.shooter.turret.TurretIO;
+import frc.robot.subsystems.shooter.turret.TurretIOReal;
+import frc.robot.subsystems.shooter.turret.TurretIOSim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import lombok.Getter;
+import org.littletonrobotics.junction.Logger;
 
-public class System {
-  private static System instance = null;
+public class RobotSystem {
+  private static RobotSystem instance = null;
 
   // Subsystems
   @Getter private final Drive drive;
@@ -30,7 +47,10 @@ public class System {
   @Getter private final RollerSystem spindexer;
   @Getter private final RollerSystem feeder;
 
-  public System() {
+  public RobotSystem() {
+    Flywheel flywheel;
+    Hood hood;
+    Turret turret;
     switch (Constants.getMode()) {
       case REAL:
         drive =
@@ -48,6 +68,10 @@ public class System {
                 drive::getFieldVelocity,
                 new VisionIOLimelight(CameraInfo.LL_4),
                 new VisionIOLimelight(CameraInfo.LL_3G));
+        flywheel = new Flywheel(new FlywheelIOReal());
+        hood = new Hood(new HoodIOReal());
+        turret = new Turret(new TurretIOReal());
+
         break;
 
       case SIM:
@@ -60,6 +84,9 @@ public class System {
                 new ModuleIOSim());
 
         vision = new Vision(drive::addVisionMeasurement, drive::getPose, drive::getFieldVelocity);
+        flywheel = new Flywheel(new FlywheelIOSim());
+        hood = new Hood(new HoodIOSim());
+        turret = new Turret(new TurretIOSim());
         break;
 
       default:
@@ -78,11 +105,14 @@ public class System {
                 drive::getFieldVelocity,
                 new VisionIO() {},
                 new VisionIO() {});
+        flywheel = new Flywheel(new FlywheelIO() {});
+        hood = new Hood(new HoodIO() {});
+        turret = new Turret(new TurretIO() {});
     }
 
     intakePivot = new IntakePivot(new IntakePivotIO() {});
     intakeSpin = new RollerSystem("null1", new RollerSystemIO() {});
-    shooter = new Shooter();
+    shooter = new Shooter(flywheel, hood, turret);
     spindexer = new RollerSystem("null2", new RollerSystemIO() {});
     feeder = new RollerSystem("null3", new RollerSystemIO() {});
   }
@@ -92,10 +122,33 @@ public class System {
    *
    * @return The single instance of the System class.
    */
-  public static System getInstance() {
+  public static RobotSystem getInstance() {
     if (instance == null) {
-      instance = new System();
+      instance = new RobotSystem();
     }
     return instance;
+  }
+
+  public void visualization() {
+    Translation3d shooterPosition = new Translation3d(-0.160018476, 0.1335875408, 0);
+    Logger.recordOutput(
+        "RobotPose/Hood",
+        new Pose3d(
+                -0.2609834506,
+                0.133624955,
+                0.4431027206,
+                new Rotation3d(0, -Units.degreesToRadians(shooter.getHood().getPosition()), 0))
+            .rotateAround(
+                shooterPosition,
+                new Rotation3d(
+                    0, 0, Units.rotationsToRadians(shooter.getTurret().getPosition()) + Math.PI)));
+    Logger.recordOutput(
+        "RobotPose/Turret",
+        new Pose3d(
+            -0.160018476,
+            0.1335875408,
+            0,
+            new Rotation3d(
+                0, 0, Units.rotationsToRadians(shooter.getTurret().getPosition()) + Math.PI)));
   }
 }

@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.auton.AutonCommands;
 import frc.robot.commands.auton.AutonSequence;
 import frc.robot.commands.auton.AutonSequenceCenter;
@@ -35,7 +34,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   // Subsystems
-  private final System system = System.getInstance();
+  private final RobotSystem system = RobotSystem.getInstance();
   private final Drive drive = system.getDrive();
   // Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
@@ -134,8 +133,6 @@ public class RobotContainer {
                                 new Pose2d(FieldConstants.Hub.nearRightCorner, new Rotation2d())
                                     .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
                         .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
-
-    driverController.leftTrigger().whileTrue(IntakeCommands.intake());
 
     hubTransitionWarningTrigger.onTrue(
         Commands.runOnce(() -> driverController.setRumble(RumbleType.kBothRumble, 1))

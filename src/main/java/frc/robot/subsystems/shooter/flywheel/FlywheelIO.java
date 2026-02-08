@@ -6,17 +6,20 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface FlywheelIO {
   @AutoLog
-  static class MotorTemplateIOInputs {
-    public boolean connected = false;
+  static class FlyWheelIOInputs {
+    public boolean leaderConnected = false;
+    public boolean followerConnected = false;
     public double positionRots = 0.0;
     public double velocityRotsPerSec = 0.0;
-    public double appliedVoltage = 0.0;
-    public double supplyCurrentAmps = 0.0;
-    public double torqueCurrentAmps = 0.0;
-    public double tempCelsius = 0.0;
+    public double leaderAppliedVoltage = 0.0;
+    public double followerAppliedVoltage = 0.0;
+    public double leaderSupplyCurrentAmps = 0.0;
+    public double leaderTorqueCurrentAmps = 0.0;
+    public double leaderTempCelsius = 0.0;
+    public double followerTempCelsius = 0.0;
   }
 
-  default void updateInputs(MotorTemplateIOInputs inputs) {}
+  default void updateInputs(FlyWheelIOInputs inputs) {}
 
   /**
    * Run motor at volts.
@@ -33,23 +36,8 @@ public interface FlywheelIO {
    */
   default void runVelocity(double velocity, int slot) {}
 
-  /**
-   * Run motor to position.
-   *
-   * @param position Position in mechanism rotations
-   * @param slot
-   */
-  default void runPosition(double rotations, int slot) {}
-
   /** Stop motor */
   default void stop() {}
-
-  /**
-   * Set the current mechanism position.
-   *
-   * @param rotations Position in mechanism rotations
-   */
-  default void setPosition(double rotations) {}
 
   /**
    * Set PID slot configs.

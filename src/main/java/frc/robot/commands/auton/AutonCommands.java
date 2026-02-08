@@ -3,13 +3,13 @@ package frc.robot.commands.auton;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
-import frc.robot.System;
+import frc.robot.RobotSystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.AutonUtil;
 
 public class AutonCommands {
   // Complete system
-  private static final System system = System.getInstance();
+  private static final RobotSystem system = RobotSystem.getInstance();
 
   // Subsystems
   private static final Drive drive = system.getDrive();

@@ -6,7 +6,7 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface TurretIO {
   @AutoLog
-  static class MotorTemplateIOInputs {
+  static class TurretIOInputs {
     public boolean connected = false;
     public double positionRots = 0.0;
     public double velocityRotsPerSec = 0.0;
@@ -16,7 +16,7 @@ public interface TurretIO {
     public double tempCelsius = 0.0;
   }
 
-  default void updateInputs(MotorTemplateIOInputs inputs) {}
+  default void updateInputs(TurretIOInputs inputs) {}
 
   /**
    * Run motor at volts.
