@@ -73,9 +73,9 @@ public class Vision extends SubsystemBase {
           new Alert("Camera" + cameraInfo[i].name + " is disconnected.", AlertType.kError);
     }
 
-    // Initialize capture rewind dashboard button
+    // Initialize save rewind dashboard button
     SmartDashboard.putData(
-        "Vision/CaptureRewind", Commands.runOnce(() -> saveRewind()).ignoringDisable(true));
+        "Vision/SaveRewind", Commands.runOnce(() -> saveLimelightRewind()).ignoringDisable(true));
   }
 
   /**
@@ -109,7 +109,7 @@ public class Vision extends SubsystemBase {
    * Throttle the number of processed frames. This is used to reduce the tempature of the camera.
    * Outputs are not zeroed during skipped frames. This is only funtional on the Limelight 4.
    */
-  public void throttleLL4(boolean shouldThrottle) {
+  public void throttleLimelight(boolean shouldThrottle) {
     for (int i = 0; i < io.length; i++) {
       if (cameraInfo[i].name.startsWith("limelight-four"))
         io[i].setThrottle(shouldThrottle ? 200 : 0);
@@ -117,7 +117,7 @@ public class Vision extends SubsystemBase {
   }
 
   /** Save Limelight 4 rewind to disc. This is only functional on the Limelight 4. */
-  public void saveRewind() {
+  public void saveLimelightRewind() {
     for (int i = 0; i < io.length; i++) {
       if (cameraInfo[i].name.startsWith("limelight-four")) io[i].saveRewind();
     }

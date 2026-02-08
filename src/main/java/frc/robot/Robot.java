@@ -37,7 +37,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  */
 public class Robot extends LoggedRobot {
   private static final double lowBatteryDisabledVoltage = 11.0;
-  private static final double lowBatteryEnabledVoltage = 8.0;
+  private static final double lowBatteryEnabledVoltage = 9.0;
   private static final double lowBatteryDisabledTime = 2.0;
 
   private Command autonomousCommand;
@@ -214,7 +214,7 @@ public class Robot extends LoggedRobot {
     // Save Limelight 4 rewind when the robot disables at the end of a real match.
     if (DriverStation.isFMSAttached()
         && !DriverStation.isAutonomous()
-        && DriverStation.getMatchTime() == 0) robotContainer.getVision().saveRewind();
+        && DriverStation.getMatchTime() == 0) robotContainer.saveLimelightRewind();
   }
 
   /** This function is called periodically when disabled. */

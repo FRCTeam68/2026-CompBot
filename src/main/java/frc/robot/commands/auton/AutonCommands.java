@@ -8,11 +8,9 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.AutonUtil;
 
 public class AutonCommands {
-  // Complete system
-  private static final RobotSystem system = RobotSystem.getInstance();
-
   // Subsystems
-  private static final Drive drive = system.getDrive();
+  private static final RobotSystem robotSystem = RobotSystem.getInstance();
+  private static final Drive drive = robotSystem.getDrive();
 
   /**
    * Creates a an auton command with the supplied sequence.

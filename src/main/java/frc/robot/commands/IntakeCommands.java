@@ -6,12 +6,11 @@ import frc.robot.RobotSystem;
 import frc.robot.subsystems.intakePivot.IntakePivot;
 import frc.robot.subsystems.rollers.RollerSystem;
 
-public class IntakeCommands { // Complete system
-  private static final RobotSystem system = RobotSystem.getInstance();
-
+public class IntakeCommands {
   // Subsystems
-  private static final IntakePivot intakePivot = system.getIntakePivot();
-  private static final RollerSystem intakeSpin = system.getIntakeSpin();
+  private static final RobotSystem robotSystem = RobotSystem.getInstance();
+  private static final IntakePivot intakePivot = robotSystem.getIntakePivot();
+  private static final RollerSystem intakeSpin = robotSystem.getIntakeSpin();
 
   public static Command retract() {
     return Commands.runOnce(

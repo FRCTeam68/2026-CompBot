@@ -36,9 +36,9 @@ public class RollerSystem extends SubsystemBase {
   }
 
   /** Run roller at volts */
-  public void runVolts(double inputVolts) {
-    setpointVolts = inputVolts;
-    io.runVolts(inputVolts);
+  public void runVolts(double volts) {
+    setpointVolts = volts;
+    io.runVolts(setpointVolts);
     Logger.recordOutput(name + "/SetpointVolts", setpointVolts);
   }
 
@@ -57,7 +57,7 @@ public class RollerSystem extends SubsystemBase {
   }
 
   /**
-   * @return TorqueCurrent of roller
+   * @return Torque urrent of roller
    */
   public double getTorqueCurrent() {
     return inputs.torqueCurrentAmps;

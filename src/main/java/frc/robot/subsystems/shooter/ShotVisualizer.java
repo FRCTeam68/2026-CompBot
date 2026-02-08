@@ -24,10 +24,10 @@ public class ShotVisualizer {
   private static final double gravity = 9.8;
 
   // Subsystems
-  private static final RobotSystem system = RobotSystem.getInstance();
-  private static final Drive drive = system.getDrive();
-  private static final Shooter shooter = system.getShooter();
-  private static final RollerSystem feeder = system.getFeeder();
+  private static final RobotSystem robotSystem = RobotSystem.getInstance();
+  private static final Drive drive = robotSystem.getDrive();
+  private static final Shooter shooter = robotSystem.getShooter();
+  private static final RollerSystem feeder = robotSystem.getFeeder();
 
   private static final Supplier<Pose2d> robotPoseSupplier = drive::getPose;
   private static final Supplier<ChassisSpeeds> fieldVelocitySupplier = drive::getFieldVelocity;

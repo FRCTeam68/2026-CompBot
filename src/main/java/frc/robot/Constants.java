@@ -4,14 +4,14 @@ import edu.wpi.first.wpilibj.RobotBase;
 
 public final class Constants {
   private static final Mode simType = Mode.SIM;
-  public static final Boolean lowCeiling = false; // Keep shots low to avoid ceiling
-  public static final Boolean tuningMode = true;
-  public static final Boolean hootLogging = false;
+  public static final boolean lowCeiling = false; // Keep shots low to avoid ceiling
+  public static final boolean tuningMode = true;
+  public static final boolean hootLogging = false;
 
-  public static final Double loopPeriodSecs = 0.02;
+  public static final double loopPeriodSecs = 0.02;
   public static final double loopOverrunWarningSecs = 0.2;
 
-  public static final Double warningTempCelsius = 60.0;
+  public static final double warningTempCelsius = 60.0;
 
   public static Mode getMode() {
     if (RobotBase.isReal()) {

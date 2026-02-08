@@ -21,6 +21,7 @@ import frc.robot.commands.auton.AutonSequence;
 import frc.robot.commands.auton.AutonSequenceCenter;
 import frc.robot.commands.auton.AutonSequenceRightTrench;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.AutonUtil;
 import frc.robot.util.ShiftUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
@@ -34,8 +35,10 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   // Subsystems
-  private final RobotSystem system = RobotSystem.getInstance();
-  private final Drive drive = system.getDrive();
+  private final RobotSystem robotSystem = RobotSystem.getInstance();
+  private final Drive drive = robotSystem.getDrive();
+  private final Vision vision = robotSystem.getVision();
+
   // Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
   private final CommandPS4Controller operatorController = new CommandPS4Controller(1);
@@ -87,24 +90,6 @@ public class RobotContainer {
             () -> -driverController.getRightX()));
 
     driverController
-        .back()
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(
-                                drive.getPose().getTranslation(),
-                                AllianceFlipUtil.apply(Rotation2d.kZero))))
-                .ignoringDisable(true)
-                .withName("ResetRobotRotation"));
-
-    driverController
-        .start()
-        .onTrue(
-            Commands.runOnce(() -> stopSubsystems())
-                .ignoringDisable(true)
-                .withName("StopSubsystems"));
-    driverController
         .povUp()
         .onTrue(
             DriveCommands.autopilotDriveToPose(
@@ -134,6 +119,25 @@ public class RobotContainer {
                                     .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
                         .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
 
+    driverController
+        .back()
+        .onTrue(
+            Commands.runOnce(
+                    () ->
+                        drive.setPose(
+                            new Pose2d(
+                                drive.getPose().getTranslation(),
+                                AllianceFlipUtil.apply(Rotation2d.kZero))))
+                .ignoringDisable(true)
+                .withName("ResetRobotRotation"));
+
+    driverController
+        .start()
+        .onTrue(
+            Commands.runOnce(() -> stopSubsystems())
+                .ignoringDisable(true)
+                .withName("StopSubsystems"));
+
     hubTransitionWarningTrigger.onTrue(
         Commands.runOnce(() -> driverController.setRumble(RumbleType.kBothRumble, 1))
             .andThen(Commands.waitSeconds(1))
@@ -161,6 +165,11 @@ public class RobotContainer {
     driverController.setRumble(RumbleType.kBothRumble, 0);
     operatorController.setRumble(RumbleType.kBothRumble, 0);
     drive.stop();
+  }
+
+  /** Save Limelight 4 rewind to disc. This is only functional on the Limelight 4. */
+  public void saveLimelightRewind() {
+    vision.saveLimelightRewind();
   }
 
   /**

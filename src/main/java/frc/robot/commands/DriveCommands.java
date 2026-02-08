@@ -30,11 +30,9 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class DriveCommands {
-  // Complete system
-  private static final RobotSystem system = RobotSystem.getInstance();
-
   // Subsystems
-  private static final Drive drive = system.getDrive();
+  private static final RobotSystem robotSystem = RobotSystem.getInstance();
+  private static final Drive drive = robotSystem.getDrive();
 
   private static final double DEADBAND = 0.1;
   private static final double FF_START_DELAY = 2.0; // Secs

@@ -11,11 +11,9 @@ import java.util.List;
 import java.util.Set;
 
 public class AutonSequenceRightTrench implements AutonSequence {
-  // Complete system
-  private static final RobotSystem system = RobotSystem.getInstance();
-
   // Subsystems
-  private static final Drive drive = system.getDrive();
+  private static final RobotSystem robotSystem = RobotSystem.getInstance();
+  private static final Drive drive = robotSystem.getDrive();
 
   private static final List<String> pathNames = new ArrayList<>();
   private boolean climbpath = false;
