@@ -86,4 +86,11 @@ public interface VisionIO {
    * @param skippedFrames Index of the pipeline
    */
   public default void setThrottle(int skippedFrames) {}
+
+  /**
+   * Triggers a rewind to be saved to disc. This is only functional on the Limelight 4.
+   *
+   * <p><b>Capture Time (sec):</b> 165
+   */
+  public default void saveRewind() {}
 }

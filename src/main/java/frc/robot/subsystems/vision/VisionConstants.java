@@ -9,10 +9,7 @@ import java.util.function.DoubleBinaryOperator;
 public class VisionConstants {
   // Camera information
   public static enum CameraInfo {
-    // Intake camera pose (low) - new Pose3d(new Translation3d(-0.425914, 0.0, 0.254286), new
-    //                      Rotation3d(0.0, Units.degreesToRadians(-15.0), Math.PI))
-    // Intake camera pose (high) - new Pose3d(new Translation3d(-0.401129, 0.0, 0.258806),
-    //                      new Rotation3d(0.0, Units.degreesToRadians(10.0), Math.PI))
+    // Limelight 4 name must start with "limelight-four" to work with special functions.
     LL_2(
         "limelight-two",
         new Pose3d(

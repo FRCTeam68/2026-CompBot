@@ -210,6 +210,11 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledInit() {
     robotContainer.stopSubsystems();
+
+    // Save Limelight 4 rewind when the robot disables at the end of a real match.
+    if (DriverStation.isFMSAttached()
+        && !DriverStation.isAutonomous()
+        && DriverStation.getMatchTime() == 0) robotContainer.getVision().saveRewind();
   }
 
   /** This function is called periodically when disabled. */
