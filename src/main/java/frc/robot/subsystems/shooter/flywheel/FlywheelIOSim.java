@@ -33,6 +33,7 @@ public class FlywheelIOSim implements FlywheelIO {
     } else {
       if (mode == ControlMode.Velocity) {
         setInputVoltage(controller.calculate(sim.getAngularVelocityRPM() / 60.0));
+        // TODO: remove unnecessary velocity control
       } else if (mode == ControlMode.Position) {
         setInputVoltage(controller.calculate(sim.getAngularPositionRotations()));
       }

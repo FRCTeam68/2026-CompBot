@@ -59,8 +59,8 @@ public class HoodIOReal implements HoodIO {
   private final StatusSignal<Angle> absolutePosition;
 
   // Control requests
-  // TEMPLATE: Choose desired control methods
   private final VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true);
+  // TODO: remove unnecessary velocity control
   private final VelocityVoltage velocityOut = new VelocityVoltage(0).withEnableFOC(true);
   //   private final MotionMagicVelocityVoltage velocityOut = new
   // MotionMagicVelocityVoltage(0).withEnableFOC(true);
@@ -74,11 +74,10 @@ public class HoodIOReal implements HoodIO {
   private final NeutralOut neutralOut = new NeutralOut();
 
   public HoodIOReal() {
-    // TEMPLATE: Set CAN id and bus
     talon = new TalonFX(0, canBus);
     cancoder = new CANcoder(1, canBus);
+
     // Configure Motor
-    // TEMPLATE: Set configuration
     talonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     talonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     // Current limits
@@ -118,7 +117,6 @@ public class HoodIOReal implements HoodIO {
                 absolutePosition));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon, cancoder));
     PhoenixUtil.registerSignals(
-        // TEMPLATE: Set whether motor is attached to a CANivore
         canBus,
         position,
         velocity,
@@ -149,6 +147,7 @@ public class HoodIOReal implements HoodIO {
     talon.setControl(voltageOut.withOutput(volts));
   }
 
+  // TODO: remove unnecessary velocity control
   @Override
   public void runVelocity(double velocity, int slot) {
     talon.setControl(velocityOut.withVelocity(velocity / 360.0).withSlot(slot));

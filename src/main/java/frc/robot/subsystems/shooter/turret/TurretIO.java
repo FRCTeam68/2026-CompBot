@@ -25,6 +25,7 @@ public interface TurretIO {
    */
   default void runVolts(double volts) {}
 
+  // TODO: remove unnecessary velocity control
   /**
    * Run motor at velocity.
    *

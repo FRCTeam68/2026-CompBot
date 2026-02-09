@@ -51,6 +51,7 @@ public class RobotSystem {
     Flywheel flywheel;
     Hood hood;
     Turret turret;
+
     switch (Constants.getMode()) {
       case REAL:
         drive =
@@ -68,6 +69,7 @@ public class RobotSystem {
                 drive::getFieldVelocity,
                 new VisionIOLimelight(CameraInfo.LL_4),
                 new VisionIOLimelight(CameraInfo.LL_3G));
+
         flywheel = new Flywheel(new FlywheelIOReal());
         hood = new Hood(new HoodIOReal());
         turret = new Turret(new TurretIOReal());
@@ -84,6 +86,7 @@ public class RobotSystem {
                 new ModuleIOSim());
 
         vision = new Vision(drive::addVisionMeasurement, drive::getPose, drive::getFieldVelocity);
+
         flywheel = new Flywheel(new FlywheelIOSim());
         hood = new Hood(new HoodIOSim());
         turret = new Turret(new TurretIOSim());
@@ -105,6 +108,7 @@ public class RobotSystem {
                 drive::getFieldVelocity,
                 new VisionIO() {},
                 new VisionIO() {});
+
         flywheel = new Flywheel(new FlywheelIO() {});
         hood = new Hood(new HoodIO() {});
         turret = new Turret(new TurretIO() {});
@@ -130,6 +134,8 @@ public class RobotSystem {
   }
 
   public void visualization() {
+    // TODO: this should be moved to the shooter file. We will need to use it to calculate dynamic
+    // shots.
     Translation3d shooterPosition = new Translation3d(-0.160018476, 0.1335875408, 0);
     Logger.recordOutput(
         "RobotPose/Hood",
@@ -142,6 +148,7 @@ public class RobotSystem {
                 shooterPosition,
                 new Rotation3d(
                     0, 0, Units.rotationsToRadians(shooter.getTurret().getPosition()) + Math.PI)));
+
     Logger.recordOutput(
         "RobotPose/Turret",
         new Pose3d(

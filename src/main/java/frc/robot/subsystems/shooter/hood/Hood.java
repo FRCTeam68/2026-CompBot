@@ -12,6 +12,7 @@ import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+// TODO: the hood class needs to extend SubsystemBase to run the periodic method.
 public class Hood {
   private final HoodIO io;
   protected final HoodIOInputsAutoLogged inputs = new HoodIOInputsAutoLogged();
@@ -26,16 +27,19 @@ public class Hood {
   private final Debouncer hoodMotorDebouncer = new Debouncer(0.5, DebounceType.kRising);
   private final Debouncer hoodCancoderDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
+  // TODO: This is still logging to the MotorTemplate folder
   private LoggedTunableNumber kP0 = new LoggedTunableNumber("MotorTemplate/Slot0/kP", 0);
   private LoggedTunableNumber kD0 = new LoggedTunableNumber("MotorTemplate/Slot0/kD", 0);
   private LoggedTunableNumber kS0 = new LoggedTunableNumber("MotorTemplate/Slot0/kS", 0);
 
+  // TODO: This is still logging to the MotorTemplate folder
   private LoggedTunableNumber mmVelocity =
       new LoggedTunableNumber("MotorTemplate/MotionMagic/Velocity", 0);
   private LoggedTunableNumber mmAcceleration =
       new LoggedTunableNumber("MotorTemplate/MotionMagic/Acceleration", 0);
   private LoggedTunableNumber mmJerk = new LoggedTunableNumber("MotorTemplate/MotionMagic/Jerk", 0);
 
+  // TODO: This is still logging to the MotorTemplate folder
   private LoggedTunableNumber setpointBandPosition =
       new LoggedTunableNumber("MotorTemplate/PositionSetpointBand", 0);
 
@@ -56,6 +60,7 @@ public class Hood {
     hoodMotorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
     hoodCancoderTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
+    // TODO: This is still logging to the MotorTemplate folder
     Logger.recordOutput(
         "MotorTemplate/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput(
@@ -63,12 +68,14 @@ public class Hood {
 
     // Update tunable numbers
     if (kP0.hasChanged(hashCode()) || kD0.hasChanged(hashCode()) || kS0.hasChanged(hashCode())) {
+      // TODO: uncomment this
       // io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
     }
 
     if (mmVelocity.hasChanged(hashCode())
         || mmAcceleration.hasChanged(hashCode())
         || mmJerk.hasChanged(hashCode())) {
+      // TODO: uncomment this
       // io.setMotionMagic(
       new MotionMagicConfigs()
           .withMotionMagicCruiseVelocity(mmVelocity.get())
@@ -89,6 +96,7 @@ public class Hood {
   public void runVolts(double volts) {
     setpoint = volts;
     mode = ControlMode.Voltage;
+    // TODO: uncomment this
     // io.runVolts(volts);
   }
 
@@ -99,17 +107,20 @@ public class Hood {
    */
   public void runElvation(double position, int slot) {
     mode = ControlMode.Position;
+    // TODO: uncomment this
     // io.runPosition(position, 0);
   }
 
   /** Stop motor */
   public void stop() {
     mode = ControlMode.Neutral;
+    // TODO: uncomment this
     // io.stop();
   }
 
   /** Set the current mechanism position to zero */
   public void zero() {
+    // TODO: uncomment this
     // io.setPosition(0);
   }
 
@@ -119,6 +130,7 @@ public class Hood {
    * @param rotations Position in mechanism rotations
    */
   public void setElvation(double rotations) {
+    // TODO: uncomment this
     // io.setPosition(rotations);
   }
 
@@ -144,6 +156,7 @@ public class Hood {
     return inputs.torqueCurrentAmps;
   }
 
+  // TODO: This is still logging to the MotorTemplate folder
   /**
    * Check if mechanism is at goal position with error of setpointBandPosition
    *

@@ -32,6 +32,7 @@ public class HoodIOSim implements HoodIO {
     if (DriverStation.isDisabled()) {
       runVolts(0);
     } else {
+      // TODO: remove unnecessary velocity control
       if (mode == ControlMode.Velocity) {
         setInputVoltage(controller.calculate(sim.getAngularVelocityRPM() / 60.0));
       } else if (mode == ControlMode.Position) {
@@ -57,6 +58,7 @@ public class HoodIOSim implements HoodIO {
     setInputVoltage(volts);
   }
 
+  // TODO: remove unnecessary velocity control
   @Override
   public void runVelocity(double velocity, int slot) {
     mode = ControlMode.Velocity;
