@@ -119,6 +119,8 @@ public class RobotContainer {
                                     .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
                         .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
 
+    // TODO: create button bindings for intake, outtake, and retract
+
     driverController
         .back()
         .onTrue(

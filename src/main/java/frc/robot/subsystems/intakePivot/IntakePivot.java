@@ -81,7 +81,6 @@ public class IntakePivot extends SubsystemBase {
       io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
     }
 
-    // TODO: change to single pipe to remove short circuiting.
     if (mmVelocity.hasChanged(hashCode())
         || mmAcceleration.hasChanged(hashCode())
         || mmJerk.hasChanged(hashCode())) {
@@ -115,7 +114,7 @@ public class IntakePivot extends SubsystemBase {
   public void runPosition(double position, int slot) {
     setpoint = position;
     mode = ControlMode.Position;
-    io.runPosition(position, 0);
+    io.runPosition(position, slot);
   }
 
   /** Stop motor */
@@ -169,6 +168,7 @@ public class IntakePivot extends SubsystemBase {
     return inputs.torqueCurrentAmps;
   }
 
+  // TODO: These are still logging to the "MotorTemplate" folder.
   /**
    * Check if mechanism is at goal position with error of setpointBandPosition
    *
