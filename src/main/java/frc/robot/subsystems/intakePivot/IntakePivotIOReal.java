@@ -40,6 +40,7 @@ public class IntakePivotIOReal implements IntakePivotIO {
   @Getter
   private static final double reduction = rotorToSensorReduction * sensorToMechanismReduction;
 
+  // TODO : get CANbus from CanBusUtil
   private static final CANBus canBus = new CANBus("rio");
 
   // Hardware
@@ -51,6 +52,7 @@ public class IntakePivotIOReal implements IntakePivotIO {
   private final CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
 
   // Status Signals
+  // TODO: create abosolute position signal
   private final StatusSignal<Angle> position;
   private final StatusSignal<AngularVelocity> velocity;
   private final StatusSignal<Voltage> appliedVoltage;
@@ -60,7 +62,6 @@ public class IntakePivotIOReal implements IntakePivotIO {
   private final StatusSignal<MagnetHealthValue> magnetHealth;
 
   // Control requests
-  // TEMPLATE: Choose desired control methods
   private final VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true);
   private final PositionVoltage positionOut = new PositionVoltage(0).withEnableFOC(true);
   //   private final MotionMagicVoltage positionOut = new MotionMagicVoltage(0).withEnableFOC(true);
@@ -69,12 +70,10 @@ public class IntakePivotIOReal implements IntakePivotIO {
   private final NeutralOut neutralOut = new NeutralOut();
 
   public IntakePivotIOReal() {
-    // TEMPLATE: Set CAN id and bus
     talon = new TalonFX(0, canBus);
     cancoder = new CANcoder(1, canBus);
 
     // Configure Motor
-    // TEMPLATE: Set configuration
     talonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     talonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     // Current limits
@@ -107,9 +106,9 @@ public class IntakePivotIOReal implements IntakePivotIO {
         () ->
             BaseStatusSignal.setUpdateFrequencyForAll(
                 50, position, velocity, appliedVoltage, supplyCurrent, torqueCurrent));
+    // TODO: add encoder to bus optimization
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon));
     PhoenixUtil.registerSignals(
-        // TEMPLATE: Set whether motor is attached to a CANivore
         canBus, position, velocity, appliedVoltage, supplyCurrent, torqueCurrent, tempCelsius);
   }
 

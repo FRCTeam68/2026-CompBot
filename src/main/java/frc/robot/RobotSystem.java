@@ -110,6 +110,7 @@ public class RobotSystem {
         turret = new Turret(new TurretIO() {});
     }
 
+    // TODO: create actual implementations for all intake and indexer motors
     intakePivot = new IntakePivot(new IntakePivotIO() {});
     intakeSpin = new RollerSystem("null1", new RollerSystemIO() {});
     shooter = new Shooter(flywheel, hood, turret);

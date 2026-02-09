@@ -165,6 +165,7 @@ public class RobotContainer {
     driverController.setRumble(RumbleType.kBothRumble, 0);
     operatorController.setRumble(RumbleType.kBothRumble, 0);
     drive.stop();
+    // TODO: add stop to intake motors
   }
 
   /** Save Limelight 4 rewind to disc. This is only functional on the Limelight 4. */

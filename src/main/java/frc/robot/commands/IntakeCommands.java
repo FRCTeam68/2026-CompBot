@@ -12,7 +12,11 @@ public class IntakeCommands {
   private static final IntakePivot intakePivot = robotSystem.getIntakePivot();
   private static final RollerSystem intakeSpin = robotSystem.getIntakeSpin();
 
+  // TODO: add subsystem requirments to intake and outtake
   public static Command retract() {
+    // TODO: This command is moving to the wrong position
+    // TODO: We should give this a slightly more specific name. The climber and hood could also have
+    // retract commands.
     return Commands.runOnce(
             () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot)
         .withName("retract");
@@ -30,6 +34,7 @@ public class IntakeCommands {
   public static Command outtake() {
     return Commands.sequence(
             Commands.runOnce(() -> intakePivot.runPosition(IntakePivot.getExtended(), 0)),
+            // TODO: flip intake spin direction for outtake
             Commands.runOnce(() -> intakeSpin.runVolts(7)),
             Commands.idle())
         .finallyDo(() -> intakeSpin.stop())
