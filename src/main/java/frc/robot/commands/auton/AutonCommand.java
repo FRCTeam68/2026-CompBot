@@ -7,7 +7,7 @@ import frc.robot.RobotSystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.AutonUtil;
 
-public class AutonCommands {
+public class AutonCommand {
   // Subsystems
   private static final RobotSystem robotSystem = RobotSystem.getInstance();
   private static final Drive drive = robotSystem.getDrive();

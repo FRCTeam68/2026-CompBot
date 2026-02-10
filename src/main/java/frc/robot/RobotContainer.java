@@ -16,13 +16,12 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.auton.AutonCommands;
+import frc.robot.commands.auton.AutonCommand;
 import frc.robot.commands.auton.AutonSequence;
 import frc.robot.commands.auton.AutonSequenceCenter;
 import frc.robot.commands.auton.AutonSequenceRightTrench;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.util.AutonUtil;
 import frc.robot.util.ShiftUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -56,7 +55,8 @@ public class RobotContainer {
           AlertType.kError);
 
   // Dashboard inputs
-  private final LoggedDashboardChooser<AutonSequence> autonChooser;
+  private final LoggedDashboardChooser<AutonSequence> autonStartingPose;
+  private final 
 
   // Triggers
   private final Trigger hubTransitionWarningTrigger =
@@ -151,12 +151,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return AutonCommands.autonCommand(autonChooser.get());
-  }
-
-  /** Loads autonomous paths from storage. This method can be safely be called periodically. */
-  public void loadAutonomousPath() {
-    AutonUtil.loadPaths(autonChooser.get() != null ? autonChooser.get().getPathNames() : null);
+    return AutonCommand.autonCommand(autonChooser.get());
   }
 
   /** Stops all subsystems, cancels all scheduled commands, and stops controller rumble. */
@@ -192,12 +187,13 @@ public class RobotContainer {
 
     if (DriverStation.isAutonomous() && DriverStation.isDisabled()) {
       noAutoSelectedAlert.set(autonChooser.get() == null);
-      startingPoseAlert.set(
-          autonChooser.get() != null
-              && (AutonUtil.getStartingPose().minus(drive.getPose()).getTranslation().getNorm()
-                      > 0.25
-                  || AutonUtil.getStartingPose().minus(drive.getPose()).getRotation().getDegrees()
-                      > 20));
+      // TODO: fix alert
+    //   startingPoseAlert.set(
+    //       autonChooser.get() != null
+    //           && (AutonUtil.getStartingPose().minus(drive.getPose()).getTranslation().getNorm()
+    //                   > 0.25
+    //               || AutonUtil.getStartingPose().minus(drive.getPose()).getRotation().getDegrees()
+    //                   > 20));
     } else {
       noAutoSelectedAlert.set(false);
       startingPoseAlert.set(false);
