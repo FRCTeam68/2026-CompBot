@@ -1,19 +1,27 @@
 package frc.robot.subsystems.shooter.hood;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
 import lombok.Getter;
+
+import java.util.function.Supplier;
+
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-// TODO: the hood class needs to extend SubsystemBase to run the periodic method.
-public class Hood {
+public class Hood extends SubsystemBase {
+ private final Supplier<Pose2d> poseSupplier;
   private final HoodIO io;
   protected final HoodIOInputsAutoLogged inputs = new HoodIOInputsAutoLogged();
   private final Alert hoodMotorDisconnectedAlert =
@@ -27,28 +35,26 @@ public class Hood {
   private final Debouncer hoodMotorDebouncer = new Debouncer(0.5, DebounceType.kRising);
   private final Debouncer hoodCancoderDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
-  // TODO: This is still logging to the MotorTemplate folder
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber("MotorTemplate/Slot0/kP", 0);
-  private LoggedTunableNumber kD0 = new LoggedTunableNumber("MotorTemplate/Slot0/kD", 0);
-  private LoggedTunableNumber kS0 = new LoggedTunableNumber("MotorTemplate/Slot0/kS", 0);
+  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Hood/Slot0/kP", 0);
+  private LoggedTunableNumber kD0 = new LoggedTunableNumber("Hood/Slot0/kD", 0);
+  private LoggedTunableNumber kS0 = new LoggedTunableNumber("Hood/Slot0/kS", 0);
 
-  // TODO: This is still logging to the MotorTemplate folder
-  private LoggedTunableNumber mmVelocity =
-      new LoggedTunableNumber("MotorTemplate/MotionMagic/Velocity", 0);
+  private LoggedTunableNumber mmVelocity = new LoggedTunableNumber("Hood/MotionMagic/Velocity", 0);
   private LoggedTunableNumber mmAcceleration =
-      new LoggedTunableNumber("MotorTemplate/MotionMagic/Acceleration", 0);
-  private LoggedTunableNumber mmJerk = new LoggedTunableNumber("MotorTemplate/MotionMagic/Jerk", 0);
+      new LoggedTunableNumber("Hood/MotionMagic/Acceleration", 0);
+  private LoggedTunableNumber mmJerk = new LoggedTunableNumber("Hood/MotionMagic/Jerk", 0);
 
-  // TODO: This is still logging to the MotorTemplate folder
   private LoggedTunableNumber setpointBandPosition =
-      new LoggedTunableNumber("MotorTemplate/PositionSetpointBand", 0);
+      new LoggedTunableNumber("Hood/PositionSetpointBand", 0);
 
   @Getter private double setpoint = 0.0;
 
   @Getter private ControlMode mode = ControlMode.Neutral;
 
-  public Hood(HoodIO hoodIO) {
+  public Hood(HoodIO hoodIO, Supplier <Pose2d> poseSupplier) {
     this.io = hoodIO;
+    this.poseSupplier = poseSupplier;
+  
   }
 
   public void periodic() {
@@ -60,27 +66,22 @@ public class Hood {
     hoodMotorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
     hoodCancoderTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
-    // TODO: This is still logging to the MotorTemplate folder
-    Logger.recordOutput(
-        "MotorTemplate/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
-    Logger.recordOutput(
-        "MotorTemplate/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
+    Logger.recordOutput("Hood/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
+    Logger.recordOutput("Hood/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
 
     // Update tunable numbers
     if (kP0.hasChanged(hashCode()) || kD0.hasChanged(hashCode()) || kS0.hasChanged(hashCode())) {
-      // TODO: uncomment this
-      // io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
+      io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
     }
 
     if (mmVelocity.hasChanged(hashCode())
         || mmAcceleration.hasChanged(hashCode())
         || mmJerk.hasChanged(hashCode())) {
-      // TODO: uncomment this
-      // io.setMotionMagic(
-      new MotionMagicConfigs()
-          .withMotionMagicCruiseVelocity(mmVelocity.get())
-          .withMotionMagicAcceleration(mmAcceleration.get())
-          .withMotionMagicJerk(mmJerk.get());
+      io.setMotionMagic(
+          new MotionMagicConfigs()
+              .withMotionMagicCruiseVelocity(mmVelocity.get())
+              .withMotionMagicAcceleration(mmAcceleration.get())
+              .withMotionMagicJerk(mmJerk.get()));
     }
   }
 
@@ -96,8 +97,7 @@ public class Hood {
   public void runVolts(double volts) {
     setpoint = volts;
     mode = ControlMode.Voltage;
-    // TODO: uncomment this
-    // io.runVolts(volts);
+    io.runVolts(volts);
   }
 
   /**
@@ -107,21 +107,18 @@ public class Hood {
    */
   public void runElvation(double position, int slot) {
     mode = ControlMode.Position;
-    // TODO: uncomment this
-    // io.runPosition(position, 0);
+    io.runPosition(position, 0);
   }
 
   /** Stop motor */
   public void stop() {
     mode = ControlMode.Neutral;
-    // TODO: uncomment this
-    // io.stop();
+    io.stop();
   }
 
   /** Set the current mechanism position to zero */
   public void zero() {
-    // TODO: uncomment this
-    // io.setPosition(0);
+    io.setPosition(0);
   }
 
   /**
@@ -129,9 +126,8 @@ public class Hood {
    *
    * @param rotations Position in mechanism rotations
    */
-  public void setElvation(double rotations) {
-    // TODO: uncomment this
-    // io.setPosition(rotations);
+  public void setElvation(double degrees) {
+    io.setPosition(degrees);
   }
 
   /**
@@ -156,17 +152,19 @@ public class Hood {
     return inputs.torqueCurrentAmps;
   }
 
-  // TODO: This is still logging to the MotorTemplate folder
   /**
    * Check if mechanism is at goal position with error of setpointBandPosition
    *
    * @return True if in position control mode and mechanism is at goal position, false otherwise
    */
-  @AutoLogOutput(key = "MotorTemplate/atSetpoint")
+  @AutoLogOutput(key = "Hood/atSetpoint")
   public boolean atSetpoint() {
     return switch (mode) {
       case Position -> Math.abs(setpoint - inputs.positionElvation) < setpointBandPosition.get();
       default -> false;
     };
+  }
+  public boolean inTrenchBox(){
+  new Pose2d(ShooterConstants.shooterPosition.toTranslation2d(), Rotation2d.kZero).plus(poseSupplier.get());
   }
 }

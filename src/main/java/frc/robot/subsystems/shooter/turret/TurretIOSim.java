@@ -12,8 +12,8 @@ import frc.robot.Constants;
 import frc.robot.util.PhoenixUtil.ControlMode;
 
 public class TurretIOSim implements TurretIO {
-  // TODO: update motor
-  private final DCMotor motor = DCMotor.getFalcon500Foc(1);
+
+  private final DCMotor motor = DCMotor.getKrakenX44Foc(1);
 
   private final DCMotorSim sim;
   private final PIDController controller = new PIDController(0, 0, 0);
@@ -33,10 +33,7 @@ public class TurretIOSim implements TurretIO {
     if (DriverStation.isDisabled()) {
       runVolts(0);
     } else {
-      // TODO: remove unnecessary velocity control
-      if (mode == ControlMode.Velocity) {
-        setInputVoltage(controller.calculate(sim.getAngularVelocityRPM() / 60.0));
-      } else if (mode == ControlMode.Position) {
+      if (mode == ControlMode.Position) {
         setInputVoltage(controller.calculate(sim.getAngularPositionRotations()));
       }
     }
@@ -55,14 +52,6 @@ public class TurretIOSim implements TurretIO {
   public void runVolts(double volts) {
     mode = ControlMode.Voltage;
     setInputVoltage(volts);
-  }
-
-  // TODO: remove unnecessary velocity control
-  @Override
-  public void runVelocity(double velocity, int slot) {
-    mode = ControlMode.Velocity;
-    controller.setPID(slotConfigs[slot].kP, slotConfigs[slot].kI, slotConfigs[slot].kD);
-    controller.setSetpoint(velocity);
   }
 
   @Override

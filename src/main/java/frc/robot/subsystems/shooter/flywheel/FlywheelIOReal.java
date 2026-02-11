@@ -29,8 +29,8 @@ import frc.robot.util.PhoenixUtil;
 import lombok.Getter;
 
 public class FlywheelIOReal implements FlywheelIO {
-  // TODO: this should be final since it doesn't change
-  @Getter private static double reduction = 1;
+
+  @Getter private static final double reduction = 1;
 
   // Hardware
   private final TalonFX leaderTalon;
@@ -96,8 +96,7 @@ public class FlywheelIOReal implements FlywheelIO {
                 followerAppliedVoltage,
                 leaderSupplyCurrent,
                 leaderTorqueCurrent));
-    // TODO: need to optimize the follower talon as well
-    tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(leaderTalon));
+    tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(leaderTalon, followerTalon));
     PhoenixUtil.registerSignals(
         new CANBus("DRIVEbus"),
         position,

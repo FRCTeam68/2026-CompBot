@@ -21,6 +21,7 @@ import frc.robot.commands.auton.AutonSequence;
 import frc.robot.commands.auton.AutonSequenceCenter;
 import frc.robot.commands.auton.AutonSequenceRightTrench;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.AutonUtil;
 import frc.robot.util.ShiftUtil;
@@ -38,6 +39,7 @@ public class RobotContainer {
   private final RobotSystem robotSystem = RobotSystem.getInstance();
   private final Drive drive = robotSystem.getDrive();
   private final Vision vision = robotSystem.getVision();
+  private final Shooter shooter = robotSystem.getShooter();
 
   // Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
@@ -165,7 +167,7 @@ public class RobotContainer {
     driverController.setRumble(RumbleType.kBothRumble, 0);
     operatorController.setRumble(RumbleType.kBothRumble, 0);
     drive.stop();
-    // TODO: add stop shooter
+    shooter.stop();
   }
 
   /** Save Limelight 4 rewind to disc. This is only functional on the Limelight 4. */

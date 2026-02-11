@@ -1,10 +1,12 @@
 package frc.robot.subsystems.shooter.flywheel;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
@@ -12,8 +14,7 @@ import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-// TODO: the flywheel class needs to extend SubsystemBase to run the periodic method.
-public class Flywheel {
+public class Flywheel extends SubsystemBase {
   private final FlywheelIO io;
   protected final FlyWheelIOInputsAutoLogged inputs = new FlyWheelIOInputsAutoLogged();
   private final Alert flywheelLeaderDisconnectedAlert =
@@ -29,21 +30,18 @@ public class Flywheel {
   private final Debouncer flywheelLeaderDebouncer = new Debouncer(0.5, DebounceType.kRising);
   private final Debouncer flywheelFollowerDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
-  // TODO: This is still logging to the MotorTemplate folder
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber("MotorTemplate/Slot0/kP", 0);
-  private LoggedTunableNumber kD0 = new LoggedTunableNumber("MotorTemplate/Slot0/kD", 0);
-  private LoggedTunableNumber kS0 = new LoggedTunableNumber("MotorTemplate/Slot0/kS", 0);
+  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Flywheel/Slot0/kP", 0);
+  private LoggedTunableNumber kD0 = new LoggedTunableNumber("Flywheel/Slot0/kD", 0);
+  private LoggedTunableNumber kS0 = new LoggedTunableNumber("Flywheel/Slot0/kS", 0);
 
-  // TODO: This is still logging to the MotorTemplate folder
   private LoggedTunableNumber mmVelocity =
-      new LoggedTunableNumber("MotorTemplate/MotionMagic/Velocity", 0);
+      new LoggedTunableNumber("Flywheel/MotionMagic/Velocity", 0);
   private LoggedTunableNumber mmAcceleration =
-      new LoggedTunableNumber("MotorTemplate/MotionMagic/Acceleration", 0);
-  private LoggedTunableNumber mmJerk = new LoggedTunableNumber("MotorTemplate/MotionMagic/Jerk", 0);
+      new LoggedTunableNumber("Flywhee;/MotionMagic/Acceleration", 0);
+  private LoggedTunableNumber mmJerk = new LoggedTunableNumber("Flywheel/MotionMagic/Jerk", 0);
 
-  // TODO: This is still logging to the MotorTemplate folder
   private LoggedTunableNumber setpointBandVelocity =
-      new LoggedTunableNumber("MotorTemplate/VelocitySetpointBand", 0);
+      new LoggedTunableNumber("Flywheel/VelocitySetpointBand", 0);
 
   @Getter private double setpoint = 0.0;
 
@@ -62,27 +60,23 @@ public class Flywheel {
     flywheelLeaderTempAlert.set(inputs.leaderTempCelsius > Constants.warningTempCelsius);
     flywheelFollowerTempAlert.set(inputs.followerTempCelsius > Constants.warningTempCelsius);
 
-    // TODO: This is still logging to the MotorTemplate folder
+    Logger.recordOutput("Flywheel/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput(
-        "MotorTemplate/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
-    Logger.recordOutput(
-        "MotorTemplate/SetpointVelocityRotsPerSec", (mode == ControlMode.Velocity) ? setpoint : 0);
+        "Flywheel/SetpointVelocityRotsPerSec", (mode == ControlMode.Velocity) ? setpoint : 0);
 
     // Update tunable numbers
     if (kP0.hasChanged(hashCode()) || kD0.hasChanged(hashCode()) || kS0.hasChanged(hashCode())) {
-      // TODO: uncomment this
-      // io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
+      io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
     }
 
     if (mmVelocity.hasChanged(hashCode())
         || mmAcceleration.hasChanged(hashCode())
         || mmJerk.hasChanged(hashCode())) {
-      // TODO: uncomment this
-      // io.setMotionMagic(
-      new MotionMagicConfigs()
-          .withMotionMagicCruiseVelocity(mmVelocity.get())
-          .withMotionMagicAcceleration(mmAcceleration.get())
-          .withMotionMagicJerk(mmJerk.get());
+      io.setMotionMagic(
+          new MotionMagicConfigs()
+              .withMotionMagicCruiseVelocity(mmVelocity.get())
+              .withMotionMagicAcceleration(mmAcceleration.get())
+              .withMotionMagicJerk(mmJerk.get()));
     }
   }
 
@@ -94,14 +88,14 @@ public class Flywheel {
   public void runVolts(double volts) {
     setpoint = volts;
     mode = ControlMode.Voltage;
-    // TODO: uncomment this
-    // io.runVolts(volts);
+
+    io.runVolts(volts);
   }
 
   public void runVelocity(double velocity, int slot) {
     mode = ControlMode.Velocity;
-    // TODO: uncomment this
-    // io.runVelocity(velocity, 0);
+
+    io.runVelocity(velocity, 0);
   }
 
   /**
@@ -113,14 +107,8 @@ public class Flywheel {
   /** Stop motor */
   public void stop() {
     mode = ControlMode.Neutral;
-    // TODO: uncomment this
-    // io.stop();
-  }
 
-  /** Set the current mechanism position to zero */
-  public void zero() {
-    // TODO: uncomment this
-    // io.setPosition(0);
+    io.stop();
   }
 
   /**
@@ -145,13 +133,12 @@ public class Flywheel {
     return inputs.leaderTorqueCurrentAmps;
   }
 
-  // TODO: This is still logging to the MotorTemplate folder
   /**
    * Check if mechanism is at goal position with error of setpointBandPosition
    *
    * @return True if in position control mode and mechanism is at goal position, false otherwise
    */
-  @AutoLogOutput(key = "MotorTemplate/atSetpoint")
+  @AutoLogOutput(key = "Flywheel/atSetpoint")
   public boolean atSetpoint() {
     return switch (mode) {
       case Velocity -> Math.abs(setpoint - inputs.velocityRotsPerSec) < setpointBandVelocity.get();
