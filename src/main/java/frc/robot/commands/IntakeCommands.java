@@ -16,8 +16,15 @@ public class IntakeCommands {
     return Commands.sequence(
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getPackaged(), 0), intakePivot),
+            // TODO: Instead of running intakeSpin at 0 volts use the stop function. Ideally this
+            // isn't even needed since any other command that uses intakeSpin should stop it before
+            // finishing or being interupted. We do want to leave this here just in case though.
             Commands.runOnce(() -> intakeSpin.runVolts(0), intakeSpin),
+            // TODO: We can remove the idle command since the intakeSpin does not need to remain on.
+            // In fact we are turning it off in this command.
             Commands.idle())
+        // TODO: We do not need to stop intakeSpin before this command ends. It isn't being run in
+        // this command
         .finallyDo(() -> intakeSpin.stop())
         .withName("retractIntake");
   }

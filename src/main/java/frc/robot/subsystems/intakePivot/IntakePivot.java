@@ -31,6 +31,7 @@ public class IntakePivot extends SubsystemBase {
       new Alert("Intake pivot cancoder disconnected!", AlertType.kError);
   private final Alert tempAlert = new Alert("Intake pivot motor is too hot.", AlertType.kWarning);
 
+  // TODO: in oreder to run in the simulator a Kp default value must be set. 10 should work.
   private LoggedTunableNumber kP0 = new LoggedTunableNumber("IntakePivot/Slot0/kP", 0);
   private LoggedTunableNumber kD0 = new LoggedTunableNumber("IntakePivot/Slot0/kD", 0);
   private LoggedTunableNumber kS0 = new LoggedTunableNumber("IntakePivot/Slot0/kS", 0);
@@ -55,17 +56,21 @@ public class IntakePivot extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs("IntakePivot", inputs);
     disconnectedAlert.set(!connectedDebouncer.calculate(inputs.connected));
+    // TODO: Set the disconnected alert for the cancoder. You will need to create a seperate
+    // debouncer.
     tempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
     Logger.recordOutput("IntakePivot/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput(
         "IntakePivot/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
 
+    // TODO: Remove this logged pose. We moved this to RobotState already.
     Logger.recordOutput(
         "RobotPose/Intake",
         new Pose3d(
             inputs.positionRots / extended * Units.inchesToMeters(12), 0, 0, Rotation3d.kZero));
 
+    // TODO: Change to single pipe character
     if (kP0.hasChanged(hashCode()) || kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
       io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
     }

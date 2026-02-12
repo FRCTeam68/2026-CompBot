@@ -74,7 +74,9 @@ public class RobotSystem {
         flywheel = new Flywheel(new FlywheelIOReal());
         hood = new Hood(new HoodIOReal());
         turret = new Turret(new TurretIOReal());
+
         intakePivot = new IntakePivot(new IntakePivotIO() {});
+        // TODO: Give this the same name as below
         intakeSpin = new RollerSystem("null1", new RollerSystemIO() {});
 
         break;
@@ -92,7 +94,9 @@ public class RobotSystem {
         flywheel = new Flywheel(new FlywheelIOSim());
         hood = new Hood(new HoodIOSim());
         turret = new Turret(new TurretIOSim());
+
         intakePivot = new IntakePivot(new IntakePivotIOSim() {});
+        // TODO: Give this the same name as below
         intakeSpin =
             new RollerSystem("null1", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 1, 0.74));
         break;
@@ -116,6 +120,7 @@ public class RobotSystem {
         flywheel = new Flywheel(new FlywheelIO() {});
         hood = new Hood(new HoodIO() {});
         turret = new Turret(new TurretIO() {});
+
         intakePivot = new IntakePivot(new IntakePivotIO() {});
         intakeSpin = new RollerSystem("intakeSpin", (new RollerSystemIO() {}));
     }
@@ -138,6 +143,15 @@ public class RobotSystem {
   }
 
   public void visualization() {
+    Logger.recordOutput(
+        "RobotPose/Intake",
+        new Pose3d(
+            // TODO: Access getExtended in a static way
+            intakePivot.getPosition() / intakePivot.getExtended() * Units.inchesToMeters(12),
+            0,
+            0,
+            Rotation3d.kZero));
+
     Translation3d shooterPosition = new Translation3d(-0.160018476, 0.1335875408, 0);
     Logger.recordOutput(
         "RobotPose/Hood",
@@ -158,12 +172,5 @@ public class RobotSystem {
             0,
             new Rotation3d(
                 0, 0, Units.rotationsToRadians(shooter.getTurret().getPosition()) + Math.PI)));
-    Logger.recordOutput(
-        "RobotPose/Intake",
-        new Pose3d(
-            intakePivot.getPosition() / intakePivot.getExtended() * Units.inchesToMeters(12),
-            0,
-            0,
-            Rotation3d.kZero));
   }
 }
