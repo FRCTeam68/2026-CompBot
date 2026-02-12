@@ -18,15 +18,12 @@ import frc.robot.subsystems.rollers.RollerSystemIO;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
-import frc.robot.subsystems.shooter.flywheel.FlywheelIOReal;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.shooter.hood.HoodIO;
-import frc.robot.subsystems.shooter.hood.HoodIOReal;
 import frc.robot.subsystems.shooter.hood.HoodIOSim;
 import frc.robot.subsystems.shooter.turret.Turret;
 import frc.robot.subsystems.shooter.turret.TurretIO;
-import frc.robot.subsystems.shooter.turret.TurretIOReal;
 import frc.robot.subsystems.shooter.turret.TurretIOSim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
@@ -68,9 +65,12 @@ public class RobotSystem {
                 drive::getFieldVelocity,
                 new VisionIOLimelight(CameraInfo.LL_4),
                 new VisionIOLimelight(CameraInfo.LL_3G));
-        flywheel = new Flywheel(new FlywheelIOReal());
-        hood = new Hood(new HoodIOReal());
-        turret = new Turret(new TurretIOReal());
+        // flywheel = new Flywheel(new FlywheelIOReal());
+        // hood = new Hood(new HoodIOReal());
+        // turret = new Turret(new TurretIOReal());
+        flywheel = new Flywheel(new FlywheelIOSim());
+        hood = new Hood(new HoodIOSim());
+        turret = new Turret(new TurretIOSim());
 
         break;
 
