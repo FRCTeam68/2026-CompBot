@@ -21,7 +21,7 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.util.PhoenixUtil;
 
-/** Generic roller IO implementation for a roller or series of rollers using a minion motor. */
+/** Generic roller IO implementation for a roller or series of rollers using a TalonFXS. */
 public class RollerSystemIOTalonFXS implements RollerSystemIO {
   // Hardware
   private final TalonFXS talon;

@@ -97,10 +97,14 @@ public class ModuleIOReal implements ModuleIO {
     driveConfig.CurrentLimits.StatorCurrentLimit = DriveConstants.driveStatorCurrentLimitAmps;
     driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     driveConfig.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.02;
+<<<<<<< HEAD
     driveConfig.MotorOutput.Inverted =
         constants.driveInverted()
             ? InvertedValue.Clockwise_Positive
             : InvertedValue.CounterClockwise_Positive;
+=======
+
+>>>>>>> 4564cc0e5a6c2f09b50d4988c1759f93af471b77
     tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfig, 0.25));
     tryUntilOk(5, () -> driveTalon.setPosition(0.0, 0.25));
 
@@ -129,7 +133,6 @@ public class ModuleIOReal implements ModuleIO {
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
 
     // Create timestamp queue
-    // more
     timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
 
     // Create drive status signals
