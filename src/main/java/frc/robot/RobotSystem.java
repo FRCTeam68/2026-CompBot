@@ -48,6 +48,7 @@ public class RobotSystem {
     Flywheel flywheel;
     Hood hood;
     Turret turret;
+
     switch (Constants.getMode()) {
       case REAL:
         drive =
@@ -65,13 +66,13 @@ public class RobotSystem {
                 drive::getFieldVelocity,
                 new VisionIOLimelight(CameraInfo.LL_4),
                 new VisionIOLimelight(CameraInfo.LL_3G));
+
         // flywheel = new Flywheel(new FlywheelIOReal());
         // hood = new Hood(new HoodIOReal());
         // turret = new Turret(new TurretIOReal());
         flywheel = new Flywheel(new FlywheelIOSim());
         hood = new Hood(new HoodIOSim());
         turret = new Turret(new TurretIOSim());
-
         break;
 
       case SIM:
@@ -84,6 +85,7 @@ public class RobotSystem {
                 new ModuleIOSim());
 
         vision = new Vision(drive::addVisionMeasurement, drive::getPose, drive::getFieldVelocity);
+
         flywheel = new Flywheel(new FlywheelIOSim());
         hood = new Hood(new HoodIOSim());
         turret = new Turret(new TurretIOSim());
@@ -105,6 +107,7 @@ public class RobotSystem {
                 drive::getFieldVelocity,
                 new VisionIO() {},
                 new VisionIO() {});
+
         flywheel = new Flywheel(new FlywheelIO() {});
         hood = new Hood(new HoodIO() {});
         turret = new Turret(new TurretIO() {});
