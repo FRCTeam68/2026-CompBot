@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
@@ -13,8 +14,10 @@ import frc.robot.subsystems.drive.ModuleIOReal;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.intakePivot.IntakePivot;
 import frc.robot.subsystems.intakePivot.IntakePivotIO;
+import frc.robot.subsystems.intakePivot.IntakePivotIOSim;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIO;
+import frc.robot.subsystems.rollers.RollerSystemIOSim;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
@@ -71,6 +74,8 @@ public class RobotSystem {
         flywheel = new Flywheel(new FlywheelIOReal());
         hood = new Hood(new HoodIOReal());
         turret = new Turret(new TurretIOReal());
+        intakePivot = new IntakePivot(new IntakePivotIO() {});
+        intakeSpin = new RollerSystem("null1", new RollerSystemIO() {});
 
         break;
 
@@ -87,6 +92,9 @@ public class RobotSystem {
         flywheel = new Flywheel(new FlywheelIOSim());
         hood = new Hood(new HoodIOSim());
         turret = new Turret(new TurretIOSim());
+        intakePivot = new IntakePivot(new IntakePivotIOSim() {});
+        intakeSpin =
+            new RollerSystem("null1", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 1, 0.74));
         break;
 
       default:
@@ -108,11 +116,10 @@ public class RobotSystem {
         flywheel = new Flywheel(new FlywheelIO() {});
         hood = new Hood(new HoodIO() {});
         turret = new Turret(new TurretIO() {});
+        intakePivot = new IntakePivot(new IntakePivotIO() {});
+        intakeSpin = new RollerSystem("intakeSpin", (new RollerSystemIO() {}));
     }
 
-    // TODO: create actual implementations for all intake and indexer motors
-    intakePivot = new IntakePivot(new IntakePivotIO() {});
-    intakeSpin = new RollerSystem("null1", new RollerSystemIO() {});
     shooter = new Shooter(flywheel, hood, turret);
     spindexer = new RollerSystem("null2", new RollerSystemIO() {});
     feeder = new RollerSystem("null3", new RollerSystemIO() {});
@@ -151,5 +158,12 @@ public class RobotSystem {
             0,
             new Rotation3d(
                 0, 0, Units.rotationsToRadians(shooter.getTurret().getPosition()) + Math.PI)));
+    Logger.recordOutput(
+        "RobotPose/Intake",
+        new Pose3d(
+            intakePivot.getPosition() / intakePivot.getExtended() * Units.inchesToMeters(12),
+            0,
+            0,
+            Rotation3d.kZero));
   }
 }

@@ -16,11 +16,14 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.auton.AutonCommands;
 import frc.robot.commands.auton.AutonSequence;
 import frc.robot.commands.auton.AutonSequenceCenter;
 import frc.robot.commands.auton.AutonSequenceRightTrench;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.intakePivot.IntakePivot;
+import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.AutonUtil;
 import frc.robot.util.ShiftUtil;
@@ -38,7 +41,8 @@ public class RobotContainer {
   private final RobotSystem robotSystem = RobotSystem.getInstance();
   private final Drive drive = robotSystem.getDrive();
   private final Vision vision = robotSystem.getVision();
-
+  private final IntakePivot intakePivot = robotSystem.getIntakePivot();
+  private final RollerSystem intakeSpin = robotSystem.getIntakeSpin();
   // Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
   private final CommandPS4Controller operatorController = new CommandPS4Controller(1);
@@ -119,8 +123,6 @@ public class RobotContainer {
                                     .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
                         .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
 
-    // TODO: create button bindings for intake, outtake, and retract
-
     driverController
         .back()
         .onTrue(
@@ -140,11 +142,17 @@ public class RobotContainer {
                 .ignoringDisable(true)
                 .withName("StopSubsystems"));
 
+    driverController.leftTrigger().whileTrue(IntakeCommands.intake());
+
     hubTransitionWarningTrigger.onTrue(
         Commands.runOnce(() -> driverController.setRumble(RumbleType.kBothRumble, 1))
             .andThen(Commands.waitSeconds(1))
             .andThen(() -> driverController.setRumble(RumbleType.kBothRumble, 0))
             .withName("HubTransitionWarning"));
+
+    driverController.b().whileTrue(IntakeCommands.outtake());
+
+    driverController.leftBumper().onTrue(IntakeCommands.retract());
   }
 
   /**
@@ -167,7 +175,6 @@ public class RobotContainer {
     driverController.setRumble(RumbleType.kBothRumble, 0);
     operatorController.setRumble(RumbleType.kBothRumble, 0);
     drive.stop();
-    // TODO: add stop to intake motors
   }
 
   /** Save Limelight 4 rewind to disc. This is only functional on the Limelight 4. */

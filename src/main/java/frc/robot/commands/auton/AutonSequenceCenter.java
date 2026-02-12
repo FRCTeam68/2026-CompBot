@@ -3,7 +3,6 @@ package frc.robot.commands.auton;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotSystem;
-import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.AutonUtil;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +10,6 @@ import java.util.List;
 public class AutonSequenceCenter implements AutonSequence {
   // Subsystems
   private static final RobotSystem robotSystem = RobotSystem.getInstance();
-  private static final Drive drive = robotSystem.getDrive();
 
   private static final List<String> pathNames = new ArrayList<>();
 

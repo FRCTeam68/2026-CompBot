@@ -24,34 +24,28 @@ public class IntakePivot extends SubsystemBase {
   private final IntakePivotIO io;
   protected final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
 
-  // TODO: create connected alert for encoder
   private final Debouncer connectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
   private final Alert disconnectedAlert =
       new Alert("Intake pivot motor disconnected!", AlertType.kError);
+  private final Alert intakePivotCancoderdisconnectedAlert =
+      new Alert("Intake pivot cancoder disconnected!", AlertType.kError);
   private final Alert tempAlert = new Alert("Intake pivot motor is too hot.", AlertType.kWarning);
 
-  // TODO: These are still logging to the "MotorTemplate" folder.
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber("MotorTemplate/Slot0/kP", 0);
-  private LoggedTunableNumber kD0 = new LoggedTunableNumber("MotorTemplate/Slot0/kD", 0);
-  private LoggedTunableNumber kS0 = new LoggedTunableNumber("MotorTemplate/Slot0/kS", 0);
+  private LoggedTunableNumber kP0 = new LoggedTunableNumber("IntakePivot/Slot0/kP", 0);
+  private LoggedTunableNumber kD0 = new LoggedTunableNumber("IntakePivot/Slot0/kD", 0);
+  private LoggedTunableNumber kS0 = new LoggedTunableNumber("IntakePivot/Slot0/kS", 0);
 
-  // TODO: These are still logging to the "MotorTemplate" folder.
-  // TODO: we should be good to remove all motion magic from all intake pivot files
-  private LoggedTunableNumber mmVelocity =
-      new LoggedTunableNumber("MotorTemplate/MotionMagic/Velocity", 0);
+  private LoggedTunableNumber mmVelocity = new LoggedTunableNumber("IntakePivot/Velocity", 0);
   private LoggedTunableNumber mmAcceleration =
-      new LoggedTunableNumber("MotorTemplate/MotionMagic/Acceleration", 0);
-  private LoggedTunableNumber mmJerk = new LoggedTunableNumber("MotorTemplate/MotionMagic/Jerk", 0);
+      new LoggedTunableNumber("IntakePivot/Acceleration", 0);
+  private LoggedTunableNumber mmJerk = new LoggedTunableNumber("IntakePivot/Jerk", 0);
 
-  // TODO: This is still logging to the "MotorTemplate" folder.
   private LoggedTunableNumber setpointBandPosition =
-      new LoggedTunableNumber("MotorTemplate/PositionSetpointBand", 0);
+      new LoggedTunableNumber("IntakePivot/PositionSetpointBand", 0);
 
   @Getter private double setpoint = 0.0;
 
   @Getter private ControlMode mode = ControlMode.Neutral;
-  // TODO: remove this.
-  public double getPosition;
 
   public IntakePivot(IntakePivotIO io) {
     this.io = io;
@@ -63,27 +57,22 @@ public class IntakePivot extends SubsystemBase {
     disconnectedAlert.set(!connectedDebouncer.calculate(inputs.connected));
     tempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
-    // TODO: These are still logging to the "MotorTemplate" folder.
+    Logger.recordOutput("IntakePivot/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput(
-        "MotorTemplate/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
-    Logger.recordOutput(
-        "MotorTemplate/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
+        "IntakePivot/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
 
-    // TODO: Move this to the visualize method in RobotSystem.
     Logger.recordOutput(
         "RobotPose/Intake",
         new Pose3d(
             inputs.positionRots / extended * Units.inchesToMeters(12), 0, 0, Rotation3d.kZero));
 
-    // Update tunable numbers
-    // TODO: change to single pipe to remove short circuiting.
-    if (kP0.hasChanged(hashCode()) || kD0.hasChanged(hashCode()) || kS0.hasChanged(hashCode())) {
+    if (kP0.hasChanged(hashCode()) || kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
       io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
     }
 
     if (mmVelocity.hasChanged(hashCode())
-        || mmAcceleration.hasChanged(hashCode())
-        || mmJerk.hasChanged(hashCode())) {
+        | mmAcceleration.hasChanged(hashCode())
+        | mmJerk.hasChanged(hashCode())) {
       io.setMotionMagic(
           new MotionMagicConfigs()
               .withMotionMagicAcceleration(mmAcceleration.get())
@@ -168,13 +157,12 @@ public class IntakePivot extends SubsystemBase {
     return inputs.torqueCurrentAmps;
   }
 
-  // TODO: These are still logging to the "MotorTemplate" folder.
   /**
    * Check if mechanism is at goal position with error of setpointBandPosition
    *
    * @return True if in position control mode and mechanism is at goal position, false otherwise
    */
-  @AutoLogOutput(key = "MotorTemplate/atSetpoint")
+  @AutoLogOutput(key = "IntakePivot/atSetpoint")
   public boolean atSetpoint() {
     return switch (mode) {
       case Position -> Math.abs(setpoint - inputs.positionRots) < setpointBandPosition.get();

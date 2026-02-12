@@ -8,7 +8,6 @@ import org.littletonrobotics.junction.AutoLog;
 public interface IntakePivotIO {
   @AutoLog
   static class IntakePivotIOInputs {
-    // TODO: create signals for encoder
     public boolean connected = false;
     public double positionRots = 0.0;
     public double velocityRotsPerSec = 0.0;
