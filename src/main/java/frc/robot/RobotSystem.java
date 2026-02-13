@@ -71,7 +71,7 @@ public class RobotSystem {
                 new VisionIOLimelight(CameraInfo.LL_3G));
 
         flywheel = new Flywheel(new FlywheelIOReal());
-        hood = new Hood(new HoodIOReal());
+        hood = new Hood(new HoodIOReal(), drive::getPose);
         turret = new Turret(new TurretIOReal());
 
         break;
@@ -88,7 +88,7 @@ public class RobotSystem {
         vision = new Vision(drive::addVisionMeasurement, drive::getPose, drive::getFieldVelocity);
 
         flywheel = new Flywheel(new FlywheelIOSim());
-        hood = new Hood(new HoodIOSim());
+        hood = new Hood(new HoodIOSim(), drive::getPose);
         turret = new Turret(new TurretIOSim());
         break;
 
@@ -110,7 +110,7 @@ public class RobotSystem {
                 new VisionIO() {});
 
         flywheel = new Flywheel(new FlywheelIO() {});
-        hood = new Hood(new HoodIO() {});
+        hood = new Hood(new HoodIO() {}, drive::getPose);
         turret = new Turret(new TurretIO() {});
     }
 

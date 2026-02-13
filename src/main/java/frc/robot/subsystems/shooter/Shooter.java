@@ -1,5 +1,7 @@
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
@@ -18,6 +20,10 @@ public class Shooter extends SubsystemBase {
     this.flywheel = flywheel;
     this.hood = hood;
     this.turret = turret;
+    SmartDashboard.putNumber("Shooter/FlywheelVelocity", 0);
+    SmartDashboard.putNumber("Shooter/HoodPosition", 0);
+    SmartDashboard.putNumber("Shooter/TurretPosition", 0);
+    SmartDashboard.putData("Shooter/RunStatic", Commands.runOnce(() -> runStatic(0, 0, 0)));
   }
 
   public void periodic() {

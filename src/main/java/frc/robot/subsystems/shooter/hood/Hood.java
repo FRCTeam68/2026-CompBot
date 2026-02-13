@@ -5,23 +5,19 @@ import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
-import lombok.Getter;
-
 import java.util.function.Supplier;
-
+import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Hood extends SubsystemBase {
- private final Supplier<Pose2d> poseSupplier;
+  private final Supplier<Pose2d> poseSupplier;
   private final HoodIO io;
   protected final HoodIOInputsAutoLogged inputs = new HoodIOInputsAutoLogged();
   private final Alert hoodMotorDisconnectedAlert =
@@ -51,10 +47,9 @@ public class Hood extends SubsystemBase {
 
   @Getter private ControlMode mode = ControlMode.Neutral;
 
-  public Hood(HoodIO hoodIO, Supplier <Pose2d> poseSupplier) {
+  public Hood(HoodIO hoodIO, Supplier<Pose2d> poseSupplier) {
     this.io = hoodIO;
     this.poseSupplier = poseSupplier;
-  
   }
 
   public void periodic() {
@@ -164,7 +159,10 @@ public class Hood extends SubsystemBase {
       default -> false;
     };
   }
-  public boolean inTrenchBox(){
-  new Pose2d(ShooterConstants.shooterPosition.toTranslation2d(), Rotation2d.kZero).plus(poseSupplier.get());
+
+  public boolean inTrenchBox() {
+    // new Pose2d(ShooterConstants.shooterPosition.toTranslation2d(),
+    // Rotation2d.kZero).plus(poseSupplier.get());
+    return false;
   }
 }
