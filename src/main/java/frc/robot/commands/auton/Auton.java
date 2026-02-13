@@ -67,7 +67,10 @@ public class Auton {
         return Commands.none();
 
       case CenterLeft:
-        return Commands.none();
+        if (Constants.getMode() == Mode.SIM) {
+          drive.setPose(PathUtil.getStartingPose("Middle Depot A"));
+        }
+        return Water();
 
       case Center:
         return Terra();
@@ -111,6 +114,15 @@ public class Auton {
 
   private static Command neutralZone() {
     return Commands.none();
+  }
+
+  private static Command Water() {
+    return Commands.sequence(
+        // Shoot preload note
+        PathUtil.followPath("Middle Depot A"),
+        PathUtil.followPath("Middle Depot B"),
+        PathUtil.followPath("Middle Depot C"),
+        PathUtil.followPath("Middle Depot D"));
   }
 
   /**
