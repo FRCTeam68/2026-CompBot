@@ -6,6 +6,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.RobotSystem;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.util.PathUtil;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
@@ -30,7 +31,8 @@ public class Auton {
     Left,
     CenterLeft,
     CenterRight,
-    Right
+    Right,
+    Center
   }
 
   public static enum Special {
@@ -44,6 +46,7 @@ public class Auton {
     // Configure starting pose
     autonStartingPose.addDefaultOption("Left", Auton.StartingPose.Left);
     autonStartingPose.addOption("CenterLeft", Auton.StartingPose.CenterLeft);
+    autonStartingPose.addOption("Center", Auton.StartingPose.Center);
     autonStartingPose.addOption("CenterRight", Auton.StartingPose.CenterRight);
     autonStartingPose.addOption("Right", Auton.StartingPose.Right);
 
@@ -58,7 +61,52 @@ public class Auton {
     if (Constants.getMode() == Mode.SIM) {
       // drive.setPose(AutonUtil.getStartingPose());
     }
-    return neutralZone();
+
+    switch (autonStartingPose.get()) {
+      case Left:
+        return Commands.none();
+
+      case CenterLeft:
+        return Commands.none();
+
+      case Center:
+        return Terra();
+
+      case CenterRight:
+        return Marz();
+
+      case Right:
+        return Neptune();
+
+      default:
+        return Commands.none();
+    }
+  }
+
+  private static Command Terra() {
+    return Commands.sequence(
+        // Shoot preload note
+        PathUtil.followPath("Middle Depot A"),
+        PathUtil.followPath("Middle Depot B"),
+        PathUtil.followPath("Middle Depot C"),
+        PathUtil.followPath("Middle Depot D"),
+        PathUtil.followPath("Middle Depot G"));
+  }
+
+  private static Command Marz() {
+    return Commands.sequence(
+        // Shoot preload note
+        PathUtil.followPath("Right Trench A"),
+        PathUtil.followPath("Right Trench B"),
+        PathUtil.followPath("Right Trench C"));
+  }
+
+  private static Command Neptune() {
+    return Commands.sequence(
+        // Shoot preload note
+        PathUtil.followPath("Right Trench A"),
+        PathUtil.followPath("Right Trench B"),
+        PathUtil.followPath("Right Trench C 2"));
   }
 
   private static Command neutralZone() {

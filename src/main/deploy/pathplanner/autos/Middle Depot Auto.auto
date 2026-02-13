@@ -27,6 +27,12 @@
           "data": {
             "pathName": "Middle Depot D"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Middle Depot G"
+          }
         }
       ]
     }
