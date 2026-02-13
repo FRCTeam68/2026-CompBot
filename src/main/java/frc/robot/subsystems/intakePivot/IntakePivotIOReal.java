@@ -30,6 +30,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.CanBusUtil;
 import frc.robot.util.PhoenixUtil;
 import lombok.Getter;
 
@@ -40,7 +41,7 @@ public class IntakePivotIOReal implements IntakePivotIO {
   @Getter
   private static final double reduction = rotorToSensorReduction * sensorToMechanismReduction;
 
-  private static final CANBus canBus = new CANBus("rio");
+  private static final CANBus canBus = CanBusUtil.getRioBus();
 
   // Hardware
   private final TalonFX talon;
@@ -52,6 +53,7 @@ public class IntakePivotIOReal implements IntakePivotIO {
 
   // Status Signals
   private final StatusSignal<Angle> position;
+  private final StatusSignal<Angle> absolutePosition;
   private final StatusSignal<AngularVelocity> velocity;
   private final StatusSignal<Voltage> appliedVoltage;
   private final StatusSignal<Current> supplyCurrent;
@@ -60,7 +62,6 @@ public class IntakePivotIOReal implements IntakePivotIO {
   private final StatusSignal<MagnetHealthValue> magnetHealth;
 
   // Control requests
-  // TEMPLATE: Choose desired control methods
   private final VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true);
   private final PositionVoltage positionOut = new PositionVoltage(0).withEnableFOC(true);
   //   private final MotionMagicVoltage positionOut = new MotionMagicVoltage(0).withEnableFOC(true);
@@ -69,12 +70,10 @@ public class IntakePivotIOReal implements IntakePivotIO {
   private final NeutralOut neutralOut = new NeutralOut();
 
   public IntakePivotIOReal() {
-    // TEMPLATE: Set CAN id and bus
     talon = new TalonFX(0, canBus);
     cancoder = new CANcoder(1, canBus);
 
     // Configure Motor
-    // TEMPLATE: Set configuration
     talonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     talonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     // Current limits
@@ -95,6 +94,7 @@ public class IntakePivotIOReal implements IntakePivotIO {
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
 
     position = talon.getPosition();
+    absolutePosition = cancoder.getAbsolutePosition();
     velocity = talon.getVelocity();
     appliedVoltage = talon.getMotorVoltage();
     supplyCurrent = talon.getSupplyCurrent();
@@ -106,17 +106,32 @@ public class IntakePivotIOReal implements IntakePivotIO {
         5,
         () ->
             BaseStatusSignal.setUpdateFrequencyForAll(
-                50, position, velocity, appliedVoltage, supplyCurrent, torqueCurrent));
-    tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon));
+                50,
+                position,
+                velocity,
+                appliedVoltage,
+                supplyCurrent,
+                torqueCurrent,
+                absolutePosition,
+                magnetHealth));
+    tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon, cancoder));
     PhoenixUtil.registerSignals(
-        // TEMPLATE: Set whether motor is attached to a CANivore
-        canBus, position, velocity, appliedVoltage, supplyCurrent, torqueCurrent, tempCelsius);
+        canBus,
+        position,
+        velocity,
+        appliedVoltage,
+        supplyCurrent,
+        torqueCurrent,
+        tempCelsius,
+        absolutePosition,
+        magnetHealth);
   }
 
   @Override
   public void updateInputs(IntakePivotIOInputs inputs) {
-    inputs.connected =
+    inputs.motorConnected =
         BaseStatusSignal.isAllGood(position, appliedVoltage, supplyCurrent, torqueCurrent);
+    inputs.cancoderConnected = BaseStatusSignal.isAllGood(magnetHealth, absolutePosition);
     inputs.positionRots = position.getValueAsDouble();
     inputs.velocityRotsPerSec = velocity.getValueAsDouble();
     inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
@@ -124,6 +139,7 @@ public class IntakePivotIOReal implements IntakePivotIO {
     inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();
     inputs.tempCelsius = tempCelsius.getValueAsDouble();
     inputs.magnetHealth = magnetHealth.getValue();
+    inputs.absolutePosition = absolutePosition.getValueAsDouble();
   }
 
   @Override

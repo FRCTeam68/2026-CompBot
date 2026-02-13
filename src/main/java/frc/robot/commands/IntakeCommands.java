@@ -13,15 +13,18 @@ public class IntakeCommands {
   private static final RollerSystem intakeSpin = robotSystem.getIntakeSpin();
 
   public static Command retract() {
-    return Commands.runOnce(
-            () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot)
-        .withName("retract");
+    return Commands.sequence(
+            Commands.runOnce(
+                () -> intakePivot.runPosition(IntakePivot.getPackaged(), 0), intakePivot),
+            Commands.runOnce(() -> intakeSpin.stop(), intakeSpin))
+        .withName("retractIntake");
   }
 
   public static Command intake() {
     return Commands.sequence(
-            Commands.runOnce(() -> intakePivot.runPosition(IntakePivot.getExtended(), 0)),
-            Commands.runOnce(() -> intakeSpin.runVolts(7)),
+            Commands.runOnce(
+                () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
+            Commands.runOnce(() -> intakeSpin.runVolts(7), intakeSpin),
             Commands.idle())
         .finallyDo(() -> intakeSpin.stop())
         .withName("intake");
@@ -29,8 +32,9 @@ public class IntakeCommands {
 
   public static Command outtake() {
     return Commands.sequence(
-            Commands.runOnce(() -> intakePivot.runPosition(IntakePivot.getExtended(), 0)),
-            Commands.runOnce(() -> intakeSpin.runVolts(7)),
+            Commands.runOnce(
+                () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
+            Commands.runOnce(() -> intakeSpin.runVolts(-7), intakeSpin),
             Commands.idle())
         .finallyDo(() -> intakeSpin.stop())
         .withName("outtake");

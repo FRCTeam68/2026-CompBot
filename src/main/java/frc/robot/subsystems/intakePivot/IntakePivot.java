@@ -4,11 +4,10 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
@@ -20,59 +19,59 @@ import org.littletonrobotics.junction.Logger;
 public class IntakePivot extends SubsystemBase {
   @Getter private static final double packaged = 0;
   @Getter private static final double extended = 0.23;
+
   private final IntakePivotIO io;
   protected final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
+
   private final Debouncer connectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
+  private final Debouncer disconnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
   private final Alert disconnectedAlert =
       new Alert("Intake pivot motor disconnected!", AlertType.kError);
+  private final Alert cancoderDisconnectedAlert =
+      new Alert("Intake pivot cancoder disconnected!", AlertType.kError);
   private final Alert tempAlert = new Alert("Intake pivot motor is too hot.", AlertType.kWarning);
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber("MotorTemplate/Slot0/kP", 0);
-  private LoggedTunableNumber kD0 = new LoggedTunableNumber("MotorTemplate/Slot0/kD", 0);
-  private LoggedTunableNumber kS0 = new LoggedTunableNumber("MotorTemplate/Slot0/kS", 0);
+  private LoggedTunableNumber kP0 = new LoggedTunableNumber("IntakePivot/Slot0/kP", 10);
+  private LoggedTunableNumber kD0 = new LoggedTunableNumber("IntakePivot/Slot0/kD", 0);
+  private LoggedTunableNumber kS0 = new LoggedTunableNumber("IntakePivot/Slot0/kS", 0);
 
-  private LoggedTunableNumber mmVelocity =
-      new LoggedTunableNumber("MotorTemplate/MotionMagic/Velocity", 0);
-
+  private LoggedTunableNumber mmVelocity = new LoggedTunableNumber("IntakePivot/Velocity", 0);
   private LoggedTunableNumber mmAcceleration =
-      new LoggedTunableNumber("MotorTemplate/MotionMagic/Acceleration", 0);
-  private LoggedTunableNumber mmJerk = new LoggedTunableNumber("MotorTemplate/MotionMagic/Jerk", 0);
+      new LoggedTunableNumber("IntakePivot/Acceleration", 0);
+  private LoggedTunableNumber mmJerk = new LoggedTunableNumber("IntakePivot/Jerk", 0);
 
   private LoggedTunableNumber setpointBandPosition =
-      new LoggedTunableNumber("MotorTemplate/PositionSetpointBand", 0);
+      new LoggedTunableNumber("IntakePivot/PositionSetpointBand", 0);
 
   @Getter private double setpoint = 0.0;
 
   @Getter private ControlMode mode = ControlMode.Neutral;
-  public double getPosition;
 
   public IntakePivot(IntakePivotIO io) {
     this.io = io;
+    SmartDashboard.putData(
+        "IntakePivot/Extend", Commands.runOnce(() -> runPosition(extended, 0), this));
+    SmartDashboard.putData(
+        "IntakePivot/Retract", Commands.runOnce(() -> runPosition(packaged, 0), this));
+    SmartDashboard.putData("IntakePivot/Zero", Commands.runOnce(() -> zero(), this));
   }
 
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("IntakePivot", inputs);
-    disconnectedAlert.set(!connectedDebouncer.calculate(inputs.connected));
+    disconnectedAlert.set(!connectedDebouncer.calculate(inputs.motorConnected));
+    cancoderDisconnectedAlert.set(!disconnectedDebouncer.calculate(inputs.cancoderConnected));
     tempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
+    Logger.recordOutput("IntakePivot/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput(
-        "MotorTemplate/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
-    Logger.recordOutput(
-        "MotorTemplate/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
-
-    Logger.recordOutput(
-        "RobotPose/Intake",
-        new Pose3d(
-            inputs.positionRots / extended * Units.inchesToMeters(12), 0, 0, Rotation3d.kZero));
-
-    // Update tunable numbers
-    if (kP0.hasChanged(hashCode()) || kD0.hasChanged(hashCode()) || kS0.hasChanged(hashCode())) {
+        "IntakePivot/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
+    if (kP0.hasChanged(hashCode()) | kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
       io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
     }
 
     if (mmVelocity.hasChanged(hashCode())
-        || mmAcceleration.hasChanged(hashCode())
-        || mmJerk.hasChanged(hashCode())) {
+        | mmAcceleration.hasChanged(hashCode())
+        | mmJerk.hasChanged(hashCode())) {
       io.setMotionMagic(
           new MotionMagicConfigs()
               .withMotionMagicAcceleration(mmAcceleration.get())
@@ -87,7 +86,7 @@ public class IntakePivot extends SubsystemBase {
   /**
    * Set applied voltage to the motor
    *
-   * @param inputVolts Voltage to drive motor at
+   * @param volts Voltage to drive motor at
    */
   public void runVolts(double volts) {
     setpoint = volts;
@@ -103,7 +102,7 @@ public class IntakePivot extends SubsystemBase {
   public void runPosition(double position, int slot) {
     setpoint = position;
     mode = ControlMode.Position;
-    io.runPosition(position, 0);
+    io.runPosition(position, slot);
   }
 
   /** Stop motor */
@@ -162,7 +161,7 @@ public class IntakePivot extends SubsystemBase {
    *
    * @return True if in position control mode and mechanism is at goal position, false otherwise
    */
-  @AutoLogOutput(key = "MotorTemplate/atSetpoint")
+  @AutoLogOutput(key = "IntakePivot/atSetpoint")
   public boolean atSetpoint() {
     return switch (mode) {
       case Position -> Math.abs(setpoint - inputs.positionRots) < setpointBandPosition.get();
