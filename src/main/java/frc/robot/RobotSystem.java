@@ -1,7 +1,5 @@
 package frc.robot;
 
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -20,7 +18,6 @@ import frc.robot.subsystems.intakePivot.IntakePivotIOSim;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIO;
 import frc.robot.subsystems.rollers.RollerSystemIOSim;
-import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
@@ -35,7 +32,6 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
-import frc.robot.util.CanBusUtil;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
@@ -77,31 +73,44 @@ public class RobotSystem {
         // flywheel = new Flywheel(new FlywheelIOReal());
         // hood = new Hood(new HoodIOReal());
         // turret = new Turret(new TurretIOReal());
+
+        //         spindexer =
+        //     new RollerSystem(
+        //         "spindexer",
+        //         new RollerSystemIOTalonFX(
+        //             0,
+        //             CanBusUtil.getCanivoreBus(),
+        //             80,
+        //             InvertedValue.Clockwise_Positive,
+        //             NeutralModeValue.Coast,
+        //             4 * 5 * (64 / 16)));
+        // feeder =
+        //     new RollerSystem(
+        //         "feeder",
+        //         new RollerSystemIOTalonFX(
+        //             0,
+        //             CanBusUtil.getCanivoreBus(),
+        //             80,
+        //             InvertedValue.CounterClockwise_Positive,
+        //             NeutralModeValue.Coast,
+        //             36 / 12));
+
         flywheel = new Flywheel(new FlywheelIOSim());
         hood = new Hood(new HoodIOSim());
         turret = new Turret(new TurretIOSim());
-        intakePivot = new IntakePivot(new IntakePivotIO() {});
-        intakeSpin = new RollerSystem("intakeSpin", new RollerSystemIO() {});
+
+        intakePivot = new IntakePivot(new IntakePivotIOSim() {});
+        intakeSpin =
+            new RollerSystem(
+                "intakeSpin", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 1, 0.74));
+
         spindexer =
             new RollerSystem(
                 "spindexer",
-                new RollerSystemIOTalonFX(
-                    0,
-                    CanBusUtil.getCanivoreBus(),
-                    80,
-                    InvertedValue.Clockwise_Positive,
-                    NeutralModeValue.Coast,
-                    4 * 5 * (64 / 16)));
+                new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4 * 5 * (64 / 16), 0.1));
         feeder =
             new RollerSystem(
-                "feeder",
-                new RollerSystemIOTalonFX(
-                    0,
-                    CanBusUtil.getCanivoreBus(),
-                    80,
-                    InvertedValue.CounterClockwise_Positive,
-                    NeutralModeValue.Coast,
-                    36 / 12));
+                "feeder", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 36 / 12, 0.1));
 
         break;
 
@@ -124,6 +133,7 @@ public class RobotSystem {
         intakeSpin =
             new RollerSystem(
                 "intakeSpin", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 1, 0.74));
+
         spindexer =
             new RollerSystem(
                 "spindexer",
@@ -156,6 +166,7 @@ public class RobotSystem {
 
         intakePivot = new IntakePivot(new IntakePivotIO() {});
         intakeSpin = new RollerSystem("intakeSpin", (new RollerSystemIO() {}));
+
         spindexer = new RollerSystem("spindexer", new RollerSystemIO() {});
         feeder = new RollerSystem("feeder", new RollerSystemIO() {});
     }
