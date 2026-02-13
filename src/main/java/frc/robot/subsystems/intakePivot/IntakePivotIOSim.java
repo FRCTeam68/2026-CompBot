@@ -47,12 +47,18 @@ public class IntakePivotIOSim implements IntakePivotIO {
                   IntakePivot.getPackaged(),
                   IntakePivot.getExtended())));
     }
+
+    // TODO: add simulated inputs for the following:
+    // cancoderConnected
+    // magnetHealth
+    // absolutePositionRots (this can be set to the same as positionRots)
     inputs.motorConnected = true;
     inputs.positionRots = sim.getAngularPositionRotations();
     inputs.velocityRotsPerSec = sim.getAngularVelocityRPM() / 60.0;
     inputs.appliedVoltage = appliedVoltage;
     inputs.supplyCurrentAmps = sim.getCurrentDrawAmps();
-    inputs.torqueCurrentAmps = sim.getCurrentDrawAmps() * 12.0 / appliedVoltage;
+    inputs.torqueCurrentAmps =
+        (appliedVoltage > 0.0) ? sim.getCurrentDrawAmps() * 12.0 / appliedVoltage : 0.0;
   }
 
   @Override
@@ -81,9 +87,7 @@ public class IntakePivotIOSim implements IntakePivotIO {
 
   @Override
   public void setPID(SlotConfigs... newConfig) {
-    for (int i = 0; i < Math.min(newConfig.length, 3); i++) {
-      slotConfigs[i] = newConfig[i];
-    }
+    slotConfigs = newConfig;
   }
 
   private void setInputVoltage(double volts) {

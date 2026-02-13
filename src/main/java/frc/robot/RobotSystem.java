@@ -79,6 +79,7 @@ public class RobotSystem {
         hood = new Hood(new HoodIOReal());
         turret = new Turret(new TurretIOReal());
 
+        // TODO: Fix real implementation for intakePivot and intakeSpin
         intakePivot = new IntakePivot(new IntakePivotIO() {});
         intakeSpin = new RollerSystem("intakeSpin", new RollerSystemIO() {});
         spindexer =
