@@ -1,5 +1,7 @@
 package frc.robot;
 
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -18,6 +20,7 @@ import frc.robot.subsystems.intakePivot.IntakePivotIOSim;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIO;
 import frc.robot.subsystems.rollers.RollerSystemIOSim;
+import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
@@ -35,6 +38,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.util.CanBusUtil;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
@@ -76,8 +80,27 @@ public class RobotSystem {
         turret = new Turret(new TurretIOReal());
 
         intakePivot = new IntakePivot(new IntakePivotIO() {});
-        // TODO: Give this the same name as below
-        intakeSpin = new RollerSystem("null1", new RollerSystemIO() {});
+        intakeSpin = new RollerSystem("intakeSpin", new RollerSystemIO() {});
+        spindexer =
+            new RollerSystem(
+                "spindexer",
+                new RollerSystemIOTalonFX(
+                    0,
+                    CanBusUtil.getCanivoreBus(),
+                    80,
+                    InvertedValue.Clockwise_Positive,
+                    NeutralModeValue.Coast,
+                    4 * 5 * (64 / 16)));
+        feeder =
+            new RollerSystem(
+                "feeder",
+                new RollerSystemIOTalonFX(
+                    0,
+                    CanBusUtil.getCanivoreBus(),
+                    80,
+                    InvertedValue.CounterClockwise_Positive,
+                    NeutralModeValue.Coast,
+                    36 / 12));
 
         break;
 
@@ -96,9 +119,16 @@ public class RobotSystem {
         turret = new Turret(new TurretIOSim());
 
         intakePivot = new IntakePivot(new IntakePivotIOSim() {});
-        // TODO: Give this the same name as below
         intakeSpin =
-            new RollerSystem("null1", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 1, 0.74));
+            new RollerSystem(
+                "intakeSpin", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 1, 0.74));
+        spindexer =
+            new RollerSystem(
+                "spindexer",
+                new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4 * 5 * (64 / 16), 0.1));
+        feeder =
+            new RollerSystem(
+                "feeder", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 36 / 12, 0.1));
         break;
 
       default:
@@ -123,11 +153,11 @@ public class RobotSystem {
 
         intakePivot = new IntakePivot(new IntakePivotIO() {});
         intakeSpin = new RollerSystem("intakeSpin", (new RollerSystemIO() {}));
+        spindexer = new RollerSystem("spindexer", new RollerSystemIO() {});
+        feeder = new RollerSystem("feeder", new RollerSystemIO() {});
     }
 
     shooter = new Shooter(flywheel, hood, turret);
-    spindexer = new RollerSystem("null2", new RollerSystemIO() {});
-    feeder = new RollerSystem("null3", new RollerSystemIO() {});
   }
 
   /**
@@ -146,8 +176,7 @@ public class RobotSystem {
     Logger.recordOutput(
         "RobotPose/Intake",
         new Pose3d(
-            // TODO: Access getExtended in a static way
-            intakePivot.getPosition() / intakePivot.getExtended() * Units.inchesToMeters(12),
+            intakePivot.getPosition() / IntakePivot.getExtended() * Units.inchesToMeters(12),
             0,
             0,
             Rotation3d.kZero));

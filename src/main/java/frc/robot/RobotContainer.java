@@ -175,7 +175,8 @@ public class RobotContainer {
     driverController.setRumble(RumbleType.kBothRumble, 0);
     operatorController.setRumble(RumbleType.kBothRumble, 0);
     drive.stop();
-    // TODO: add stop for intake pivot and spin
+    intakePivot.stop();
+    intakeSpin.stop();
   }
 
   /** Save Limelight 4 rewind to disc. This is only functional on the Limelight 4. */
@@ -198,6 +199,7 @@ public class RobotContainer {
    * </ul>
    */
   public void updateAlerts() {
+    robotSystem.visualization();
     driverControllerDisconnectedAlert.set(!driverController.isConnected());
     operatorControllerDisconnectedAlert.set(!operatorController.isConnected());
 

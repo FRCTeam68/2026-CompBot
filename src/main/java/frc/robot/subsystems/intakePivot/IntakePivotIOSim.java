@@ -47,7 +47,7 @@ public class IntakePivotIOSim implements IntakePivotIO {
                   IntakePivot.getPackaged(),
                   IntakePivot.getExtended())));
     }
-    inputs.connected = true;
+    inputs.motorConnected = true;
     inputs.positionRots = sim.getAngularPositionRotations();
     inputs.velocityRotsPerSec = sim.getAngularVelocityRPM() / 60.0;
     inputs.appliedVoltage = appliedVoltage;
