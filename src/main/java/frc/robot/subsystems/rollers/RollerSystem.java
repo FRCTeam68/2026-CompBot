@@ -10,27 +10,51 @@ import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
 public class RollerSystem extends SubsystemBase {
-  private final String name;
   private final RollerSystemIO io;
   protected final RollerSystemIOInputsAutoLogged inputs = new RollerSystemIOInputsAutoLogged();
 
   private final Debouncer connectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
   private final Alert disconnectedAlert;
   private final Alert tempAlert;
+  private String loggerKey = "";
 
   @Getter private double setpointVolts = 0.0;
 
+  /**
+   * Creates a generic roller system. Rollers can only be controlled through voltage.
+   *
+   * <p>When using the name for logging, spaces are removed and each word is capitalized.
+   *
+   * <p>Examples:
+   *
+   * <blockquote>
+   *
+   * <pre>
+   * name: "Feeder upper"
+   * alert: "Feeder upper motor disconnected!"
+   * logger: "FeederUpper"
+   * </pre>
+   *
+   * </blockquote>
+   *
+   * @param name Name of the system used for alerts and logging.
+   * @param io IO implementation for the system.
+   */
   public RollerSystem(String name, RollerSystemIO io) {
-    this.name = name;
     this.io = io;
 
     disconnectedAlert = new Alert(name + " motor disconnected!", AlertType.kError);
     tempAlert = new Alert(name + " motor is too hot.", AlertType.kWarning);
+    String[] nameSplits = name.split(" ");
+    for (String nameSplit : nameSplits) {
+      loggerKey =
+          loggerKey.concat(nameSplit.substring(0, 1).toUpperCase().concat(nameSplit.substring(1)));
+    }
   }
 
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs(name, inputs);
+    Logger.processInputs(loggerKey, inputs);
     disconnectedAlert.set(!connectedDebouncer.calculate(inputs.connected));
     tempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
   }
@@ -39,14 +63,14 @@ public class RollerSystem extends SubsystemBase {
   public void runVolts(double volts) {
     setpointVolts = volts;
     io.runVolts(setpointVolts);
-    Logger.recordOutput(name + "/SetpointVolts", setpointVolts);
+    Logger.recordOutput(loggerKey + "/SetpointVolts", setpointVolts);
   }
 
   /** Stop roller */
   public void stop() {
     setpointVolts = 0.0;
     io.stop();
-    Logger.recordOutput(name + "/SetpointVolts", 0.0);
+    Logger.recordOutput(loggerKey + "/SetpointVolts", 0.0);
   }
 
   /**
@@ -57,7 +81,7 @@ public class RollerSystem extends SubsystemBase {
   }
 
   /**
-   * @return Torque urrent of roller
+   * @return Torque current of roller
    */
   public double getTorqueCurrent() {
     return inputs.torqueCurrentAmps;

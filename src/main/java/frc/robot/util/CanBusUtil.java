@@ -92,7 +92,7 @@ public class CanBusUtil {
 
   public static CANBus getCanivoreBus() {
     if (canivoreBus == null) {
-      canivoreBus = new CANBus("DRIVEbus");
+      canivoreBus = new CANBus("*");
       canivoreReader = new CanBusReader(canivoreBus);
     }
     return canivoreBus;

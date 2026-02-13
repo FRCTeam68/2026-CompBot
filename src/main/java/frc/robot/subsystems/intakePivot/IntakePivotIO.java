@@ -8,14 +8,16 @@ import org.littletonrobotics.junction.AutoLog;
 public interface IntakePivotIO {
   @AutoLog
   static class IntakePivotIOInputs {
-    public boolean connected = false;
+    public boolean motorConnected = false;
+    public boolean cancoderConnected = false;
     public double positionRots = 0.0;
     public double velocityRotsPerSec = 0.0;
     public double supplyCurrentAmps = 0.0;
     public double torqueCurrentAmps = 0.0;
     public double tempCelsius = 0.0;
     public MagnetHealthValue magnetHealth = MagnetHealthValue.Magnet_Invalid;
-    public double appliedVoltage;
+    public double appliedVoltage = 0;
+    public double absolutePosition = 0;
   }
 
   default void updateInputs(IntakePivotIOInputs inputs) {}

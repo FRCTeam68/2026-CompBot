@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
@@ -13,20 +14,19 @@ import frc.robot.subsystems.drive.ModuleIOReal;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.intakePivot.IntakePivot;
 import frc.robot.subsystems.intakePivot.IntakePivotIO;
+import frc.robot.subsystems.intakePivot.IntakePivotIOSim;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIO;
+import frc.robot.subsystems.rollers.RollerSystemIOSim;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
-import frc.robot.subsystems.shooter.flywheel.FlywheelIOReal;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.shooter.hood.HoodIO;
-import frc.robot.subsystems.shooter.hood.HoodIOReal;
 import frc.robot.subsystems.shooter.hood.HoodIOSim;
 import frc.robot.subsystems.shooter.turret.Turret;
 import frc.robot.subsystems.shooter.turret.TurretIO;
-import frc.robot.subsystems.shooter.turret.TurretIOReal;
 import frc.robot.subsystems.shooter.turret.TurretIOSim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
@@ -51,6 +51,7 @@ public class RobotSystem {
     Flywheel flywheel;
     Hood hood;
     Turret turret;
+
     switch (Constants.getMode()) {
       case REAL:
         drive =
@@ -68,9 +69,48 @@ public class RobotSystem {
                 drive::getFieldVelocity,
                 new VisionIOLimelight(CameraInfo.LL_4),
                 new VisionIOLimelight(CameraInfo.LL_3G));
-        flywheel = new Flywheel(new FlywheelIOReal());
-        hood = new Hood(new HoodIOReal());
-        turret = new Turret(new TurretIOReal());
+
+        // flywheel = new Flywheel(new FlywheelIOReal());
+        // hood = new Hood(new HoodIOReal());
+        // turret = new Turret(new TurretIOReal());
+
+        //         spindexer =
+        //     new RollerSystem(
+        //         "spindexer",
+        //         new RollerSystemIOTalonFX(
+        //             0,
+        //             CanBusUtil.getCanivoreBus(),
+        //             80,
+        //             InvertedValue.Clockwise_Positive,
+        //             NeutralModeValue.Coast,
+        //             4 * 5 * (64 / 16)));
+        // feeder =
+        //     new RollerSystem(
+        //         "feeder",
+        //         new RollerSystemIOTalonFX(
+        //             0,
+        //             CanBusUtil.getCanivoreBus(),
+        //             80,
+        //             InvertedValue.CounterClockwise_Positive,
+        //             NeutralModeValue.Coast,
+        //             36 / 12));
+
+        flywheel = new Flywheel(new FlywheelIOSim());
+        hood = new Hood(new HoodIOSim());
+        turret = new Turret(new TurretIOSim());
+
+        intakePivot = new IntakePivot(new IntakePivotIOSim() {});
+        intakeSpin =
+            new RollerSystem(
+                "intakeSpin", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 1, 0.74));
+
+        spindexer =
+            new RollerSystem(
+                "spindexer",
+                new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4 * 5 * (64 / 16), 0.1));
+        feeder =
+            new RollerSystem(
+                "feeder", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 36 / 12, 0.1));
 
         break;
 
@@ -84,9 +124,23 @@ public class RobotSystem {
                 new ModuleIOSim());
 
         vision = new Vision(drive::addVisionMeasurement, drive::getPose, drive::getFieldVelocity);
+
         flywheel = new Flywheel(new FlywheelIOSim());
         hood = new Hood(new HoodIOSim());
         turret = new Turret(new TurretIOSim());
+
+        intakePivot = new IntakePivot(new IntakePivotIOSim() {});
+        intakeSpin =
+            new RollerSystem(
+                "intakeSpin", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 1, 0.74));
+
+        spindexer =
+            new RollerSystem(
+                "spindexer",
+                new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4 * 5 * (64 / 16), 0.1));
+        feeder =
+            new RollerSystem(
+                "feeder", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 36 / 12, 0.1));
         break;
 
       default:
@@ -105,16 +159,19 @@ public class RobotSystem {
                 drive::getFieldVelocity,
                 new VisionIO() {},
                 new VisionIO() {});
+
         flywheel = new Flywheel(new FlywheelIO() {});
         hood = new Hood(new HoodIO() {});
         turret = new Turret(new TurretIO() {});
+
+        intakePivot = new IntakePivot(new IntakePivotIO() {});
+        intakeSpin = new RollerSystem("intakeSpin", (new RollerSystemIO() {}));
+
+        spindexer = new RollerSystem("spindexer", new RollerSystemIO() {});
+        feeder = new RollerSystem("feeder", new RollerSystemIO() {});
     }
 
-    intakePivot = new IntakePivot(new IntakePivotIO() {});
-    intakeSpin = new RollerSystem("null1", new RollerSystemIO() {});
     shooter = new Shooter(flywheel, hood, turret);
-    spindexer = new RollerSystem("null2", new RollerSystemIO() {});
-    feeder = new RollerSystem("null3", new RollerSystemIO() {});
   }
 
   /**
@@ -130,6 +187,14 @@ public class RobotSystem {
   }
 
   public void visualization() {
+    Logger.recordOutput(
+        "RobotPose/Intake",
+        new Pose3d(
+            intakePivot.getPosition() / IntakePivot.getExtended() * Units.inchesToMeters(12),
+            0,
+            0,
+            Rotation3d.kZero));
+
     Translation3d shooterPosition = new Translation3d(-0.160018476, 0.1335875408, 0);
     Logger.recordOutput(
         "RobotPose/Hood",

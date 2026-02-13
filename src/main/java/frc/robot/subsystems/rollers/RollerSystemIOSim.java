@@ -17,7 +17,7 @@ public class RollerSystemIOSim implements RollerSystemIO {
    * @param reduction The ratio of motor to mechanism rotations, where a ratio greater than 1 is a
    *     reduction.
    * @param moi The moment of inertia of the roller. This can be roughly calculated from the CAD.
-   *     Units are in JKgMetersSquared.
+   *     Units are in J/KgMetersSquared.
    */
   public RollerSystemIOSim(DCMotor motor, double reduction, double moi) {
     sim = new DCMotorSim(LinearSystemId.createDCMotorSystem(motor, moi, reduction), motor);
@@ -36,7 +36,8 @@ public class RollerSystemIOSim implements RollerSystemIO {
     inputs.velocityRotsPerSec = sim.getAngularVelocityRPM() / 60.0;
     inputs.appliedVoltage = appliedVoltage;
     inputs.supplyCurrentAmps = sim.getCurrentDrawAmps();
-    inputs.torqueCurrentAmps = sim.getCurrentDrawAmps() * 12.0 / appliedVoltage;
+    inputs.torqueCurrentAmps =
+        (appliedVoltage > 0.0) ? sim.getCurrentDrawAmps() * 12.0 / appliedVoltage : 0.0;
   }
 
   @Override
