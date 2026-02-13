@@ -2,11 +2,13 @@ package frc.robot.commands.auton;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.RobotSystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.PathUtil;
+import java.util.Set;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
@@ -32,7 +34,8 @@ public class Auton {
     CenterLeft,
     CenterRight,
     Right,
-    Center
+    Center,
+    RightJ
   }
 
   public static enum Special {
@@ -49,6 +52,7 @@ public class Auton {
     autonStartingPose.addOption("Center", Auton.StartingPose.Center);
     autonStartingPose.addOption("CenterRight", Auton.StartingPose.CenterRight);
     autonStartingPose.addOption("Right", Auton.StartingPose.Right);
+    autonStartingPose.addOption("RightJ", Auton.StartingPose.RightJ);
 
     // Configure special
     autonSpecial.addDefaultOption("None", Auton.Special.None);
@@ -80,6 +84,9 @@ public class Auton {
 
       case Right:
         return Neptune();
+
+      case RightJ:
+        return RightJ();
 
       default:
         return Commands.none();
@@ -123,6 +130,28 @@ public class Auton {
         PathUtil.followPath("Middle Depot B"),
         PathUtil.followPath("Middle Depot C"),
         PathUtil.followPath("Middle Depot D"));
+  }
+
+  public static Command RightJ() {
+    if (Constants.getMode() == Mode.SIM) {
+      drive.setPose(PathUtil.getStartingPose("Right Trench A"));
+    }
+    return new DeferredCommand(
+        () -> {
+          // initialization
+          Command command =
+              Commands.sequence(
+                  // Shoot preload note
+                  PathUtil.followPath("Right Trench A"), PathUtil.followPath("Right Trench B"));
+
+          if (autonClimb.get()) {
+            command = command.andThen(PathUtil.followPath("Right Trench C 2"));
+          } else {
+            command = command.andThen(PathUtil.followPath("Right Trench C"));
+          }
+          return command;
+        },
+        Set.of(drive));
   }
 
   /**
