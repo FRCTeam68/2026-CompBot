@@ -21,7 +21,7 @@ import frc.robot.commands.auton.Auton;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intakePivot.IntakePivot;
 import frc.robot.subsystems.rollers.RollerSystem;
-import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.hood.Shooter;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.ShiftUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
