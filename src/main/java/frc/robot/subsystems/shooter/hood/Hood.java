@@ -163,6 +163,6 @@ public class Hood extends SubsystemBase {
   public boolean inTrenchBox() {
     // new Pose2d(ShooterConstants.shooterPosition.toTranslation2d(),
     // Rotation2d.kZero).plus(poseSupplier.get());
-    return false;
+    return poseSupplier.get() == Pose2d.kZero;
   }
 }

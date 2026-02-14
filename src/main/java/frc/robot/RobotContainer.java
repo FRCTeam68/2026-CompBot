@@ -43,7 +43,8 @@ public class RobotContainer {
   private final Drive drive = robotSystem.getDrive();
   private final Vision vision = robotSystem.getVision();
   private final IntakePivot intakePivot = robotSystem.getIntakePivot();
-  private final RollerSystem intakeSpin = robotSystem.getIntakeSpin();  private final Shooter shooter = robotSystem.getShooter();
+  private final RollerSystem intakeSpin = robotSystem.getIntakeSpin();
+  private final Shooter shooter = robotSystem.getShooter();
 
   // Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
