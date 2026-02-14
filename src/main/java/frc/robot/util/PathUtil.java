@@ -39,7 +39,6 @@ public class PathUtil {
    */
   public static Pose2d getStartingPose(PathPlannerPath path) {
     try {
-      // TODO: test if this needs to be flipped
       return path.getStartingHolonomicPose().get();
     } catch (Exception e) {
       System.out.print("Error getting starting holonomic pose from path \"" + path.name + "\": ");
@@ -62,7 +61,6 @@ public class PathUtil {
    */
   public static Pose2d getEndPose(PathPlannerPath path) {
     try {
-      // TODO: test if this needs to be flipped
       List<Pose2d> poses = path.getPathPoses();
       return poses.get(poses.size() - 1);
     } catch (Exception e) {
