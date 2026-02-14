@@ -132,7 +132,7 @@ public class RobotContainer {
                 .ignoringDisable(true)
                 .withName("StopSubsystems"));
 
-    driverController.leftTrigger().whileTrue(IntakeCommands.intake());
+    driverController.leftTrigger().whileTrue(IntakeCommands.intakeWhile());
 
     hubTransitionWarningTrigger.onTrue(
         Commands.runOnce(() -> driverController.setRumble(RumbleType.kBothRumble, 1))
