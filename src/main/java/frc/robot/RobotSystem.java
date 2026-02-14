@@ -171,7 +171,7 @@ public class RobotSystem {
         feeder = new RollerSystem("feeder", new RollerSystemIO() {});
     }
 
-    shooter = new Shooter(flywheel, hood, turret);
+    shooter = new Shooter(flywheel, hood, turret, drive::getPose);
   }
 
   /**

@@ -2,13 +2,19 @@ package frc.robot.subsystems.shooter.hood;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.FieldConstants;
+import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
 import java.util.function.Supplier;
@@ -17,6 +23,8 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Hood extends SubsystemBase {
+  @Getter private static final double minimum = 53.368453;
+  @Getter private static final double maximum = 79.368453;
   private final Supplier<Pose2d> poseSupplier;
   private final HoodIO io;
   protected final HoodIOInputsAutoLogged inputs = new HoodIOInputsAutoLogged();
@@ -44,7 +52,7 @@ public class Hood extends SubsystemBase {
       new LoggedTunableNumber("Hood/PositionSetpointBand", 0);
 
   @Getter private double setpoint = 0.0;
-
+  private boolean prevInTrenchBox = inTrenchBox();
   @Getter private ControlMode mode = ControlMode.Neutral;
 
   public Hood(HoodIO hoodIO, Supplier<Pose2d> poseSupplier) {
@@ -63,6 +71,11 @@ public class Hood extends SubsystemBase {
 
     Logger.recordOutput("Hood/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput("Hood/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
+
+    if (prevInTrenchBox != inTrenchBox() && mode == ControlMode.Position) {
+      runElvation(setpoint, 0);
+      prevInTrenchBox = inTrenchBox();
+    }
 
     // Update tunable numbers
     if (kP0.hasChanged(hashCode()) || kD0.hasChanged(hashCode()) || kS0.hasChanged(hashCode())) {
@@ -102,7 +115,9 @@ public class Hood extends SubsystemBase {
    */
   public void runElvation(double position, int slot) {
     mode = ControlMode.Position;
-    io.runPosition(position, 0);
+    io.runPosition(
+        (inTrenchBox()) ? MathUtil.clamp(position, maximum - 9, maximum) : position, slot);
+    setpoint = position;
   }
 
   /** Stop motor */
@@ -160,9 +175,25 @@ public class Hood extends SubsystemBase {
     };
   }
 
+  @AutoLogOutput(key = "Shooter/InTrenchBox")
   public boolean inTrenchBox() {
-    // new Pose2d(ShooterConstants.shooterPosition.toTranslation2d(),
-    // Rotation2d.kZero).plus(poseSupplier.get());
-    return poseSupplier.get() == Pose2d.kZero;
+    Pose2d shooterPosistion =
+        new Pose2d(ShooterConstants.shooterPosition.toTranslation2d(), Rotation2d.kZero)
+            .plus(
+                new Transform2d(
+                    poseSupplier.get().getTranslation(), poseSupplier.get().getRotation()))
+            .rotateAround(poseSupplier.get().getTranslation(), poseSupplier.get().getRotation());
+    double xSize = Units.inchesToMeters(47);
+    if (shooterPosistion.getY() < FieldConstants.LinesHorizontal.rightTrenchOpenStart
+        || shooterPosistion.getY() > FieldConstants.LinesHorizontal.leftTrenchOpenEnd) {
+      if ((shooterPosistion.getX() > FieldConstants.LinesVertical.hubCenter - (xSize / 2)
+              && shooterPosistion.getX() < FieldConstants.LinesVertical.hubCenter + (xSize / 2))
+          || (shooterPosistion.getX() > FieldConstants.LinesVertical.oppHubCenter - (xSize / 2)
+              && shooterPosistion.getX()
+                  < FieldConstants.LinesVertical.oppHubCenter + (xSize / 2))) {
+        return true;
+      }
+    }
+    return false;
   }
 }
