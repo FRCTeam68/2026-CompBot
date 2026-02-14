@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.RobotSystem;
+import frc.robot.commands.IntakeCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.PathUtil;
 import java.util.Set;
@@ -92,13 +93,15 @@ public class Auton {
         () -> {
           Command myCommand;
           if (autonDepot.get()) {
-            myCommand = PathUtil.followPath("Center Depot");
+            myCommand = (IntakeCommands.intakeOn());
+            myCommand = myCommand.andThen(PathUtil.followPath("Center Depot"));
             myCommand = myCommand.andThen(PathUtil.followPath("Depot Tower"));
             if (autonOutpost.get()) {
               myCommand = myCommand.andThen(PathUtil.followPath("Tower Outpost"));
             }
           } else {
-            myCommand = PathUtil.followPath("Center Outpost");
+            myCommand = (IntakeCommands.intakeOn());
+            myCommand = myCommand.andThen(PathUtil.followPath("Center Outpost"));
             myCommand = myCommand.andThen(PathUtil.followPath("Outpost Tower"));
           }
           return myCommand;
@@ -110,7 +113,8 @@ public class Auton {
     return new DeferredCommand(
         () -> {
           Command myCommand;
-          myCommand = PathUtil.followPath("Right Trench A");
+          myCommand = (IntakeCommands.intakeOn());
+          myCommand = myCommand.andThen(PathUtil.followPath("Right Trench A"));
           myCommand = myCommand.andThen(PathUtil.followPath("Right Trench B"));
           if (autonOutpost.get()) {
             myCommand = myCommand.andThen(PathUtil.followPath("Right Outpost"));
