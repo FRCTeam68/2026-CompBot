@@ -17,19 +17,14 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.IntakeCommands;
-import frc.robot.commands.auton.AutonCommands;
-import frc.robot.commands.auton.AutonSequence;
-import frc.robot.commands.auton.AutonSequenceCenter;
-import frc.robot.commands.auton.AutonSequenceRightTrench;
+import frc.robot.commands.auton.Auton;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intakePivot.IntakePivot;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.util.AutonUtil;
 import frc.robot.util.ShiftUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -62,9 +57,6 @@ public class RobotContainer {
           "Current robot pose does not match the starting pose for selected auton. Possible causes include the incorrect auton is selected, the camera is not getting a clear view of an april tag, or the robot is in the wrong location.",
           AlertType.kError);
 
-  // Dashboard inputs
-  private final LoggedDashboardChooser<AutonSequence> autonChooser;
-
   // Triggers
   private final Trigger hubTransitionWarningTrigger =
       new Trigger(() -> ShiftUtil.hubToActiveWarning(3) || ShiftUtil.hubToInactiveWarning(3));
@@ -79,12 +71,7 @@ public class RobotContainer {
         "Move To Starting Pose",
         Commands.runOnce(() -> Commands.none()).andThen(() -> stopSubsystems()));
 
-    // Configure auton chooser
-    autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
-    autonChooser.addDefaultOption("NONE", null);
-    autonChooser.addOption("Middle Depot Auto", new AutonSequenceCenter());
-    autonChooser.addOption("Right Trench Auto Climber", new AutonSequenceRightTrench(false));
-    autonChooser.addOption("Right Trench Auto Feeder", new AutonSequenceRightTrench(true));
+    Auton.initDashboardInputs();
   }
 
   /** Use this method to define button -> command mappings. */
@@ -164,12 +151,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return AutonCommands.autonCommand(autonChooser.get());
-  }
-
-  /** Loads autonomous paths from storage. This method can be safely be called periodically. */
-  public void loadAutonomousPath() {
-    AutonUtil.loadPaths(autonChooser.get() != null ? autonChooser.get().getPathNames() : null);
+    return Auton.command();
   }
 
   /** Stops all subsystems, cancels all scheduled commands, and stops controller rumble. */
@@ -208,13 +190,15 @@ public class RobotContainer {
     operatorControllerDisconnectedAlert.set(!operatorController.isConnected());
 
     if (DriverStation.isAutonomous() && DriverStation.isDisabled()) {
-      noAutoSelectedAlert.set(autonChooser.get() == null);
-      startingPoseAlert.set(
-          autonChooser.get() != null
-              && (AutonUtil.getStartingPose().minus(drive.getPose()).getTranslation().getNorm()
-                      > 0.25
-                  || AutonUtil.getStartingPose().minus(drive.getPose()).getRotation().getDegrees()
-                      > 20));
+      //   noAutoSelectedAlert.set(autonChooser.get() == null);
+      // TODO: fix alert
+      //   startingPoseAlert.set(
+      //       autonChooser.get() != null
+      //           && (AutonUtil.getStartingPose().minus(drive.getPose()).getTranslation().getNorm()
+      //                   > 0.25
+      //               ||
+      // AutonUtil.getStartingPose().minus(drive.getPose()).getRotation().getDegrees()
+      //                   > 20));
     } else {
       noAutoSelectedAlert.set(false);
       startingPoseAlert.set(false);
