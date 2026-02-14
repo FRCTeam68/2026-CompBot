@@ -35,6 +35,9 @@ public class Auton {
   private static final LoggedNetworkBoolean autonClimb =
       new LoggedNetworkBoolean("SmartDashboard/Auton/Climb", false);
 
+  private static final LoggedNetworkBoolean autonOutpost =
+      new LoggedNetworkBoolean("SmartDashboard/Auton/Outpost", false);
+
   public static enum StartingPose {
     Left,
     CenterLeft,
@@ -100,13 +103,22 @@ public class Auton {
   }
 
   private static Command Terra() {
-    return Commands.sequence(
-        // Shoot preload note
-        PathUtil.followPath("Middle Depot A"),
-        PathUtil.followPath("Middle Depot B"),
-        PathUtil.followPath("Middle Depot C"),
-        PathUtil.followPath("Middle Depot D"),
-        PathUtil.followPath("Middle Depot G"));
+    return new DeferredCommand(
+        () -> {
+          Command myCommand;
+          if (autonDepot.get()) {
+            myCommand = PathUtil.followPath("Center Depot");
+            myCommand = myCommand.andThen(PathUtil.followPath("Depot Tower"));
+            if (autonOutpost.get()) {
+              myCommand = myCommand.andThen(PathUtil.followPath("Tower Outpost"));
+            }
+          } else {
+            myCommand = PathUtil.followPath("Center Outpost");
+            myCommand = myCommand.andThen(PathUtil.followPath("Outpost Tower"));
+          }
+          return myCommand;
+        },
+        Set.of(drive));
   }
 
   private static Command Marz() {
