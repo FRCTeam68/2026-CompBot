@@ -2,7 +2,6 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.drive.Drive;
@@ -19,6 +18,7 @@ import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIO;
 import frc.robot.subsystems.rollers.RollerSystemIOSim;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOSim;
@@ -70,8 +70,9 @@ public class RobotSystem {
                 new VisionIOLimelight(CameraInfo.LL_4),
                 new VisionIOLimelight(CameraInfo.LL_3G));
 
+
         // flywheel = new Flywheel(new FlywheelIOReal());
-        // hood = new Hood(new HoodIOReal());
+        // hood = new Hood(new HoodIOReal(), drive::getPose);
         // turret = new Turret(new TurretIOReal());
 
         //         spindexer =
@@ -96,7 +97,7 @@ public class RobotSystem {
         //             36 / 12));
 
         flywheel = new Flywheel(new FlywheelIOSim());
-        hood = new Hood(new HoodIOSim());
+        hood = new Hood(new HoodIOSim(), drive::getPose);
         turret = new Turret(new TurretIOSim());
 
         intakePivot = new IntakePivot(new IntakePivotIOSim() {});
@@ -126,7 +127,7 @@ public class RobotSystem {
         vision = new Vision(drive::addVisionMeasurement, drive::getPose, drive::getFieldVelocity);
 
         flywheel = new Flywheel(new FlywheelIOSim());
-        hood = new Hood(new HoodIOSim());
+        hood = new Hood(new HoodIOSim(), drive::getPose);
         turret = new Turret(new TurretIOSim());
 
         intakePivot = new IntakePivot(new IntakePivotIOSim() {});
@@ -161,7 +162,7 @@ public class RobotSystem {
                 new VisionIO() {});
 
         flywheel = new Flywheel(new FlywheelIO() {});
-        hood = new Hood(new HoodIO() {});
+        hood = new Hood(new HoodIO() {}, drive::getPose);
         turret = new Turret(new TurretIO() {});
 
         intakePivot = new IntakePivot(new IntakePivotIO() {});
@@ -195,7 +196,6 @@ public class RobotSystem {
             0,
             Rotation3d.kZero));
 
-    Translation3d shooterPosition = new Translation3d(-0.160018476, 0.1335875408, 0);
     Logger.recordOutput(
         "RobotPose/Hood",
         new Pose3d(
@@ -204,9 +204,10 @@ public class RobotSystem {
                 0.4431027206,
                 new Rotation3d(0, -Units.degreesToRadians(shooter.getHood().getPosition()), 0))
             .rotateAround(
-                shooterPosition,
+                ShooterConstants.shooterPosition,
                 new Rotation3d(
                     0, 0, Units.rotationsToRadians(shooter.getTurret().getPosition()) + Math.PI)));
+
     Logger.recordOutput(
         "RobotPose/Turret",
         new Pose3d(
