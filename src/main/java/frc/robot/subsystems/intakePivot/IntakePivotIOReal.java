@@ -69,9 +69,8 @@ public class IntakePivotIOReal implements IntakePivotIO {
   private final NeutralOut neutralOut = new NeutralOut();
 
   public IntakePivotIOReal() {
-    // TODO: we should be able to set the correct CAN IDs now
-    talon = new TalonFX(0, canBus);
-    cancoder = new CANcoder(1, canBus);
+    talon = new TalonFX(21, canBus);
+    cancoder = new CANcoder(31, canBus);
 
     // Configure Motor
     talonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;

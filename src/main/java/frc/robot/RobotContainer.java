@@ -190,14 +190,14 @@ public class RobotContainer {
     operatorControllerDisconnectedAlert.set(!operatorController.isConnected());
 
     if (DriverStation.isAutonomous() && DriverStation.isDisabled()) {
-      //   noAutoSelectedAlert.set(autonChooser.get() == null);
-      // TODO: fix alert
-      //   startingPoseAlert.set(
-      //       autonChooser.get() != null
-      //           && (AutonUtil.getStartingPose().minus(drive.getPose()).getTranslation().getNorm()
-      //                   > 0.25
-      //               ||
-      // AutonUtil.getStartingPose().minus(drive.getPose()).getRotation().getDegrees()
+      //     noAutoSelectedAlert.set(autonChooser.get() == null);
+      //     getStartingPoseAlert.set(
+      //         autonChooser.get() != null
+      //             &&
+      // (AutonUtil.getStartingPose().minus(drive.getPose()).getTranslation().getNorm()
+      //                     > 0.25
+      //                 ||
+      //   AutonUtil.getStartingPose().minus(drive.getPose()).getRotation().getDegrees()
       //                   > 20));
     } else {
       noAutoSelectedAlert.set(false);

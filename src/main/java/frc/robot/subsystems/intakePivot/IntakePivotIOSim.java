@@ -1,6 +1,7 @@
 package frc.robot.subsystems.intakePivot;
 
 import com.ctre.phoenix6.configs.SlotConfigs;
+import com.ctre.phoenix6.signals.MagnetHealthValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -48,10 +49,6 @@ public class IntakePivotIOSim implements IntakePivotIO {
                   IntakePivot.getExtended())));
     }
 
-    // TODO: add simulated inputs for the following:
-    // cancoderConnected
-    // magnetHealth
-    // absolutePositionRots (this can be set to the same as positionRots)
     inputs.motorConnected = true;
     inputs.positionRots = sim.getAngularPositionRotations();
     inputs.velocityRotsPerSec = sim.getAngularVelocityRPM() / 60.0;
@@ -59,6 +56,9 @@ public class IntakePivotIOSim implements IntakePivotIO {
     inputs.supplyCurrentAmps = sim.getCurrentDrawAmps();
     inputs.torqueCurrentAmps =
         (appliedVoltage > 0.0) ? sim.getCurrentDrawAmps() * 12.0 / appliedVoltage : 0.0;
+    inputs.cancoderConnected = true;
+    inputs.magnetHealth = MagnetHealthValue.Magnet_Green;
+    inputs.absolutePositionRots = sim.getAngularPositionRotations();
   }
 
   @Override

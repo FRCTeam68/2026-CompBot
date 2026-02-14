@@ -22,13 +22,10 @@ public class IntakePivot extends SubsystemBase {
 
   private final IntakePivotIO io;
   protected final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
+  private final Debouncer motorConnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
+  private final Debouncer cancoderDisconnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
-  // TODO: Rename the debouncers to have more descriptive names
-  private final Debouncer connectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
-  private final Debouncer disconnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
-
-  // TODO: Remane the motor disconnected alert to have a more descriptive name
-  private final Alert disconnectedAlert =
+  private final Alert motorDisconnectedAlert =
       new Alert("Intake pivot motor disconnected!", AlertType.kError);
   private final Alert cancoderDisconnectedAlert =
       new Alert("Intake pivot cancoder disconnected!", AlertType.kError);
@@ -52,23 +49,24 @@ public class IntakePivot extends SubsystemBase {
 
   public IntakePivot(IntakePivotIO io) {
     this.io = io;
+    SmartDashboard.putData(
+        "IntakePivot/Extend",
+        Commands.runOnce(() -> runPosition(extended, 0)).withName("DashboardIntakePivotExtend"));
 
-    // Dashboard controls
-    // TODO: Add names to these commands. Start the name with Dashboard so we know thats what these
-    // are.
     SmartDashboard.putData(
-        "IntakePivot/Extend", Commands.runOnce(() -> runPosition(extended, 0), this));
+        "IntakePivot/Retract",
+        Commands.runOnce(() -> runPosition(packaged, 0)).withName("DashboardIntakePivotRetract"));
     SmartDashboard.putData(
-        "IntakePivot/Retract", Commands.runOnce(() -> runPosition(packaged, 0), this));
-    SmartDashboard.putData("IntakePivot/Zero", Commands.runOnce(() -> zero(), this));
+        "IntakePivot/Zero", Commands.runOnce(() -> zero()).withName("DashboardIntakePivotZero"));
   }
 
   public void periodic() {
     // Process inputs
     io.updateInputs(inputs);
     Logger.processInputs("IntakePivot", inputs);
-    disconnectedAlert.set(!connectedDebouncer.calculate(inputs.motorConnected));
-    cancoderDisconnectedAlert.set(!disconnectedDebouncer.calculate(inputs.cancoderConnected));
+    motorDisconnectedAlert.set(!motorConnectedDebouncer.calculate(inputs.motorConnected));
+    cancoderDisconnectedAlert.set(
+        !cancoderDisconnectedDebouncer.calculate(inputs.cancoderConnected));
     tempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
     // Log setpoint
