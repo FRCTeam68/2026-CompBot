@@ -20,12 +20,18 @@ public class Auton {
   // Dashboard inputs
   private static final LoggedDashboardChooser<Auton.StartingPose> autonStartingPose =
       new LoggedDashboardChooser<>("Auton/StartingPose");
+
+  @SuppressWarnings("unused")
   private static final LoggedNetworkBoolean autonFullField =
       new LoggedNetworkBoolean("SmartDashboard/Auton/FullField", false);
+
   private static final LoggedDashboardChooser<Auton.Special> autonSpecial =
       new LoggedDashboardChooser<>("Auton/Special");
+
+  @SuppressWarnings("unused")
   private static final LoggedNetworkBoolean autonDepot =
       new LoggedNetworkBoolean("SmartDashboard/Auton/Depot", false);
+
   private static final LoggedNetworkBoolean autonClimb =
       new LoggedNetworkBoolean("SmartDashboard/Auton/Climb", false);
 
@@ -119,6 +125,7 @@ public class Auton {
         PathUtil.followPath("Right Trench C 2"));
   }
 
+  @SuppressWarnings("unused")
   private static Command neutralZone() {
     return Commands.none();
   }
