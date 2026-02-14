@@ -26,14 +26,6 @@ public interface TurretIO {
   default void runVolts(double volts) {}
 
   /**
-   * Run motor at velocity.
-   *
-   * @param velocity Velocity in mechanism rotations per second
-   * @param slot
-   */
-  default void runVelocity(double velocity, int slot) {}
-
-  /**
    * Run motor to position.
    *
    * @param position Position in mechanism rotations

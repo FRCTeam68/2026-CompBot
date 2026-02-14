@@ -29,7 +29,8 @@ import frc.robot.util.PhoenixUtil;
 import lombok.Getter;
 
 public class FlywheelIOReal implements FlywheelIO {
-  @Getter private static double reduction = 1;
+
+  @Getter private static final double reduction = 1;
 
   // Hardware
   private final TalonFX leaderTalon;
@@ -49,7 +50,6 @@ public class FlywheelIOReal implements FlywheelIO {
   private final StatusSignal<Temperature> followerTempCelsius;
 
   // Control requests
-  // TEMPLATE: Choose desired control methods
   private final VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true);
   private final VelocityVoltage velocityOut = new VelocityVoltage(0).withEnableFOC(true);
   //   private final MotionMagicVelocityVoltage velocityOut = new
@@ -57,18 +57,14 @@ public class FlywheelIOReal implements FlywheelIO {
   //   private final VelocityTorqueCurrentFOC velocityOut = new VelocityTorqueCurrentFOC(0);
   //   private final MotionMagicVelocityTorqueCurrentFOC velocityOut = new
   // MotionMagicVelocityTorqueCurrentFOC(0);
-  //   private final MotionMagicVoltage positionOut = new MotionMagicVoltage(0).withEnableFOC(true);
-  //   private final TorqueCurrentFOC positionOut = new TorqueCurrentFOC(0);
-  //   private final MotionMagicTorqueCurrentFOC positionOut = new MotionMagicTorqueCurrentFOC(0);
   private final NeutralOut neutralOut = new NeutralOut();
 
   public FlywheelIOReal() {
-    // TEMPLATE: Set CAN id and bus
     leaderTalon = new TalonFX(0, new CANBus("rio"));
     followerTalon = new TalonFX(0, new CANBus("rio"));
     followerTalon.setControl(new Follower(leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed));
+
     // Configure Motor
-    // TEMPLATE: Set configuration
     leaderConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     leaderConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     // Current limits
@@ -100,9 +96,8 @@ public class FlywheelIOReal implements FlywheelIO {
                 followerAppliedVoltage,
                 leaderSupplyCurrent,
                 leaderTorqueCurrent));
-    tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(leaderTalon));
+    tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(leaderTalon, followerTalon));
     PhoenixUtil.registerSignals(
-        // TEMPLATE: Set whether motor is attached to a CANivore
         new CANBus("DRIVEbus"),
         position,
         velocity,

@@ -19,10 +19,10 @@ import lombok.Builder;
 public final class DriveConstants {
   // Hardware Configuration
   public static final CANBus canBus = CanBusUtil.getCanivoreBus();
-  public static final double trackWidthX = Units.inchesToMeters(19.5); // meters
-  public static final double trackWidthY = Units.inchesToMeters(22.5); // meters
-  public static final double driveReduction = 5.14;
-  public static final double turnReduction = 12.8;
+  public static final double trackWidthX = Units.inchesToMeters(21.75); // meters
+  public static final double trackWidthY = Units.inchesToMeters(21.75); // meters
+  public static final double driveReduction = 6.12;
+  public static final double turnReduction = 150 / 7;
   public static final double maxLinearVelocity = 6.27; // meters/second | max:6.27
   public static final double wheelRadius = Units.inchesToMeters(2); // meters
   private static final double mass = 68; // kilograms
@@ -89,8 +89,9 @@ public final class DriveConstants {
         .driveMotorId(1)
         .turnMotorId(2)
         .encoderId(15)
-        .encoderOffset(Rotation2d.fromRotations(-0.1552734375))
-        .turnInverted(false)
+        .encoderOffset(Rotation2d.fromRotations(0.308349609375))
+        .turnInverted(true)
+        .driveInverted(true)
         .encoderInverted(false)
         .build(),
     // Module 1 (Front Right)
@@ -98,8 +99,9 @@ public final class DriveConstants {
         .driveMotorId(3)
         .turnMotorId(4)
         .encoderId(16)
-        .encoderOffset(Rotation2d.fromRotations(-0.150634765625).rotateBy(Rotation2d.kPi))
-        .turnInverted(false)
+        .encoderOffset(Rotation2d.fromRotations(-0.275634765625).rotateBy(Rotation2d.kPi))
+        .turnInverted(true)
+        .driveInverted(true)
         .encoderInverted(false)
         .build(),
     // Module 2 (Back Left)
@@ -107,8 +109,9 @@ public final class DriveConstants {
         .driveMotorId(5)
         .turnMotorId(6)
         .encoderId(17)
-        .encoderOffset(Rotation2d.fromRotations(0.19580078125))
-        .turnInverted(false)
+        .encoderOffset(Rotation2d.fromRotations(0.188232421875))
+        .turnInverted(true)
+        .driveInverted(true)
         .encoderInverted(false)
         .build(),
     // Module 3 (Back Right)
@@ -116,8 +119,9 @@ public final class DriveConstants {
         .driveMotorId(7)
         .turnMotorId(8)
         .encoderId(18)
-        .encoderOffset(Rotation2d.fromRotations(0.3154296875).rotateBy(Rotation2d.kPi))
-        .turnInverted(false)
+        .encoderOffset(Rotation2d.fromRotations(0.361083984375).rotateBy(Rotation2d.kPi))
+        .turnInverted(true)
+        .driveInverted(true)
         .encoderInverted(false)
         .build(),
   };
@@ -125,7 +129,10 @@ public final class DriveConstants {
   public static class GyroConstants {
     public static final int id = 50;
     public static final MountPoseConfigs mountPose =
-        new MountPoseConfigs().withMountPoseYaw(0.0).withMountPosePitch(0.0).withMountPoseRoll(0.0);
+        new MountPoseConfigs()
+            .withMountPoseYaw(89.54100036621094)
+            .withMountPosePitch(-0.5407958626747131)
+            .withMountPoseRoll(179.32986450195312);
   }
 
   @Builder
@@ -135,5 +142,6 @@ public final class DriveConstants {
       int encoderId,
       Rotation2d encoderOffset,
       boolean turnInverted,
+      boolean driveInverted,
       boolean encoderInverted) {}
 }

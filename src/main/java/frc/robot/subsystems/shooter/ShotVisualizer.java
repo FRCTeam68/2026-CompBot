@@ -31,8 +31,10 @@ public class ShotVisualizer {
 
   private static final Supplier<Pose2d> robotPoseSupplier = drive::getPose;
   private static final Supplier<ChassisSpeeds> fieldVelocitySupplier = drive::getFieldVelocity;
-  private static final Supplier<Double> flywheelVelocitySupplier = () -> 2500.0 / 60.0;
-  private static final Supplier<Double> hoodElevationSupplier = () -> 53.0;
+  private static final Supplier<Double> flywheelVelocitySupplier =
+      () -> shooter.getFlywheel().getVelocity();
+  private static final Supplier<Double> hoodElevationSupplier =
+      () -> shooter.getHood().getPosition();
   private static final Supplier<Rotation2d> turretAngleSupplier = () -> new Rotation2d();
   private static final Supplier<Double> feederSetpointSupplier = feeder::getSetpointVolts;
 
