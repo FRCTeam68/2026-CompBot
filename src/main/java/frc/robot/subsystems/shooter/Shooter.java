@@ -1,12 +1,12 @@
-package frc.robot.subsystems.shooter.hood;
+package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
-import frc.robot.subsystems.shooter.ShotVisualizer;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
+import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.shooter.turret.Turret;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;

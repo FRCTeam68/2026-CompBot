@@ -11,8 +11,6 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.RobotSystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.rollers.RollerSystem;
-import frc.robot.subsystems.shooter.hood.Shooter;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
