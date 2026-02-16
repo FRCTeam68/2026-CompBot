@@ -4,8 +4,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -24,13 +24,20 @@ public class Shooter extends SubsystemBase {
   @Getter private final Flywheel flywheel;
   @Getter private final Hood hood;
   @Getter private final Turret turret;
-  private final Supplier<Pose2d> poseSupplier;
+  private final Supplier<Pose2d> drivePoseSupplier;
+  private final Supplier<ChassisSpeeds> driveVelocitySupplier;
 
-  public Shooter(Flywheel flywheel, Hood hood, Turret turret, Supplier<Pose2d> poseSupplier) {
+  public Shooter(
+      Flywheel flywheel,
+      Hood hood,
+      Turret turret,
+      Supplier<Pose2d> poseSupplier,
+      Supplier<ChassisSpeeds> driveVelocitySupplier) {
     this.flywheel = flywheel;
     this.hood = hood;
     this.turret = turret;
-    this.poseSupplier = poseSupplier;
+    this.drivePoseSupplier = poseSupplier;
+    this.driveVelocitySupplier = driveVelocitySupplier;
     SmartDashboard.putNumber("Shooter/FlywheelVelocity", 0);
     SmartDashboard.putNumber("Shooter/HoodPosition", 0);
     SmartDashboard.putNumber("Shooter/TurretPosition", 0);
@@ -50,23 +57,38 @@ public class Shooter extends SubsystemBase {
   }
 
   public void runDynamic() {
-    double centerDistance = FieldConstants.Hub.innerCenterPoint.toTranslation2d().minus(getShooterPose().getTranslation()).getNorm();
- double flightTime = ShooterConstants.hubShotTable[2].get(centerDistance);
- Translation2d target = FieldConstants.Hub.innerCenterPoint.toTranslation2d();
- runStatic(ShooterConstants.hubShotTable[1].get(centerDistance), ShooterConstants.hubShotTable[0].get(centerDistance),target.minus(getShooterPose().getTranslation()).getAngle()-poseSupplier.get().getRotation().getRadians());
+    double centerDistance =
+        FieldConstants.Hub.innerCenterPoint
+            .toTranslation2d()
+            .minus(getShooterPose().getTranslation())
+            .getNorm();
+    double flightTime = ShooterConstants.hubShotTable[2].get(centerDistance);
+    Translation2d target =
+        FieldConstants.Hub.innerCenterPoint
+            .toTranslation2d()
+            .plus(
+                new Translation2d(
+                    driveVelocitySupplier.get().vxMetersPerSecond * flightTime * -1,
+                    driveVelocitySupplier.get().vyMetersPerSecond * flightTime * -1));
+    runStatic(
+        ShooterConstants.hubShotTable[1].get(centerDistance),
+        ShooterConstants.hubShotTable[0].get(centerDistance),
+        target.minus(getShooterPose().getTranslation()).getAngle().getRadians()
+            - drivePoseSupplier.get().getRotation().getRadians());
   }
 
-
   public boolean inAllianceZone() {
-    return AllianceFlipUtil.applyX(poseSupplier.get().getX())
+    return AllianceFlipUtil.applyX(drivePoseSupplier.get().getX())
         < FieldConstants.LinesVertical.allianceZone + Units.inchesToMeters(23.5);
   }
 
   public Pose2d getShooterPose() {
     return new Pose2d(ShooterConstants.shooterPosition.toTranslation2d(), Rotation2d.kZero)
         .plus(
-            new Transform2d(poseSupplier.get().getTranslation(), poseSupplier.get().getRotation()))
-        .rotateAround(poseSupplier.get().getTranslation(), poseSupplier.get().getRotation());
+            new Transform2d(
+                drivePoseSupplier.get().getTranslation(), drivePoseSupplier.get().getRotation()))
+        .rotateAround(
+            drivePoseSupplier.get().getTranslation(), drivePoseSupplier.get().getRotation());
   }
 
   /** Stop motor */
