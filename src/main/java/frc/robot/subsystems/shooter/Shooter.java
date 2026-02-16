@@ -41,7 +41,15 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("Shooter/FlywheelVelocity", 0);
     SmartDashboard.putNumber("Shooter/HoodPosition", 0);
     SmartDashboard.putNumber("Shooter/TurretPosition", 0);
-    SmartDashboard.putData("Shooter/RunStatic", Commands.runOnce(() -> runStatic(0, 0, 0)));
+    SmartDashboard.putData(
+        "Shooter/RunStatic",
+        Commands.runOnce(
+                () ->
+                    runStatic(
+                        SmartDashboard.getNumber("Shooter/FlywheelVelocity", 0),
+                        SmartDashboard.getNumber("Shooter/HoodPosition", 0),
+                        SmartDashboard.getNumber("Shooter/TurretPosition", 0)))
+            .withName("Shooter/RunStatic"));
   }
 
   public void periodic() {
