@@ -113,6 +113,14 @@ public class RobotContainer {
                                     .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
                         .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
 
+    // TODO: add mapping for the following
+    // run dynamic
+    // run static (hub, neutral zone pass, and opp alliance zone pass)
+    // enable autoshoot
+    // shooter hold
+    // manual shoot
+    // no pass
+
     driverController
         .back()
         .onTrue(

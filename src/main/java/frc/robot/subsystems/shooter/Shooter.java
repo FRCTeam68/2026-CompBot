@@ -41,6 +41,7 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("Shooter/FlywheelVelocity", 0);
     SmartDashboard.putNumber("Shooter/HoodPosition", 0);
     SmartDashboard.putNumber("Shooter/TurretPosition", 0);
+    // TODO: we should jast call the run static method in ShooterCommands instead
     SmartDashboard.putData(
         "Shooter/RunStatic",
         Commands.runOnce(
@@ -64,6 +65,7 @@ public class Shooter extends SubsystemBase {
     turret.runPosition(turretPosition, 0);
   }
 
+  // TODO: add parameters for target and is pass
   public void runDynamic() {
     double centerDistance =
         FieldConstants.Hub.innerCenterPoint
@@ -71,6 +73,7 @@ public class Shooter extends SubsystemBase {
             .minus(getShooterPose().getTranslation())
             .getNorm();
     double flightTime = ShooterConstants.hubShotTable[2].get(centerDistance);
+    // Use the target parameter instead of always the hub
     Translation2d target =
         FieldConstants.Hub.innerCenterPoint
             .toTranslation2d()
