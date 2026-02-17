@@ -3,11 +3,14 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotSystem;
+import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
 
 public class ShooterCommands {
   private static final RobotSystem robotSystem = RobotSystem.getInstance();
   private static final Shooter shooter = robotSystem.getShooter();
+   private static final RollerSystem spindexer = robotSystem.getSpindexer();
+    private static final RollerSystem feeder = robotSystem.getFeeder();
 
   public static Command runStatic(
       double flywheelVelocity, double hoodElevation, double turretPosition) {
@@ -15,5 +18,14 @@ public class ShooterCommands {
             Commands.runOnce(
                 () -> shooter.runStatic(flywheelVelocity, hoodElevation, turretPosition), shooter))
         .withName("runStatic");
+  }
+  public static Command autoShoot() {
+    return Commands.run(() -> {
+      shooter.runDynamic();
+      if (shooter.atSetpoint()){
+        spindexer.runVolts(12);
+        feeder.runVolts(12);
+      }
+    }, null)
   }
 }

@@ -39,8 +39,16 @@ public class ShooterConstants {
         .shootTime(0.0)
         .build()
   };
-  public static InterpolatingDoubleTreeMap[] hubShotTable = new InterpolatingDoubleTreeMap[3];
-  public static InterpolatingDoubleTreeMap[] passShotTable = new InterpolatingDoubleTreeMap[3];
+  public static InterpolatingDoubleTreeMap[] hubShotTable = {
+    new InterpolatingDoubleTreeMap(),
+    new InterpolatingDoubleTreeMap(),
+    new InterpolatingDoubleTreeMap()
+  };
+  public static InterpolatingDoubleTreeMap[] passShotTable = {
+    new InterpolatingDoubleTreeMap(),
+    new InterpolatingDoubleTreeMap(),
+    new InterpolatingDoubleTreeMap()
+  };
 
   static {
     for (ShooterConfig config : hubConfigLow) {

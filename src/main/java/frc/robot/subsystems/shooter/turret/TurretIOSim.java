@@ -58,7 +58,7 @@ public class TurretIOSim implements TurretIO {
   public void runPosition(double position, int slot) {
     mode = ControlMode.Position;
     controller.setPID(slotConfigs[slot].kP, slotConfigs[slot].kI, slotConfigs[slot].kD);
-    controller.setSetpoint(position);
+    controller.setSetpoint(Units.degreesToRotations(position));
   }
 
   @Override

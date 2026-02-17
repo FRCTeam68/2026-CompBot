@@ -24,7 +24,7 @@ public class Turret extends SubsystemBase {
       new Alert("Turret motor is too hot.", AlertType.kWarning);
   private final Debouncer turretMotorDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Turret/Slot0/kP", 0);
+  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Turret/Slot0/kP", 20);
   private LoggedTunableNumber kD0 = new LoggedTunableNumber("Turret/Slot0/kD", 0);
   private LoggedTunableNumber kS0 = new LoggedTunableNumber("Turret/Slot0/kS", 0);
 

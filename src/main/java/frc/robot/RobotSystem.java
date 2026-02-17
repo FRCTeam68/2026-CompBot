@@ -201,7 +201,7 @@ public class RobotSystem {
                 -0.2609834506,
                 0.133624955,
                 0.4431027206,
-                new Rotation3d(0, -Units.degreesToRadians(shooter.getHood().getPosition()), 0))
+                new Rotation3d(0, Units.degreesToRadians(shooter.getHood().getPosition()), 0))
             .rotateAround(
                 ShooterConstants.shooterPosition,
                 new Rotation3d(

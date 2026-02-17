@@ -34,8 +34,6 @@ import lombok.Getter;
 public class HoodIOReal implements HoodIO {
   private static final double rotorToSensorReduction = (48.0 / 12.0) * (16.0 / 40.0);
   private static final double sensorToMechanismReduction = (295.0 / 30.0);
-  @Getter private static final double minimumElevation = 43.364;
-  @Getter private static final double maximumElevation = 73.364;
 
   @Getter
   private static final double reduction = rotorToSensorReduction * sensorToMechanismReduction;

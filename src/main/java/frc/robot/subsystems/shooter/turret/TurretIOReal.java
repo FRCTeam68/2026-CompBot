@@ -27,7 +27,12 @@ import frc.robot.util.PhoenixUtil;
 import lombok.Getter;
 
 public class TurretIOReal implements TurretIO {
-  @Getter private static final double reduction = 1;
+  private static final double rotorToSensorReduction = (50.0 / 8.0) * (62.0 / 18.0) * (52.0 / 26.0);
+  private static final double sensorToMechanismReduction =
+      (26.0 / 52.0) * (18.0 / 62.0) * (124.0 / 18.0);
+
+  @Getter
+  private static final double reduction = rotorToSensorReduction * sensorToMechanismReduction;
 
   // Hardware
   private final TalonFX talon;

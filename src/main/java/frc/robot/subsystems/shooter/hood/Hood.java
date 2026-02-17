@@ -39,7 +39,7 @@ public class Hood extends SubsystemBase {
   private final Debouncer hoodMotorDebouncer = new Debouncer(0.5, DebounceType.kRising);
   private final Debouncer hoodCancoderDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Hood/Slot0/kP", 0);
+  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Hood/Slot0/kP", 20);
   private LoggedTunableNumber kD0 = new LoggedTunableNumber("Hood/Slot0/kD", 0);
   private LoggedTunableNumber kS0 = new LoggedTunableNumber("Hood/Slot0/kS", 0);
 
@@ -52,7 +52,7 @@ public class Hood extends SubsystemBase {
       new LoggedTunableNumber("Hood/PositionSetpointBand", 0);
 
   @Getter private double setpoint = 0.0;
-  private boolean prevInTrenchBox = inTrenchBox();
+  private boolean prevInTrenchBox = false;
   @Getter private ControlMode mode = ControlMode.Neutral;
 
   public Hood(HoodIO hoodIO, Supplier<Pose2d> poseSupplier) {

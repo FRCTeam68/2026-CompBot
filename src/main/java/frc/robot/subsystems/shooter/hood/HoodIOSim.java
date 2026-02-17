@@ -12,7 +12,7 @@ import frc.robot.Constants;
 import frc.robot.util.PhoenixUtil.ControlMode;
 
 public class HoodIOSim implements HoodIO {
-  private final DCMotor motor = DCMotor.getFalcon500Foc(1);
+  private final DCMotor motor = DCMotor.getKrakenX44Foc(1);
 
   private final DCMotorSim sim;
   private final PIDController controller = new PIDController(0, 0, 0);
@@ -25,6 +25,7 @@ public class HoodIOSim implements HoodIO {
     sim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(motor, .1, HoodIOReal.getReduction()), motor);
+    sim.setAngle(Units.degreesToRadians(Hood.getMaximum()));
   }
 
   @Override

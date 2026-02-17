@@ -30,7 +30,7 @@ public class Flywheel extends SubsystemBase {
   private final Debouncer flywheelLeaderDebouncer = new Debouncer(0.5, DebounceType.kRising);
   private final Debouncer flywheelFollowerDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Flywheel/Slot0/kP", 0);
+  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Flywheel/Slot0/kP", 20);
   private LoggedTunableNumber kD0 = new LoggedTunableNumber("Flywheel/Slot0/kD", 0);
   private LoggedTunableNumber kS0 = new LoggedTunableNumber("Flywheel/Slot0/kS", 0);
 
@@ -94,7 +94,7 @@ public class Flywheel extends SubsystemBase {
 
   public void runVelocity(double velocity, int slot) {
     mode = ControlMode.Velocity;
-
+    setpoint = velocity;
     io.runVelocity(velocity, 0);
   }
 
