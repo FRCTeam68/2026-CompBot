@@ -38,6 +38,7 @@ public class HoodIOReal implements HoodIO {
   @Getter
   private static final double reduction = rotorToSensorReduction * sensorToMechanismReduction;
 
+  // TODO: delete this and use the one in ShooterConstants instead
   private static final CANBus canBus = new CANBus("rio");
 
   // Hardware
@@ -65,6 +66,8 @@ public class HoodIOReal implements HoodIO {
   private final NeutralOut neutralOut = new NeutralOut();
 
   public HoodIOReal() {
+    // TODO: use canbus from shooter constants
+    // TODO: set actual can ids
     talon = new TalonFX(0, canBus);
     cancoder = new CANcoder(1, canBus);
 
@@ -81,10 +84,16 @@ public class HoodIOReal implements HoodIO {
     talonConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     talonConfig.Feedback.RotorToSensorRatio = rotorToSensorReduction;
     talonConfig.Feedback.SensorToMechanismRatio = sensorToMechanismReduction;
+    // Motion Limits
+    // TODO: Confiugure motion limits
+    // You must also enable the limits
+    // talonConfig.SoftwareLimitSwitch.something
+    tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
+
+    // Configure CANcoder
     cancoderConfig.MagnetSensor.MagnetOffset = 0.0;
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
     cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.25;
-    tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
 
     position = talon.getPosition();

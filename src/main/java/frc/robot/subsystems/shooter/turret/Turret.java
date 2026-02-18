@@ -14,10 +14,17 @@ import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+// TODO: lets log everything inside of the shooter folder
+// TODO: we need to change this subsystem to accept and report values in degrees
+// TODO: we need to add the CANCoder stuff to the turret
+// TODO: add logic if we turn the robot on too close to the limits throw error and don't run
 public class Turret extends SubsystemBase {
+  // TODO: add limits. for now they will be 0 and 360 degrees
+
   private final TurretIO io;
   protected final TurretIOInputsAutoLogged inputs = new TurretIOInputsAutoLogged();
 
+  // TODO: we can remove the turret in these names since we are already in the turret subsystem
   private final Alert turretMotorDisconnectedAlert =
       new Alert("Turret motor disconnected!", AlertType.kError);
   private final Alert turretMotorTempAlert =
@@ -34,6 +41,7 @@ public class Turret extends SubsystemBase {
       new LoggedTunableNumber("Turret/MotionMagic/Acceleration", 0);
   private LoggedTunableNumber mmJerk = new LoggedTunableNumber("Turret/MotionMagic/Jerk", 0);
 
+  // TODO: set this value. 2 degrees should be fine for now
   private LoggedTunableNumber setpointBandPosition =
       new LoggedTunableNumber("Turret/PositionSetpointBand", 0);
 
@@ -46,15 +54,20 @@ public class Turret extends SubsystemBase {
   }
 
   public void periodic() {
+    // Update inputs
     io.updateInputs(inputs);
     Logger.processInputs("Turret", inputs);
+
+    // Update alerts
     turretMotorDisconnectedAlert.set(!turretMotorDebouncer.calculate(inputs.connected));
     turretMotorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
+    // Update logged setpoints
     Logger.recordOutput("Turret/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput(
         "Turret/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
 
+    // TODO: change to single pipe to remove short circuiting
     // Update tunable numbers
     if (kP0.hasChanged(hashCode()) || kD0.hasChanged(hashCode()) || kS0.hasChanged(hashCode())) {
 
@@ -89,6 +102,8 @@ public class Turret extends SubsystemBase {
    * @param position Goal position
    */
   public void runPosition(double position, int slot) {
+    // TODO: modulus the position to limit it's range to 1 rotation then clamp it to the limits
+    // TODO: set setpoint equal to the position
     mode = ControlMode.Position;
     io.runPosition(position, 0);
   }
@@ -143,7 +158,7 @@ public class Turret extends SubsystemBase {
   @AutoLogOutput(key = "Hood/atSetpoint")
   public boolean atSetpoint() {
     return switch (mode) {
-      case Position -> Math.abs(setpoint - inputs.positionRots) < setpointBandPosition.get();
+      case Position -> Math.abs(setpoint - getPosition()) < setpointBandPosition.get();
       default -> false;
     };
   }

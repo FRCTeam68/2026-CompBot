@@ -25,6 +25,7 @@ public class HoodIOSim implements HoodIO {
     sim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(motor, .1, HoodIOReal.getReduction()), motor);
+
     sim.setAngle(Units.degreesToRadians(Hood.getMaximum()));
   }
 

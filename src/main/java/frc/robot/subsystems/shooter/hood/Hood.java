@@ -22,18 +22,24 @@ import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+// TODO: lets log everything inside of the shooter folder
 public class Hood extends SubsystemBase {
   @Getter private static final double minimum = 53.368453;
   @Getter private static final double maximum = 79.368453;
+  @Getter private static final double underTrenchMinimum = maximum - 9;
+
   private final Supplier<Pose2d> poseSupplier;
   private final HoodIO io;
   protected final HoodIOInputsAutoLogged inputs = new HoodIOInputsAutoLogged();
+
+  // TODO: we can remove the hood in these names since we are already in the hood subsystem
   private final Alert hoodMotorDisconnectedAlert =
       new Alert("Hood motor disconnected!", AlertType.kError);
   private final Alert hoodCancoderDisconnectedAlert =
       new Alert("Hood cancoder disconnected!", AlertType.kError);
 
   private final Alert hoodMotorTempAlert = new Alert("Hood motor is too hot.", AlertType.kWarning);
+  // TODO: we do not need an alert for the cancoder temp. It does not get hot.
   private final Alert hoodCancoderTempAlert =
       new Alert("Hood cancoder is too hot.", AlertType.kWarning);
   private final Debouncer hoodMotorDebouncer = new Debouncer(0.5, DebounceType.kRising);
@@ -48,12 +54,13 @@ public class Hood extends SubsystemBase {
       new LoggedTunableNumber("Hood/MotionMagic/Acceleration", 0);
   private LoggedTunableNumber mmJerk = new LoggedTunableNumber("Hood/MotionMagic/Jerk", 0);
 
+  // TODO: set this value. 2 degrees should be fine for now
   private LoggedTunableNumber setpointBandPosition =
       new LoggedTunableNumber("Hood/PositionSetpointBand", 0);
 
   @Getter private double setpoint = 0.0;
-  private boolean prevInTrenchBox = false;
   @Getter private ControlMode mode = ControlMode.Neutral;
+  private boolean prevInTrenchBox = false;
 
   public Hood(HoodIO hoodIO, Supplier<Pose2d> poseSupplier) {
     this.io = hoodIO;
@@ -61,22 +68,29 @@ public class Hood extends SubsystemBase {
   }
 
   public void periodic() {
-
+    // Update inputs
     io.updateInputs(inputs);
     Logger.processInputs("Hood", inputs);
+
+    // Update alerts
     hoodMotorDisconnectedAlert.set(!hoodMotorDebouncer.calculate(inputs.motorConnected));
     hoodCancoderDisconnectedAlert.set(!hoodCancoderDebouncer.calculate(inputs.cancoderConnected));
     hoodMotorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
     hoodCancoderTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
+    // Update logged setpoints
     Logger.recordOutput("Hood/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput("Hood/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
 
-    if (prevInTrenchBox != inTrenchBox() && mode == ControlMode.Position) {
+    // Lower hood if in tench box
+    if (prevInTrenchBox != inTrenchBox()) {
+      // TODO: add an if statment to only run this if necessary i.e. the current position is too
+      // high or the setpoint is putting it too high
       runElvation(setpoint, 0);
       prevInTrenchBox = inTrenchBox();
     }
 
+    // TODO: change to single pipe to remove short circuiting
     // Update tunable numbers
     if (kP0.hasChanged(hashCode()) || kD0.hasChanged(hashCode()) || kS0.hasChanged(hashCode())) {
       io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
@@ -91,10 +105,6 @@ public class Hood extends SubsystemBase {
               .withMotionMagicAcceleration(mmAcceleration.get())
               .withMotionMagicJerk(mmJerk.get()));
     }
-  }
-
-  public void setAtSetpointBandPosition(LoggedTunableNumber band) {
-    setpointBandPosition = band;
   }
 
   /**
@@ -114,10 +124,13 @@ public class Hood extends SubsystemBase {
    * @param position Goal position
    */
   public void runElvation(double position, int slot) {
+    // TODO: clamp position to be within the limits. Then for the rest of this method use the
+    // clamped setpoint.
+    setpoint = position;
     mode = ControlMode.Position;
     io.runPosition(
+        // TODO: change this to use the new variable underTrenchMinimum
         (inTrenchBox()) ? MathUtil.clamp(position, maximum - 9, maximum) : position, slot);
-    setpoint = position;
   }
 
   /** Stop motor */
@@ -128,6 +141,7 @@ public class Hood extends SubsystemBase {
 
   /** Set the current mechanism position to zero */
   public void zero() {
+    // TODO: change the zeroing position to the maximum. That is where the hard limit is.
     io.setPosition(0);
   }
 
@@ -145,6 +159,7 @@ public class Hood extends SubsystemBase {
    *
    * @return Elevation of the wrist
    */
+  // TODO: change this name to getElevation to match what is actually being returned
   public double getPosition() {
     return inputs.positionElvation;
   }
@@ -175,7 +190,7 @@ public class Hood extends SubsystemBase {
     };
   }
 
-  @AutoLogOutput(key = "Shooter/InTrenchBox")
+  @AutoLogOutput(key = "Shooter/Hood/InTrenchBox")
   public boolean inTrenchBox() {
     Pose2d shooterPosistion =
         new Pose2d(ShooterConstants.shooterPosition.toTranslation2d(), Rotation2d.kZero)

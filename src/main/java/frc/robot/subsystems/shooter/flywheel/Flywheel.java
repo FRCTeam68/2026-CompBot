@@ -14,18 +14,21 @@ import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+// TODO: lets log everything inside of the shooter folder
 public class Flywheel extends SubsystemBase {
   private final FlywheelIO io;
   protected final FlyWheelIOInputsAutoLogged inputs = new FlyWheelIOInputsAutoLogged();
+
+  // TODO: we can remove the flywheel in these names since we are already in the flywheel subsystem
   private final Alert flywheelLeaderDisconnectedAlert =
-      new Alert("Flywheel(left) disconnected!", AlertType.kError);
+      new Alert("Flywheel leader (left) motor disconnected!", AlertType.kError);
   private final Alert flywheelFollowerDisconnectedAlert =
-      new Alert("Flywheel(right) disconnected!", AlertType.kError);
+      new Alert("Flywheel follower (right) motor disconnected!", AlertType.kError);
 
   private final Alert flywheelLeaderTempAlert =
-      new Alert("Flywheel(left) is too hot.", AlertType.kWarning);
+      new Alert("Flywheel leader (left) motor is too hot.", AlertType.kWarning);
   private final Alert flywheelFollowerTempAlert =
-      new Alert("Flywheel(right) is too hot.", AlertType.kWarning);
+      new Alert("Flywheel follower (right) motor is too hot.", AlertType.kWarning);
 
   private final Debouncer flywheelLeaderDebouncer = new Debouncer(0.5, DebounceType.kRising);
   private final Debouncer flywheelFollowerDebouncer = new Debouncer(0.5, DebounceType.kRising);
@@ -40,6 +43,9 @@ public class Flywheel extends SubsystemBase {
       new LoggedTunableNumber("Flywhee;/MotionMagic/Acceleration", 0);
   private LoggedTunableNumber mmJerk = new LoggedTunableNumber("Flywheel/MotionMagic/Jerk", 0);
 
+  // TODO: We should change this to be based off percent error
+  // That means we should change the name to reflect
+  // and we also need to set this to a number 10% should be good to start
   private LoggedTunableNumber setpointBandVelocity =
       new LoggedTunableNumber("Flywheel/VelocitySetpointBand", 0);
 
@@ -52,18 +58,23 @@ public class Flywheel extends SubsystemBase {
   }
 
   public void periodic() {
+    // Update inputs
     io.updateInputs(inputs);
     Logger.processInputs("Flywheel", inputs);
+
+    // Update alerts
     flywheelLeaderDisconnectedAlert.set(!flywheelLeaderDebouncer.calculate(inputs.leaderConnected));
     flywheelFollowerDisconnectedAlert.set(
         !flywheelFollowerDebouncer.calculate(inputs.followerConnected));
     flywheelLeaderTempAlert.set(inputs.leaderTempCelsius > Constants.warningTempCelsius);
     flywheelFollowerTempAlert.set(inputs.followerTempCelsius > Constants.warningTempCelsius);
 
+    // Update logged setpoints
     Logger.recordOutput("Flywheel/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput(
         "Flywheel/SetpointVelocityRotsPerSec", (mode == ControlMode.Velocity) ? setpoint : 0);
 
+    // TODO: change to single pipe to remove short circuiting
     // Update tunable numbers
     if (kP0.hasChanged(hashCode()) || kD0.hasChanged(hashCode()) || kS0.hasChanged(hashCode())) {
       io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
@@ -93,8 +104,8 @@ public class Flywheel extends SubsystemBase {
   }
 
   public void runVelocity(double velocity, int slot) {
-    mode = ControlMode.Velocity;
     setpoint = velocity;
+    mode = ControlMode.Velocity;
     io.runVelocity(velocity, 0);
   }
 
@@ -107,7 +118,6 @@ public class Flywheel extends SubsystemBase {
   /** Stop motor */
   public void stop() {
     mode = ControlMode.Neutral;
-
     io.stop();
   }
 
@@ -141,7 +151,8 @@ public class Flywheel extends SubsystemBase {
   @AutoLogOutput(key = "Flywheel/atSetpoint")
   public boolean atSetpoint() {
     return switch (mode) {
-      case Velocity -> Math.abs(setpoint - inputs.velocityRotsPerSec) < setpointBandVelocity.get();
+        // TODO: update this to relect the change to percent error
+      case Velocity -> Math.abs(setpoint - getVelocity()) < setpointBandVelocity.get();
       default -> false;
     };
   }

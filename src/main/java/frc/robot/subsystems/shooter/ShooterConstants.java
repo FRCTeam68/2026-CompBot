@@ -13,6 +13,8 @@ public class ShooterConstants {
   public static final Translation3d shooterPosition =
       new Translation3d(-0.160018476, 0.1335875408, 0.4431027206);
 
+  // TODO: add a canbus variable for all shooter subsystems to use
+
   // Interpolation maps
   public static InterpolatingDoubleTreeMap hubShotHoodElevation = new InterpolatingDoubleTreeMap();
   public static InterpolatingDoubleTreeMap hubShotFlywheelVelocity =

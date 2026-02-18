@@ -29,7 +29,6 @@ import frc.robot.util.PhoenixUtil;
 import lombok.Getter;
 
 public class FlywheelIOReal implements FlywheelIO {
-
   @Getter private static final double reduction = 1;
 
   // Hardware
@@ -60,6 +59,8 @@ public class FlywheelIOReal implements FlywheelIO {
   private final NeutralOut neutralOut = new NeutralOut();
 
   public FlywheelIOReal() {
+    // TODO: use canbus from shooter constants
+    // TODO: set actual can ids
     leaderTalon = new TalonFX(0, new CANBus("rio"));
     followerTalon = new TalonFX(0, new CANBus("rio"));
     followerTalon.setControl(new Follower(leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed));
@@ -98,6 +99,7 @@ public class FlywheelIOReal implements FlywheelIO {
                 leaderTorqueCurrent));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(leaderTalon, followerTalon));
     PhoenixUtil.registerSignals(
+        // TODO: use canbus from shooter constants
         new CANBus("DRIVEbus"),
         position,
         velocity,
