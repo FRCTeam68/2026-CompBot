@@ -65,8 +65,7 @@ public class Shooter extends SubsystemBase {
     turret.runPosition(turretPosition, 0);
   }
 
-  // TODO: add parameters for target and is pass
-  public void runDynamic() {
+  public void runDynamic(Translation2d target, boolean isPass) {
     double centerDistance =
         FieldConstants.Hub.innerCenterPoint
             .toTranslation2d()
@@ -74,13 +73,11 @@ public class Shooter extends SubsystemBase {
             .getNorm();
     double flightTime = ShooterConstants.hubShotTable[2].get(centerDistance);
     // Use the target parameter instead of always the hub
-    Translation2d target =
-        FieldConstants.Hub.innerCenterPoint
-            .toTranslation2d()
-            .plus(
-                new Translation2d(
-                    driveVelocitySupplier.get().vxMetersPerSecond * flightTime * -1,
-                    driveVelocitySupplier.get().vyMetersPerSecond * flightTime * -1));
+    target =
+        target.plus(
+            new Translation2d(
+                driveVelocitySupplier.get().vxMetersPerSecond * flightTime * -1,
+                driveVelocitySupplier.get().vyMetersPerSecond * flightTime * -1));
     runStatic(
         ShooterConstants.hubShotTable[1].get(centerDistance),
         ShooterConstants.hubShotTable[0].get(centerDistance),
