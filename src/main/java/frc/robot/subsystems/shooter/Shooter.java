@@ -41,7 +41,7 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("Shooter/FlywheelVelocity", 0);
     SmartDashboard.putNumber("Shooter/HoodPosition", 0);
     SmartDashboard.putNumber("Shooter/TurretPosition", 0);
-    // TODO: we should jast call the run static method in ShooterCommands instead
+    // TODO: we should just call the run static method in ShooterCommands instead
     SmartDashboard.putData(
         "Shooter/RunStatic",
         Commands.runOnce(
@@ -71,16 +71,15 @@ public class Shooter extends SubsystemBase {
             .toTranslation2d()
             .minus(getShooterPose().getTranslation())
             .getNorm();
-    double flightTime = ShooterConstants.hubShotTable[2].get(centerDistance);
-    // Use the target parameter instead of always the hub
+    double flightTime = ShooterConstants.hubShotFlightTime.get(centerDistance);
     target =
         target.plus(
             new Translation2d(
                 driveVelocitySupplier.get().vxMetersPerSecond * flightTime * -1,
                 driveVelocitySupplier.get().vyMetersPerSecond * flightTime * -1));
     runStatic(
-        ShooterConstants.hubShotTable[1].get(centerDistance),
-        ShooterConstants.hubShotTable[0].get(centerDistance),
+        ShooterConstants.hubShotFlywheelVelocity.get(centerDistance),
+        ShooterConstants.hubShotHoodElevation.get(centerDistance),
         target.minus(getShooterPose().getTranslation()).getAngle().getRadians()
             - drivePoseSupplier.get().getRotation().getRadians());
   }

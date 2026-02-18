@@ -17,8 +17,6 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class ShotVisualizer {
-  private static final Translation3d shooterPosition =
-      new Translation3d(-0.160018476, 0.1335875408, 0.4431027206); // robot relative
   private static final double stepSecs = 0.04;
   private static final double FlywheelDiameter = 4.0;
   private static final double gravity = 9.8;
@@ -47,7 +45,7 @@ public class ShotVisualizer {
 
       // All calcuations are field relative
       Translation3d initialPose =
-          shooterPosition
+          ShooterConstants.shooterPosition
               .rotateBy(new Rotation3d(robotPoseSupplier.get().getRotation()))
               .plus(new Translation3d(robotPoseSupplier.get().getTranslation()));
 
@@ -74,10 +72,9 @@ public class ShotVisualizer {
                           Units.radiansToRotations(
                                   fieldVelocitySupplier.get().omegaRadiansPerSecond)
                               * 2.0
-                              * shooterPosition.toTranslation2d().getNorm()
-                              * Math.PI
-                              * 4,
-                          shooterPosition
+                              * ShooterConstants.shooterPosition.toTranslation2d().getNorm()
+                              * Math.PI,
+                          ShooterConstants.shooterPosition
                               .toTranslation2d()
                               .getAngle()
                               .rotateBy(robotPoseSupplier.get().getRotation())

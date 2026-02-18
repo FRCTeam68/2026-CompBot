@@ -14,12 +14,14 @@ public class ShooterCommands {
   private static final Shooter shooter = robotSystem.getShooter();
   private static final RollerSystem spindexer = robotSystem.getSpindexer();
   private static final RollerSystem feeder = robotSystem.getFeeder();
+
   private static boolean staticShooterSpeed = false;
   private static boolean shooterHold = false;
   private static boolean manualShootToggle = false;
   private static boolean noPass = true;
 
   public static Command shootLoop(boolean manual) {
+    // TODO: when this command is interupted it should stop the feeder and spindexer
     return Commands.run(
             () -> {
               if (!manual && !manualShootToggle) {
@@ -54,6 +56,7 @@ public class ShooterCommands {
   }
 
   public static Command runDynamic() {
+    // TODO: This command must have it's subsytem requirment added
     return Commands.run(
             () -> {
               Translation2d target;
@@ -75,5 +78,5 @@ public class ShooterCommands {
         .withName("runDynamic");
   }
 
-  // TODO: create a command to stop the shooternDy
+  // TODO: create a command to stop the shooter
 }
