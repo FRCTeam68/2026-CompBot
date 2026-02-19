@@ -21,43 +21,47 @@ public interface HoodIO {
   default void updateInputs(HoodIOInputs inputs) {}
 
   /**
-   * Run motor at volts.
+   * Run system at specified voltage.
    *
-   * @param volts Voltage
+   * @param volts Voltage to run the motor at.
    */
   default void runVolts(double volts) {}
 
   /**
-   * Run motor to position.
+   * Run system to specified elevation.
    *
-   * @param position Position in mechanism rotations
-   * @param slot
+   * <p><b>Units:</b> Mechanism degrees.
+   *
+   * @param elevation Goal elevation.
+   * @param slot PID gain slot to use during motion.
    */
-  default void runPosition(double rotations, int slot) {}
+  default void runPosition(double elevation, int slot) {}
 
-  /** Stop motor */
+  /** Stop motor with neutral output. */
   default void stop() {}
 
   /**
-   * Set the current mechanism position.
+   * Set the current mechanism elevation.
    *
-   * @param rotations Position in mechanism rotations
+   * @param elevation Elevation in mechanism rotations.
    */
-  default void setPosition(double rotations) {}
+  default void setPosition(double elevation) {}
 
   /**
    * Set PID slot configs.
    *
    * <p>Gravity type and static feedforward sign are ignored and use static values instead.
    *
-   * <ul>
-   *   <li><b>Available slots:</b> [0,2]
-   * </ul>
+   * <p><b>Available slots:</b> [0,2]
    *
    * @param newConfig PID gains
    */
   public default void setPID(SlotConfigs... newConfig) {}
 
-  /** Set motion magic velocity, acceleration and jerk. */
+  /**
+   * Set motion magic configs.
+   *
+   * @param newConfig Motion magic config
+   */
   public default void setMotionMagic(MotionMagicConfigs newConfig) {}
 }

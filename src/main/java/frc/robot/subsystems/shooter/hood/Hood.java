@@ -98,9 +98,9 @@ public class Hood extends SubsystemBase {
   }
 
   /**
-   * Set applied voltage to the motor
+   * Run system at specified voltage.
    *
-   * @param inputVolts Voltage to drive motor at
+   * @param volts Voltage to run the motor at.
    */
   public void runVolts(double volts) {
     setpoint = volts;
@@ -109,67 +109,69 @@ public class Hood extends SubsystemBase {
   }
 
   /**
-   * Set goal position in mechanism rotations
+   * Run system to specified elevation.
    *
-   * @param position Goal position
+   * <p><b>Units:</b> Mechanism degrees.
+   *
+   * @param elevation Goal elevation.
+   * @param slot PID gain slot to use during motion.
    */
-  public void runElvation(double position, int slot) {
+  public void runElvation(double elevation, int slot) {
     // TODO: clamp position to be within the limits. Then for the rest of this method use the
     // clamped setpoint.
-    setpoint = position;
+    setpoint = elevation;
     mode = ControlMode.Position;
     io.runPosition(
         // TODO: change this to use the new variable underTrenchMinimum
-        (inTrenchBox()) ? MathUtil.clamp(position, maximum - 9, maximum) : position, slot);
+        (inTrenchBox()) ? MathUtil.clamp(elevation, maximum - 9, maximum) : elevation, slot);
   }
 
-  /** Stop motor */
+  /** Stop motor with neutral output. */
   public void stop() {
     mode = ControlMode.Neutral;
     io.stop();
   }
 
-  /** Set the current mechanism position to zero */
+  /** Set the current mechanism position to the maximum. */
+  // TODO: change the name of this method to setPositionMaximum to relect its new function
   public void zero() {
     // TODO: change the zeroing position to the maximum. That is where the hard limit is.
     io.setPosition(0);
   }
 
-  /**
-   * Set the current mechanism position
-   *
-   * @param rotations Position in mechanism rotations
-   */
+  // TODO: delete this whole method. We only need to zero at the max position.
   public void setElvation(double degrees) {
     io.setPosition(degrees);
   }
 
   /**
-   * Position of the mechanism in degrees of elevation
+   * Elevation of the system in mechanism degrees.
    *
-   * @return Elevation of the wrist
+   * @return Elevation.
    */
   public double getElevation() {
     return inputs.positionElvation;
   }
 
   /**
-   * Current corresponding to the torque output by the lead motor. Similar to StatorCurrent. Users
-   * will likely prefer this current to calculate the applied torque to the rotor.
+   * Current corresponding to the torque output by the motor. Similar to StatorCurrent. Users will
+   * likely prefer this current to calculate the applied torque to the rotor.
    *
    * <p>Stator current where positive current means torque is applied in the forward direction as
    * determined by the Inverted setting.
    *
-   * @return Lead motor torque current
+   * @return Motor torque current.
    */
   public double getTorqueCurrent() {
     return inputs.torqueCurrentAmps;
   }
 
   /**
-   * Check if mechanism is at goal position with error of setpointBandPosition
+   * Returns true if the error is within the tolerance of the setpoint.
    *
-   * @return True if in position control mode and mechanism is at goal position, false otherwise
+   * <p>This will return false when not position controlled.
+   *
+   * @return Whether the error is within the acceptable bounds.
    */
   @AutoLogOutput(key = "Hood/atSetpoint")
   public boolean atSetpoint() {
@@ -179,6 +181,12 @@ public class Hood extends SubsystemBase {
     };
   }
 
+  /**
+   * Checks if the shooter is near any of the trenches. If so, the hood should be forced down to
+   * avoid collisions.
+   *
+   * @return If the shooter is near the trench.
+   */
   @AutoLogOutput(key = "Shooter/Hood/InTrenchBox")
   public boolean inTrenchBox() {
     Pose2d shooterPosistion =

@@ -12,7 +12,6 @@ import frc.robot.Constants;
 import frc.robot.util.PhoenixUtil.ControlMode;
 
 public class TurretIOSim implements TurretIO {
-
   private final DCMotor motor = DCMotor.getKrakenX44Foc(1);
 
   private final DCMotorSim sim;
@@ -31,7 +30,7 @@ public class TurretIOSim implements TurretIO {
   @Override
   public void updateInputs(TurretIOInputs inputs) {
     if (DriverStation.isDisabled()) {
-      runVolts(0);
+      stop();
     } else {
       if (mode == ControlMode.Position) {
         setInputVoltage(controller.calculate(sim.getAngularPositionRotations()));
@@ -46,7 +45,8 @@ public class TurretIOSim implements TurretIO {
     inputs.velocityRotsPerSec = sim.getAngularVelocityRPM() / 60.0;
     inputs.appliedVoltage = appliedVoltage;
     inputs.supplyCurrentAmps = sim.getCurrentDrawAmps();
-    inputs.torqueCurrentAmps = sim.getCurrentDrawAmps() * 12.0 / appliedVoltage;
+    inputs.torqueCurrentAmps =
+        (appliedVoltage > 0.0) ? sim.getCurrentDrawAmps() * 12.0 / appliedVoltage : 0.0;
   }
 
   @Override
@@ -56,10 +56,10 @@ public class TurretIOSim implements TurretIO {
   }
 
   @Override
-  public void runPosition(double position, int slot) {
+  public void runPosition(double degrees, int slot) {
     mode = ControlMode.Position;
     controller.setPID(slotConfigs[slot].kP, slotConfigs[slot].kI, slotConfigs[slot].kD);
-    controller.setSetpoint(Units.degreesToRotations(position));
+    controller.setSetpoint(Units.degreesToRotations(degrees));
   }
 
   @Override
@@ -68,8 +68,8 @@ public class TurretIOSim implements TurretIO {
   }
 
   @Override
-  public void setPosition(double rotations) {
-    sim.setAngle(Units.degreesToRadians(rotations));
+  public void setPosition(double degrees) {
+    sim.setAngle(Units.degreesToRadians(degrees));
   }
 
   @Override

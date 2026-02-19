@@ -86,9 +86,9 @@ public class Flywheel extends SubsystemBase {
   }
 
   /**
-   * Set applied voltage to the motor
+   * Run system at specified voltage.
    *
-   * @param inputVolts Voltage to drive motor at
+   * @param volts Voltage to run the motor at.
    */
   public void runVolts(double volts) {
     setpoint = volts;
@@ -97,50 +97,55 @@ public class Flywheel extends SubsystemBase {
     io.runVolts(volts);
   }
 
+  /**
+   * Run system to specified velocity.
+   *
+   * <p><b>Units:</b> Mechanism rotations per second.
+   *
+   * @param velocity Goal velocity.
+   * @param slot PID gain slot to use during motion.
+   */
   public void runVelocity(double velocity, int slot) {
     setpoint = velocity;
     mode = ControlMode.Velocity;
+    // TODO: use slot provided instead of always using slot 0
     io.runVelocity(velocity, 0);
   }
 
-  /**
-   * Set goal position in mechanism rotations
-   *
-   * @param position Goal position
-   */
-
-  /** Stop motor */
+  /** Stop motor with neutral output. */
   public void stop() {
     mode = ControlMode.Neutral;
     io.stop();
   }
 
   /**
-   * Velocity of the mechanism in degrees of elevation per second
+   * Velocity of the system in mechanism rotations per second.
    *
-   * @return Velocity
+   * @return Velocity.
    */
   public double getVelocity() {
     return inputs.velocityRotsPerSec;
   }
 
   /**
-   * Current corresponding to the torque output by the lead motor. Similar to StatorCurrent. Users
-   * will likely prefer this current to calculate the applied torque to the rotor.
+   * Current corresponding to the torque output by the motor. Similar to StatorCurrent. Users will
+   * likely prefer this current to calculate the applied torque to the rotor.
    *
    * <p>Stator current where positive current means torque is applied in the forward direction as
    * determined by the Inverted setting.
    *
-   * @return Lead motor torque current
+   * @return Lead motor torque current.
    */
   public double getTorqueCurrent() {
     return inputs.leaderTorqueCurrentAmps;
   }
 
   /**
-   * Check if mechanism is at goal position with error of setpointBandPosition
+   * Returns true if the percent error is within the tolerance of the setpoint.
    *
-   * @return True if in position control mode and mechanism is at goal position, false otherwise
+   * <p>This will return false when not velocity controlled.
+   *
+   * @return Whether the percent error is within the acceptable bounds.
    */
   @AutoLogOutput(key = "Shooter/Flywheel/atSetpoint")
   public boolean atSetpoint() {

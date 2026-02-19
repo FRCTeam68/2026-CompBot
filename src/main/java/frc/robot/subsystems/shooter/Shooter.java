@@ -41,7 +41,8 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("Shooter/HoodPosition", 0.0);
     SmartDashboard.putNumber("Shooter/TurretPosition", 0.0);
 
-    // TODO: You do not need to fix this, I do. This is causing a null requirment issue at boot.
+    // TODO: You do not need to fix this yet. I don't know how I want to solve it. This is causing a
+    // null requirment issue at boot.
     // SmartDashboard.putData(
     //     "Shooter/RunStatic",
     //     ShooterCommands.runStatic(
@@ -56,17 +57,30 @@ public class Shooter extends SubsystemBase {
     }
   }
 
+  /**
+   * Run the shooter at a static speed and position.
+   *
+   * @param flywheelVelocity Flywheel velocity in rotations per second.
+   * @param hoodElevation Hood elevation in degrees.
+   * @param turretPosition Turret position in robot relative degrees.
+   */
   public void runStatic(double flywheelVelocity, double hoodElevation, double turretPosition) {
     flywheel.runVelocity(flywheelVelocity, 0);
     hood.runElvation(hoodElevation, 0);
     turret.runPosition(turretPosition, 0);
   }
 
+  /**
+   * Run the shooter dynamically.
+   *
+   * @param target Position of the shot target.
+   * @param isPass True to use pass shot config. Otherwise, hub shot config is assumed.
+   */
   public void runDynamic(Translation2d target, boolean isPass) {
     double centerDistance =
         FieldConstants.Hub.innerCenterPoint
             .toTranslation2d()
-            .minus(getShooterPose().getTranslation())
+            .minus(getFieldShooterPose().getTranslation())
             .getNorm();
     double flightTime = ShooterConstants.hubShotFlightTime.get(centerDistance);
     target =
@@ -77,33 +91,43 @@ public class Shooter extends SubsystemBase {
     runStatic(
         ShooterConstants.hubShotFlywheelVelocity.get(centerDistance),
         ShooterConstants.hubShotHoodElevation.get(centerDistance),
-        // TODO: ** We are controlling the turrent with degrees not radians. Both spots need to be
+        // TODO: ** We are controlling the turret with degrees not radians. Both spots need to be
         // changed.
-        target.minus(getShooterPose().getTranslation()).getAngle().getRadians()
+        target.minus(getFieldShooterPose().getTranslation()).getAngle().getRadians()
             - drivePoseSupplier.get().getRotation().getRadians());
   }
 
+  /**
+   * Returns if the bumpers are in the alliance zone. This check is approximate and does not take
+   * into account the chassis rotation.
+   */
   public boolean inAllianceZone() {
     return AllianceFlipUtil.applyX(drivePoseSupplier.get().getX())
         < FieldConstants.LinesVertical.allianceZone + Units.inchesToMeters(23.5);
   }
 
-  public Pose2d getShooterPose() {
+  /** Returns the the field relative position of the shooter. */
+  public Pose2d getFieldShooterPose() {
     return new Pose2d(ShooterConstants.shooterPosition.toTranslation2d(), Rotation2d.kZero)
         .plus(
             new Transform2d(
                 drivePoseSupplier.get().getTranslation(), drivePoseSupplier.get().getRotation()))
         .rotateAround(
-            drivePoseSupplier.get().getTranslation(), drivePoseSupplier.get().getRotation());
+            drivePoseSupplier.get().getTranslation(),
+            drivePoseSupplier
+                .get()
+                .getRotation()
+                .rotateBy(new Rotation2d(Units.degreesToRadians(turret.getPosition()))));
   }
 
-  /** Stop motor */
+  /** Stop all shooter subsytems. */
   public void stop() {
     flywheel.stop();
     hood.stop();
     turret.stop();
   }
 
+  /** Returns true if all shooter subsystems are at their individual setpoints. */
   @AutoLogOutput(key = "Shooter/atSetpoint")
   public boolean atSetpoint() {
     return flywheel.atSetpoint() && hood.atSetpoint() && turret.atSetpoint();

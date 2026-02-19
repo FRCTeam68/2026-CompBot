@@ -82,9 +82,9 @@ public class Turret extends SubsystemBase {
   }
 
   /**
-   * Set applied voltage to the motor
+   * Run system at specified voltage.
    *
-   * @param inputVolts Voltage to drive motor at
+   * @param volts Voltage to run the motor at.
    */
   public void runVolts(double volts) {
     setpoint = volts;
@@ -93,62 +93,68 @@ public class Turret extends SubsystemBase {
   }
 
   /**
-   * Set goal position in mechanism rotations
+   * Run system to position.
    *
-   * @param position Goal position
+   * <p><b>Units:</b> Mechanism degrees.
+   *
+   * @param degrees Goal position.
+   * @param slot PID gain slot to use during motion.
    */
-  public void runPosition(double position, int slot) {
-    setpoint = MathUtil.inputModulus(position, minimum, maximum);
+  public void runPosition(double degrees, int slot) {
+    setpoint = MathUtil.inputModulus(degrees, minimum, maximum);
     mode = ControlMode.Position;
     io.runPosition(setpoint, 0);
   }
 
-  /** Stop motor */
+  /** Stop motor with neutral output. */
   public void stop() {
     mode = ControlMode.Neutral;
     io.stop();
   }
 
-  /** Set the current mechanism position to zero */
+  /** Set the current mechanism position to zero. */
   public void zero() {
     io.setPosition(0);
   }
 
-  /**
-   * Set the current mechanism position
-   *
-   * @param rotations Position in mechanism rotations
-   */
+  // TODO: delete this whole method. We only need to zero at the zero position.
   public void setPosition(double rotations) {
     io.setPosition(rotations);
   }
 
+  // TODO: create a new method to set the current position. This is part of the system to make sure
+  // we don't overrotate by booting in the wrong location. Since the encoder is 1:1 with the turret
+  // it will always have the correct angle, but it may be greater than 1 full rotation. This method
+  // should set the position to the current position mod 360 degrees.
+
   /**
-   * Position of the mechanism in degrees of elevation
+   * Position of the system in mechanism degrees.
    *
-   * @return Elevation of the wrist
+   * @return Position.
    */
   public double getPosition() {
     return inputs.positionDeg;
   }
 
   /**
-   * Current corresponding to the torque output by the lead motor. Similar to StatorCurrent. Users
-   * will likely prefer this current to calculate the applied torque to the rotor.
+   * Current corresponding to the torque output by the motor. Similar to StatorCurrent. Users will
+   * likely prefer this current to calculate the applied torque to the rotor.
    *
    * <p>Stator current where positive current means torque is applied in the forward direction as
    * determined by the Inverted setting.
    *
-   * @return Lead motor torque current
+   * @return Motor torque current.
    */
   public double getTorqueCurrent() {
     return inputs.torqueCurrentAmps;
   }
 
   /**
-   * Check if mechanism is at goal position with error of setpointBandPosition
+   * Returns true if the error is within the tolerance of the setpoint.
    *
-   * @return True if in position control mode and mechanism is at goal position, false otherwise
+   * <p>This will return false when not position controlled.
+   *
+   * @return Whether the error is within the acceptable bounds.
    */
   @AutoLogOutput(key = "Shooter/Turret/atSetpoint")
   public boolean atSetpoint() {

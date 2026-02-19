@@ -22,21 +22,23 @@ public interface FlywheelIO {
   default void updateInputs(FlyWheelIOInputs inputs) {}
 
   /**
-   * Run motor at volts.
+   * Run system at specified voltage.
    *
-   * @param volts Voltage
+   * @param volts Voltage to run the motor at.
    */
   default void runVolts(double volts) {}
 
   /**
-   * Run motor at velocity.
+   * Run system to specified velocity.
    *
-   * @param velocity Velocity in mechanism rotations per second
-   * @param slot
+   * <p><b>Units:</b> Mechanism rotations per second.
+   *
+   * @param velocity Goal velocity.
+   * @param slot PID gain slot to use during motion.
    */
   default void runVelocity(double velocity, int slot) {}
 
-  /** Stop motor */
+  /** Stop motor with neutral output. */
   default void stop() {}
 
   /**
@@ -44,14 +46,16 @@ public interface FlywheelIO {
    *
    * <p>Gravity type and static feedforward sign are ignored and use static values instead.
    *
-   * <ul>
-   *   <li><b>Available slots:</b> [0,2]
-   * </ul>
+   * <p><b>Available slots:</b> [0,2]
    *
    * @param newConfig PID gains
    */
   public default void setPID(SlotConfigs... newConfig) {}
 
-  /** Set motion magic velocity, acceleration and jerk. */
+  /**
+   * Set motion magic configs.
+   *
+   * @param newConfig Motion magic config
+   */
   public default void setMotionMagic(MotionMagicConfigs newConfig) {}
 }

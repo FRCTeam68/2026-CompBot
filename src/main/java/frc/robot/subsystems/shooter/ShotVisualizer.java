@@ -17,6 +17,7 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class ShotVisualizer {
+  // Constants
   private static final double stepSecs = 0.04;
   private static final double FlywheelDiameter = 4.0;
   private static final double gravity = 9.8;
@@ -27,15 +28,23 @@ public class ShotVisualizer {
   private static final Shooter shooter = robotSystem.getShooter();
   private static final RollerSystem feeder = robotSystem.getFeeder();
 
+  // Suppliers
   private static final Supplier<Pose2d> robotPoseSupplier = drive::getPose;
   private static final Supplier<ChassisSpeeds> fieldVelocitySupplier = drive::getFieldVelocity;
   private static final Supplier<Double> flywheelVelocitySupplier =
       () -> shooter.getFlywheel().getVelocity();
   private static final Supplier<Double> hoodElevationSupplier =
       () -> shooter.getHood().getElevation();
-  private static final Supplier<Rotation2d> turretAngleSupplier = () -> new Rotation2d();
+  private static final Supplier<Double> turretAngleSupplier =
+      () -> shooter.getTurret().getPosition();
   private static final Supplier<Double> feederSetpointSupplier = feeder::getSetpointVolts;
 
+  /**
+   * visualize the estimated trajectory of the shot. This takes into account the chassis velocity.
+   *
+   * <p>This is computationally expensive and should not be performed on the real robot to improve
+   * cycle times.
+   */
   public static void visualize() {
     List<Pose3d> trajectory = new LinkedList<>();
 
@@ -57,7 +66,7 @@ public class ShotVisualizer {
                   new Rotation3d(
                       0.0,
                       -Units.degreesToRadians(hoodElevationSupplier.get()),
-                      turretAngleSupplier.get().getRadians()
+                      Units.degreesToRadians(turretAngleSupplier.get())
                           + robotPoseSupplier.get().getRotation().getRadians()))
               // Chassis translation velocity component
               .plus(
@@ -97,6 +106,7 @@ public class ShotVisualizer {
       trajectory.remove(trajectory.size() - 1);
     }
 
+    // Log trajectory
     Logger.recordOutput("Shooter/ShotVisualizer", trajectory.toArray(new Pose3d[0]));
   }
 }

@@ -36,7 +36,7 @@ public class FlywheelIOReal implements FlywheelIO {
   private final TalonFX followerTalon;
 
   // Configuration
-  private final TalonFXConfiguration leaderConfig = new TalonFXConfiguration();
+  private final TalonFXConfiguration config = new TalonFXConfiguration();
 
   // Status Signals
   private final StatusSignal<Angle> position;
@@ -64,16 +64,16 @@ public class FlywheelIOReal implements FlywheelIO {
     followerTalon.setControl(new Follower(leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed));
 
     // Configure Motor
-    leaderConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    leaderConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     // Current limits
-    leaderConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    leaderConfig.CurrentLimits.SupplyCurrentLimit = 80;
-    leaderConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
-    leaderConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 80;
+    config.CurrentLimits.SupplyCurrentLowerTime = 1;
+    config.CurrentLimits.SupplyCurrentLowerLimit = 40;
     // Feedback
-    leaderConfig.Feedback.SensorToMechanismRatio = reduction;
-    tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(leaderConfig, 0.25));
+    config.Feedback.SensorToMechanismRatio = reduction;
+    tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(config, 0.25));
 
     position = leaderTalon.getPosition();
     velocity = leaderTalon.getVelocity();
@@ -149,12 +149,12 @@ public class FlywheelIOReal implements FlywheelIO {
        */
       SlotConfigs slotConfig = newConfig[i];
       switch (i) {
-        case 0 -> leaderConfig.Slot0 = Slot0Configs.from(slotConfig);
-        case 1 -> leaderConfig.Slot1 = Slot1Configs.from(slotConfig);
-        case 2 -> leaderConfig.Slot2 = Slot2Configs.from(slotConfig);
+        case 0 -> config.Slot0 = Slot0Configs.from(slotConfig);
+        case 1 -> config.Slot1 = Slot1Configs.from(slotConfig);
+        case 2 -> config.Slot2 = Slot2Configs.from(slotConfig);
       }
     }
-    tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(leaderConfig, 0.25));
+    tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(config, 0.25));
   }
 
   @Override

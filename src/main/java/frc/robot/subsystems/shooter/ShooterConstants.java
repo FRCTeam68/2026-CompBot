@@ -16,6 +16,7 @@ public class ShooterConstants {
       new Translation3d(-0.160018476, 0.1335875408, 0.4431027206);
 
   public static final CANBus canBus = CanBusUtil.getCanivoreBus();
+
   // Interpolation maps
   public static InterpolatingDoubleTreeMap hubShotHoodElevation = new InterpolatingDoubleTreeMap();
   public static InterpolatingDoubleTreeMap hubShotFlywheelVelocity =

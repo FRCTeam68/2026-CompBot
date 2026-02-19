@@ -90,7 +90,7 @@ public class TurretIOReal implements TurretIO {
                 50, position, velocity, appliedVoltage, supplyCurrent, torqueCurrent));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon));
     PhoenixUtil.registerSignals(
-        // TEMPLATE: Set whether motor is attached to a CANivore
+        // TODO: this should use the can bus set up in ShooterConstants
         new CANBus("DRIVEbus"),
         position,
         velocity,
@@ -105,6 +105,7 @@ public class TurretIOReal implements TurretIO {
     inputs.connected =
         BaseStatusSignal.isAllGood(
             position, velocity, appliedVoltage, supplyCurrent, torqueCurrent);
+    // TODO: ** We get rotations from the motor and want to convert to degrees
     inputs.positionDeg = Units.degreesToRotations(position.getValueAsDouble());
     inputs.velocityRotsPerSec = velocity.getValueAsDouble();
     inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
@@ -119,8 +120,8 @@ public class TurretIOReal implements TurretIO {
   }
 
   @Override
-  public void runPosition(double position, int slot) {
-    talon.setControl(positionOut.withPosition(Units.degreesToRotations(position)).withSlot(slot));
+  public void runPosition(double degrees, int slot) {
+    talon.setControl(positionOut.withPosition(Units.degreesToRotations(degrees)).withSlot(slot));
   }
 
   @Override
@@ -129,8 +130,8 @@ public class TurretIOReal implements TurretIO {
   }
 
   @Override
-  public void setPosition(double rotations) {
-    talon.setPosition(Units.degreesToRotations(rotations));
+  public void setPosition(double degrees) {
+    talon.setPosition(Units.degreesToRotations(degrees));
   }
 
   @Override

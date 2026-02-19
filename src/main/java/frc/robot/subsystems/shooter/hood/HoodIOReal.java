@@ -32,8 +32,8 @@ import frc.robot.util.PhoenixUtil;
 import lombok.Getter;
 
 public class HoodIOReal implements HoodIO {
-  private static final double rotorToSensorReduction = (48.0 / 12.0) * (16.0 / 40.0);
-  private static final double sensorToMechanismReduction = (295.0 / 30.0);
+  @Getter private static final double rotorToSensorReduction = (48.0 / 12.0) * (16.0 / 40.0);
+  @Getter private static final double sensorToMechanismReduction = (295.0 / 30.0);
 
   @Getter
   private static final double reduction = rotorToSensorReduction * sensorToMechanismReduction;
@@ -129,8 +129,8 @@ public class HoodIOReal implements HoodIO {
         BaseStatusSignal.isAllGood(
             position, velocity, appliedVoltage, supplyCurrent, torqueCurrent);
     inputs.cancoderConnected = BaseStatusSignal.isAllGood(absolutePosition);
-    inputs.positionElvation = position.getValueAsDouble() * 360.0;
-    inputs.velocityDegPerSec = velocity.getValueAsDouble() * 360.0;
+    inputs.positionElvation = Units.rotationsToDegrees(position.getValueAsDouble());
+    inputs.velocityDegPerSec = Units.rotationsToDegrees(velocity.getValueAsDouble());
     inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
     inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
     inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();
@@ -144,8 +144,8 @@ public class HoodIOReal implements HoodIO {
   }
 
   @Override
-  public void runPosition(double position, int slot) {
-    talon.setControl(positionOut.withPosition(position / 360.0).withSlot(slot));
+  public void runPosition(double elevation, int slot) {
+    talon.setControl(positionOut.withPosition(Units.degreesToRotations(elevation)).withSlot(slot));
   }
 
   @Override
@@ -154,8 +154,8 @@ public class HoodIOReal implements HoodIO {
   }
 
   @Override
-  public void setPosition(double degrees) {
-    talon.setPosition(Units.degreesToRotations(degrees));
+  public void setPosition(double elevation) {
+    talon.setPosition(Units.degreesToRotations(elevation));
   }
 
   @Override
