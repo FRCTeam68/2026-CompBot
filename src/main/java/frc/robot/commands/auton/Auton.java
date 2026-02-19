@@ -1,5 +1,7 @@
 package frc.robot.commands.auton;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
@@ -9,6 +11,7 @@ import frc.robot.RobotSystem;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.PathUtil;
+import frc.robot.util.geometry.AllianceFlipUtil;
 import java.util.Set;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
@@ -41,11 +44,8 @@ public class Auton {
 
   public static enum StartingPose {
     Left,
-    CenterLeft,
-    CenterRight,
     Right,
-    Center,
-    RightJ
+    Center
   }
 
   public static enum Special {
@@ -57,11 +57,11 @@ public class Auton {
 
   public static void initDashboardInputs() {
     // Configure starting pose
-    autonStartingPose.addDefaultOption("Left", Auton.StartingPose.Left);
+    autonStartingPose.addOption("Left", Auton.StartingPose.Left);
     autonStartingPose.addOption("Center", Auton.StartingPose.Center);
-    autonStartingPose.addOption("Right", Auton.StartingPose.Right);
+    autonStartingPose.addDefaultOption("Right", Auton.StartingPose.Right);
 
-    // Configure special
+    // Configure specia
     autonSpecial.addDefaultOption("None", Auton.Special.None);
     autonSpecial.addOption("Minimal", Auton.Special.Minimal);
     autonSpecial.addOption("Full", Auton.Special.Full);
@@ -131,19 +131,26 @@ public class Auton {
     return Commands.none();
   }
 
-  /**
-   * Creates a an auton command with the supplied sequence.
-   * <li>If in simulation, the robot pose is set to the inital pose of the first path.
-   *
-   * @return Auton command
-   *     <li>If config or config.sequence is null, this will return null.
-   */
-  // public static Command autonCommand(AutonSequence root) {
-  //   if (Constants.getMode() == Mode.SIM) {
-  //     drive.setPose(AutonUtil.getStartingPose());
-  //   }
+  /** load starting pose if simulator is running */
+  public static void loadStartPoseSim() {
+    if (Constants.getMode() == Mode.SIM) {
+      switch (autonStartingPose.get()) {
+        case Left:
+          // TODO: AUTON - update to use first left path when left paths added
+          drive.setPose(AllianceFlipUtil.apply(new Pose2d(4.0, 7.5, Rotation2d.kZero)));
+          break;
 
-  //   if (root == null) root = new AutonSequence() {};
-  //   return root.sequence();
-  // }
+        case Center:
+          drive.setPose(AllianceFlipUtil.apply(PathUtil.getStartingPose("Center Depot")));
+          break;
+
+        case Right:
+          drive.setPose(AllianceFlipUtil.apply(PathUtil.getStartingPose("Right Trench A")));
+          break;
+
+        default:
+          drive.setPose(AllianceFlipUtil.apply(Pose2d.kZero));
+      }
+    }
+  }
 }

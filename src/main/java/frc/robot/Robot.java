@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.auton.Auton;
 import frc.robot.util.CanBusUtil;
 import frc.robot.util.LoggedTracer;
 import frc.robot.util.PhoenixUtil;
@@ -215,6 +216,8 @@ public class Robot extends LoggedRobot {
     if (DriverStation.isFMSAttached()
         && !DriverStation.isAutonomous()
         && DriverStation.getMatchTime() == 0) robotContainer.saveLimelightRewind();
+
+    Auton.loadStartPoseSim();
   }
 
   /** This function is called periodically when disabled. */
