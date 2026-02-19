@@ -15,7 +15,8 @@ import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-// TODO: * we need to add the CANCoder stuff to the turret
+// TODO: * we need to add the CANCoder stuff to the turret Search for comments with "cancoder" in
+// them
 // TODO: add logic if we turn the robot on too close to the limits throw error and don't run
 public class Turret extends SubsystemBase {
   @Getter private static final double minimum = 0;
@@ -26,6 +27,7 @@ public class Turret extends SubsystemBase {
 
   private final Alert motorDisconnectedAlert =
       new Alert("Turret motor disconnected!", AlertType.kError);
+  // cancoder - create disconnected alert with debouncer
   private final Alert motorTempAlert = new Alert("Turret motor is too hot.", AlertType.kWarning);
   private final Debouncer motorDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
@@ -56,6 +58,7 @@ public class Turret extends SubsystemBase {
 
     // Update alerts
     motorDisconnectedAlert.set(!motorDebouncer.calculate(inputs.connected));
+    // cancoder - update cancoder alert
     motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
     // Update logged setpoints

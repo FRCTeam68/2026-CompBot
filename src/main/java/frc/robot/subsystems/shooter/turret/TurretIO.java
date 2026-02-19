@@ -7,6 +7,7 @@ import org.littletonrobotics.junction.AutoLog;
 public interface TurretIO {
   @AutoLog
   static class TurretIOInputs {
+    // cancoder - signals (connected, magnet health, and absolute position)
     public boolean connected = false;
     public double positionDeg = 0.0;
     public double velocityRotsPerSec = 0.0;

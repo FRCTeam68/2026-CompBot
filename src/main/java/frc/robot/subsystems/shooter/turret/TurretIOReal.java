@@ -37,12 +37,14 @@ public class TurretIOReal implements TurretIO {
   private static final double reduction = rotorToSensorReduction * sensorToMechanismReduction;
 
   // Hardware
+  // cancoder - create hardware object and config
   private final TalonFX talon;
 
   // Configuration
   private final TalonFXConfiguration config = new TalonFXConfiguration();
 
   // Status Signals
+  // cancoder - create signals
   private final StatusSignal<Angle> position;
   private final StatusSignal<AngularVelocity> velocity;
   private final StatusSignal<Voltage> appliedVoltage;
@@ -51,7 +53,6 @@ public class TurretIOReal implements TurretIO {
   private final StatusSignal<Temperature> tempCelsius;
 
   // Control requests
-  // TEMPLATE: Choose desired control methods
   private final VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true);
   private final PositionVoltage positionOut = new PositionVoltage(0).withEnableFOC(true);
   //   private final MotionMagicVoltage positionOut = new MotionMagicVoltage(0).withEnableFOC(true);
@@ -60,11 +61,10 @@ public class TurretIOReal implements TurretIO {
   private final NeutralOut neutralOut = new NeutralOut();
 
   public TurretIOReal() {
-    // TEMPLATE: Set CAN id and bus
+    // cancoder - set up cancoder
     talon = new TalonFX(29, ShooterConstants.canBus);
 
     // Configure Motor
-    // TEMPLATE: Set configuration
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     // Current limits
@@ -73,9 +73,11 @@ public class TurretIOReal implements TurretIO {
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
     // Feedback
+    // cancoder - add config for motor and cancoder
     config.Feedback.SensorToMechanismRatio = reduction;
     tryUntilOk(5, () -> talon.getConfigurator().apply(config, 0.25));
 
+    // cancoder - set up signals
     position = talon.getPosition();
     velocity = talon.getVelocity();
     appliedVoltage = talon.getMotorVoltage();
@@ -83,6 +85,7 @@ public class TurretIOReal implements TurretIO {
     torqueCurrent = talon.getTorqueCurrent();
     tempCelsius = talon.getDeviceTemp();
 
+    // cancoder - register new signals
     tryUntilOk(
         5,
         () ->
@@ -102,6 +105,7 @@ public class TurretIOReal implements TurretIO {
 
   @Override
   public void updateInputs(TurretIOInputs inputs) {
+    // cancoder - update new signals
     inputs.connected =
         BaseStatusSignal.isAllGood(
             position, velocity, appliedVoltage, supplyCurrent, torqueCurrent);
