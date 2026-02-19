@@ -8,7 +8,7 @@ public interface TurretIO {
   @AutoLog
   static class TurretIOInputs {
     public boolean connected = false;
-    public double positionRots = 0.0;
+    public double positionDeg = 0.0;
     public double velocityRotsPerSec = 0.0;
     public double appliedVoltage = 0.0;
     public double supplyCurrentAmps = 0.0;

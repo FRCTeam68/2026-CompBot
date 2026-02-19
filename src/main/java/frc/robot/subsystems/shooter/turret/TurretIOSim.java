@@ -41,7 +41,7 @@ public class TurretIOSim implements TurretIO {
     sim.update(Constants.loopPeriodSecs);
 
     inputs.connected = true;
-    inputs.positionRots = sim.getAngularPositionRotations();
+    inputs.positionDeg = Units.degreesToRotations(sim.getAngularPositionRotations());
     inputs.velocityRotsPerSec = sim.getAngularVelocityRPM() / 60.0;
     inputs.appliedVoltage = appliedVoltage;
     inputs.supplyCurrentAmps = sim.getCurrentDrawAmps();
@@ -68,7 +68,7 @@ public class TurretIOSim implements TurretIO {
 
   @Override
   public void setPosition(double rotations) {
-    sim.setAngle(Units.rotationsToRadians(rotations));
+    sim.setAngle(Units.degreesToRadians(rotations));
   }
 
   @Override

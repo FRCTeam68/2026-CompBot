@@ -15,11 +15,11 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 // TODO: lets log everything inside of the shooter folder
-// TODO: we need to change this subsystem to accept and report values in degrees
 // TODO: we need to add the CANCoder stuff to the turret
 // TODO: add logic if we turn the robot on too close to the limits throw error and don't run
 public class Turret extends SubsystemBase {
-  // TODO: add limits. for now they will be 0 and 360 degrees
+  @Getter private static final double minimum = 0;
+  @Getter private static final double maximum = 360;
 
   private final TurretIO io;
   protected final TurretIOInputsAutoLogged inputs = new TurretIOInputsAutoLogged();
@@ -62,7 +62,7 @@ public class Turret extends SubsystemBase {
     // Update logged setpoints
     Logger.recordOutput("Turret/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput(
-        "Turret/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
+        "Turret/SetpointPositionDeg", (mode == ControlMode.Position) ? setpoint : 0);
 
     // Update tunable numbers
     if (kP0.hasChanged(hashCode()) | kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
@@ -130,7 +130,7 @@ public class Turret extends SubsystemBase {
    * @return Elevation of the wrist
    */
   public double getPosition() {
-    return inputs.positionRots;
+    return inputs.positionDeg;
   }
 
   /**

@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.IntakeCommands;
+import frc.robot.commands.ShooterCommands;
 import frc.robot.commands.auton.Auton;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intakePivot.IntakePivot;
@@ -112,14 +113,30 @@ public class RobotContainer {
                                 new Pose2d(FieldConstants.Hub.nearRightCorner, new Rotation2d())
                                     .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
                         .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
-
-    // TODO: add mapping for the following
-    // run dynamic
-    // run static (hub, neutral zone pass, and opp alliance zone pass)
-    // enable autoshoot
-    // shooter hold
-    // manual shoot
-    // no pass
+    shooter.setDefaultCommand(ShooterCommands.runDynamic());
+    // triagle = hub, square = neutral zone pass, circle = opp alliance zone pass
+    operatorController.triangle().onTrue(ShooterCommands.runStatic(0, 0, 0));
+    operatorController.square().onTrue(ShooterCommands.runStatic(0, 0, 0));
+    operatorController.circle().onTrue(ShooterCommands.runStatic(0, 0, 0));
+    operatorController
+        .share()
+        .onTrue(
+            Commands.runOnce(
+                    () -> ShooterCommands.manualShootToggle = !ShooterCommands.manualShootToggle)
+                .withName("ManualShootToggle"));
+    operatorController
+        .R2()
+        .onTrue(
+            Commands.runOnce(() -> ShooterCommands.shooterHold = true).withName("ShooterHoldTrue"))
+        .onFalse(
+            Commands.runOnce(() -> ShooterCommands.shooterHold = false)
+                .withName("ShooterHoldFalse"));
+    driverController.rightTrigger().onTrue(ShooterCommands.shootLoop(false));
+    operatorController
+        .PS(null)
+        .onTrue(
+            Commands.runOnce(() -> ShooterCommands.noPass = !ShooterCommands.noPass)
+                .withName("NoPass"));
 
     driverController
         .back()

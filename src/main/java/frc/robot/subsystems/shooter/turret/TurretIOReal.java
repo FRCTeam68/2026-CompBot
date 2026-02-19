@@ -18,6 +18,7 @@ import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -103,7 +104,7 @@ public class TurretIOReal implements TurretIO {
     inputs.connected =
         BaseStatusSignal.isAllGood(
             position, velocity, appliedVoltage, supplyCurrent, torqueCurrent);
-    inputs.positionRots = position.getValueAsDouble();
+    inputs.positionDeg = Units.degreesToRotations(position.getValueAsDouble());
     inputs.velocityRotsPerSec = velocity.getValueAsDouble();
     inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
     inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
@@ -118,7 +119,7 @@ public class TurretIOReal implements TurretIO {
 
   @Override
   public void runPosition(double position, int slot) {
-    talon.setControl(positionOut.withPosition(position).withSlot(slot));
+    talon.setControl(positionOut.withPosition(Units.degreesToRotations(position)).withSlot(slot));
   }
 
   @Override
@@ -128,7 +129,7 @@ public class TurretIOReal implements TurretIO {
 
   @Override
   public void setPosition(double rotations) {
-    talon.setPosition(rotations);
+    talon.setPosition(Units.degreesToRotations(rotations));
   }
 
   @Override

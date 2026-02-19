@@ -14,7 +14,6 @@ import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-// TODO: lets log everything inside of the shooter folder
 public class Flywheel extends SubsystemBase {
   private final FlywheelIO io;
   protected final FlyWheelIOInputsAutoLogged inputs = new FlyWheelIOInputsAutoLogged();
@@ -31,21 +30,22 @@ public class Flywheel extends SubsystemBase {
   private final Debouncer flywheelLeaderDebouncer = new Debouncer(0.5, DebounceType.kRising);
   private final Debouncer flywheelFollowerDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Flywheel/Slot0/kP", 20);
-  private LoggedTunableNumber kD0 = new LoggedTunableNumber("Flywheel/Slot0/kD", 0);
-  private LoggedTunableNumber kS0 = new LoggedTunableNumber("Flywheel/Slot0/kS", 0);
+  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Shooter/Flywheel/Slot0/kP", 20);
+  private LoggedTunableNumber kD0 = new LoggedTunableNumber("Shooter/Flywheel/Slot0/kD", 0);
+  private LoggedTunableNumber kS0 = new LoggedTunableNumber("Shooter/Flywheel/Slot0/kS", 0);
 
   private LoggedTunableNumber mmVelocity =
-      new LoggedTunableNumber("Flywheel/MotionMagic/Velocity", 0);
+      new LoggedTunableNumber("Shooter/Flywheel/MotionMagic/Velocity", 0);
   private LoggedTunableNumber mmAcceleration =
-      new LoggedTunableNumber("Flywhee;/MotionMagic/Acceleration", 0);
-  private LoggedTunableNumber mmJerk = new LoggedTunableNumber("Flywheel/MotionMagic/Jerk", 0);
+      new LoggedTunableNumber("Shooter/Flywheel/MotionMagic/Acceleration", 0);
+  private LoggedTunableNumber mmJerk =
+      new LoggedTunableNumber("Shooter/Flywheel/MotionMagic/Jerk", 0);
 
   // TODO: We should change this to be based off percent error
   // That means we should change the name to reflect
   // and we also need to set this to a number 10% should be good to start
   private LoggedTunableNumber setpointBandVelocity =
-      new LoggedTunableNumber("Flywheel/VelocitySetpointBand", 0);
+      new LoggedTunableNumber("Shooter/Flywheel/VelocitySetpointBand", 0);
 
   @Getter private double setpoint = 0.0;
 
@@ -58,7 +58,7 @@ public class Flywheel extends SubsystemBase {
   public void periodic() {
     // Update inputs
     io.updateInputs(inputs);
-    Logger.processInputs("Flywheel", inputs);
+    Logger.processInputs("Shooter/Flywheel", inputs);
 
     // Update alerts
     leaderDisconnectedAlert.set(!flywheelLeaderDebouncer.calculate(inputs.leaderConnected));
@@ -67,9 +67,11 @@ public class Flywheel extends SubsystemBase {
     followerTempAlert.set(inputs.followerTempCelsius > Constants.warningTempCelsius);
 
     // Update logged setpoints
-    Logger.recordOutput("Flywheel/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput(
-        "Flywheel/SetpointVelocityRotsPerSec", (mode == ControlMode.Velocity) ? setpoint : 0);
+        "Shooter/Flywheel/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
+    Logger.recordOutput(
+        "Shooter/Flywheel/SetpointVelocityRotsPerSec",
+        (mode == ControlMode.Velocity) ? setpoint : 0);
 
     // Update tunable numbers
     if (kP0.hasChanged(hashCode()) | kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
@@ -144,7 +146,7 @@ public class Flywheel extends SubsystemBase {
    *
    * @return True if in position control mode and mechanism is at goal position, false otherwise
    */
-  @AutoLogOutput(key = "Flywheel/atSetpoint")
+  @AutoLogOutput(key = "Shooter/Flywheel/atSetpoint")
   public boolean atSetpoint() {
     return switch (mode) {
         // TODO: update this to relect the change to percent error
