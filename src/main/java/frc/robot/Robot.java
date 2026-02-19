@@ -222,7 +222,9 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically when disabled. */
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    Auton.UpdateAlerts();
+  }
 
   /** This function is called once when the robot is enabled in any mode. */
   @Override
