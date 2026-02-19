@@ -24,6 +24,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.util.PhoenixUtil;
 import lombok.Getter;
 
@@ -60,7 +61,7 @@ public class TurretIOReal implements TurretIO {
 
   public TurretIOReal() {
     // TEMPLATE: Set CAN id and bus
-    talon = new TalonFX(0, new CANBus("DRIVEbus"));
+    talon = new TalonFX(29, ShooterConstants.canBus);
 
     // Configure Motor
     // TEMPLATE: Set configuration

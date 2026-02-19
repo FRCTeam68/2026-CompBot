@@ -40,12 +40,8 @@ public class Flywheel extends SubsystemBase {
       new LoggedTunableNumber("Shooter/Flywheel/MotionMagic/Acceleration", 0);
   private LoggedTunableNumber mmJerk =
       new LoggedTunableNumber("Shooter/Flywheel/MotionMagic/Jerk", 0);
-
-  // TODO: We should change this to be based off percent error
-  // That means we should change the name to reflect
-  // and we also need to set this to a number 10% should be good to start
   private LoggedTunableNumber setpointBandVelocity =
-      new LoggedTunableNumber("Shooter/Flywheel/VelocitySetpointBand", 0);
+      new LoggedTunableNumber("Shooter/Flywheel/VelocitySetpointBandPercent", 10);
 
   @Getter private double setpoint = 0.0;
 
@@ -149,8 +145,7 @@ public class Flywheel extends SubsystemBase {
   @AutoLogOutput(key = "Shooter/Flywheel/atSetpoint")
   public boolean atSetpoint() {
     return switch (mode) {
-        // TODO: update this to relect the change to percent error
-      case Velocity -> Math.abs(setpoint - getVelocity()) < setpointBandVelocity.get();
+      case Velocity -> Math.abs((setpoint / getVelocity()) - 1) < setpointBandVelocity.get();
       default -> false;
     };
   }

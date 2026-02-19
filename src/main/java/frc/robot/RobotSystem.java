@@ -78,7 +78,7 @@ public class RobotSystem {
         //     new RollerSystem(
         //         "spindexer",
         //         new RollerSystemIOTalonFX(
-        //             0,
+        //             23,
         //             CanBusUtil.getCanivoreBus(),
         //             80,
         //             InvertedValue.Clockwise_Positive,
@@ -88,7 +88,7 @@ public class RobotSystem {
         //     new RollerSystem(
         //         "feeder",
         //         new RollerSystemIOTalonFX(
-        //             0,
+        //             24,
         //             CanBusUtil.getCanivoreBus(),
         //             80,
         //             InvertedValue.CounterClockwise_Positive,

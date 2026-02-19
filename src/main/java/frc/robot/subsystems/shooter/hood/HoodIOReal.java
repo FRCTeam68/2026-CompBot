@@ -63,9 +63,8 @@ public class HoodIOReal implements HoodIO {
   private final NeutralOut neutralOut = new NeutralOut();
 
   public HoodIOReal() {
-    // TODO: set actual can ids
-    talon = new TalonFX(0, ShooterConstants.canBus);
-    cancoder = new CANcoder(1, ShooterConstants.canBus);
+    talon = new TalonFX(27, ShooterConstants.canBus);
+    cancoder = new CANcoder(28, ShooterConstants.canBus);
 
     // Configure Motor
     talonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;

@@ -3,7 +3,6 @@ package frc.robot.subsystems.shooter.flywheel;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -60,9 +59,8 @@ public class FlywheelIOReal implements FlywheelIO {
   private final NeutralOut neutralOut = new NeutralOut();
 
   public FlywheelIOReal() {
-    // TODO: set actual can ids
-    leaderTalon = new TalonFX(0, ShooterConstants.canBus);
-    followerTalon = new TalonFX(0, ShooterConstants.canBus);
+    leaderTalon = new TalonFX(25, ShooterConstants.canBus);
+    followerTalon = new TalonFX(26, ShooterConstants.canBus);
     followerTalon.setControl(new Follower(leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed));
 
     // Configure Motor
@@ -99,8 +97,7 @@ public class FlywheelIOReal implements FlywheelIO {
                 leaderTorqueCurrent));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(leaderTalon, followerTalon));
     PhoenixUtil.registerSignals(
-        // TODO: use canbus from shooter constants
-        new CANBus("DRIVEbus"),
+        ShooterConstants.canBus,
         position,
         velocity,
         leaderAppliedVoltage,
