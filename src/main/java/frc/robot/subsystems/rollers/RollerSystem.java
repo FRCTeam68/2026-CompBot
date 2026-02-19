@@ -23,7 +23,7 @@ public class RollerSystem extends SubsystemBase {
   /**
    * Creates a generic roller system. Rollers can only be controlled through voltage.
    *
-   * <p>When using the name for logging, spaces are removed and each word is capitalized.
+   * <p>When using the name for logging key, spaces are removed and each word is capitalized.
    *
    * <p>Examples:
    *
@@ -31,8 +31,8 @@ public class RollerSystem extends SubsystemBase {
    *
    * <pre>
    * name: "Feeder upper"
-   * alert: "Feeder upper motor disconnected!"
-   * logger: "FeederUpper"
+   * alert text: "Feeder upper motor disconnected!"
+   * logger key: "FeederUpper"
    * </pre>
    *
    * </blockquote>
@@ -43,8 +43,11 @@ public class RollerSystem extends SubsystemBase {
   public RollerSystem(String name, RollerSystemIO io) {
     this.io = io;
 
+    // Create alert text
     disconnectedAlert = new Alert(name + " motor disconnected!", AlertType.kError);
     tempAlert = new Alert(name + " motor is too hot.", AlertType.kWarning);
+
+    // Create logger key
     String[] nameSplits = name.split(" ");
     for (String nameSplit : nameSplits) {
       loggerKey =
@@ -53,20 +56,27 @@ public class RollerSystem extends SubsystemBase {
   }
 
   public void periodic() {
+    // Update inputs
     io.updateInputs(inputs);
     Logger.processInputs(loggerKey, inputs);
+
+    // Update alerts
     disconnectedAlert.set(!connectedDebouncer.calculate(inputs.connected));
     tempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
   }
 
-  /** Run roller at volts */
+  /**
+   * Run system at specified voltage.
+   *
+   * @param volts Voltage to run the motor at.
+   */
   public void runVolts(double volts) {
     setpointVolts = volts;
     io.runVolts(setpointVolts);
     Logger.recordOutput(loggerKey + "/SetpointVolts", setpointVolts);
   }
 
-  /** Stop roller */
+  /** Stop motor with neutral output. */
   public void stop() {
     setpointVolts = 0.0;
     io.stop();
@@ -74,14 +84,22 @@ public class RollerSystem extends SubsystemBase {
   }
 
   /**
-   * @return Velocity of roller in mechanism rotations per second
+   * Velocity of the system in mechanism rotations per second.
+   *
+   * @return Velocity.
    */
   public double getVelocity() {
     return inputs.velocityRotsPerSec;
   }
 
   /**
-   * @return Torque current of roller
+   * Current corresponding to the torque output by the motor. Similar to StatorCurrent. Users will
+   * likely prefer this current to calculate the applied torque to the rotor.
+   *
+   * <p>Stator current where positive current means torque is applied in the forward direction as
+   * determined by the Inverted setting.
+   *
+   * @return Motor torque current.
    */
   public double getTorqueCurrent() {
     return inputs.torqueCurrentAmps;

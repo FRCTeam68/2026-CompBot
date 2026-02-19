@@ -17,42 +17,49 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class IntakePivot extends SubsystemBase {
+  // Positions
   @Getter private static final double packaged = 0;
   @Getter private static final double extended = 0.23;
 
-  private final IntakePivotIO io;
-  protected final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
-  private final Debouncer motorConnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
-  private final Debouncer cancoderDisconnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
+  // PID gains
+  private final LoggedTunableNumber kP0 = new LoggedTunableNumber("IntakePivot/Slot0/kP", 10);
+  private final LoggedTunableNumber kD0 = new LoggedTunableNumber("IntakePivot/Slot0/kD", 0);
+  private final LoggedTunableNumber kS0 = new LoggedTunableNumber("IntakePivot/Slot0/kS", 0);
 
+  // Motion magic gains
+  private final LoggedTunableNumber mmVelocity = new LoggedTunableNumber("IntakePivot/Velocity", 0);
+  private final LoggedTunableNumber mmAcceleration =
+      new LoggedTunableNumber("IntakePivot/Acceleration", 0);
+  private final LoggedTunableNumber mmJerk = new LoggedTunableNumber("IntakePivot/Jerk", 0);
+
+  // setpoint band
+  private final LoggedTunableNumber setpointBandPosition =
+      new LoggedTunableNumber("IntakePivot/SetpointBand", 0);
+
+  // Alerts
   private final Alert motorDisconnectedAlert =
       new Alert("Intake pivot motor disconnected!", AlertType.kError);
   private final Alert cancoderDisconnectedAlert =
       new Alert("Intake pivot cancoder disconnected!", AlertType.kError);
-  private final Alert tempAlert = new Alert("Intake pivot motor is too hot.", AlertType.kWarning);
+  private final Alert motorTempAlert =
+      new Alert("Intake pivot motor is too hot.", AlertType.kWarning);
 
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber("IntakePivot/Slot0/kP", 10);
-  private LoggedTunableNumber kD0 = new LoggedTunableNumber("IntakePivot/Slot0/kD", 0);
-  private LoggedTunableNumber kS0 = new LoggedTunableNumber("IntakePivot/Slot0/kS", 0);
+  // Debouncers
+  private final Debouncer motorConnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
+  private final Debouncer cancoderDisconnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
-  private LoggedTunableNumber mmVelocity = new LoggedTunableNumber("IntakePivot/Velocity", 0);
-  private LoggedTunableNumber mmAcceleration =
-      new LoggedTunableNumber("IntakePivot/Acceleration", 0);
-  private LoggedTunableNumber mmJerk = new LoggedTunableNumber("IntakePivot/Jerk", 0);
-
-  private LoggedTunableNumber setpointBandPosition =
-      new LoggedTunableNumber("IntakePivot/SetpointBand", 0);
-
+  private final IntakePivotIO io;
+  protected final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
   @Getter private double setpoint = 0.0;
-
   @Getter private ControlMode mode = ControlMode.Neutral;
 
   public IntakePivot(IntakePivotIO io) {
     this.io = io;
+
+    // Configure dashboard
     SmartDashboard.putData(
         "IntakePivot/Extend",
         Commands.runOnce(() -> runPosition(extended, 0)).withName("DashboardIntakePivotExtend"));
-
     SmartDashboard.putData(
         "IntakePivot/Retract",
         Commands.runOnce(() -> runPosition(packaged, 0)).withName("DashboardIntakePivotRetract"));
@@ -61,24 +68,27 @@ public class IntakePivot extends SubsystemBase {
   }
 
   public void periodic() {
-    // Process inputs
+    // Update inputs
     io.updateInputs(inputs);
     Logger.processInputs("IntakePivot", inputs);
+
+    // Update alerts
     motorDisconnectedAlert.set(!motorConnectedDebouncer.calculate(inputs.motorConnected));
     cancoderDisconnectedAlert.set(
         !cancoderDisconnectedDebouncer.calculate(inputs.cancoderConnected));
-    tempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
+    motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
     // Log setpoint
     Logger.recordOutput("IntakePivot/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput(
         "IntakePivot/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
 
-    // Update PID
+    // Update PID gains
     if (kP0.hasChanged(hashCode()) | kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
       io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
     }
 
+    // Update motion magic gains
     if (mmVelocity.hasChanged(hashCode())
         | mmAcceleration.hasChanged(hashCode())
         | mmJerk.hasChanged(hashCode())) {
@@ -105,13 +115,13 @@ public class IntakePivot extends SubsystemBase {
    *
    * <p><b>Units:</b> Mechanism rotations.
    *
-   * @param position Goal position.
+   * @param rotations Goal position.
    * @param slot PID gain slot to use during motion.
    */
-  public void runPosition(double position, int slot) {
-    setpoint = position;
+  public void runPosition(double rotations, int slot) {
+    setpoint = rotations;
     mode = ControlMode.Position;
-    io.runPosition(position, slot);
+    io.runPosition(rotations, slot);
   }
 
   /** Stop motor with neutral output. */
@@ -166,7 +176,7 @@ public class IntakePivot extends SubsystemBase {
   @AutoLogOutput(key = "IntakePivot/atSetpoint")
   public boolean atSetpoint() {
     return switch (mode) {
-      case Position -> Math.abs(setpoint - inputs.positionRots) < setpointBandPosition.get();
+      case Position -> Math.abs(setpoint - getPosition()) < setpointBandPosition.get();
       default -> false;
     };
   }

@@ -50,15 +50,19 @@ public class IntakePivotIOSim implements IntakePivotIO {
     }
 
     inputs.motorConnected = true;
+    inputs.cancoderConnected = true;
     inputs.positionRots = sim.getAngularPositionRotations();
     inputs.velocityRotsPerSec = sim.getAngularVelocityRPM() / 60.0;
     inputs.appliedVoltage = appliedVoltage;
     inputs.supplyCurrentAmps = sim.getCurrentDrawAmps();
     inputs.torqueCurrentAmps =
         (appliedVoltage > 0.0) ? sim.getCurrentDrawAmps() * 12.0 / appliedVoltage : 0.0;
-    inputs.cancoderConnected = true;
     inputs.magnetHealth = MagnetHealthValue.Magnet_Green;
-    inputs.absolutePositionRots = sim.getAngularPositionRotations();
+    inputs.absolutePositionRots =
+        MathUtil.inputModulus(
+            sim.getAngularPositionRotations() / IntakePivotIOReal.getSensorToMechanismReduction(),
+            0.0,
+            1.0);
   }
 
   @Override
@@ -68,11 +72,11 @@ public class IntakePivotIOSim implements IntakePivotIO {
   }
 
   @Override
-  public void runPosition(double position, int slot) {
+  public void runPosition(double rotations, int slot) {
     mode = ControlMode.Position;
     controller.setPID(slotConfigs[slot].kP, slotConfigs[slot].kI, slotConfigs[slot].kD);
     controller.setSetpoint(
-        MathUtil.clamp(position, IntakePivot.getPackaged(), IntakePivot.getExtended()));
+        MathUtil.clamp(rotations, IntakePivot.getPackaged(), IntakePivot.getExtended()));
   }
 
   @Override

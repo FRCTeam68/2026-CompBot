@@ -36,7 +36,7 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   private final StatusSignal<Temperature> tempCelsius;
 
   // Control requests
-  private final VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true);
+  private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
   private final NeutralOut neutralOut = new NeutralOut();
 
   /**
@@ -58,7 +58,7 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
       double reduction) {
     talon = new TalonFX(id, canBus);
 
-    // Configure Motor
+    // Motor output
     config.MotorOutput.Inverted = invertedValue;
     config.MotorOutput.NeutralMode = neutralModeValue;
     // Current limits
