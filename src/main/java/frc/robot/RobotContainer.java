@@ -144,7 +144,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return Auton.command();
+    return Auton.SelectedCommand();
   }
 
   /** Stops all subsystems, cancels all scheduled commands, and stops controller rumble. */

@@ -35,10 +35,10 @@ public class Auton {
   private static final LoggedDashboardChooser<Auton.Special> autonSpecial =
       new LoggedDashboardChooser<>("Auton/Special");
 
-  @SuppressWarnings("unused")
   private static final LoggedNetworkBoolean autonDepot =
       new LoggedNetworkBoolean("SmartDashboard/Auton/Depot", false);
 
+  @SuppressWarnings("unused")
   private static final LoggedNetworkBoolean autonClimb =
       new LoggedNetworkBoolean("SmartDashboard/Auton/Climb", false);
 
@@ -93,13 +93,14 @@ public class Auton {
     }
   }
 
-  public static Command command() {
+  public static Command SelectedCommand() {
     if (autonStartingPose.get() == null) {
       return Commands.none();
     }
 
     switch (autonStartingPose.get()) {
       case Left:
+        // TODO: AUTON - update to call new Command added to handle left auton
         return Commands.none();
 
       case Center:
@@ -134,6 +135,8 @@ public class Auton {
         Set.of(drive));
   }
 
+  // TODO: AUTON - copy this whole Command, rename, call for left trench paths, use autonDeport
+  // instead of autonOutpost
   private static Command Neptune() {
     return new DeferredCommand(
         () -> {
@@ -180,7 +183,6 @@ public class Auton {
   /** load starting pose if simulator is running */
   public static void loadStartPoseSim() {
     if (Constants.getMode() == Mode.SIM) {
-      // TODO: AUTON - update to use first left path when left paths added
       drive.setPose(getSelectedStartPose());
     }
   }
