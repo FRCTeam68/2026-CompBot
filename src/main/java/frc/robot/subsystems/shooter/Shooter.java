@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.FieldConstants;
-import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.shooter.turret.Turret;
@@ -38,15 +37,17 @@ public class Shooter extends SubsystemBase {
     this.turret = turret;
     this.drivePoseSupplier = poseSupplier;
     this.driveVelocitySupplier = driveVelocitySupplier;
-    SmartDashboard.putNumber("Shooter/FlywheelVelocity", 0);
-    SmartDashboard.putNumber("Shooter/HoodPosition", 0);
-    SmartDashboard.putNumber("Shooter/TurretPosition", 0);
-    SmartDashboard.putData(
-        "Shooter/RunStatic",
-        ShooterCommands.runStatic(
-            SmartDashboard.getNumber("Shooter/FlywheelVelocity", 0),
-            SmartDashboard.getNumber("Shooter/HoodPosition", 0),
-            (SmartDashboard.getNumber("Shooter/TurretPosition", 0))));
+    SmartDashboard.putNumber("Shooter/FlywheelVelocity", 0.0);
+    SmartDashboard.putNumber("Shooter/HoodPosition", 0.0);
+    SmartDashboard.putNumber("Shooter/TurretPosition", 0.0);
+
+    // TODO: You do not need to fix this, I do. This is causing a null requirment issue at boot.
+    // SmartDashboard.putData(
+    //     "Shooter/RunStatic",
+    //     ShooterCommands.runStatic(
+    //         SmartDashboard.getNumber("Shooter/FlywheelVelocity", 0.0),
+    //         SmartDashboard.getNumber("Shooter/HoodPosition", 0.0),
+    //         (SmartDashboard.getNumber("Shooter/TurretPosition", 0.0))));
   }
 
   public void periodic() {
@@ -76,6 +77,8 @@ public class Shooter extends SubsystemBase {
     runStatic(
         ShooterConstants.hubShotFlywheelVelocity.get(centerDistance),
         ShooterConstants.hubShotHoodElevation.get(centerDistance),
+        // TODO: ** We are controlling the turrent with degrees not radians. Both spots need to be
+        // changed.
         target.minus(getShooterPose().getTranslation()).getAngle().getRadians()
             - drivePoseSupplier.get().getRotation().getRadians());
   }

@@ -15,7 +15,7 @@ import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-// TODO: we need to add the CANCoder stuff to the turret
+// TODO: * we need to add the CANCoder stuff to the turret
 // TODO: add logic if we turn the robot on too close to the limits throw error and don't run
 public class Turret extends SubsystemBase {
   @Getter private static final double minimum = 0;
@@ -24,11 +24,10 @@ public class Turret extends SubsystemBase {
   private final TurretIO io;
   protected final TurretIOInputsAutoLogged inputs = new TurretIOInputsAutoLogged();
 
-  // TODO: we can remove the turret in these names since we are already in the turret subsystem
   private final Alert motorDisconnectedAlert =
       new Alert("Turret motor disconnected!", AlertType.kError);
   private final Alert motorTempAlert = new Alert("Turret motor is too hot.", AlertType.kWarning);
-  private final Debouncer turretMotorDebouncer = new Debouncer(0.5, DebounceType.kRising);
+  private final Debouncer motorDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
   private LoggedTunableNumber kP0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kP", 20);
   private LoggedTunableNumber kD0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kD", 0);
@@ -56,7 +55,7 @@ public class Turret extends SubsystemBase {
     Logger.processInputs("Shooter/Turret", inputs);
 
     // Update alerts
-    motorDisconnectedAlert.set(!turretMotorDebouncer.calculate(inputs.connected));
+    motorDisconnectedAlert.set(!motorDebouncer.calculate(inputs.connected));
     motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
     // Update logged setpoints

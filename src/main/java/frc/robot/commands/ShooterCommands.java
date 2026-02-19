@@ -15,9 +15,12 @@ public class ShooterCommands {
   private static final RollerSystem spindexer = robotSystem.getSpindexer();
   private static final RollerSystem feeder = robotSystem.getFeeder();
 
+  // TODO: these should be moved to RobotSystem
+  // TODO: add autoLogOutput to all of these
   private static boolean staticShooterSpeed = false;
   public static boolean shooterHold = false;
   public static boolean manualShootToggle = false;
+  // TODO: ** This should default false i.e. we want to allow passing
   public static boolean noPass = true;
 
   public static Command shootLoop(boolean manual) {

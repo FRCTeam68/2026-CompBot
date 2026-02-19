@@ -22,7 +22,7 @@ import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-// TODO: lets log everything inside of the shooter folder
+// TODO: ** lets log everything inside of the shooter folder
 public class Hood extends SubsystemBase {
   @Getter private static final double minimum = 53.368453;
   @Getter private static final double maximum = 79.368453;

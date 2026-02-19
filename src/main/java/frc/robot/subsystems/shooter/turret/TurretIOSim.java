@@ -41,6 +41,7 @@ public class TurretIOSim implements TurretIO {
     sim.update(Constants.loopPeriodSecs);
 
     inputs.connected = true;
+    // TODO: ** We get rotations from the simulation and want to convert to degrees
     inputs.positionDeg = Units.degreesToRotations(sim.getAngularPositionRotations());
     inputs.velocityRotsPerSec = sim.getAngularVelocityRPM() / 60.0;
     inputs.appliedVoltage = appliedVoltage;

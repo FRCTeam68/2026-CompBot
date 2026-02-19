@@ -196,6 +196,17 @@ public class RobotSystem {
             Rotation3d.kZero));
 
     Logger.recordOutput(
+        "RobotPose/Turret",
+        new Pose3d(
+            -0.160018476,
+            0.1335875408,
+            0,
+            new Rotation3d(
+                // TODO: ** turret.getPosition returns in units of degrees instead of rotations. We
+                // still want to end up with radians
+                0, 0, Units.rotationsToRadians(shooter.getTurret().getPosition()) + Math.PI)));
+
+    Logger.recordOutput(
         "RobotPose/Hood",
         new Pose3d(
                 -0.2609834506,
@@ -205,15 +216,9 @@ public class RobotSystem {
             .rotateAround(
                 ShooterConstants.shooterPosition,
                 new Rotation3d(
+                    // TODO: ** turret.getPosition returns in units of degrees instead of rotations.
+                    // We
+                    // still want to end up with radians
                     0, 0, Units.rotationsToRadians(shooter.getTurret().getPosition()) + Math.PI)));
-
-    Logger.recordOutput(
-        "RobotPose/Turret",
-        new Pose3d(
-            -0.160018476,
-            0.1335875408,
-            0,
-            new Rotation3d(
-                0, 0, Units.rotationsToRadians(shooter.getTurret().getPosition()) + Math.PI)));
   }
 }
