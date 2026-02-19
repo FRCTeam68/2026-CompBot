@@ -216,7 +216,6 @@ public class RobotContainer {
 
     if (DriverStation.isAutonomous() && DriverStation.isDisabled()) {
       //   noAutoSelectedAlert.set(autonChooser.get() == null);
-      // TODO: fix alert
       //   startingPoseAlert.set(
       //       autonChooser.get() != null
       //           && (AutonUtil.getStartingPose().minus(drive.getPose()).getTranslation().getNorm()
