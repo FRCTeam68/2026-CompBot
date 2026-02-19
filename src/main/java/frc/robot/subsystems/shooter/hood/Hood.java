@@ -32,18 +32,13 @@ public class Hood extends SubsystemBase {
   private final HoodIO io;
   protected final HoodIOInputsAutoLogged inputs = new HoodIOInputsAutoLogged();
 
-  // TODO: we can remove the hood in these names since we are already in the hood subsystem
-  private final Alert hoodMotorDisconnectedAlert =
+  private final Alert motorDisconnectedAlert =
       new Alert("Hood motor disconnected!", AlertType.kError);
   private final Alert hoodCancoderDisconnectedAlert =
       new Alert("Hood cancoder disconnected!", AlertType.kError);
-
-  private final Alert hoodMotorTempAlert = new Alert("Hood motor is too hot.", AlertType.kWarning);
-  // TODO: we do not need an alert for the cancoder temp. It does not get hot.
-  private final Alert hoodCancoderTempAlert =
-      new Alert("Hood cancoder is too hot.", AlertType.kWarning);
-  private final Debouncer hoodMotorDebouncer = new Debouncer(0.5, DebounceType.kRising);
-  private final Debouncer hoodCancoderDebouncer = new Debouncer(0.5, DebounceType.kRising);
+  private final Alert motorTempAlert = new Alert("Hood motor is too hot.", AlertType.kWarning);
+  private final Debouncer motorDebouncer = new Debouncer(0.5, DebounceType.kRising);
+  private final Debouncer cancoderDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
   private LoggedTunableNumber kP0 = new LoggedTunableNumber("Hood/Slot0/kP", 20);
   private LoggedTunableNumber kD0 = new LoggedTunableNumber("Hood/Slot0/kD", 0);
@@ -53,10 +48,8 @@ public class Hood extends SubsystemBase {
   private LoggedTunableNumber mmAcceleration =
       new LoggedTunableNumber("Hood/MotionMagic/Acceleration", 0);
   private LoggedTunableNumber mmJerk = new LoggedTunableNumber("Hood/MotionMagic/Jerk", 0);
-
-  // TODO: set this value. 2 degrees should be fine for now
   private LoggedTunableNumber setpointBandPosition =
-      new LoggedTunableNumber("Hood/PositionSetpointBand", 0);
+      new LoggedTunableNumber("Hood/PositionSetpointBand", 2);
 
   @Getter private double setpoint = 0.0;
   @Getter private ControlMode mode = ControlMode.Neutral;
@@ -73,10 +66,9 @@ public class Hood extends SubsystemBase {
     Logger.processInputs("Hood", inputs);
 
     // Update alerts
-    hoodMotorDisconnectedAlert.set(!hoodMotorDebouncer.calculate(inputs.motorConnected));
-    hoodCancoderDisconnectedAlert.set(!hoodCancoderDebouncer.calculate(inputs.cancoderConnected));
-    hoodMotorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
-    hoodCancoderTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
+    motorDisconnectedAlert.set(!motorDebouncer.calculate(inputs.motorConnected));
+    hoodCancoderDisconnectedAlert.set(!cancoderDebouncer.calculate(inputs.cancoderConnected));
+    motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
     // Update logged setpoints
     Logger.recordOutput("Hood/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
@@ -89,16 +81,14 @@ public class Hood extends SubsystemBase {
       runElvation(setpoint, 0);
       prevInTrenchBox = inTrenchBox();
     }
-
-    // TODO: change to single pipe to remove short circuiting
     // Update tunable numbers
-    if (kP0.hasChanged(hashCode()) || kD0.hasChanged(hashCode()) || kS0.hasChanged(hashCode())) {
+    if (kP0.hasChanged(hashCode()) | kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
       io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
     }
 
     if (mmVelocity.hasChanged(hashCode())
-        || mmAcceleration.hasChanged(hashCode())
-        || mmJerk.hasChanged(hashCode())) {
+        | mmAcceleration.hasChanged(hashCode())
+        | mmJerk.hasChanged(hashCode())) {
       io.setMotionMagic(
           new MotionMagicConfigs()
               .withMotionMagicCruiseVelocity(mmVelocity.get())
@@ -159,8 +149,7 @@ public class Hood extends SubsystemBase {
    *
    * @return Elevation of the wrist
    */
-  // TODO: change this name to getElevation to match what is actually being returned
-  public double getPosition() {
+  public double getElevation() {
     return inputs.positionElvation;
   }
 

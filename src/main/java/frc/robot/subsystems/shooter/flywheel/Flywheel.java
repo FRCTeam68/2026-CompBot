@@ -18,16 +18,14 @@ import org.littletonrobotics.junction.Logger;
 public class Flywheel extends SubsystemBase {
   private final FlywheelIO io;
   protected final FlyWheelIOInputsAutoLogged inputs = new FlyWheelIOInputsAutoLogged();
-
-  // TODO: we can remove the flywheel in these names since we are already in the flywheel subsystem
-  private final Alert flywheelLeaderDisconnectedAlert =
+  private final Alert leaderDisconnectedAlert =
       new Alert("Flywheel leader (left) motor disconnected!", AlertType.kError);
-  private final Alert flywheelFollowerDisconnectedAlert =
+  private final Alert followerDisconnectedAlert =
       new Alert("Flywheel follower (right) motor disconnected!", AlertType.kError);
 
-  private final Alert flywheelLeaderTempAlert =
+  private final Alert leaderTempAlert =
       new Alert("Flywheel leader (left) motor is too hot.", AlertType.kWarning);
-  private final Alert flywheelFollowerTempAlert =
+  private final Alert followerTempAlert =
       new Alert("Flywheel follower (right) motor is too hot.", AlertType.kWarning);
 
   private final Debouncer flywheelLeaderDebouncer = new Debouncer(0.5, DebounceType.kRising);
@@ -63,26 +61,24 @@ public class Flywheel extends SubsystemBase {
     Logger.processInputs("Flywheel", inputs);
 
     // Update alerts
-    flywheelLeaderDisconnectedAlert.set(!flywheelLeaderDebouncer.calculate(inputs.leaderConnected));
-    flywheelFollowerDisconnectedAlert.set(
-        !flywheelFollowerDebouncer.calculate(inputs.followerConnected));
-    flywheelLeaderTempAlert.set(inputs.leaderTempCelsius > Constants.warningTempCelsius);
-    flywheelFollowerTempAlert.set(inputs.followerTempCelsius > Constants.warningTempCelsius);
+    leaderDisconnectedAlert.set(!flywheelLeaderDebouncer.calculate(inputs.leaderConnected));
+    followerDisconnectedAlert.set(!flywheelFollowerDebouncer.calculate(inputs.followerConnected));
+    leaderTempAlert.set(inputs.leaderTempCelsius > Constants.warningTempCelsius);
+    followerTempAlert.set(inputs.followerTempCelsius > Constants.warningTempCelsius);
 
     // Update logged setpoints
     Logger.recordOutput("Flywheel/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput(
         "Flywheel/SetpointVelocityRotsPerSec", (mode == ControlMode.Velocity) ? setpoint : 0);
 
-    // TODO: change to single pipe to remove short circuiting
     // Update tunable numbers
-    if (kP0.hasChanged(hashCode()) || kD0.hasChanged(hashCode()) || kS0.hasChanged(hashCode())) {
+    if (kP0.hasChanged(hashCode()) | kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
       io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
     }
 
     if (mmVelocity.hasChanged(hashCode())
-        || mmAcceleration.hasChanged(hashCode())
-        || mmJerk.hasChanged(hashCode())) {
+        | mmAcceleration.hasChanged(hashCode())
+        | mmJerk.hasChanged(hashCode())) {
       io.setMotionMagic(
           new MotionMagicConfigs()
               .withMotionMagicCruiseVelocity(mmVelocity.get())

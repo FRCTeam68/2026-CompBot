@@ -1,8 +1,10 @@
 package frc.robot.subsystems.shooter;
 
+import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import frc.robot.Constants;
+import frc.robot.util.CanBusUtil;
 import lombok.Builder;
 
 public class ShooterConstants {
@@ -13,8 +15,7 @@ public class ShooterConstants {
   public static final Translation3d shooterPosition =
       new Translation3d(-0.160018476, 0.1335875408, 0.4431027206);
 
-  // TODO: add a canbus variable for all shooter subsystems to use
-
+  public static final CANBus canBus = CanBusUtil.getCanivoreBus();
   // Interpolation maps
   public static InterpolatingDoubleTreeMap hubShotHoodElevation = new InterpolatingDoubleTreeMap();
   public static InterpolatingDoubleTreeMap hubShotFlywheelVelocity =

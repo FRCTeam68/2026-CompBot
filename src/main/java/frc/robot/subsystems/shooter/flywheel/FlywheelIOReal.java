@@ -25,6 +25,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.util.PhoenixUtil;
 import lombok.Getter;
 
@@ -59,10 +60,9 @@ public class FlywheelIOReal implements FlywheelIO {
   private final NeutralOut neutralOut = new NeutralOut();
 
   public FlywheelIOReal() {
-    // TODO: use canbus from shooter constants
     // TODO: set actual can ids
-    leaderTalon = new TalonFX(0, new CANBus("rio"));
-    followerTalon = new TalonFX(0, new CANBus("rio"));
+    leaderTalon = new TalonFX(0, ShooterConstants.canBus);
+    followerTalon = new TalonFX(0, ShooterConstants.canBus);
     followerTalon.setControl(new Follower(leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed));
 
     // Configure Motor

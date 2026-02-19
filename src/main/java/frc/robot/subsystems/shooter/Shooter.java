@@ -7,11 +7,11 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.FieldConstants;
+import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.shooter.turret.Turret;
@@ -41,16 +41,12 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("Shooter/FlywheelVelocity", 0);
     SmartDashboard.putNumber("Shooter/HoodPosition", 0);
     SmartDashboard.putNumber("Shooter/TurretPosition", 0);
-    // TODO: we should just call the run static method in ShooterCommands instead
     SmartDashboard.putData(
         "Shooter/RunStatic",
-        Commands.runOnce(
-                () ->
-                    runStatic(
-                        SmartDashboard.getNumber("Shooter/FlywheelVelocity", 0),
-                        SmartDashboard.getNumber("Shooter/HoodPosition", 0),
-                        SmartDashboard.getNumber("Shooter/TurretPosition", 0)))
-            .withName("Shooter/RunStatic"));
+        ShooterCommands.runStatic(
+            SmartDashboard.getNumber("Shooter/FlywheelVelocity", 0),
+            SmartDashboard.getNumber("Shooter/HoodPosition", 0),
+            (SmartDashboard.getNumber("Shooter/TurretPosition", 0))));
   }
 
   public void periodic() {

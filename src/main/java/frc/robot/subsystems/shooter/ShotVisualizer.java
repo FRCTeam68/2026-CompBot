@@ -32,7 +32,7 @@ public class ShotVisualizer {
   private static final Supplier<Double> flywheelVelocitySupplier =
       () -> shooter.getFlywheel().getVelocity();
   private static final Supplier<Double> hoodElevationSupplier =
-      () -> shooter.getHood().getPosition();
+      () -> shooter.getHood().getElevation();
   private static final Supplier<Rotation2d> turretAngleSupplier = () -> new Rotation2d();
   private static final Supplier<Double> feederSetpointSupplier = feeder::getSetpointVolts;
 

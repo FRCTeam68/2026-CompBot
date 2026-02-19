@@ -3,7 +3,6 @@ package frc.robot.subsystems.shooter.hood;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -28,6 +27,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.util.PhoenixUtil;
 import lombok.Getter;
 
@@ -37,9 +37,6 @@ public class HoodIOReal implements HoodIO {
 
   @Getter
   private static final double reduction = rotorToSensorReduction * sensorToMechanismReduction;
-
-  // TODO: delete this and use the one in ShooterConstants instead
-  private static final CANBus canBus = new CANBus("rio");
 
   // Hardware
   private final TalonFX talon;
@@ -66,10 +63,9 @@ public class HoodIOReal implements HoodIO {
   private final NeutralOut neutralOut = new NeutralOut();
 
   public HoodIOReal() {
-    // TODO: use canbus from shooter constants
     // TODO: set actual can ids
-    talon = new TalonFX(0, canBus);
-    cancoder = new CANcoder(1, canBus);
+    talon = new TalonFX(0, ShooterConstants.canBus);
+    cancoder = new CANcoder(1, ShooterConstants.canBus);
 
     // Configure Motor
     talonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -117,7 +113,7 @@ public class HoodIOReal implements HoodIO {
                 absolutePosition));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon, cancoder));
     PhoenixUtil.registerSignals(
-        canBus,
+        ShooterConstants.canBus,
         position,
         velocity,
         appliedVoltage,

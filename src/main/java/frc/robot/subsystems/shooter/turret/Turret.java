@@ -25,10 +25,9 @@ public class Turret extends SubsystemBase {
   protected final TurretIOInputsAutoLogged inputs = new TurretIOInputsAutoLogged();
 
   // TODO: we can remove the turret in these names since we are already in the turret subsystem
-  private final Alert turretMotorDisconnectedAlert =
+  private final Alert motorDisconnectedAlert =
       new Alert("Turret motor disconnected!", AlertType.kError);
-  private final Alert turretMotorTempAlert =
-      new Alert("Turret motor is too hot.", AlertType.kWarning);
+  private final Alert motorTempAlert = new Alert("Turret motor is too hot.", AlertType.kWarning);
   private final Debouncer turretMotorDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
   private LoggedTunableNumber kP0 = new LoggedTunableNumber("Turret/Slot0/kP", 20);
@@ -40,10 +39,8 @@ public class Turret extends SubsystemBase {
   private LoggedTunableNumber mmAcceleration =
       new LoggedTunableNumber("Turret/MotionMagic/Acceleration", 0);
   private LoggedTunableNumber mmJerk = new LoggedTunableNumber("Turret/MotionMagic/Jerk", 0);
-
-  // TODO: set this value. 2 degrees should be fine for now
   private LoggedTunableNumber setpointBandPosition =
-      new LoggedTunableNumber("Turret/PositionSetpointBand", 0);
+      new LoggedTunableNumber("Turret/PositionSetpointBand", 2);
 
   @Getter private double setpoint = 0.0;
 
@@ -59,24 +56,23 @@ public class Turret extends SubsystemBase {
     Logger.processInputs("Turret", inputs);
 
     // Update alerts
-    turretMotorDisconnectedAlert.set(!turretMotorDebouncer.calculate(inputs.connected));
-    turretMotorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
+    motorDisconnectedAlert.set(!turretMotorDebouncer.calculate(inputs.connected));
+    motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
     // Update logged setpoints
     Logger.recordOutput("Turret/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput(
         "Turret/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
 
-    // TODO: change to single pipe to remove short circuiting
     // Update tunable numbers
-    if (kP0.hasChanged(hashCode()) || kD0.hasChanged(hashCode()) || kS0.hasChanged(hashCode())) {
+    if (kP0.hasChanged(hashCode()) | kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
 
       io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
     }
 
     if (mmVelocity.hasChanged(hashCode())
-        || mmAcceleration.hasChanged(hashCode())
-        || mmJerk.hasChanged(hashCode())) {
+        | mmAcceleration.hasChanged(hashCode())
+        | mmJerk.hasChanged(hashCode())) {
       io.setMotionMagic(
           new MotionMagicConfigs()
               .withMotionMagicCruiseVelocity(mmVelocity.get())
