@@ -2,6 +2,7 @@ package frc.robot.subsystems.shooter.turret;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.Alert;
@@ -14,7 +15,6 @@ import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-// TODO: lets log everything inside of the shooter folder
 // TODO: we need to add the CANCoder stuff to the turret
 // TODO: add logic if we turn the robot on too close to the limits throw error and don't run
 public class Turret extends SubsystemBase {
@@ -30,17 +30,17 @@ public class Turret extends SubsystemBase {
   private final Alert motorTempAlert = new Alert("Turret motor is too hot.", AlertType.kWarning);
   private final Debouncer turretMotorDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Turret/Slot0/kP", 20);
-  private LoggedTunableNumber kD0 = new LoggedTunableNumber("Turret/Slot0/kD", 0);
-  private LoggedTunableNumber kS0 = new LoggedTunableNumber("Turret/Slot0/kS", 0);
+  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kP", 20);
+  private LoggedTunableNumber kD0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kD", 0);
+  private LoggedTunableNumber kS0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kS", 0);
 
   private LoggedTunableNumber mmVelocity =
-      new LoggedTunableNumber("Turret/MotionMagic/Velocity", 0);
+      new LoggedTunableNumber("Shooter/Turret/MotionMagic/Velocity", 0);
   private LoggedTunableNumber mmAcceleration =
-      new LoggedTunableNumber("Turret/MotionMagic/Acceleration", 0);
+      new LoggedTunableNumber("Shooter/Turret/MotionMagic/Acceleration", 0);
   private LoggedTunableNumber mmJerk = new LoggedTunableNumber("Turret/MotionMagic/Jerk", 0);
   private LoggedTunableNumber setpointBandPosition =
-      new LoggedTunableNumber("Turret/PositionSetpointBand", 2);
+      new LoggedTunableNumber("Shooter/Turret/PositionSetpointBand", 2);
 
   @Getter private double setpoint = 0.0;
 
@@ -53,16 +53,17 @@ public class Turret extends SubsystemBase {
   public void periodic() {
     // Update inputs
     io.updateInputs(inputs);
-    Logger.processInputs("Turret", inputs);
+    Logger.processInputs("Shooter/Turret", inputs);
 
     // Update alerts
     motorDisconnectedAlert.set(!turretMotorDebouncer.calculate(inputs.connected));
     motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
     // Update logged setpoints
-    Logger.recordOutput("Turret/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput(
-        "Turret/SetpointPositionDeg", (mode == ControlMode.Position) ? setpoint : 0);
+        "Shooter/Turret/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
+    Logger.recordOutput(
+        "Shooter/Turret/SetpointPositionDeg", (mode == ControlMode.Position) ? setpoint : 0);
 
     // Update tunable numbers
     if (kP0.hasChanged(hashCode()) | kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
@@ -98,10 +99,9 @@ public class Turret extends SubsystemBase {
    * @param position Goal position
    */
   public void runPosition(double position, int slot) {
-    // TODO: modulus the position to limit it's range to 1 rotation then clamp it to the limits
-    // TODO: set setpoint equal to the position
+    setpoint = MathUtil.inputModulus(position, minimum, maximum);
     mode = ControlMode.Position;
-    io.runPosition(position, 0);
+    io.runPosition(setpoint, 0);
   }
 
   /** Stop motor */
@@ -151,7 +151,7 @@ public class Turret extends SubsystemBase {
    *
    * @return True if in position control mode and mechanism is at goal position, false otherwise
    */
-  @AutoLogOutput(key = "Hood/atSetpoint")
+  @AutoLogOutput(key = "Shooter/Turret/atSetpoint")
   public boolean atSetpoint() {
     return switch (mode) {
       case Position -> Math.abs(setpoint - getPosition()) < setpointBandPosition.get();
