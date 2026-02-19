@@ -35,13 +35,12 @@ import frc.robot.util.PhoenixUtil;
 import lombok.Getter;
 
 public class IntakePivotIOReal implements IntakePivotIO {
+  private static final CANBus canBus = CanBusUtil.getRioBus();
   private static final double rotorToSensorReduction = (40.0 / 8.0) * (60.0 / 20.0);
   private static final double sensorToMechanismReduction = (32.0 / 16.0);
 
   @Getter
   private static final double reduction = rotorToSensorReduction * sensorToMechanismReduction;
-
-  private static final CANBus canBus = CanBusUtil.getRioBus();
 
   // Hardware
   private final TalonFX talon;
@@ -53,13 +52,13 @@ public class IntakePivotIOReal implements IntakePivotIO {
 
   // Status Signals
   private final StatusSignal<Angle> position;
-  private final StatusSignal<Angle> absolutePosition;
   private final StatusSignal<AngularVelocity> velocity;
   private final StatusSignal<Voltage> appliedVoltage;
   private final StatusSignal<Current> supplyCurrent;
   private final StatusSignal<Current> torqueCurrent;
   private final StatusSignal<Temperature> tempCelsius;
   private final StatusSignal<MagnetHealthValue> magnetHealth;
+  private final StatusSignal<Angle> absolutePosition;
 
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true);
@@ -94,13 +93,13 @@ public class IntakePivotIOReal implements IntakePivotIO {
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
 
     position = talon.getPosition();
-    absolutePosition = cancoder.getAbsolutePosition();
     velocity = talon.getVelocity();
     appliedVoltage = talon.getMotorVoltage();
     supplyCurrent = talon.getSupplyCurrent();
     torqueCurrent = talon.getTorqueCurrent();
     tempCelsius = talon.getDeviceTemp();
     magnetHealth = cancoder.getMagnetHealth();
+    absolutePosition = cancoder.getAbsolutePosition();
 
     tryUntilOk(
         5,
@@ -112,8 +111,8 @@ public class IntakePivotIOReal implements IntakePivotIO {
                 appliedVoltage,
                 supplyCurrent,
                 torqueCurrent,
-                absolutePosition,
-                magnetHealth));
+                magnetHealth,
+                absolutePosition));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon, cancoder));
     PhoenixUtil.registerSignals(
         canBus,
@@ -123,8 +122,8 @@ public class IntakePivotIOReal implements IntakePivotIO {
         supplyCurrent,
         torqueCurrent,
         tempCelsius,
-        absolutePosition,
-        magnetHealth);
+        magnetHealth,
+        absolutePosition);
   }
 
   @Override
@@ -139,7 +138,7 @@ public class IntakePivotIOReal implements IntakePivotIO {
     inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();
     inputs.tempCelsius = tempCelsius.getValueAsDouble();
     inputs.magnetHealth = magnetHealth.getValue();
-    inputs.absolutePosition = absolutePosition.getValueAsDouble();
+    inputs.absolutePositionRots = absolutePosition.getValueAsDouble();
   }
 
   @Override
@@ -166,10 +165,10 @@ public class IntakePivotIOReal implements IntakePivotIO {
   public void setPID(SlotConfigs... newConfig) {
     for (int i = 0; i < Math.min(newConfig.length, 3); i++) {
       /*
-       * TEMPLATE: Optionally add gravity type and static feedforward sign
-       * Default gravity type: Elevator_Static
-       * Default static feedforward sign: UseVelocitySign
-       */
+      Optionally add gravity type and static feedforward sign.
+      Default gravity type: Elevator_Static
+      Default static feedforward sign: UseVelocitySign
+      */
       SlotConfigs slotConfig = newConfig[i];
       slotConfig.GravityType = GravityTypeValue.Arm_Cosine;
       slotConfig.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;

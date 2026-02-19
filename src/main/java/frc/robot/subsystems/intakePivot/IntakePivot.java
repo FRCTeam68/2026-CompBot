@@ -22,14 +22,15 @@ public class IntakePivot extends SubsystemBase {
 
   private final IntakePivotIO io;
   protected final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
+  private final Debouncer motorConnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
+  private final Debouncer cancoderDisconnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
-  private final Debouncer connectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
-  private final Debouncer disconnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
-  private final Alert disconnectedAlert =
+  private final Alert motorDisconnectedAlert =
       new Alert("Intake pivot motor disconnected!", AlertType.kError);
   private final Alert cancoderDisconnectedAlert =
       new Alert("Intake pivot cancoder disconnected!", AlertType.kError);
   private final Alert tempAlert = new Alert("Intake pivot motor is too hot.", AlertType.kWarning);
+
   private LoggedTunableNumber kP0 = new LoggedTunableNumber("IntakePivot/Slot0/kP", 10);
   private LoggedTunableNumber kD0 = new LoggedTunableNumber("IntakePivot/Slot0/kD", 0);
   private LoggedTunableNumber kS0 = new LoggedTunableNumber("IntakePivot/Slot0/kS", 0);
@@ -40,7 +41,7 @@ public class IntakePivot extends SubsystemBase {
   private LoggedTunableNumber mmJerk = new LoggedTunableNumber("IntakePivot/Jerk", 0);
 
   private LoggedTunableNumber setpointBandPosition =
-      new LoggedTunableNumber("IntakePivot/PositionSetpointBand", 0);
+      new LoggedTunableNumber("IntakePivot/SetpointBand", 0);
 
   @Getter private double setpoint = 0.0;
 
@@ -49,22 +50,31 @@ public class IntakePivot extends SubsystemBase {
   public IntakePivot(IntakePivotIO io) {
     this.io = io;
     SmartDashboard.putData(
-        "IntakePivot/Extend", Commands.runOnce(() -> runPosition(extended, 0), this));
+        "IntakePivot/Extend",
+        Commands.runOnce(() -> runPosition(extended, 0)).withName("DashboardIntakePivotExtend"));
+
     SmartDashboard.putData(
-        "IntakePivot/Retract", Commands.runOnce(() -> runPosition(packaged, 0), this));
-    SmartDashboard.putData("IntakePivot/Zero", Commands.runOnce(() -> zero(), this));
+        "IntakePivot/Retract",
+        Commands.runOnce(() -> runPosition(packaged, 0)).withName("DashboardIntakePivotRetract"));
+    SmartDashboard.putData(
+        "IntakePivot/Zero", Commands.runOnce(() -> zero()).withName("DashboardIntakePivotZero"));
   }
 
   public void periodic() {
+    // Process inputs
     io.updateInputs(inputs);
     Logger.processInputs("IntakePivot", inputs);
-    disconnectedAlert.set(!connectedDebouncer.calculate(inputs.motorConnected));
-    cancoderDisconnectedAlert.set(!disconnectedDebouncer.calculate(inputs.cancoderConnected));
+    motorDisconnectedAlert.set(!motorConnectedDebouncer.calculate(inputs.motorConnected));
+    cancoderDisconnectedAlert.set(
+        !cancoderDisconnectedDebouncer.calculate(inputs.cancoderConnected));
     tempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
+    // Log setpoint
     Logger.recordOutput("IntakePivot/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput(
         "IntakePivot/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
+
+    // Update PID
     if (kP0.hasChanged(hashCode()) | kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
       io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
     }
@@ -79,14 +89,10 @@ public class IntakePivot extends SubsystemBase {
     }
   }
 
-  public void setAtSetpointBandPosition(LoggedTunableNumber band) {
-    setpointBandPosition = band;
-  }
-
   /**
-   * Set applied voltage to the motor
+   * Run system at specified voltage.
    *
-   * @param volts Voltage to drive motor at
+   * @param volts Voltage to run the motor at.
    */
   public void runVolts(double volts) {
     setpoint = volts;
@@ -95,9 +101,12 @@ public class IntakePivot extends SubsystemBase {
   }
 
   /**
-   * Set goal position in mechanism rotations
+   * Run system to position.
    *
-   * @param position Goal position
+   * <p><b>Units:</b> Mechanism rotations.
+   *
+   * @param position Goal position.
+   * @param slot PID gain slot to use during motion.
    */
   public void runPosition(double position, int slot) {
     setpoint = position;
@@ -105,61 +114,54 @@ public class IntakePivot extends SubsystemBase {
     io.runPosition(position, slot);
   }
 
-  /** Stop motor */
+  /** Stop motor with neutral output. */
   public void stop() {
     mode = ControlMode.Neutral;
     io.stop();
   }
 
-  /** Set the current mechanism position to zero */
+  /** Set the current mechanism position to zero. */
   public void zero() {
     io.setPosition(0);
   }
 
   /**
-   * Set the current mechanism position
+   * Velocity of the system in mechanism rotations per second.
    *
-   * @param rotations Position in mechanism rotations
-   */
-  public void setPosition(double rotations) {
-    io.setPosition(rotations);
-  }
-
-  /**
-   * Velocity of the mechanism in degrees of elevation per second
-   *
-   * @return Velocity
+   * @return Velocity.
    */
   public double getVelocity() {
     return inputs.velocityRotsPerSec;
   }
 
   /**
-   * Position of the mechanism in degrees of elevation
+   * Position of the system in mechanism rotations.
    *
-   * @return Elevation of the wrist
+   * @return Position.
    */
   public double getPosition() {
     return inputs.positionRots;
   }
 
   /**
-   * Current corresponding to the torque output by the lead motor. Similar to StatorCurrent. Users
-   * will likely prefer this current to calculate the applied torque to the rotor.
+   * Current corresponding to the torque output by the motor. Similar to StatorCurrent. Users will
+   * likely prefer this current to calculate the applied torque to the rotor.
    *
    * <p>Stator current where positive current means torque is applied in the forward direction as
    * determined by the Inverted setting.
    *
-   * @return Lead motor torque current
+   * @return Motor torque current.
    */
   public double getTorqueCurrent() {
     return inputs.torqueCurrentAmps;
   }
 
   /**
-   * Check if mechanism is at goal position with error of setpointBandPosition
+   * Returns true if the error is within the tolerance of the setpoint.
    *
-   * @return True if in position control mode and mechanism is at goal position, false otherwise
+   * <p>This will return false when not position controlled.
+   *
+   * @return Whether the error is within the acceptable bounds.
    */
   @AutoLogOutput(key = "IntakePivot/atSetpoint")
   public boolean atSetpoint() {

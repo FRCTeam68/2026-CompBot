@@ -161,7 +161,7 @@ public class RobotContainer {
                 .ignoringDisable(true)
                 .withName("StopSubsystems"));
 
-    driverController.leftTrigger().whileTrue(IntakeCommands.intake());
+    driverController.leftTrigger().whileTrue(IntakeCommands.intakeWhile());
 
     hubTransitionWarningTrigger.onTrue(
         Commands.runOnce(() -> driverController.setRumble(RumbleType.kBothRumble, 1))
@@ -219,13 +219,14 @@ public class RobotContainer {
     operatorControllerDisconnectedAlert.set(!operatorController.isConnected());
 
     if (DriverStation.isAutonomous() && DriverStation.isDisabled()) {
-      //   noAutoSelectedAlert.set(autonChooser.get() == null);
-      //   startingPoseAlert.set(
-      //       autonChooser.get() != null
-      //           && (AutonUtil.getStartingPose().minus(drive.getPose()).getTranslation().getNorm()
-      //                   > 0.25
-      //               ||
-      // AutonUtil.getStartingPose().minus(drive.getPose()).getRotation().getDegrees()
+      //     noAutoSelectedAlert.set(autonChooser.get() == null);
+      //     getStartingPoseAlert.set(
+      //         autonChooser.get() != null
+      //             &&
+      // (AutonUtil.getStartingPose().minus(drive.getPose()).getTranslation().getNorm()
+      //                     > 0.25
+      //                 ||
+      //   AutonUtil.getStartingPose().minus(drive.getPose()).getRotation().getDegrees()
       //                   > 20));
     } else {
       noAutoSelectedAlert.set(false);

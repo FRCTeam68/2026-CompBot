@@ -3,32 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.347,
-        "y": 2.363
+        "x": 4.379734939759036,
+        "y": 0.669265060240964
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.4620361445783137,
-        "y": 1.5325542168674688
+        "x": 3.2213975903614456,
+        "y": 0.6474096385542167
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Right Start"
     },
     {
       "anchor": {
-        "x": 0.5659638554216868,
-        "y": 0.680192771084337
+        "x": 0.6861686746987952,
+        "y": 0.669265060240964
       },
       "prevControl": {
-        "x": 1.1997710843373492,
-        "y": 1.368638554216867
+        "x": 1.593168674698795,
+        "y": 0.6583373493975899
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "R Outpost"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.4147859922178945,
+      "rotationDegrees": 0.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -42,7 +47,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": null,

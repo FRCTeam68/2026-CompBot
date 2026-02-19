@@ -12,38 +12,40 @@ public interface IntakePivotIO {
     public boolean cancoderConnected = false;
     public double positionRots = 0.0;
     public double velocityRotsPerSec = 0.0;
+    public double appliedVoltage = 0.0;
     public double supplyCurrentAmps = 0.0;
     public double torqueCurrentAmps = 0.0;
     public double tempCelsius = 0.0;
     public MagnetHealthValue magnetHealth = MagnetHealthValue.Magnet_Invalid;
-    public double appliedVoltage = 0;
-    public double absolutePosition = 0;
+    public double absolutePositionRots = 0.0;
   }
 
   default void updateInputs(IntakePivotIOInputs inputs) {}
 
   /**
-   * Run motor at volts.
+   * Run system at specified voltage.
    *
-   * @param volts Voltage
+   * @param volts Voltage to run the motor at.
    */
   default void runVolts(double volts) {}
 
   /**
-   * Run motor to position.
+   * Run system to position.
    *
-   * @param position Position in mechanism rotations
-   * @param slot
+   * <p><b>Units:</b> Mechanism rotations.
+   *
+   * @param position Goal position.
+   * @param slot PID gain slot to use during motion.
    */
   default void runPosition(double rotations, int slot) {}
 
-  /** Stop motor */
+  /** Stop motor with neutral output. */
   default void stop() {}
 
   /**
    * Set the current mechanism position.
    *
-   * @param rotations Position in mechanism rotations
+   * @param rotations Position in mechanism rotations.
    */
   default void setPosition(double rotations) {}
 
@@ -52,14 +54,12 @@ public interface IntakePivotIO {
    *
    * <p>Gravity type and static feedforward sign are ignored and use static values instead.
    *
-   * <ul>
-   *   <li><b>Available slots:</b> [0,2]
-   * </ul>
+   * <p><b>Available slots:</b> [0,2]
    *
    * @param newConfig PID gains
    */
   public default void setPID(SlotConfigs... newConfig) {}
 
-  /** Set motion magic velocity, acceleration and jerk. */
+  /** Set motion magic configs. */
   public default void setMotionMagic(MotionMagicConfigs newConfig) {}
 }

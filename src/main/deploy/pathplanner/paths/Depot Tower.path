@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.653,
-        "y": 4.013
+        "x": 0.6533855421686747,
+        "y": 5.925493975903614
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.052132530120482,
-        "y": 2.843879518072289
+        "x": 1.6533855421686747,
+        "y": 5.925493975903614
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "L Depot"
     },
     {
       "anchor": {
-        "x": 0.6206024096385543,
-        "y": 0.7457590361445796
+        "x": 1.8445060240963858,
+        "y": 4.00221686746988
       },
       "prevControl": {
-        "x": 1.4948192771084337,
-        "y": 2.035228915662651
+        "x": 1.7789397590361444,
+        "y": 4.832722891566265
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "C Tower"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -177.39743779750026
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 179.14490260373333
   },
   "useDefaultConstraints": true
 }

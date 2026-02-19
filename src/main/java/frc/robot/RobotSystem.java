@@ -73,7 +73,6 @@ public class RobotSystem {
         // flywheel = new Flywheel(new FlywheelIOReal());
         // hood = new Hood(new HoodIOReal(), drive::getPose);
         // turret = new Turret(new TurretIOReal());
-
         //         spindexer =
         //     new RollerSystem(
         //         "spindexer",
@@ -94,6 +93,11 @@ public class RobotSystem {
         //             InvertedValue.CounterClockwise_Positive,
         //             NeutralModeValue.Coast,
         //             36 / 12));
+        // intakePivot = new IntakePivot(new IntakePivotIOReal());
+        //         intakeSpin =
+        //             new RollerSystem(
+        //                 "intakeSpin", new
+        // RollerSystemIOTalonFX(22,CanBusUtil.getRioBus(),80,InvertedValue.CounterClockwise_Positive,NeutralModeValue.Coast,24/18));
 
         flywheel = new Flywheel(new FlywheelIOSim());
         hood = new Hood(new HoodIOSim(), drive::getPose);
