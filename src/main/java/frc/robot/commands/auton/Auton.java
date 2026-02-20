@@ -107,7 +107,7 @@ public class Auton {
         return Terra();
 
       case Right:
-        return Neptune();
+        return Test01();
 
       default:
         return Commands.none();
@@ -152,6 +152,39 @@ public class Auton {
           return myCommand;
         },
         Set.of(drive));
+  }
+
+  private static Command Test01() {
+    return new DeferredCommand(
+            () -> {
+              Command myCommand1;
+              Command myCommand2;
+
+              myCommand1 =
+                  Commands.sequence(
+                      Commands.parallel(
+                          PathUtil.followPath("Right Trench A"),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                      IntakeCommands.stop(),
+                      PathUtil.followPath("Right Trench B"),
+                      Commands.waitSeconds(
+                          3.0) // replace with ShootCommands.Shootloop.withTimeOut(3.0.)
+                      );
+
+              if (autonOutpost.get()) {
+                myCommand2 = PathUtil.followPath("Right Outpost");
+                myCommand2 =
+                    myCommand2.andThen(
+                        Commands.waitSeconds(
+                            3.0)); // replace with ShootCommands.Shootloop.withTimeOut(3.0.)
+              } else {
+                myCommand2 = PathUtil.followPath("Right Free Seconds");
+              }
+
+              return myCommand1.andThen(myCommand2);
+            },
+            Set.of(drive))
+        .withName("Auton_Test01");
   }
 
   @SuppressWarnings("unused")
