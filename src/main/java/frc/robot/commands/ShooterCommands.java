@@ -20,8 +20,7 @@ public class ShooterCommands {
   private static boolean staticShooterSpeed = false;
   public static boolean shooterHold = false;
   public static boolean manualShootToggle = false;
-  // TODO: ** This should default false i.e. we want to allow passing
-  public static boolean noPass = true;
+  public static boolean noPass = false;
 
   public static Command shootLoop(boolean manual) {
     return Commands.run(

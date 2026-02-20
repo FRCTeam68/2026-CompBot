@@ -206,9 +206,7 @@ public class RobotSystem {
             0.1335875408,
             0,
             new Rotation3d(
-                // TODO: ** turret.getPosition returns in units of degrees instead of rotations. We
-                // still want to end up with radians
-                0, 0, Units.rotationsToRadians(shooter.getTurret().getPosition()) + Math.PI)));
+                0, 0, Units.degreesToRadians(shooter.getTurret().getPosition()) + Math.PI)));
 
     Logger.recordOutput(
         "RobotPose/Hood",

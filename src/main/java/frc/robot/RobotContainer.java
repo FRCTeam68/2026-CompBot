@@ -136,8 +136,7 @@ public class RobotContainer {
     // to .whileTrue so that when the button is released the command is canceled
     driverController.rightTrigger().onTrue(ShooterCommands.shootLoop(false));
     operatorController
-        // TODO: ** .PS should have nothing inside the parentheses
-        .PS(null)
+        .PS()
         .onTrue(
             Commands.runOnce(() -> ShooterCommands.noPass = !ShooterCommands.noPass)
                 .withName("NoPass"));
