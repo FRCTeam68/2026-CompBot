@@ -29,16 +29,34 @@ public class ShooterConstants {
 
   private static final ShooterConfig[] hubConfigLow = {
     ShooterConfig.builder()
-        .distance(1)
-        .hoodElevation(70)
-        .flywheelVelocity(10)
-        .flightTime(2)
+        .distance(1.18)
+        .flywheelVelocity(45)
+        .hoodElevation(79.37)
+        .flightTime(1)
         .build(),
     ShooterConfig.builder()
-        .distance(5)
-        .hoodElevation(50)
-        .flywheelVelocity(100)
-        .flightTime(4)
+        .distance(1.68)
+        .flywheelVelocity(40)
+        .hoodElevation(70)
+        .flightTime(1)
+        .build(),
+    ShooterConfig.builder()
+        .distance(2.24)
+        .flywheelVelocity(42)
+        .hoodElevation(63)
+        .flightTime(1)
+        .build(),
+    ShooterConfig.builder()
+        .distance(3.46)
+        .flywheelVelocity(46)
+        .hoodElevation(57)
+        .flightTime(1)
+        .build(),
+    ShooterConfig.builder()
+        .distance(5.1)
+        .flywheelVelocity(52)
+        .hoodElevation(45)
+        .flightTime(1)
         .build()
   };
 
@@ -47,13 +65,13 @@ public class ShooterConstants {
         .distance(1)
         .hoodElevation(70)
         .flywheelVelocity(10)
-        .flightTime(2)
+        .flightTime(.2)
         .build(),
     ShooterConfig.builder()
         .distance(5)
         .hoodElevation(50)
         .flywheelVelocity(100)
-        .flightTime(4)
+        .flightTime(.4)
         .build()
   };
 
@@ -108,11 +126,11 @@ public class ShooterConstants {
 
   /**
    * @param distance The distance to the target in meters.
-   * @param hoodElevation The elevation of the hood in degrees.
    * @param flywheelVelocity The velocity of the flywheel in rotations per second.
+   * @param hoodElevation The elevation of the hood in degrees.
    * @param flightTime The flight time of the shot.
    */
   @Builder
   public record ShooterConfig(
-      double distance, double hoodElevation, double flywheelVelocity, double flightTime) {}
+      double distance, double flywheelVelocity, double hoodElevation, double flightTime) {}
 }

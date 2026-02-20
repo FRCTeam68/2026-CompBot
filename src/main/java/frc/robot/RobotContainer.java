@@ -129,7 +129,11 @@ public class RobotContainer {
         .onTrue(
             Commands.runOnce(() -> ShooterCommands.shooterHold = true).withName("ShooterHoldTrue"))
         .onFalse(
-            Commands.runOnce(() -> ShooterCommands.shooterHold = false)
+            Commands.runOnce(
+                    () -> {
+                      ShooterCommands.shooterHold = false;
+                      ShooterCommands.staticShooterSpeed = false;
+                    })
                 .withName("ShooterHoldFalse"));
     // TODO: ** ShooterCommands.shootLoop will continually run once started. We need to change
     // .onTrue

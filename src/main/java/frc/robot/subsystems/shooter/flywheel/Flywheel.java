@@ -41,7 +41,7 @@ public class Flywheel extends SubsystemBase {
   private LoggedTunableNumber mmJerk =
       new LoggedTunableNumber("Shooter/Flywheel/MotionMagic/Jerk", 0);
   private LoggedTunableNumber setpointBandVelocity =
-      new LoggedTunableNumber("Shooter/Flywheel/VelocitySetpointBandPercent", 10);
+      new LoggedTunableNumber("Shooter/Flywheel/VelocitySetpointBandPercent", 0.1);
 
   @Getter private double setpoint = 0.0;
 
@@ -150,7 +150,13 @@ public class Flywheel extends SubsystemBase {
   @AutoLogOutput(key = "Shooter/Flywheel/atSetpoint")
   public boolean atSetpoint() {
     return switch (mode) {
-      case Velocity -> Math.abs((setpoint / getVelocity()) - 1) < setpointBandVelocity.get();
+      case Velocity ->
+          (getVelocity() == 0.0)
+              // TODO: this can cause a bug if setpoint is zero, but we shouldn't encounter it in a
+              // match.
+              // TODO: decide if this should actually be based off percent.
+              ? false
+              : Math.abs((setpoint / getVelocity()) - 1) < setpointBandVelocity.get();
       default -> false;
     };
   }

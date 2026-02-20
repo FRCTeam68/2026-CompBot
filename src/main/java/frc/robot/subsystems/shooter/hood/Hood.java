@@ -123,7 +123,7 @@ public class Hood extends SubsystemBase {
     mode = ControlMode.Position;
     io.runPosition(
         // TODO: change this to use the new variable underTrenchMinimum
-        (inTrenchBox()) ? MathUtil.clamp(elevation, maximum - 9, maximum) : elevation, slot);
+        (inTrenchBox()) ? MathUtil.clamp(setpoint, maximum - 9, maximum) : setpoint, slot);
   }
 
   /** Stop motor with neutral output. */
@@ -176,7 +176,7 @@ public class Hood extends SubsystemBase {
   @AutoLogOutput(key = "Hood/atSetpoint")
   public boolean atSetpoint() {
     return switch (mode) {
-      case Position -> Math.abs(setpoint - inputs.positionElvation) < setpointBandPosition.get();
+      case Position -> Math.abs(setpoint - getElevation()) < setpointBandPosition.get();
       default -> false;
     };
   }

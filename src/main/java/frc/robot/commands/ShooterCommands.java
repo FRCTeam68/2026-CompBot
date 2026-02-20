@@ -17,7 +17,7 @@ public class ShooterCommands {
 
   // TODO: these should be moved to RobotSystem
   // TODO: add autoLogOutput to all of these
-  private static boolean staticShooterSpeed = false;
+  public static boolean staticShooterSpeed = false;
   public static boolean shooterHold = false;
   public static boolean manualShootToggle = false;
   public static boolean noPass = false;

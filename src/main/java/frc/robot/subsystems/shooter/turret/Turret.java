@@ -31,7 +31,7 @@ public class Turret extends SubsystemBase {
   private final Alert motorTempAlert = new Alert("Turret motor is too hot.", AlertType.kWarning);
   private final Debouncer motorDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kP", 20);
+  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kP", 100);
   private LoggedTunableNumber kD0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kD", 0);
   private LoggedTunableNumber kS0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kS", 0);
 
@@ -39,9 +39,11 @@ public class Turret extends SubsystemBase {
       new LoggedTunableNumber("Shooter/Turret/MotionMagic/Velocity", 0);
   private LoggedTunableNumber mmAcceleration =
       new LoggedTunableNumber("Shooter/Turret/MotionMagic/Acceleration", 0);
+  // TODO: ** log this in the shooter folder
   private LoggedTunableNumber mmJerk = new LoggedTunableNumber("Turret/MotionMagic/Jerk", 0);
+
   private LoggedTunableNumber setpointBandPosition =
-      new LoggedTunableNumber("Shooter/Turret/PositionSetpointBand", 2);
+      new LoggedTunableNumber("Shooter/Turret/PositionSetpointBand", 10);
 
   @Getter private double setpoint = 0.0;
 
