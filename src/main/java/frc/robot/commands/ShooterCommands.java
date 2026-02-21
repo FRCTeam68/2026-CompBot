@@ -5,14 +5,17 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.FieldConstants;
 import frc.robot.RobotSystem;
+import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.shooter.ShooterConstants.shotConfig;
 import frc.robot.util.geometry.AllianceFlipUtil;
 
 public class ShooterCommands {
   // Subsystems
   private static final RobotSystem robotSystem = RobotSystem.getInstance();
+  private static final Drive drive = robotSystem.getDrive();
   private static final Shooter shooter = robotSystem.getShooter();
   private static final RollerSystem spindexer = robotSystem.getSpindexer();
   private static final RollerSystem feeder = robotSystem.getFeeder();
@@ -67,15 +70,27 @@ public class ShooterCommands {
                 Translation2d target;
                 boolean isPass;
                 if (shooter.inAllianceZone() || RobotSystem.ShooterFunctions.noPass) {
-                  target = FieldConstants.Hub.innerCenterPoint.toTranslation2d();
+                  target = AllianceFlipUtil.apply(ShooterConstants.Target.hub);
                   isPass = false;
                 } else {
-                  target = new Translation2d(1, 1);
+                  if (drive.getPose().getTranslation().getY()
+                      < FieldConstants.LinesHorizontal.center) {
+                    target =
+                        (AllianceFlipUtil.shouldFlip())
+                            ? ShooterConstants.Target.passLeft
+                            : ShooterConstants.Target.passRight;
+                  } else {
+                    target =
+                        (AllianceFlipUtil.shouldFlip())
+                            ? ShooterConstants.Target.passRight
+                            : ShooterConstants.Target.passLeft;
+                  }
+                  target = AllianceFlipUtil.apply(target);
                   isPass = true;
                 }
 
                 if (isPass || shooter.inAllianceZone()) {
-                  shooter.runDynamic(AllianceFlipUtil.apply(target), isPass);
+                  shooter.runDynamic(target, isPass);
                 }
               }
             },

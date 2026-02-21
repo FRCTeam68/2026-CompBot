@@ -1,9 +1,11 @@
 package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.CANBus;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import frc.robot.Constants;
+import frc.robot.FieldConstants;
 import frc.robot.util.CanBusUtil;
 import lombok.Builder;
 
@@ -16,6 +18,13 @@ public class ShooterConstants {
       new Translation3d(-0.160018476, 0.1335875408, 0.4431027206);
 
   public static final CANBus canBus = CanBusUtil.getCanivoreBus();
+
+  public static class Target {
+    public static final Translation2d hub = FieldConstants.Hub.innerCenterPoint.toTranslation2d();
+    public static final Translation2d passLeft =
+        new Translation2d(1, FieldConstants.fieldWidth - 1);
+    public static final Translation2d passRight = new Translation2d(1, 1);
+  }
 
   public static class StaticShot {
     public static final shotConfig hub =
