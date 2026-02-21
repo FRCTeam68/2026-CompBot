@@ -22,11 +22,12 @@ public final class DriveConstants {
   public static final double trackWidthX = Units.inchesToMeters(21.75); // meters
   public static final double trackWidthY = Units.inchesToMeters(21.75); // meters
   public static final double driveReduction = 6.12;
-  public static final double turnReduction = 150 / 7;
-  public static final double maxLinearVelocity = 6.27; // meters/second | max:6.27
+  public static final double turnReduction = 150.0 / 7.0;
+  public static final double maxLinearVelocity = 6.27; // meters/second
   public static final double wheelRadius = Units.inchesToMeters(2); // meters
   private static final double mass = 68; // kilograms
   private static final double moi = 1; // kilogram*meters^2
+  private static final double cof = 1.4;
 
   // Control Configuration
   public static final double driveStatorCurrentLimitAmps = 80; // amps
@@ -70,7 +71,7 @@ public final class DriveConstants {
           new com.pathplanner.lib.config.ModuleConfig(
               wheelRadius,
               maxLinearVelocity,
-              1,
+              cof,
               DCMotor.getKrakenX60Foc(1).withReduction(driveReduction),
               driveStatorCurrentLimitAmps,
               1),
