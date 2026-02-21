@@ -235,8 +235,7 @@ public class Auton {
 
     switch (autonStartingPose.get()) {
       case Left:
-        // TODO: AUTON - update to use first left path when left paths added
-        return AllianceFlipUtil.apply(new Pose2d(4.0, 7.5, Rotation2d.kZero));
+        return AllianceFlipUtil.apply(PathUtil.getStartingPose("Left Trench A"));
 
       case Center:
         return AllianceFlipUtil.apply(PathUtil.getStartingPose("Center Depot"));

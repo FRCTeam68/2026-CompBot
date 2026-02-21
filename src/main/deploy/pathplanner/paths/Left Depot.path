@@ -20,15 +20,24 @@
         "y": 5.95697619047619
       },
       "prevControl": {
-        "x": 1.9749880952380963,
-        "y": 6.2917023809523815
+        "x": 3.0798852459016395,
+        "y": 5.889639344262293
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "Left Depot"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.24308588064046832,
+      "rotationDegrees": -0.6482547745208566
+    },
+    {
+      "waypointRelativePos": 0.6786026200872943,
+      "rotationDegrees": -179.03777326111904
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
