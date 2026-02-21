@@ -7,7 +7,8 @@ import frc.robot.FieldConstants;
 import frc.robot.RobotSystem;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
-import org.littletonrobotics.junction.AutoLogOutput;
+import frc.robot.subsystems.shooter.ShooterConstants.shotConfig;
+import frc.robot.util.geometry.AllianceFlipUtil;
 
 public class ShooterCommands {
   // Subsystems
@@ -16,17 +17,11 @@ public class ShooterCommands {
   private static final RollerSystem spindexer = robotSystem.getSpindexer();
   private static final RollerSystem feeder = robotSystem.getFeeder();
 
-  // TODO: these should be moved to RobotSystem
-  // TODO: add autoLogOutput to all of these
-  @AutoLogOutput public static boolean shooterHold = false;
-  @AutoLogOutput public static boolean manualShootToggle = false;
-  public static boolean noPass = false;
-
   public static Command shootLoop(boolean manual) {
     return Commands.run(
             () -> {
-              if (!manual && !manualShootToggle) {
-                if (!shooterHold) {
+              if (!manual && !RobotSystem.ShooterFunctions.manualShootToggle) {
+                if (!RobotSystem.ShooterFunctions.shooterHold) {
                   if (shooter.atSetpoint()) {
                     feeder.runVolts(12);
                     spindexer.runVolts(12);
@@ -35,7 +30,7 @@ public class ShooterCommands {
                     spindexer.stop();
                   }
                 } else {
-                  shooterHold = false;
+                  RobotSystem.ShooterFunctions.shooterHold = false;
                 }
               } else {
                 feeder.runVolts(12);
@@ -55,21 +50,23 @@ public class ShooterCommands {
   public static Command runStatic(
       double flywheelVelocity, double hoodElevation, double turretPosition) {
     return Commands.sequence(
-            Commands.runOnce(() -> shooterHold = true),
+            Commands.runOnce(() -> RobotSystem.ShooterFunctions.shooterHold = true),
             Commands.runOnce(
                 () -> shooter.runStatic(flywheelVelocity, hoodElevation, turretPosition), shooter))
         .withName("ShootStatic");
   }
 
-  // TODO: Create a runStatic method to accept ShotConfig
+  public static Command runStatic(shotConfig config) {
+    return runStatic(config.flywheelVelocity(), config.hoodAngle(), config.turretAngle());
+  }
 
   public static Command runDynamic() {
     return Commands.run(
             () -> {
-              if (!shooterHold) {
+              if (!RobotSystem.ShooterFunctions.shooterHold) {
                 Translation2d target;
                 boolean isPass;
-                if (shooter.inAllianceZone() || noPass) {
+                if (shooter.inAllianceZone() || RobotSystem.ShooterFunctions.noPass) {
                   target = FieldConstants.Hub.innerCenterPoint.toTranslation2d();
                   isPass = false;
                 } else {
@@ -78,8 +75,7 @@ public class ShooterCommands {
                 }
 
                 if (isPass || shooter.inAllianceZone()) {
-                  // TODO: flip target if on red alliance
-                  shooter.runDynamic(target, isPass);
+                  shooter.runDynamic(AllianceFlipUtil.apply(target), isPass);
                 }
               }
             },
@@ -89,7 +85,7 @@ public class ShooterCommands {
 
   public static Command stop() {
     return Commands.sequence(
-            Commands.runOnce(() -> shooterHold = true),
+            Commands.runOnce(() -> RobotSystem.ShooterFunctions.shooterHold = true),
             Commands.runOnce(() -> shooter.stop(), shooter))
         .withName("ShooterStop");
   }

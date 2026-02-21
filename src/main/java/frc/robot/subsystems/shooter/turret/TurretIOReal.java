@@ -3,7 +3,6 @@ package frc.robot.subsystems.shooter.turret;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -117,8 +116,7 @@ public class TurretIOReal implements TurretIO {
                 magnetHealth));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon));
     PhoenixUtil.registerSignals(
-        // TODO: this should use the can bus set up in ShooterConstants
-        new CANBus("DRIVEbus"),
+        ShooterConstants.canBus,
         position,
         velocity,
         appliedVoltage,
@@ -133,11 +131,7 @@ public class TurretIOReal implements TurretIO {
   public void updateInputs(TurretIOInputs inputs) {
     inputs.motorConnected =
         BaseStatusSignal.isAllGood(
-            position,
-            velocity,
-            appliedVoltage,
-            supplyCurrent,
-            torqueCurrent);
+            position, velocity, appliedVoltage, supplyCurrent, torqueCurrent);
     inputs.cancoderConnected = BaseStatusSignal.isAllGood(magnetHealth, absolutePosition);
     inputs.positionDeg = Units.rotationsToDegrees(position.getValueAsDouble());
     inputs.velocityRotsPerSec = velocity.getValueAsDouble();

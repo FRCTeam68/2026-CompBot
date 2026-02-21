@@ -150,7 +150,7 @@ public class Robot extends LoggedRobot {
 
     // Set up auto logging
     AutoLogOutputManager.addObject(new ShiftUtil());
-    AutoLogOutputManager.addObject(new ShooterCommands());
+    AutoLogOutputManager.addObject(new RobotSystem());
 
     // Instantiate our RobotContainer
     robotContainer = new RobotContainer();

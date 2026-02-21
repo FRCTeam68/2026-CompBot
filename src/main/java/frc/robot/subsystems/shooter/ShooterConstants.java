@@ -20,7 +20,10 @@ public class ShooterConstants {
   public static class StaticShot {
     public static final shotConfig hub =
         shotConfig.builder().flywheelVelocity(0.000).hoodAngle(0.000).turretAngle(0.000).build();
-    // TODO: create static shot config for neutral zone and opp alliance zone passes
+    public static final shotConfig neutralZone =
+        shotConfig.builder().flywheelVelocity(0.000).hoodAngle(0.000).turretAngle(0.000).build();
+    public static final shotConfig oppAllianceZone =
+        shotConfig.builder().flywheelVelocity(0.000).hoodAngle(0.000).turretAngle(0.000).build();
   }
 
   public static class DynamicShot {

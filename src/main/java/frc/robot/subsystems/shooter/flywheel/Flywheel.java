@@ -108,8 +108,7 @@ public class Flywheel extends SubsystemBase {
   public void runVelocity(double velocity, int slot) {
     setpoint = velocity;
     mode = ControlMode.Velocity;
-    // TODO: use slot provided instead of always using slot 0
-    io.runVelocity(velocity, 0);
+    io.runVelocity(velocity, slot);
   }
 
   /** Stop motor with neutral output. */

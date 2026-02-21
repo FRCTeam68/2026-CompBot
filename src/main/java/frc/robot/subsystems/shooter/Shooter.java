@@ -15,7 +15,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.FieldConstants;
-import frc.robot.commands.ShooterCommands;
+import frc.robot.RobotSystem;
+import frc.robot.subsystems.shooter.ShooterConstants.shotConfig;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.shooter.turret.Turret;
@@ -51,7 +52,7 @@ public class Shooter extends SubsystemBase {
         "Shooter/RunStatic",
         Commands.runOnce(
             () -> {
-              ShooterCommands.shooterHold = true;
+              RobotSystem.ShooterFunctions.shooterHold = true;
               runStatic(
                   SmartDashboard.getNumber("Shooter/FlywheelVelocity", 0.0),
                   SmartDashboard.getNumber("Shooter/HoodPosition", 0.0),
@@ -84,12 +85,14 @@ public class Shooter extends SubsystemBase {
     turret.runPosition(turretAngle, 0);
   }
 
-  // TODO: create a runStatic method that takes a SotConfig. Use the following doc-comment.
   /**
    * Run the shooter at a static speed and position.
    *
-   * @param shotConfig The goal shooter configuration.
+   * @param config The goal shooter configuration.
    */
+  public void runStatic(shotConfig config) {
+    runStatic(config.flywheelVelocity(), config.hoodAngle(), config.turretAngle());
+  }
 
   /**
    * Run the shooter dynamically.

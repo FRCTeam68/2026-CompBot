@@ -7,18 +7,22 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.Mode;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-// TODO: add logic if we turn the robot on too close to the limits throw error and don't run
 public class Turret extends SubsystemBase {
   @Getter private static final double minimum = 0;
   @Getter private static final double maximum = 360;
+  private static boolean posistionAmbiguous = false;
+  private static final double ambiguousBand = 20;
 
   private final TurretIO io;
   protected final TurretIOInputsAutoLogged inputs = new TurretIOInputsAutoLogged();
@@ -27,6 +31,7 @@ public class Turret extends SubsystemBase {
       new Alert("Turret motor disconnected!", AlertType.kError);
   private final Alert turretCancoderDisconnectedAlert =
       new Alert("Turret cancoder disconnected!", AlertType.kError);
+  private final Alert posistionAmbiguousAlert = new Alert("Posistion ambiguous!", AlertType.kError);
   private final Alert motorTempAlert = new Alert("Turret motor is too hot.", AlertType.kWarning);
   private final Debouncer motorDebouncer = new Debouncer(0.5, DebounceType.kRising);
   private final Debouncer cancoderDebouncer = new Debouncer(0.5, DebounceType.kRising);
@@ -39,7 +44,8 @@ public class Turret extends SubsystemBase {
       new LoggedTunableNumber("Shooter/Turret/MotionMagic/Velocity", 0);
   private LoggedTunableNumber mmAcceleration =
       new LoggedTunableNumber("Shooter/Turret/MotionMagic/Acceleration", 0);
-  private LoggedTunableNumber mmJerk = new LoggedTunableNumber("Shooter/Turret/MotionMagic/Jerk", 0);
+  private LoggedTunableNumber mmJerk =
+      new LoggedTunableNumber("Shooter/Turret/MotionMagic/Jerk", 0);
 
   private LoggedTunableNumber setpointBandPosition =
       new LoggedTunableNumber("Shooter/Turret/PositionSetpointBand", 10);
@@ -50,6 +56,14 @@ public class Turret extends SubsystemBase {
 
   public Turret(TurretIO io) {
     this.io = io;
+    if (Constants.getMode() == Mode.REAL) {
+      posistionAmbiguous =
+          getPosition() < ambiguousBand / 2 || getPosition() > 360 - (ambiguousBand / 2);
+    }
+    SmartDashboard.putData(
+        Commands.runOnce(() -> setRotation())
+            .ignoringDisable(true)
+            .withName("Disambiguate Turret"));
   }
 
   public void periodic() {
@@ -61,6 +75,7 @@ public class Turret extends SubsystemBase {
     motorDisconnectedAlert.set(!motorDebouncer.calculate(inputs.motorConnected));
     turretCancoderDisconnectedAlert.set(!cancoderDebouncer.calculate(inputs.cancoderConnected));
     motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
+    posistionAmbiguousAlert.set(posistionAmbiguous);
 
     // Update logged setpoints
     Logger.recordOutput(
@@ -93,7 +108,9 @@ public class Turret extends SubsystemBase {
   public void runVolts(double volts) {
     setpoint = volts;
     mode = ControlMode.Voltage;
-    io.runVolts(volts);
+    if (posistionAmbiguous == false) {
+      io.runVolts(volts);
+    }
   }
 
   /**
@@ -107,7 +124,9 @@ public class Turret extends SubsystemBase {
   public void runPosition(double degrees, int slot) {
     setpoint = MathUtil.inputModulus(degrees, minimum, maximum);
     mode = ControlMode.Position;
-    io.runPosition(setpoint, 0);
+    if (posistionAmbiguous == false) {
+      io.runPosition(setpoint, 0);
+    }
   }
 
   /** Stop motor with neutral output. */
@@ -121,15 +140,12 @@ public class Turret extends SubsystemBase {
     io.setPosition(0);
   }
 
-  // TODO: delete this whole method. We only need to zero at the zero position.
-  public void setPosition(double rotations) {
-    io.setPosition(rotations);
+  public void setRotation() {
+    if (getPosition() > ambiguousBand / 2 && getPosition() < 360 - (ambiguousBand / 2)) {
+      io.setPosition(MathUtil.inputModulus(getPosition(), 0, 360));
+      posistionAmbiguous = false;
+    }
   }
-
-  // TODO: create a new method to set the current position. This is part of the system to make sure
-  // we don't overrotate by booting in the wrong location. Since the encoder is 1:1 with the turret
-  // it will always have the correct angle, but it may be greater than 1 full rotation. This method
-  // should set the position to the current position mod 360 degrees.
 
   /**
    * Position of the system in mechanism degrees.

@@ -43,7 +43,8 @@ public class Hood extends SubsystemBase {
   private LoggedTunableNumber kD0 = new LoggedTunableNumber("Shooter/Hood/Slot0/kD", 0);
   private LoggedTunableNumber kS0 = new LoggedTunableNumber("Shooter/Hood/Slot0/kS", 0);
 
-  private LoggedTunableNumber mmVelocity = new LoggedTunableNumber("Shooter/Hood/MotionMagic/Velocity", 0);
+  private LoggedTunableNumber mmVelocity =
+      new LoggedTunableNumber("Shooter/Hood/MotionMagic/Velocity", 0);
   private LoggedTunableNumber mmAcceleration =
       new LoggedTunableNumber("Shooter/Hood/MotionMagic/Acceleration", 0);
   private LoggedTunableNumber mmJerk = new LoggedTunableNumber("Shooter/Hood/MotionMagic/Jerk", 0);
@@ -71,13 +72,14 @@ public class Hood extends SubsystemBase {
 
     // Update logged setpoints
     Logger.recordOutput("Shooter/Hood/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
-    Logger.recordOutput("Shooter/Hood/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
+    Logger.recordOutput(
+        "Shooter/Hood/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
 
     // Lower hood if in tench box
     if (prevInTrenchBox != inTrenchBox()) {
-      // TODO: add an if statment to only run this if necessary i.e. the current position is too
-      // high or the setpoint is putting it too high
-      runElvation(setpoint, 0);
+      if (getElevation() < underTrenchMinimum || setpoint < underTrenchMinimum) {
+        runElvation(setpoint, 0);
+      }
       prevInTrenchBox = inTrenchBox();
     }
     // Update tunable numbers
@@ -116,13 +118,10 @@ public class Hood extends SubsystemBase {
    * @param slot PID gain slot to use during motion.
    */
   public void runElvation(double elevation, int slot) {
-    // TODO: clamp position to be within the limits. Then for the rest of this method use the
-    // clamped setpoint.
-    setpoint = elevation;
+    setpoint = MathUtil.clamp(elevation, minimum, maximum);
     mode = ControlMode.Position;
     io.runPosition(
-        // TODO: change this to use the new variable underTrenchMinimum
-        (inTrenchBox()) ? MathUtil.clamp(setpoint, maximum - 9, maximum) : setpoint, slot);
+        (inTrenchBox()) ? MathUtil.clamp(setpoint, underTrenchMinimum, maximum) : setpoint, slot);
   }
 
   /** Stop motor with neutral output. */
@@ -132,15 +131,8 @@ public class Hood extends SubsystemBase {
   }
 
   /** Set the current mechanism position to the maximum. */
-  // TODO: change the name of this method to setPositionMaximum to relect its new function
-  public void zero() {
-    // TODO: change the zeroing position to the maximum. That is where the hard limit is.
-    io.setPosition(0);
-  }
-
-  // TODO: delete this whole method. We only need to zero at the max position.
-  public void setElvation(double degrees) {
-    io.setPosition(degrees);
+  public void setPositionMaximum() {
+    io.setPosition(maximum);
   }
 
   /**
