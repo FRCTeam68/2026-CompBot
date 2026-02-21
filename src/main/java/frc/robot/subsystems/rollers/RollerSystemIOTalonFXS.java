@@ -61,12 +61,13 @@ public class RollerSystemIOTalonFXS implements RollerSystemIO {
       MotorArrangementValue motor) {
     talon = new TalonFXS(id, canBus);
 
-    // Configure Motor
+    // Communication
     config.Commutation.MotorArrangement = motor;
     config.Commutation.AdvancedHallSupport =
         (motor == MotorArrangementValue.Brushed_DC)
             ? AdvancedHallSupportValue.Disabled
             : AdvancedHallSupportValue.Enabled;
+    // Motor output
     config.MotorOutput.Inverted = invertedValue;
     config.MotorOutput.NeutralMode = neutralModeValue;
     // Current limits

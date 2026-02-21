@@ -34,7 +34,7 @@ public interface IntakePivotIO {
    *
    * <p><b>Units:</b> Mechanism rotations.
    *
-   * @param position Goal position.
+   * @param rotations Goal position.
    * @param slot PID gain slot to use during motion.
    */
   default void runPosition(double rotations, int slot) {}

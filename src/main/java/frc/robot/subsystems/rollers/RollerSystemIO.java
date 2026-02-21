@@ -16,9 +16,13 @@ public interface RollerSystemIO {
 
   default void updateInputs(RollerSystemIOInputs inputs) {}
 
-  /** Run roller at volts */
+  /**
+   * Run system at specified voltage.
+   *
+   * @param volts Voltage to run the motor at.
+   */
   default void runVolts(double volts) {}
 
-  /** Stop roller */
+  /** Stop motor with neutral output. */
   default void stop() {}
 }
