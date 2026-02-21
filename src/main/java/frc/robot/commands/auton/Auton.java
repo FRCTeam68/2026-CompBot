@@ -100,14 +100,13 @@ public class Auton {
 
     switch (autonStartingPose.get()) {
       case Left:
-        // TODO: AUTON - update to call new Command added to handle left auton
-        return Commands.none();
+        return Apollo();
 
       case Center:
         return Terra();
 
       case Right:
-        return Test01();
+        return Neptune();
 
       default:
         return Commands.none();
@@ -135,26 +134,40 @@ public class Auton {
         Set.of(drive));
   }
 
-  // TODO: AUTON - copy this whole Command, rename, call for left trench paths, use autonDeport
-  // instead of autonOutpost
-  private static Command Neptune() {
+  private static Command Apollo() {
     return new DeferredCommand(
-        () -> {
-          Command myCommand;
-          myCommand = (IntakeCommands.intakeOn());
-          myCommand = myCommand.andThen(PathUtil.followPath("Right Trench A"));
-          myCommand = myCommand.andThen(PathUtil.followPath("Right Trench B"));
-          if (autonOutpost.get()) {
-            myCommand = myCommand.andThen(PathUtil.followPath("Right Outpost"));
-          } else {
-            myCommand = myCommand.andThen(PathUtil.followPath("Right Free Seconds"));
-          }
-          return myCommand;
-        },
-        Set.of(drive));
+            () -> {
+              Command myCommand1;
+              Command myCommand2;
+
+              myCommand1 =
+                  Commands.sequence(
+                      Commands.parallel(
+                          PathUtil.followPath("Left Trench A"),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                      IntakeCommands.stop(),
+                      PathUtil.followPath("Left Trench B"),
+                      Commands.waitSeconds(
+                          3.0) // replace with ShootCommands.Shootloop.withTimeOut(3.0.)
+                      );
+
+              if (autonDepot.get()) {
+                myCommand2 = PathUtil.followPath("Left Depot");
+                myCommand2 =
+                    myCommand2.andThen(
+                        Commands.waitSeconds(
+                            3.0)); // replace with ShootCommands.Shootloop.withTimeOut(3.0.)
+              } else {
+                myCommand2 = PathUtil.followPath("Left Free Seconds");
+              }
+
+              return myCommand1.andThen(myCommand2);
+            },
+            Set.of(drive))
+        .withName("Auton_Apollo");
   }
 
-  private static Command Test01() {
+  private static Command Neptune() {
     return new DeferredCommand(
             () -> {
               Command myCommand1;
