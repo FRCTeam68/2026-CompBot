@@ -115,23 +115,46 @@ public class Auton {
 
   private static Command Terra() {
     return new DeferredCommand(
-        () -> {
-          Command myCommand;
-          if (autonDepot.get()) {
-            myCommand = (IntakeCommands.intakeOn());
-            myCommand = myCommand.andThen(PathUtil.followPath("Center Depot"));
-            myCommand = myCommand.andThen(PathUtil.followPath("Depot Tower"));
-            if (autonOutpost.get()) {
-              myCommand = myCommand.andThen(PathUtil.followPath("Tower Outpost"));
-            }
-          } else {
-            myCommand = (IntakeCommands.intakeOn());
-            myCommand = myCommand.andThen(PathUtil.followPath("Center Outpost"));
-            myCommand = myCommand.andThen(PathUtil.followPath("Outpost Tower"));
-          }
-          return myCommand;
-        },
-        Set.of(drive));
+            () -> {
+              Command myCommand1;
+              Command myCommand2 = Commands.none();
+              if (autonDepot.get()) {
+
+                myCommand1 =
+                    Commands.sequence(
+                        Commands.parallel(
+                            PathUtil.followPath("Center Depot"),
+                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                        IntakeCommands.stop(),
+                        PathUtil.followPath("Depot Tower"),
+                        Commands.waitSeconds(
+                            3.0) // replace with ShootCommands.Shootloop.withTimeOut(3.0.)
+                        );
+
+                if (autonOutpost.get()) {
+                  myCommand2 = PathUtil.followPath("Tower Outpost");
+                  myCommand2 =
+                      myCommand2.andThen(
+                          Commands.waitSeconds(
+                              3.0)); // replace with ShootCommands.Shootloop.withTimeOut(3.0.)
+                }
+              } else {
+                myCommand1 =
+                    Commands.sequence(
+                        Commands.parallel(
+                            PathUtil.followPath("Center Outpost"),
+                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                        IntakeCommands.stop(),
+                        PathUtil.followPath("Outpost Tower"),
+                        Commands.waitSeconds(
+                            3.0) // replace with ShootCommands.Shootloop.withTimeOut(3.0.)
+                        );
+              }
+
+              return myCommand1.andThen(myCommand2);
+            },
+            Set.of(drive))
+        .withName("Auton_Terra");
   }
 
   private static Command Apollo() {
@@ -197,7 +220,7 @@ public class Auton {
               return myCommand1.andThen(myCommand2);
             },
             Set.of(drive))
-        .withName("Auton_Test01");
+        .withName("Auton_Neptune");
   }
 
   @SuppressWarnings("unused")
