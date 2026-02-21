@@ -2,19 +2,22 @@ package frc.robot.subsystems.shooter.turret;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
+import com.ctre.phoenix6.signals.MagnetHealthValue;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface TurretIO {
   @AutoLog
   static class TurretIOInputs {
-    // cancoder - signals (connected, magnet health, and absolute position)
-    public boolean connected = false;
+    public boolean motorConnected = false;
+    public boolean cancoderConnected = false;
     public double positionDeg = 0.0;
     public double velocityRotsPerSec = 0.0;
     public double appliedVoltage = 0.0;
     public double supplyCurrentAmps = 0.0;
     public double torqueCurrentAmps = 0.0;
     public double tempCelsius = 0.0;
+    public MagnetHealthValue magnetHealth = MagnetHealthValue.Magnet_Invalid;
+    public double absolutePosition = 0.0;
   }
 
   default void updateInputs(TurretIOInputs inputs) {}

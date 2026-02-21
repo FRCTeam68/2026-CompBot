@@ -5,6 +5,7 @@ import static frc.robot.util.PhoenixUtil.tryUntilOk;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
@@ -14,10 +15,14 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MagnetHealthValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -37,20 +42,22 @@ public class TurretIOReal implements TurretIO {
   private static final double reduction = rotorToSensorReduction * sensorToMechanismReduction;
 
   // Hardware
-  // cancoder - create hardware object and config
   private final TalonFX talon;
+  private final CANcoder cancoder;
 
   // Configuration
-  private final TalonFXConfiguration config = new TalonFXConfiguration();
+  private final TalonFXConfiguration talonConfig = new TalonFXConfiguration();
+  private final CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
 
   // Status Signals
-  // cancoder - create signals
   private final StatusSignal<Angle> position;
   private final StatusSignal<AngularVelocity> velocity;
   private final StatusSignal<Voltage> appliedVoltage;
   private final StatusSignal<Current> supplyCurrent;
   private final StatusSignal<Current> torqueCurrent;
   private final StatusSignal<Temperature> tempCelsius;
+  private final StatusSignal<MagnetHealthValue> magnetHealth;
+  private final StatusSignal<Angle> absolutePosition;
 
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true);
@@ -61,36 +68,53 @@ public class TurretIOReal implements TurretIO {
   private final NeutralOut neutralOut = new NeutralOut();
 
   public TurretIOReal() {
-    // cancoder - set up cancoder
     talon = new TalonFX(29, ShooterConstants.canBus);
+    cancoder = new CANcoder(43, ShooterConstants.canBus);
 
     // Configure Motor
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    talonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    talonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     // Current limits
-    config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 80;
-    config.CurrentLimits.SupplyCurrentLowerTime = 1;
-    config.CurrentLimits.SupplyCurrentLowerLimit = 40;
+    talonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    talonConfig.CurrentLimits.SupplyCurrentLimit = 80;
+    talonConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
+    talonConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
     // Feedback
-    // cancoder - add config for motor and cancoder
-    config.Feedback.SensorToMechanismRatio = reduction;
-    tryUntilOk(5, () -> talon.getConfigurator().apply(config, 0.25));
+    talonConfig.Feedback.FeedbackRemoteSensorID = cancoder.getDeviceID();
+    talonConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+    talonConfig.Feedback.RotorToSensorRatio = rotorToSensorReduction;
+    talonConfig.Feedback.SensorToMechanismRatio = sensorToMechanismReduction;
+    talonConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    talonConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Turret.getMaximum();
+    talonConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    talonConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Turret.getMinimum();
+    cancoderConfig.MagnetSensor.MagnetOffset = 0.0;
+    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+    cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.0;
+    tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
+    tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
 
-    // cancoder - set up signals
     position = talon.getPosition();
     velocity = talon.getVelocity();
     appliedVoltage = talon.getMotorVoltage();
     supplyCurrent = talon.getSupplyCurrent();
     torqueCurrent = talon.getTorqueCurrent();
     tempCelsius = talon.getDeviceTemp();
+    magnetHealth = cancoder.getMagnetHealth();
+    absolutePosition = cancoder.getAbsolutePosition();
 
-    // cancoder - register new signals
     tryUntilOk(
         5,
         () ->
             BaseStatusSignal.setUpdateFrequencyForAll(
-                50, position, velocity, appliedVoltage, supplyCurrent, torqueCurrent));
+                50,
+                position,
+                velocity,
+                appliedVoltage,
+                supplyCurrent,
+                torqueCurrent,
+                absolutePosition,
+                magnetHealth));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon));
     PhoenixUtil.registerSignals(
         // TODO: this should use the can bus set up in ShooterConstants
@@ -100,22 +124,29 @@ public class TurretIOReal implements TurretIO {
         appliedVoltage,
         supplyCurrent,
         torqueCurrent,
-        tempCelsius);
+        tempCelsius,
+        absolutePosition,
+        magnetHealth);
   }
 
   @Override
   public void updateInputs(TurretIOInputs inputs) {
-    // cancoder - update new signals
-    inputs.connected =
+    inputs.motorConnected =
         BaseStatusSignal.isAllGood(
-            position, velocity, appliedVoltage, supplyCurrent, torqueCurrent);
-    // TODO: ** We get rotations from the motor and want to convert to degrees
-    inputs.positionDeg = Units.degreesToRotations(position.getValueAsDouble());
+            position,
+            velocity,
+            appliedVoltage,
+            supplyCurrent,
+            torqueCurrent);
+    inputs.cancoderConnected = BaseStatusSignal.isAllGood(magnetHealth, absolutePosition);
+    inputs.positionDeg = Units.rotationsToDegrees(position.getValueAsDouble());
     inputs.velocityRotsPerSec = velocity.getValueAsDouble();
     inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
     inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
     inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();
     inputs.tempCelsius = tempCelsius.getValueAsDouble();
+    inputs.absolutePosition = absolutePosition.getValueAsDouble();
+    inputs.magnetHealth = magnetHealth.getValue();
   }
 
   @Override
@@ -148,12 +179,12 @@ public class TurretIOReal implements TurretIO {
        */
       SlotConfigs slotConfig = newConfig[i];
       switch (i) {
-        case 0 -> config.Slot0 = Slot0Configs.from(slotConfig);
-        case 1 -> config.Slot1 = Slot1Configs.from(slotConfig);
-        case 2 -> config.Slot2 = Slot2Configs.from(slotConfig);
+        case 0 -> talonConfig.Slot0 = Slot0Configs.from(slotConfig);
+        case 1 -> talonConfig.Slot1 = Slot1Configs.from(slotConfig);
+        case 2 -> talonConfig.Slot2 = Slot2Configs.from(slotConfig);
       }
     }
-    tryUntilOk(5, () -> talon.getConfigurator().apply(config, 0.25));
+    tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
   }
 
   @Override

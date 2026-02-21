@@ -137,10 +137,7 @@ public class RobotContainer {
             Commands.runOnce(() -> ShooterCommands.shooterHold = false)
                 .ignoringDisable(true)
                 .withName("ShooterHoldFalse"));
-    // TODO: ** ShooterCommands.shootLoop will continually run once started. We need to change
-    // .onTrue
-    // to .whileTrue so that when the button is released the command is canceled
-    driverController.rightTrigger().onTrue(ShooterCommands.shootLoop(false));
+    driverController.rightTrigger().whileTrue(ShooterCommands.shootLoop(false));
     operatorController
         .PS()
         .onTrue(

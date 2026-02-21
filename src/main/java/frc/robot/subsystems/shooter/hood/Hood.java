@@ -22,7 +22,6 @@ import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-// TODO: ** lets log everything inside of the shooter folder
 public class Hood extends SubsystemBase {
   @Getter private static final double minimum = 53.368453;
   @Getter private static final double maximum = 79.368453;
@@ -40,16 +39,16 @@ public class Hood extends SubsystemBase {
   private final Debouncer motorDebouncer = new Debouncer(0.5, DebounceType.kRising);
   private final Debouncer cancoderDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Hood/Slot0/kP", 20);
-  private LoggedTunableNumber kD0 = new LoggedTunableNumber("Hood/Slot0/kD", 0);
-  private LoggedTunableNumber kS0 = new LoggedTunableNumber("Hood/Slot0/kS", 0);
+  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Shooter/Hood/Slot0/kP", 20);
+  private LoggedTunableNumber kD0 = new LoggedTunableNumber("Shooter/Hood/Slot0/kD", 0);
+  private LoggedTunableNumber kS0 = new LoggedTunableNumber("Shooter/Hood/Slot0/kS", 0);
 
-  private LoggedTunableNumber mmVelocity = new LoggedTunableNumber("Hood/MotionMagic/Velocity", 0);
+  private LoggedTunableNumber mmVelocity = new LoggedTunableNumber("Shooter/Hood/MotionMagic/Velocity", 0);
   private LoggedTunableNumber mmAcceleration =
-      new LoggedTunableNumber("Hood/MotionMagic/Acceleration", 0);
-  private LoggedTunableNumber mmJerk = new LoggedTunableNumber("Hood/MotionMagic/Jerk", 0);
+      new LoggedTunableNumber("Shooter/Hood/MotionMagic/Acceleration", 0);
+  private LoggedTunableNumber mmJerk = new LoggedTunableNumber("Shooter/Hood/MotionMagic/Jerk", 0);
   private LoggedTunableNumber setpointBandPosition =
-      new LoggedTunableNumber("Hood/PositionSetpointBand", 2);
+      new LoggedTunableNumber("Shooter/Hood/PositionSetpointBand", 2);
 
   @Getter private double setpoint = 0.0;
   @Getter private ControlMode mode = ControlMode.Neutral;
@@ -63,7 +62,7 @@ public class Hood extends SubsystemBase {
   public void periodic() {
     // Update inputs
     io.updateInputs(inputs);
-    Logger.processInputs("Hood", inputs);
+    Logger.processInputs("Shooter/Hood", inputs);
 
     // Update alerts
     motorDisconnectedAlert.set(!motorDebouncer.calculate(inputs.motorConnected));
@@ -71,8 +70,8 @@ public class Hood extends SubsystemBase {
     motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
     // Update logged setpoints
-    Logger.recordOutput("Hood/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
-    Logger.recordOutput("Hood/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
+    Logger.recordOutput("Shooter/Hood/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
+    Logger.recordOutput("Shooter/Hood/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
 
     // Lower hood if in tench box
     if (prevInTrenchBox != inTrenchBox()) {
@@ -173,7 +172,7 @@ public class Hood extends SubsystemBase {
    *
    * @return Whether the error is within the acceptable bounds.
    */
-  @AutoLogOutput(key = "Hood/atSetpoint")
+  @AutoLogOutput(key = "Shooter/Hood/atSetpoint")
   public boolean atSetpoint() {
     return switch (mode) {
       case Position -> Math.abs(setpoint - getElevation()) < setpointBandPosition.get();

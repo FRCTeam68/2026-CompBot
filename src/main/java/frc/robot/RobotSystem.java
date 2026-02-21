@@ -218,9 +218,6 @@ public class RobotSystem {
             .rotateAround(
                 ShooterConstants.shooterPosition,
                 new Rotation3d(
-                    // TODO: ** turret.getPosition returns in units of degrees instead of rotations.
-                    // We
-                    // still want to end up with radians
-                    0, 0, Units.rotationsToRadians(shooter.getTurret().getPosition()) + Math.PI)));
+                    0, 0, Units.degreesToRadians(shooter.getTurret().getPosition()) + Math.PI)));
   }
 }

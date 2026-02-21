@@ -15,8 +15,6 @@ import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-// TODO: * we need to add the CANCoder stuff to the turret Search for comments with "cancoder" in
-// them
 // TODO: add logic if we turn the robot on too close to the limits throw error and don't run
 public class Turret extends SubsystemBase {
   @Getter private static final double minimum = 0;
@@ -27,9 +25,11 @@ public class Turret extends SubsystemBase {
 
   private final Alert motorDisconnectedAlert =
       new Alert("Turret motor disconnected!", AlertType.kError);
-  // cancoder - create disconnected alert with debouncer
+  private final Alert turretCancoderDisconnectedAlert =
+      new Alert("Turret cancoder disconnected!", AlertType.kError);
   private final Alert motorTempAlert = new Alert("Turret motor is too hot.", AlertType.kWarning);
   private final Debouncer motorDebouncer = new Debouncer(0.5, DebounceType.kRising);
+  private final Debouncer cancoderDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
   private LoggedTunableNumber kP0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kP", 100);
   private LoggedTunableNumber kD0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kD", 0);
@@ -39,8 +39,7 @@ public class Turret extends SubsystemBase {
       new LoggedTunableNumber("Shooter/Turret/MotionMagic/Velocity", 0);
   private LoggedTunableNumber mmAcceleration =
       new LoggedTunableNumber("Shooter/Turret/MotionMagic/Acceleration", 0);
-  // TODO: ** log this in the shooter folder
-  private LoggedTunableNumber mmJerk = new LoggedTunableNumber("Turret/MotionMagic/Jerk", 0);
+  private LoggedTunableNumber mmJerk = new LoggedTunableNumber("Shooter/Turret/MotionMagic/Jerk", 0);
 
   private LoggedTunableNumber setpointBandPosition =
       new LoggedTunableNumber("Shooter/Turret/PositionSetpointBand", 10);
@@ -59,8 +58,8 @@ public class Turret extends SubsystemBase {
     Logger.processInputs("Shooter/Turret", inputs);
 
     // Update alerts
-    motorDisconnectedAlert.set(!motorDebouncer.calculate(inputs.connected));
-    // cancoder - update cancoder alert
+    motorDisconnectedAlert.set(!motorDebouncer.calculate(inputs.motorConnected));
+    turretCancoderDisconnectedAlert.set(!cancoderDebouncer.calculate(inputs.cancoderConnected));
     motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
     // Update logged setpoints

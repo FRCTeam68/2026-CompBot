@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter.turret;
 
 import com.ctre.phoenix6.configs.SlotConfigs;
+import com.ctre.phoenix6.signals.MagnetHealthValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -39,10 +40,11 @@ public class TurretIOSim implements TurretIO {
 
     sim.update(Constants.loopPeriodSecs);
 
-    // cancoder - simulate new signals
-    inputs.connected = true;
-    // TODO: ** We get rotations from the simulation and want to convert to degrees
-    inputs.positionDeg = Units.degreesToRotations(sim.getAngularPositionRotations());
+    inputs.motorConnected = true;
+    inputs.cancoderConnected = true;
+    inputs.magnetHealth = MagnetHealthValue.Magnet_Green;
+    inputs.absolutePosition = sim.getAngularPositionRotations();
+    inputs.positionDeg = Units.rotationsToDegrees(sim.getAngularPositionRotations());
     inputs.velocityRotsPerSec = sim.getAngularVelocityRPM() / 60.0;
     inputs.appliedVoltage = appliedVoltage;
     inputs.supplyCurrentAmps = sim.getCurrentDrawAmps();
