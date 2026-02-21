@@ -47,14 +47,11 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("Shooter/FlywheelVelocity", 0.0);
     SmartDashboard.putNumber("Shooter/HoodPosition", 0.0);
     SmartDashboard.putNumber("Shooter/TurretPosition", 0.0);
-
-    // TODO: You do not need to fix this yet. I don't know how I want to solve it. This is causing a
-    // null requirment issue at boot.
     SmartDashboard.putData(
         "Shooter/RunStatic",
         Commands.runOnce(
             () -> {
-              ShooterCommands.staticShooterSpeed = true;
+              ShooterCommands.shooterHold = true;
               runStatic(
                   SmartDashboard.getNumber("Shooter/FlywheelVelocity", 0.0),
                   SmartDashboard.getNumber("Shooter/HoodPosition", 0.0),
@@ -77,15 +74,22 @@ public class Shooter extends SubsystemBase {
   /**
    * Run the shooter at a static speed and position.
    *
-   * @param flywheelVelocity Flywheel velocity in rotations per second.
-   * @param hoodElevation Hood elevation in degrees.
-   * @param turretPosition Turret position in robot relative degrees.
+   * @param flywheelVelocity The velocity of the flywheel in rotations per second.
+   * @param hoodElevation The elevation of the hood in degrees.
+   * @param turretAngle The counterclockwise angle of the turret in degrees.
    */
-  public void runStatic(double flywheelVelocity, double hoodElevation, double turretPosition) {
+  public void runStatic(double flywheelVelocity, double hoodElevation, double turretAngle) {
     flywheel.runVelocity(flywheelVelocity, 0);
     hood.runElvation(hoodElevation, 0);
-    turret.runPosition(turretPosition, 0);
+    turret.runPosition(turretAngle, 0);
   }
+
+  // TODO: create a runStatic method that takes a SotConfig. Use the following doc-comment.
+  /**
+   * Run the shooter at a static speed and position.
+   *
+   * @param shotConfig The goal shooter configuration.
+   */
 
   /**
    * Run the shooter dynamically.
@@ -95,25 +99,28 @@ public class Shooter extends SubsystemBase {
    */
   public void runDynamic(Translation2d target, boolean isPass) {
     double targetDistance = target.minus(getFieldShooterPose().getTranslation()).getNorm();
-    double flightTime = ShooterConstants.hubShotFlightTime.get(targetDistance);
+    double flightTime = ShooterConstants.DynamicShot.hubShotFlightTime.get(targetDistance);
     Translation2d adjustedTarget =
         target.plus(
             new Translation2d(
                 driveVelocitySupplier.get().vxMetersPerSecond * flightTime * -1,
                 driveVelocitySupplier.get().vyMetersPerSecond * flightTime * -1));
     double adjustedTargetDistance = target.minus(getFieldShooterPose().getTranslation()).getNorm();
+
     Logger.recordOutput(
         "Shooter/AdjustedTarget",
         new Pose3d(
             new Translation3d(adjustedTarget).plus(new Translation3d(0.0, 0.0, 1.8)),
             Rotation3d.kZero));
-    runStatic(
-        ShooterConstants.hubShotFlywheelVelocity.get(adjustedTargetDistance),
-        ShooterConstants.hubShotHoodElevation.get(adjustedTargetDistance),
-        // TODO: ** We are controlling the turret with degrees not radians. Both spots need to be
-        // changed.
+
+    flywheel.runVelocity(
+        ShooterConstants.DynamicShot.hubShotFlywheelVelocity.get(adjustedTargetDistance), 0);
+    hood.runElvation(
+        ShooterConstants.DynamicShot.hubShotHoodElevation.get(adjustedTargetDistance), 0);
+    turret.runPosition(
         adjustedTarget.minus(getFieldShooterPose().getTranslation()).getAngle().getDegrees()
-            - drivePoseSupplier.get().getRotation().getDegrees());
+            - drivePoseSupplier.get().getRotation().getDegrees(),
+        0);
   }
 
   /**

@@ -7,6 +7,7 @@ import frc.robot.FieldConstants;
 import frc.robot.RobotSystem;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 public class ShooterCommands {
   // Subsystems
@@ -17,9 +18,8 @@ public class ShooterCommands {
 
   // TODO: these should be moved to RobotSystem
   // TODO: add autoLogOutput to all of these
-  public static boolean staticShooterSpeed = false;
-  public static boolean shooterHold = false;
-  public static boolean manualShootToggle = false;
+  @AutoLogOutput public static boolean shooterHold = false;
+  @AutoLogOutput public static boolean manualShootToggle = false;
   public static boolean noPass = false;
 
   public static Command shootLoop(boolean manual) {
@@ -55,39 +55,42 @@ public class ShooterCommands {
   public static Command runStatic(
       double flywheelVelocity, double hoodElevation, double turretPosition) {
     return Commands.sequence(
-            Commands.runOnce(() -> staticShooterSpeed = true),
+            Commands.runOnce(() -> shooterHold = true),
             Commands.runOnce(
                 () -> shooter.runStatic(flywheelVelocity, hoodElevation, turretPosition), shooter))
-        .withName("RunStatic");
+        .withName("ShootStatic");
   }
+
+  // TODO: Create a runStatic method to accept ShotConfig
 
   public static Command runDynamic() {
     return Commands.run(
             () -> {
-              Translation2d target;
-              boolean isPass;
-              if (!staticShooterSpeed && !shooterHold) {
+              if (!shooterHold) {
+                Translation2d target;
+                boolean isPass;
                 if (shooter.inAllianceZone() || noPass) {
                   target = FieldConstants.Hub.innerCenterPoint.toTranslation2d();
                   isPass = false;
                 } else {
-                  target = new Translation2d();
+                  target = new Translation2d(1, 1);
                   isPass = true;
                 }
 
                 if (isPass || shooter.inAllianceZone()) {
+                  // TODO: flip target if on red alliance
                   shooter.runDynamic(target, isPass);
                 }
               }
             },
             shooter)
-        .withName("runDynamic");
+        .withName("ShootDynamic");
   }
 
   public static Command stop() {
     return Commands.sequence(
-            Commands.runOnce(() -> shooter.stop(), shooter),
-            Commands.runOnce(() -> staticShooterSpeed = true))
+            Commands.runOnce(() -> shooterHold = true),
+            Commands.runOnce(() -> shooter.stop(), shooter))
         .withName("ShooterStop");
   }
 }

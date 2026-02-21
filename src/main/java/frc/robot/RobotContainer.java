@@ -24,6 +24,7 @@ import frc.robot.subsystems.intakePivot.IntakePivot;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.util.SetVariableCommand;
 import frc.robot.util.ShiftUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
 
@@ -115,25 +116,26 @@ public class RobotContainer {
                         .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
     shooter.setDefaultCommand(ShooterCommands.runDynamic());
     // triagle = hub, square = neutral zone pass, circle = opp alliance zone pass
+    // TODO: change to use static shot config
     operatorController.triangle().onTrue(ShooterCommands.runStatic(0, 0, 0));
     operatorController.square().onTrue(ShooterCommands.runStatic(0, 0, 0));
     operatorController.circle().onTrue(ShooterCommands.runStatic(0, 0, 0));
+    // TODO: do we like this
     operatorController
         .share()
         .onTrue(
-            Commands.runOnce(
-                    () -> ShooterCommands.manualShootToggle = !ShooterCommands.manualShootToggle)
-                .withName("ManualShootToggle"));
+            SetVariableCommand.apply(
+                v -> ShooterCommands.manualShootToggle = v,
+                () -> !ShooterCommands.manualShootToggle));
     operatorController
         .R2()
         .onTrue(
-            Commands.runOnce(() -> ShooterCommands.shooterHold = true).withName("ShooterHoldTrue"))
+            Commands.runOnce(() -> ShooterCommands.shooterHold = true)
+                .ignoringDisable(true)
+                .withName("ShooterHoldTrue"))
         .onFalse(
-            Commands.runOnce(
-                    () -> {
-                      ShooterCommands.shooterHold = false;
-                      ShooterCommands.staticShooterSpeed = false;
-                    })
+            Commands.runOnce(() -> ShooterCommands.shooterHold = false)
+                .ignoringDisable(true)
                 .withName("ShooterHoldFalse"));
     // TODO: ** ShooterCommands.shootLoop will continually run once started. We need to change
     // .onTrue
