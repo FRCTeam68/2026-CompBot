@@ -20,10 +20,10 @@ public class ShooterCommands {
   private static final RollerSystem spindexer = robotSystem.getSpindexer();
   private static final RollerSystem feeder = robotSystem.getFeeder();
 
-  public static Command shootLoop(boolean manual) {
+  public static Command shootLoop(boolean manualMode) {
     return Commands.run(
             () -> {
-              if (!manual && !RobotSystem.manualShootToggle) {
+              if (!manualMode && !RobotSystem.manualShootToggle) {
                 if (!RobotSystem.shooterHold) {
                   if (shooter.atSetpoint()) {
                     feeder.runVolts(12);
@@ -66,10 +66,11 @@ public class ShooterCommands {
   public static Command runDynamic() {
     return Commands.run(
             () -> {
+              // TODO: log distance to target
               if (!RobotSystem.shooterHold) {
                 Translation2d target;
                 boolean isPass;
-                if (shooter.inAllianceZone() || RobotSystem.noPass) {
+                if (drive.inAllianceZone() || RobotSystem.noPass) {
                   target = AllianceFlipUtil.apply(ShooterConstants.Target.hub);
                   isPass = false;
                 } else {
@@ -89,7 +90,7 @@ public class ShooterCommands {
                   isPass = true;
                 }
 
-                if (isPass || shooter.inAllianceZone()) {
+                if (isPass || drive.inAllianceZone()) {
                   shooter.runDynamic(target, isPass);
                 }
               }

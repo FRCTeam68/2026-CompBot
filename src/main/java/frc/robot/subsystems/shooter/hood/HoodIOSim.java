@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter.hood;
 
 import com.ctre.phoenix6.configs.SlotConfigs;
+import com.ctre.phoenix6.signals.MagnetHealthValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -49,6 +50,7 @@ public class HoodIOSim implements HoodIO {
     inputs.supplyCurrentAmps = sim.getCurrentDrawAmps();
     inputs.torqueCurrentAmps =
         (appliedVoltage > 0.0) ? sim.getCurrentDrawAmps() * 12.0 / appliedVoltage : 0.0;
+    inputs.magnetHealth = MagnetHealthValue.Magnet_Green;
     inputs.absolutePosition =
         MathUtil.inputModulus(
             sim.getAngularPositionRotations() / HoodIOReal.getSensorToMechanismReduction(),
@@ -81,9 +83,7 @@ public class HoodIOSim implements HoodIO {
 
   @Override
   public void setPID(SlotConfigs... newConfig) {
-    for (int i = 0; i < Math.min(newConfig.length, 3); i++) {
-      slotConfigs[i] = newConfig[i];
-    }
+    slotConfigs = newConfig;
   }
 
   private void setInputVoltage(double volts) {

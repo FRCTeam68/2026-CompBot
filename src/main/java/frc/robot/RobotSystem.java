@@ -48,6 +48,7 @@ public class RobotSystem {
   @Getter private final RollerSystem spindexer;
   @Getter private final RollerSystem feeder;
 
+  // Shooter
   @AutoLogOutput(key = "Shooter/Hold")
   public static boolean shooterHold = false;
 
@@ -80,9 +81,18 @@ public class RobotSystem {
                 new VisionIOLimelight(CameraInfo.LL_4),
                 new VisionIOLimelight(CameraInfo.LL_3G));
 
+        // TODO: uncomment real implementation for shooter, spindexer, and feeder. Leave intake
+        // simulated until it gets put on the robot.
         // flywheel = new Flywheel(new FlywheelIOReal());
-        // hood = new Hood(new HoodIOReal(), drive::getPose);
+        // hood = new Hood(drive::getPose, new HoodIOReal());
         // turret = new Turret(new TurretIOReal());
+
+        // intakePivot = new IntakePivot(new IntakePivotIOReal());
+        //         intakeSpin =
+        //             new RollerSystem(
+        //                 "intakeSpin", new
+        // RollerSystemIOTalonFX(22,CanBusUtil.getRioBus(),80,InvertedValue.CounterClockwise_Positive,NeutralModeValue.Coast,24.0/18.0));
+
         //         spindexer =
         //     new RollerSystem(
         //         "spindexer",
@@ -92,7 +102,7 @@ public class RobotSystem {
         //             80,
         //             InvertedValue.Clockwise_Positive,
         //             NeutralModeValue.Coast,
-        //             4 * 5 * (64 / 16)));
+        //             4.0 * 5.0 * (64.0 / 16.0)));
         // feeder =
         //     new RollerSystem(
         //         "feeder",
@@ -102,15 +112,10 @@ public class RobotSystem {
         //             80,
         //             InvertedValue.CounterClockwise_Positive,
         //             NeutralModeValue.Coast,
-        //             36 / 12));
-        // intakePivot = new IntakePivot(new IntakePivotIOReal());
-        //         intakeSpin =
-        //             new RollerSystem(
-        //                 "intakeSpin", new
-        // RollerSystemIOTalonFX(22,CanBusUtil.getRioBus(),80,InvertedValue.CounterClockwise_Positive,NeutralModeValue.Coast,24/18));
+        //             36.0 / 12.0));
 
         flywheel = new Flywheel(new FlywheelIOSim());
-        hood = new Hood(new HoodIOSim(), drive::getPose);
+        hood = new Hood(drive::getPose, new HoodIOSim());
         turret = new Turret(new TurretIOSim());
 
         intakePivot = new IntakePivot(new IntakePivotIOSim() {});
@@ -140,7 +145,7 @@ public class RobotSystem {
         vision = new Vision(drive::addVisionMeasurement, drive::getPose, drive::getFieldVelocity);
 
         flywheel = new Flywheel(new FlywheelIOSim());
-        hood = new Hood(new HoodIOSim(), drive::getPose);
+        hood = new Hood(drive::getPose, new HoodIOSim());
         turret = new Turret(new TurretIOSim());
 
         intakePivot = new IntakePivot(new IntakePivotIOSim() {});
@@ -151,10 +156,10 @@ public class RobotSystem {
         spindexer =
             new RollerSystem(
                 "spindexer",
-                new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4 * 5 * (64 / 16), 0.1));
+                new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4.0 * 5.0 * (64.0 / 16.0), 0.1));
         feeder =
             new RollerSystem(
-                "feeder", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 36 / 12, 0.1));
+                "feeder", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 36.0 / 12.0, 0.1));
         break;
 
       default:
@@ -175,7 +180,7 @@ public class RobotSystem {
                 new VisionIO() {});
 
         flywheel = new Flywheel(new FlywheelIO() {});
-        hood = new Hood(new HoodIO() {}, drive::getPose);
+        hood = new Hood(drive::getPose, new HoodIO() {});
         turret = new Turret(new TurretIO() {});
 
         intakePivot = new IntakePivot(new IntakePivotIO() {});
@@ -200,9 +205,10 @@ public class RobotSystem {
     return instance;
   }
 
+  /** Log component poses for the robot visualization. */
   public void visualization() {
     Logger.recordOutput(
-        "RobotPose/Intake",
+        "RobotPose/1_Intake",
         new Pose3d(
             intakePivot.getPosition() / IntakePivot.getExtended() * Units.inchesToMeters(12),
             0,
@@ -210,7 +216,7 @@ public class RobotSystem {
             Rotation3d.kZero));
 
     Logger.recordOutput(
-        "RobotPose/Turret",
+        "RobotPose/2_Turret",
         new Pose3d(
             -0.160018476,
             0.1335875408,
@@ -219,7 +225,7 @@ public class RobotSystem {
                 0, 0, Units.degreesToRadians(shooter.getTurret().getPosition()) + Math.PI)));
 
     Logger.recordOutput(
-        "RobotPose/Hood",
+        "RobotPose/3_Hood",
         new Pose3d(
                 -0.2609834506,
                 0.133624955,

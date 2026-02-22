@@ -150,7 +150,6 @@ public class Robot extends LoggedRobot {
 
     // Set up auto logging
     AutoLogOutputManager.addObject(new ShiftUtil());
-    AutoLogOutputManager.addObject(new RobotSystem());
 
     // Instantiate our RobotContainer
     robotContainer = new RobotContainer();
@@ -176,11 +175,6 @@ public class Robot extends LoggedRobot {
     PhoenixUtil.refreshAll();
     LoggedTracer.record("PhoenixRefresh");
 
-    // Runs the Scheduler. This is responsible for polling buttons, adding
-    // newly-scheduled commands, running already-scheduled commands, removing
-    // finished or interrupted commands, and running subsystem periodic() methods.
-    // This must be called from the robot's periodic block in order for anything in
-    // the Command-based framework to work.
     CommandScheduler.getInstance().run();
     LoggedTracer.record("CommandScheduler");
 
@@ -202,6 +196,9 @@ public class Robot extends LoggedRobot {
     // Robot container periodic method
     robotContainer.updateAlerts();
 
+    // Log robot visualization
+    robotContainer.visualizeRobot();
+
     // Log status of CAN buses
     CanBusUtil.logStatus();
 
@@ -219,6 +216,7 @@ public class Robot extends LoggedRobot {
         && !DriverStation.isAutonomous()
         && DriverStation.getMatchTime() == 0) robotContainer.saveLimelightRewind();
 
+    // TODO: this should be done in auton init
     Auton.loadStartPoseSim();
   }
 
@@ -252,11 +250,8 @@ public class Robot extends LoggedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-
     // This makes sure that the autonomous stops running when
-    // teleop starts running. If you want the autonomous to
-    // continue until interrupted by another command, remove
-    // this line or comment it out.
+    // teleop starts running.
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }

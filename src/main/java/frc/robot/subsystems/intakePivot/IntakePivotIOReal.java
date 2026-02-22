@@ -19,12 +19,10 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MagnetHealthValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -72,7 +70,7 @@ public class IntakePivotIOReal implements IntakePivotIO {
     talon = new TalonFX(21, canBus);
     cancoder = new CANcoder(41, canBus);
 
-    // Configure Motor
+    // Motor output
     talonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     talonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     // Current limits
@@ -85,11 +83,12 @@ public class IntakePivotIOReal implements IntakePivotIO {
     talonConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     talonConfig.Feedback.RotorToSensorRatio = rotorToSensorReduction;
     talonConfig.Feedback.SensorToMechanismRatio = sensorToMechanismReduction;
+    tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
+
     // CANcoder
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     cancoderConfig.MagnetSensor.MagnetOffset = 0;
     cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.75;
-    tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
 
     position = talon.getPosition();
@@ -170,8 +169,6 @@ public class IntakePivotIOReal implements IntakePivotIO {
       Default static feedforward sign: UseVelocitySign
       */
       SlotConfigs slotConfig = newConfig[i];
-      slotConfig.GravityType = GravityTypeValue.Arm_Cosine;
-      slotConfig.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
       switch (i) {
         case 0 -> talonConfig.Slot0 = Slot0Configs.from(slotConfig);
         case 1 -> talonConfig.Slot1 = Slot1Configs.from(slotConfig);

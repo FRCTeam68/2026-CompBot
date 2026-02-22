@@ -11,7 +11,7 @@ public interface TurretIO {
     public boolean motorConnected = false;
     public boolean cancoderConnected = false;
     public double positionDeg = 0.0;
-    public double velocityRotsPerSec = 0.0;
+    public double velocityDegPerSec = 0.0;
     public double appliedVoltage = 0.0;
     public double supplyCurrentAmps = 0.0;
     public double torqueCurrentAmps = 0.0;
@@ -45,7 +45,7 @@ public interface TurretIO {
   /**
    * Set the current mechanism position.
    *
-   * @param degrees Position in mechanism rotations.
+   * @param degrees Position in mechanism degrees.
    */
   default void setPosition(double degrees) {}
 

@@ -32,7 +32,7 @@ public class IntakePivot extends SubsystemBase {
       new LoggedTunableNumber("IntakePivot/Acceleration", 0);
   private final LoggedTunableNumber mmJerk = new LoggedTunableNumber("IntakePivot/Jerk", 0);
 
-  // setpoint band
+  // Setpoint band
   private final LoggedTunableNumber setpointBandPosition =
       new LoggedTunableNumber("IntakePivot/SetpointBand", 0);
 

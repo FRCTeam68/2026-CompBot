@@ -14,22 +14,22 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
-import frc.robot.FieldConstants;
 import frc.robot.RobotSystem;
 import frc.robot.subsystems.shooter.ShooterConstants.shotConfig;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.shooter.turret.Turret;
-import frc.robot.util.geometry.AllianceFlipUtil;
 import java.util.function.Supplier;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
+  // Subsystems
   @Getter private final Flywheel flywheel;
   @Getter private final Hood hood;
   @Getter private final Turret turret;
+
   private final Supplier<Pose2d> drivePoseSupplier;
   private final Supplier<ChassisSpeeds> driveVelocitySupplier;
 
@@ -45,6 +45,7 @@ public class Shooter extends SubsystemBase {
     this.drivePoseSupplier = poseSupplier;
     this.driveVelocitySupplier = driveVelocitySupplier;
 
+    // Configure dashboard
     SmartDashboard.putNumber("Shooter/FlywheelVelocity", 0.0);
     SmartDashboard.putNumber("Shooter/HoodPosition", 0.0);
     SmartDashboard.putNumber("Shooter/TurretPosition", 0.0);
@@ -57,19 +58,15 @@ public class Shooter extends SubsystemBase {
                   SmartDashboard.getNumber("Shooter/FlywheelVelocity", 0.0),
                   SmartDashboard.getNumber("Shooter/HoodPosition", 0.0),
                   SmartDashboard.getNumber("Shooter/TurretPosition", 0.0));
-            }));
+            },
+            this));
   }
 
   public void periodic() {
+    // Log shot visualizer if sim
     if (Constants.getMode() != Mode.REAL) {
       ShotVisualizer.visualize();
     }
-    Logger.recordOutput(
-        "Shooter/Distance",
-        FieldConstants.Hub.innerCenterPoint
-            .toTranslation2d()
-            .minus(getFieldShooterPose().getTranslation())
-            .getNorm());
   }
 
   /**
@@ -124,15 +121,6 @@ public class Shooter extends SubsystemBase {
         adjustedTarget.minus(getFieldShooterPose().getTranslation()).getAngle().getDegrees()
             - drivePoseSupplier.get().getRotation().getDegrees(),
         0);
-  }
-
-  /**
-   * Returns if the bumpers are in the alliance zone. This check is approximate and does not take
-   * into account the chassis rotation.
-   */
-  public boolean inAllianceZone() {
-    return AllianceFlipUtil.applyX(drivePoseSupplier.get().getX())
-        < FieldConstants.LinesVertical.allianceZone + Units.inchesToMeters(23.5);
   }
 
   /** Returns the the field relative position of the shooter. */

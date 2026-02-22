@@ -4,44 +4,34 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
-import java.util.function.DoubleBinaryOperator;
 
 public class VisionConstants {
   // Camera information
   public static enum CameraInfo {
     // Limelight 4 name must start with "limelight-four" to work with special functions.
-    LL_2(
-        "limelight-two",
-        new Pose3d(
-            new Translation3d(-0.401129, 0.0, 0.258806),
-            new Rotation3d(0.0, Units.degreesToRadians(10.0), Math.PI)),
-        1.0,
-        new double[] {}),
+    LL_2("limelight-two", Pose3d.kZero, 1.0),
+    // TODO: set camera poses
     LL_3G(
         "limelight-threeg",
         new Pose3d(
             new Translation3d(-0.401129, 0.0, 0.258806),
             new Rotation3d(0.0, Units.degreesToRadians(10.0), Math.PI)),
-        1.0,
-        new double[] {}),
+        1.0),
     LL_4(
         "limelight-four",
         new Pose3d(
             new Translation3d(-0.401129, 0.0, 0.258806),
             new Rotation3d(0.0, Units.degreesToRadians(10.0), Math.PI)),
-        1.0,
-        new double[] {0, 100, 0, 100});
+        1.0);
 
     String name; // Must match name configured on coprocessor
     Pose3d pose; // Camera pose relative to the robot wheelbase
     double MTStdDevFactor; // April tag pose standard deviation multiplier
-    double[] objectDetectionEdges; // bottom, top, left, right
 
-    CameraInfo(String name, Pose3d pose, double MTStdDevFactor, double[] objectDetectionEdges) {
+    CameraInfo(String name, Pose3d pose, double MTStdDevFactor) {
       this.name = name;
       this.pose = pose;
       this.MTStdDevFactor = MTStdDevFactor;
-      this.objectDetectionEdges = objectDetectionEdges;
     }
   }
 
@@ -69,13 +59,4 @@ public class VisionConstants {
   public static final double linearStdDevMegatag2Factor = 0.5; // More stable than full 3D solve
   public static final double angularStdDevMegatag2Factor =
       Double.POSITIVE_INFINITY; // No rotation data available
-
-  // Object Detection
-  // List of object tags in the same order of the file uploaded to the limelight
-  public static enum ObjectObservationType {
-    ALGAE,
-    NOTE
-  }
-
-  public static final DoubleBinaryOperator distanceEquationNote = (x, y) -> x;
 }

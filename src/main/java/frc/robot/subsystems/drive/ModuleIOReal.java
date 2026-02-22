@@ -81,8 +81,6 @@ public class ModuleIOReal implements ModuleIO {
   private final StatusSignal<Current> turnTorqueCurrent;
   private final StatusSignal<Temperature> turnTempCelsius;
 
-  // private final StatusSignal<Boolean> turnEncoderSyncStickyFault;
-
   public ModuleIOReal(ModuleConfig constants) {
     driveTalon = new TalonFX(constants.driveMotorId(), DriveConstants.canBus);
     turnTalon = new TalonFX(constants.turnMotorId(), DriveConstants.canBus);
@@ -97,7 +95,6 @@ public class ModuleIOReal implements ModuleIO {
     driveConfig.CurrentLimits.StatorCurrentLimit = DriveConstants.driveStatorCurrentLimitAmps;
     driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     driveConfig.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.02;
-
     driveConfig.MotorOutput.Inverted =
         constants.driveInverted()
             ? InvertedValue.Clockwise_Positive
@@ -151,7 +148,6 @@ public class ModuleIOReal implements ModuleIO {
     turnSupplyCurrent = turnTalon.getSupplyCurrent();
     turnTorqueCurrent = turnTalon.getTorqueCurrent();
     turnTempCelsius = turnTalon.getDeviceTemp();
-    // turnEncoderSyncStickyFault = turnTalon.getStickyFault_FusedSensorOutOfSync();
 
     // Create encoder status signals
     turnAbsolutePosition = cancoder.getAbsolutePosition();
@@ -170,7 +166,6 @@ public class ModuleIOReal implements ModuleIO {
         turnAppliedVolts,
         turnSupplyCurrent,
         turnTorqueCurrent,
-        // turnEncoderSyncStickyFault,
         turnMagnetHealth);
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(driveTalon, turnTalon, cancoder));
     PhoenixUtil.registerSignals(
@@ -187,7 +182,6 @@ public class ModuleIOReal implements ModuleIO {
         turnSupplyCurrent,
         turnTorqueCurrent,
         turnTempCelsius,
-        // turnEncoderSyncStickyFault,
         turnAbsolutePosition,
         turnMagnetHealth);
   }

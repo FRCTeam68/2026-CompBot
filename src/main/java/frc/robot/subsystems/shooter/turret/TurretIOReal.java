@@ -112,9 +112,9 @@ public class TurretIOReal implements TurretIO {
                 appliedVoltage,
                 supplyCurrent,
                 torqueCurrent,
-                absolutePosition,
-                magnetHealth));
-    tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon));
+                magnetHealth,
+                absolutePosition));
+    tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon, cancoder));
     PhoenixUtil.registerSignals(
         ShooterConstants.canBus,
         position,
@@ -123,8 +123,8 @@ public class TurretIOReal implements TurretIO {
         supplyCurrent,
         torqueCurrent,
         tempCelsius,
-        absolutePosition,
-        magnetHealth);
+        magnetHealth,
+        absolutePosition);
   }
 
   @Override
@@ -134,7 +134,7 @@ public class TurretIOReal implements TurretIO {
             position, velocity, appliedVoltage, supplyCurrent, torqueCurrent);
     inputs.cancoderConnected = BaseStatusSignal.isAllGood(magnetHealth, absolutePosition);
     inputs.positionDeg = Units.rotationsToDegrees(position.getValueAsDouble());
-    inputs.velocityRotsPerSec = velocity.getValueAsDouble();
+    inputs.velocityDegPerSec = Units.rotationsToDegrees(velocity.getValueAsDouble());
     inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
     inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
     inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();
@@ -167,7 +167,7 @@ public class TurretIOReal implements TurretIO {
   public void setPID(SlotConfigs... newConfig) {
     for (int i = 0; i < Math.min(newConfig.length, 3); i++) {
       /*
-       * TEMPLATE: Optionally add gravity type and static feedforward sign
+       * Optionally add gravity type and static feedforward sign
        * Default gravity type: Elevator_Static
        * Default static feedforward sign: UseVelocitySign
        */

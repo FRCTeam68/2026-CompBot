@@ -15,36 +15,41 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Flywheel extends SubsystemBase {
-  private final FlywheelIO io;
-  protected final FlyWheelIOInputsAutoLogged inputs = new FlyWheelIOInputsAutoLogged();
-  private final Alert leaderDisconnectedAlert =
-      new Alert("Flywheel leader (left) motor disconnected!", AlertType.kError);
-  private final Alert followerDisconnectedAlert =
-      new Alert("Flywheel follower (right) motor disconnected!", AlertType.kError);
-
-  private final Alert leaderTempAlert =
-      new Alert("Flywheel leader (left) motor is too hot.", AlertType.kWarning);
-  private final Alert followerTempAlert =
-      new Alert("Flywheel follower (right) motor is too hot.", AlertType.kWarning);
-
-  private final Debouncer flywheelLeaderDebouncer = new Debouncer(0.5, DebounceType.kRising);
-  private final Debouncer flywheelFollowerDebouncer = new Debouncer(0.5, DebounceType.kRising);
-
+  // PID gains
   private LoggedTunableNumber kP0 = new LoggedTunableNumber("Shooter/Flywheel/Slot0/kP", 20);
   private LoggedTunableNumber kD0 = new LoggedTunableNumber("Shooter/Flywheel/Slot0/kD", 0);
   private LoggedTunableNumber kS0 = new LoggedTunableNumber("Shooter/Flywheel/Slot0/kS", 0);
 
+  // TODO: we shouldn't need mm for the flywheel
+  // Motion magic gains
   private LoggedTunableNumber mmVelocity =
       new LoggedTunableNumber("Shooter/Flywheel/MotionMagic/Velocity", 0);
   private LoggedTunableNumber mmAcceleration =
       new LoggedTunableNumber("Shooter/Flywheel/MotionMagic/Acceleration", 0);
   private LoggedTunableNumber mmJerk =
       new LoggedTunableNumber("Shooter/Flywheel/MotionMagic/Jerk", 0);
+
+  // Setpoint band
   private LoggedTunableNumber setpointBandVelocity =
       new LoggedTunableNumber("Shooter/Flywheel/VelocitySetpointBandPercent", 0.1);
 
-  @Getter private double setpoint = 0.0;
+  // Alerts
+  private final Alert leaderDisconnectedAlert =
+      new Alert("Flywheel leader (left) motor disconnected!", AlertType.kError);
+  private final Alert followerDisconnectedAlert =
+      new Alert("Flywheel follower (right) motor disconnected!", AlertType.kError);
+  private final Alert leaderTempAlert =
+      new Alert("Flywheel leader (left) motor is too hot.", AlertType.kWarning);
+  private final Alert followerTempAlert =
+      new Alert("Flywheel follower (right) motor is too hot.", AlertType.kWarning);
 
+  // Debouncers
+  private final Debouncer leaderConnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
+  private final Debouncer followerConnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
+
+  private final FlywheelIO io;
+  protected final FlyWheelIOInputsAutoLogged inputs = new FlyWheelIOInputsAutoLogged();
+  @Getter private double setpoint = 0.0;
   @Getter private ControlMode mode = ControlMode.Neutral;
 
   public Flywheel(FlywheelIO flywheelIO) {
@@ -57,23 +62,24 @@ public class Flywheel extends SubsystemBase {
     Logger.processInputs("Shooter/Flywheel", inputs);
 
     // Update alerts
-    leaderDisconnectedAlert.set(!flywheelLeaderDebouncer.calculate(inputs.leaderConnected));
-    followerDisconnectedAlert.set(!flywheelFollowerDebouncer.calculate(inputs.followerConnected));
+    leaderDisconnectedAlert.set(!leaderConnectedDebouncer.calculate(inputs.leaderConnected));
+    followerDisconnectedAlert.set(!followerConnectedDebouncer.calculate(inputs.followerConnected));
     leaderTempAlert.set(inputs.leaderTempCelsius > Constants.warningTempCelsius);
     followerTempAlert.set(inputs.followerTempCelsius > Constants.warningTempCelsius);
 
-    // Update logged setpoints
+    // Log setpoint
     Logger.recordOutput(
         "Shooter/Flywheel/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput(
         "Shooter/Flywheel/SetpointVelocityRotsPerSec",
         (mode == ControlMode.Velocity) ? setpoint : 0);
 
-    // Update tunable numbers
+    // Update PID gains
     if (kP0.hasChanged(hashCode()) | kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
       io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
     }
 
+    // Update motion magic gains
     if (mmVelocity.hasChanged(hashCode())
         | mmAcceleration.hasChanged(hashCode())
         | mmJerk.hasChanged(hashCode())) {
@@ -93,7 +99,6 @@ public class Flywheel extends SubsystemBase {
   public void runVolts(double volts) {
     setpoint = volts;
     mode = ControlMode.Voltage;
-
     io.runVolts(volts);
   }
 
@@ -149,11 +154,10 @@ public class Flywheel extends SubsystemBase {
   @AutoLogOutput(key = "Shooter/Flywheel/atSetpoint")
   public boolean atSetpoint() {
     return switch (mode) {
+        // TODO: this is bugged when setpoint is zero
+        // TODO: decide if this should actually be based off percent.
       case Velocity ->
           (getVelocity() == 0.0)
-              // TODO: this can cause a bug if setpoint is zero, but we shouldn't encounter it in a
-              // match.
-              // TODO: decide if this should actually be based off percent.
               ? false
               : Math.abs((setpoint / getVelocity()) - 1) < setpointBandVelocity.get();
       default -> false;

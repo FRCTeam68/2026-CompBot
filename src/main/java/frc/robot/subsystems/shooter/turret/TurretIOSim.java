@@ -42,14 +42,14 @@ public class TurretIOSim implements TurretIO {
 
     inputs.motorConnected = true;
     inputs.cancoderConnected = true;
-    inputs.magnetHealth = MagnetHealthValue.Magnet_Green;
-    inputs.absolutePosition = sim.getAngularPositionRotations();
     inputs.positionDeg = Units.rotationsToDegrees(sim.getAngularPositionRotations());
-    inputs.velocityRotsPerSec = sim.getAngularVelocityRPM() / 60.0;
+    inputs.velocityDegPerSec = Units.rotationsToDegrees(sim.getAngularVelocityRPM() / 60.0);
     inputs.appliedVoltage = appliedVoltage;
     inputs.supplyCurrentAmps = sim.getCurrentDrawAmps();
     inputs.torqueCurrentAmps =
         (appliedVoltage > 0.0) ? sim.getCurrentDrawAmps() * 12.0 / appliedVoltage : 0.0;
+    inputs.magnetHealth = MagnetHealthValue.Magnet_Green;
+    inputs.absolutePosition = sim.getAngularPositionRotations();
   }
 
   @Override
@@ -77,9 +77,7 @@ public class TurretIOSim implements TurretIO {
 
   @Override
   public void setPID(SlotConfigs... newConfig) {
-    for (int i = 0; i < Math.min(newConfig.length, 3); i++) {
-      slotConfigs[i] = newConfig[i];
-    }
+    slotConfigs = newConfig;
   }
 
   private void setInputVoltage(double volts) {
