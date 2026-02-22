@@ -52,7 +52,7 @@ public class Shooter extends SubsystemBase {
         "Shooter/RunStatic",
         Commands.runOnce(
             () -> {
-              RobotSystem.ShooterFunctions.shooterHold = true;
+              RobotSystem.shooterHold = true;
               runStatic(
                   SmartDashboard.getNumber("Shooter/FlywheelVelocity", 0.0),
                   SmartDashboard.getNumber("Shooter/HoodPosition", 0.0),

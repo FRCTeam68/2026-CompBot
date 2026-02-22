@@ -127,29 +127,24 @@ public class RobotContainer {
     operatorController
         .share()
         .onTrue(
-            Commands.runOnce(
-                    () ->
-                        RobotSystem.ShooterFunctions.manualShootToggle =
-                            !RobotSystem.ShooterFunctions.manualShootToggle)
+            Commands.runOnce(() -> RobotSystem.manualShootToggle = !RobotSystem.manualShootToggle)
                 .ignoringDisable(true)
                 .withName("ShooterManuelShootToggle"));
     operatorController
         .R2()
         .onTrue(
-            Commands.runOnce(() -> RobotSystem.ShooterFunctions.shooterHold = true)
+            Commands.runOnce(() -> RobotSystem.shooterHold = true)
                 .ignoringDisable(true)
                 .withName("ShooterHoldTrue"))
         .onFalse(
-            Commands.runOnce(() -> RobotSystem.ShooterFunctions.shooterHold = false)
+            Commands.runOnce(() -> RobotSystem.shooterHold = false)
                 .ignoringDisable(true)
                 .withName("ShooterHoldFalse"));
     driverController.rightTrigger().whileTrue(ShooterCommands.shootLoop(false));
     operatorController
         .PS()
         .onTrue(
-            Commands.runOnce(
-                    () ->
-                        RobotSystem.ShooterFunctions.noPass = !RobotSystem.ShooterFunctions.noPass)
+            Commands.runOnce(() -> RobotSystem.noPass = !RobotSystem.noPass)
                 .ignoringDisable(true)
                 .withName("NoPass"));
 
