@@ -17,31 +17,31 @@ import org.littletonrobotics.junction.Logger;
 public class Flywheel extends SubsystemBase {
   private final FlywheelIO io;
   protected final FlyWheelIOInputsAutoLogged inputs = new FlyWheelIOInputsAutoLogged();
-  private final Alert flywheelLeaderDisconnectedAlert =
-      new Alert("Flywheel(left) disconnected!", AlertType.kError);
-  private final Alert flywheelFollowerDisconnectedAlert =
-      new Alert("Flywheel(right) disconnected!", AlertType.kError);
+  private final Alert leaderDisconnectedAlert =
+      new Alert("Flywheel leader (left) motor disconnected!", AlertType.kError);
+  private final Alert followerDisconnectedAlert =
+      new Alert("Flywheel follower (right) motor disconnected!", AlertType.kError);
 
-  private final Alert flywheelLeaderTempAlert =
-      new Alert("Flywheel(left) is too hot.", AlertType.kWarning);
-  private final Alert flywheelFollowerTempAlert =
-      new Alert("Flywheel(right) is too hot.", AlertType.kWarning);
+  private final Alert leaderTempAlert =
+      new Alert("Flywheel leader (left) motor is too hot.", AlertType.kWarning);
+  private final Alert followerTempAlert =
+      new Alert("Flywheel follower (right) motor is too hot.", AlertType.kWarning);
 
   private final Debouncer flywheelLeaderDebouncer = new Debouncer(0.5, DebounceType.kRising);
   private final Debouncer flywheelFollowerDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Flywheel/Slot0/kP", 0);
-  private LoggedTunableNumber kD0 = new LoggedTunableNumber("Flywheel/Slot0/kD", 0);
-  private LoggedTunableNumber kS0 = new LoggedTunableNumber("Flywheel/Slot0/kS", 0);
+  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Shooter/Flywheel/Slot0/kP", 20);
+  private LoggedTunableNumber kD0 = new LoggedTunableNumber("Shooter/Flywheel/Slot0/kD", 0);
+  private LoggedTunableNumber kS0 = new LoggedTunableNumber("Shooter/Flywheel/Slot0/kS", 0);
 
   private LoggedTunableNumber mmVelocity =
-      new LoggedTunableNumber("Flywheel/MotionMagic/Velocity", 0);
+      new LoggedTunableNumber("Shooter/Flywheel/MotionMagic/Velocity", 0);
   private LoggedTunableNumber mmAcceleration =
-      new LoggedTunableNumber("Flywhee;/MotionMagic/Acceleration", 0);
-  private LoggedTunableNumber mmJerk = new LoggedTunableNumber("Flywheel/MotionMagic/Jerk", 0);
-
+      new LoggedTunableNumber("Shooter/Flywheel/MotionMagic/Acceleration", 0);
+  private LoggedTunableNumber mmJerk =
+      new LoggedTunableNumber("Shooter/Flywheel/MotionMagic/Jerk", 0);
   private LoggedTunableNumber setpointBandVelocity =
-      new LoggedTunableNumber("Flywheel/VelocitySetpointBand", 0);
+      new LoggedTunableNumber("Shooter/Flywheel/VelocitySetpointBandPercent", 0.1);
 
   @Getter private double setpoint = 0.0;
 
@@ -52,26 +52,31 @@ public class Flywheel extends SubsystemBase {
   }
 
   public void periodic() {
+    // Update inputs
     io.updateInputs(inputs);
-    Logger.processInputs("Flywheel", inputs);
-    flywheelLeaderDisconnectedAlert.set(!flywheelLeaderDebouncer.calculate(inputs.leaderConnected));
-    flywheelFollowerDisconnectedAlert.set(
-        !flywheelFollowerDebouncer.calculate(inputs.followerConnected));
-    flywheelLeaderTempAlert.set(inputs.leaderTempCelsius > Constants.warningTempCelsius);
-    flywheelFollowerTempAlert.set(inputs.followerTempCelsius > Constants.warningTempCelsius);
+    Logger.processInputs("Shooter/Flywheel", inputs);
 
-    Logger.recordOutput("Flywheel/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
+    // Update alerts
+    leaderDisconnectedAlert.set(!flywheelLeaderDebouncer.calculate(inputs.leaderConnected));
+    followerDisconnectedAlert.set(!flywheelFollowerDebouncer.calculate(inputs.followerConnected));
+    leaderTempAlert.set(inputs.leaderTempCelsius > Constants.warningTempCelsius);
+    followerTempAlert.set(inputs.followerTempCelsius > Constants.warningTempCelsius);
+
+    // Update logged setpoints
     Logger.recordOutput(
-        "Flywheel/SetpointVelocityRotsPerSec", (mode == ControlMode.Velocity) ? setpoint : 0);
+        "Shooter/Flywheel/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
+    Logger.recordOutput(
+        "Shooter/Flywheel/SetpointVelocityRotsPerSec",
+        (mode == ControlMode.Velocity) ? setpoint : 0);
 
     // Update tunable numbers
-    if (kP0.hasChanged(hashCode()) || kD0.hasChanged(hashCode()) || kS0.hasChanged(hashCode())) {
+    if (kP0.hasChanged(hashCode()) | kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
       io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
     }
 
     if (mmVelocity.hasChanged(hashCode())
-        || mmAcceleration.hasChanged(hashCode())
-        || mmJerk.hasChanged(hashCode())) {
+        | mmAcceleration.hasChanged(hashCode())
+        | mmJerk.hasChanged(hashCode())) {
       io.setMotionMagic(
           new MotionMagicConfigs()
               .withMotionMagicCruiseVelocity(mmVelocity.get())
@@ -81,9 +86,9 @@ public class Flywheel extends SubsystemBase {
   }
 
   /**
-   * Set applied voltage to the motor
+   * Run system at specified voltage.
    *
-   * @param inputVolts Voltage to drive motor at
+   * @param volts Voltage to run the motor at.
    */
   public void runVolts(double volts) {
     setpoint = volts;
@@ -92,56 +97,65 @@ public class Flywheel extends SubsystemBase {
     io.runVolts(volts);
   }
 
+  /**
+   * Run system to specified velocity.
+   *
+   * <p><b>Units:</b> Mechanism rotations per second.
+   *
+   * @param velocity Goal velocity.
+   * @param slot PID gain slot to use during motion.
+   */
   public void runVelocity(double velocity, int slot) {
+    setpoint = velocity;
     mode = ControlMode.Velocity;
-
-    io.runVelocity(velocity, 0);
+    io.runVelocity(velocity, slot);
   }
 
-  /**
-   * Set goal position in mechanism rotations
-   *
-   * @param position Goal position
-   */
-
-  /** Stop motor */
+  /** Stop motor with neutral output. */
   public void stop() {
     mode = ControlMode.Neutral;
-
     io.stop();
   }
 
   /**
-   * Velocity of the mechanism in degrees of elevation per second
+   * Velocity of the system in mechanism rotations per second.
    *
-   * @return Velocity
+   * @return Velocity.
    */
   public double getVelocity() {
     return inputs.velocityRotsPerSec;
   }
 
   /**
-   * Current corresponding to the torque output by the lead motor. Similar to StatorCurrent. Users
-   * will likely prefer this current to calculate the applied torque to the rotor.
+   * Current corresponding to the torque output by the motor. Similar to StatorCurrent. Users will
+   * likely prefer this current to calculate the applied torque to the rotor.
    *
    * <p>Stator current where positive current means torque is applied in the forward direction as
    * determined by the Inverted setting.
    *
-   * @return Lead motor torque current
+   * @return Lead motor torque current.
    */
   public double getTorqueCurrent() {
     return inputs.leaderTorqueCurrentAmps;
   }
 
   /**
-   * Check if mechanism is at goal position with error of setpointBandPosition
+   * Returns true if the percent error is within the tolerance of the setpoint.
    *
-   * @return True if in position control mode and mechanism is at goal position, false otherwise
+   * <p>This will return false when not velocity controlled.
+   *
+   * @return Whether the percent error is within the acceptable bounds.
    */
-  @AutoLogOutput(key = "Flywheel/atSetpoint")
+  @AutoLogOutput(key = "Shooter/Flywheel/atSetpoint")
   public boolean atSetpoint() {
     return switch (mode) {
-      case Velocity -> Math.abs(setpoint - inputs.velocityRotsPerSec) < setpointBandVelocity.get();
+      case Velocity ->
+          (getVelocity() == 0.0)
+              // TODO: this can cause a bug if setpoint is zero, but we shouldn't encounter it in a
+              // match.
+              // TODO: decide if this should actually be based off percent.
+              ? false
+              : Math.abs((setpoint / getVelocity()) - 1) < setpointBandVelocity.get();
       default -> false;
     };
   }

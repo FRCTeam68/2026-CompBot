@@ -70,7 +70,7 @@ public class IntakePivotIOReal implements IntakePivotIO {
 
   public IntakePivotIOReal() {
     talon = new TalonFX(21, canBus);
-    cancoder = new CANcoder(31, canBus);
+    cancoder = new CANcoder(41, canBus);
 
     // Configure Motor
     talonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;

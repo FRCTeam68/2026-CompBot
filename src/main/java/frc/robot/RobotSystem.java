@@ -33,6 +33,7 @@ import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import lombok.Getter;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class RobotSystem {
@@ -46,6 +47,15 @@ public class RobotSystem {
   @Getter private final Shooter shooter;
   @Getter private final RollerSystem spindexer;
   @Getter private final RollerSystem feeder;
+
+  @AutoLogOutput(key = "Shooter/Hold")
+  public static boolean shooterHold = false;
+
+  @AutoLogOutput(key = "Shooter/Toggle")
+  public static boolean manualShootToggle = false;
+
+  @AutoLogOutput(key = "Shooter/NoPass")
+  public static boolean noPass = false;
 
   public RobotSystem() {
     Flywheel flywheel;
@@ -77,7 +87,7 @@ public class RobotSystem {
         //     new RollerSystem(
         //         "spindexer",
         //         new RollerSystemIOTalonFX(
-        //             0,
+        //             23,
         //             CanBusUtil.getCanivoreBus(),
         //             80,
         //             InvertedValue.Clockwise_Positive,
@@ -87,7 +97,7 @@ public class RobotSystem {
         //     new RollerSystem(
         //         "feeder",
         //         new RollerSystemIOTalonFX(
-        //             0,
+        //             24,
         //             CanBusUtil.getCanivoreBus(),
         //             80,
         //             InvertedValue.CounterClockwise_Positive,
@@ -175,7 +185,7 @@ public class RobotSystem {
         feeder = new RollerSystem("feeder", new RollerSystemIO() {});
     }
 
-    shooter = new Shooter(flywheel, hood, turret);
+    shooter = new Shooter(flywheel, hood, turret, drive::getPose, drive::getFieldVelocity);
   }
 
   /**
@@ -200,24 +210,24 @@ public class RobotSystem {
             Rotation3d.kZero));
 
     Logger.recordOutput(
-        "RobotPose/Hood",
-        new Pose3d(
-                -0.2609834506,
-                0.133624955,
-                0.4431027206,
-                new Rotation3d(0, -Units.degreesToRadians(shooter.getHood().getPosition()), 0))
-            .rotateAround(
-                ShooterConstants.shooterPosition,
-                new Rotation3d(
-                    0, 0, Units.rotationsToRadians(shooter.getTurret().getPosition()) + Math.PI)));
-
-    Logger.recordOutput(
         "RobotPose/Turret",
         new Pose3d(
             -0.160018476,
             0.1335875408,
             0,
             new Rotation3d(
-                0, 0, Units.rotationsToRadians(shooter.getTurret().getPosition()) + Math.PI)));
+                0, 0, Units.degreesToRadians(shooter.getTurret().getPosition()) + Math.PI)));
+
+    Logger.recordOutput(
+        "RobotPose/Hood",
+        new Pose3d(
+                -0.2609834506,
+                0.133624955,
+                0.4431027206,
+                new Rotation3d(0, Units.degreesToRadians(shooter.getHood().getElevation()), 0))
+            .rotateAround(
+                ShooterConstants.shooterPosition,
+                new Rotation3d(
+                    0, 0, Units.degreesToRadians(shooter.getTurret().getPosition()) + Math.PI)));
   }
 }

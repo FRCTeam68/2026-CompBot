@@ -17,7 +17,7 @@ public class IntakeCommands {
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getPackaged(), 0), intakePivot),
             Commands.runOnce(() -> intakeSpin.stop(), intakeSpin))
-        .withName("retractIntake");
+        .withName("IntakeRetract");
   }
 
   public static Command intakeOn() {
@@ -25,7 +25,7 @@ public class IntakeCommands {
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
             Commands.runOnce(() -> intakeSpin.runVolts(7), intakeSpin))
-        .withName("intakeOn");
+        .withName("IntakeOn");
   }
 
   public static Command intakeWhile() {
@@ -35,7 +35,7 @@ public class IntakeCommands {
             Commands.runOnce(() -> intakeSpin.runVolts(7), intakeSpin),
             Commands.idle())
         .finallyDo(() -> intakeSpin.stop())
-        .withName("intakeWhile");
+        .withName("IntakeWhile");
   }
 
   public static Command outtake() {
@@ -45,10 +45,10 @@ public class IntakeCommands {
             Commands.runOnce(() -> intakeSpin.runVolts(-7), intakeSpin),
             Commands.idle())
         .finallyDo(() -> intakeSpin.stop())
-        .withName("outtake");
+        .withName("Outtake");
   }
 
   public static Command stop() {
-    return Commands.runOnce(() -> intakeSpin.stop(), intakeSpin);
+    return Commands.runOnce(() -> intakeSpin.stop(), intakeSpin).withName("IntakeSpinStop");
   }
 }

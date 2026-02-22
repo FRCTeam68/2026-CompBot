@@ -3,7 +3,6 @@ package frc.robot.subsystems.shooter.flywheel;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -25,11 +24,11 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.util.PhoenixUtil;
 import lombok.Getter;
 
 public class FlywheelIOReal implements FlywheelIO {
-
   @Getter private static final double reduction = 1;
 
   // Hardware
@@ -37,7 +36,7 @@ public class FlywheelIOReal implements FlywheelIO {
   private final TalonFX followerTalon;
 
   // Configuration
-  private final TalonFXConfiguration leaderConfig = new TalonFXConfiguration();
+  private final TalonFXConfiguration config = new TalonFXConfiguration();
 
   // Status Signals
   private final StatusSignal<Angle> position;
@@ -60,21 +59,21 @@ public class FlywheelIOReal implements FlywheelIO {
   private final NeutralOut neutralOut = new NeutralOut();
 
   public FlywheelIOReal() {
-    leaderTalon = new TalonFX(0, new CANBus("rio"));
-    followerTalon = new TalonFX(0, new CANBus("rio"));
+    leaderTalon = new TalonFX(25, ShooterConstants.canBus);
+    followerTalon = new TalonFX(26, ShooterConstants.canBus);
     followerTalon.setControl(new Follower(leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed));
 
     // Configure Motor
-    leaderConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    leaderConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     // Current limits
-    leaderConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    leaderConfig.CurrentLimits.SupplyCurrentLimit = 80;
-    leaderConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
-    leaderConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 80;
+    config.CurrentLimits.SupplyCurrentLowerTime = 1;
+    config.CurrentLimits.SupplyCurrentLowerLimit = 40;
     // Feedback
-    leaderConfig.Feedback.SensorToMechanismRatio = reduction;
-    tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(leaderConfig, 0.25));
+    config.Feedback.SensorToMechanismRatio = reduction;
+    tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(config, 0.25));
 
     position = leaderTalon.getPosition();
     velocity = leaderTalon.getVelocity();
@@ -98,7 +97,7 @@ public class FlywheelIOReal implements FlywheelIO {
                 leaderTorqueCurrent));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(leaderTalon, followerTalon));
     PhoenixUtil.registerSignals(
-        new CANBus("DRIVEbus"),
+        ShooterConstants.canBus,
         position,
         velocity,
         leaderAppliedVoltage,
@@ -150,12 +149,12 @@ public class FlywheelIOReal implements FlywheelIO {
        */
       SlotConfigs slotConfig = newConfig[i];
       switch (i) {
-        case 0 -> leaderConfig.Slot0 = Slot0Configs.from(slotConfig);
-        case 1 -> leaderConfig.Slot1 = Slot1Configs.from(slotConfig);
-        case 2 -> leaderConfig.Slot2 = Slot2Configs.from(slotConfig);
+        case 0 -> config.Slot0 = Slot0Configs.from(slotConfig);
+        case 1 -> config.Slot1 = Slot1Configs.from(slotConfig);
+        case 2 -> config.Slot2 = Slot2Configs.from(slotConfig);
       }
     }
-    tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(leaderConfig, 0.25));
+    tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(config, 0.25));
   }
 
   @Override

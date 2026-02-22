@@ -29,10 +29,10 @@ public class FlywheelIOSim implements FlywheelIO {
   @Override
   public void updateInputs(FlyWheelIOInputs inputs) {
     if (DriverStation.isDisabled()) {
-      runVolts(0);
+      stop();
     } else {
-      if (mode == ControlMode.Position) {
-        setInputVoltage(controller.calculate(sim.getAngularPositionRotations()));
+      if (mode == ControlMode.Velocity) {
+        setInputVoltage(controller.calculate(sim.getAngularVelocityRPM() / 60.0));
       }
     }
 
@@ -43,9 +43,10 @@ public class FlywheelIOSim implements FlywheelIO {
     inputs.positionRots = sim.getAngularPositionRotations();
     inputs.velocityRotsPerSec = sim.getAngularVelocityRPM() / 60.0;
     inputs.leaderAppliedVoltage = appliedVoltage;
-    inputs.followerAppliedVoltage = appliedVoltage;
+    inputs.followerAppliedVoltage = -appliedVoltage;
     inputs.leaderSupplyCurrentAmps = sim.getCurrentDrawAmps();
-    inputs.leaderTorqueCurrentAmps = sim.getCurrentDrawAmps() * 12.0 / appliedVoltage;
+    inputs.leaderTorqueCurrentAmps =
+        (appliedVoltage > 0.0) ? sim.getCurrentDrawAmps() * 12.0 / appliedVoltage : 0.0;
   }
 
   @Override

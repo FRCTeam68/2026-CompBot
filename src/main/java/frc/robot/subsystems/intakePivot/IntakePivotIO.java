@@ -60,6 +60,10 @@ public interface IntakePivotIO {
    */
   public default void setPID(SlotConfigs... newConfig) {}
 
-  /** Set motion magic configs. */
+  /**
+   * Set motion magic configs.
+   *
+   * @param newConfig Motion magic config
+   */
   public default void setMotionMagic(MotionMagicConfigs newConfig) {}
 }

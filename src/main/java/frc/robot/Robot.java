@@ -53,6 +53,7 @@ public class Robot extends LoggedRobot {
   public Robot() {
     // Record metadata
     Logger.recordMetadata("TuningMode", Boolean.toString(Constants.tuningMode));
+    Logger.recordMetadata("LowCeiling", Boolean.toString(Constants.lowCeiling));
     Logger.recordMetadata("RuntimeType", getRuntimeType().toString());
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -149,6 +150,7 @@ public class Robot extends LoggedRobot {
 
     // Set up auto logging
     AutoLogOutputManager.addObject(new ShiftUtil());
+    AutoLogOutputManager.addObject(new RobotSystem());
 
     // Instantiate our RobotContainer
     robotContainer = new RobotContainer();

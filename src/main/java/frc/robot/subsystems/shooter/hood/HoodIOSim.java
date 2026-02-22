@@ -12,7 +12,7 @@ import frc.robot.Constants;
 import frc.robot.util.PhoenixUtil.ControlMode;
 
 public class HoodIOSim implements HoodIO {
-  private final DCMotor motor = DCMotor.getFalcon500Foc(1);
+  private final DCMotor motor = DCMotor.getKrakenX44Foc(1);
 
   private final DCMotorSim sim;
   private final PIDController controller = new PIDController(0, 0, 0);
@@ -25,12 +25,14 @@ public class HoodIOSim implements HoodIO {
     sim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(motor, .1, HoodIOReal.getReduction()), motor);
+
+    setPosition(Hood.getMaximum());
   }
 
   @Override
   public void updateInputs(HoodIOInputs inputs) {
     if (DriverStation.isDisabled()) {
-      runVolts(0);
+      stop();
     } else {
       if (mode == ControlMode.Position) {
         setInputVoltage(controller.calculate(sim.getAngularPositionRotations()));
@@ -41,12 +43,17 @@ public class HoodIOSim implements HoodIO {
 
     inputs.motorConnected = true;
     inputs.cancoderConnected = true;
-    inputs.positionElvation = sim.getAngularPositionRotations() * 360.0;
-    inputs.velocityDegPerSec = sim.getAngularVelocityRPM() / 60.0 * 360.0;
+    inputs.positionElvation = Units.rotationsToDegrees(sim.getAngularPositionRotations());
+    inputs.velocityDegPerSec = Units.rotationsToDegrees(sim.getAngularVelocityRPM() / 60.0);
     inputs.appliedVoltage = appliedVoltage;
     inputs.supplyCurrentAmps = sim.getCurrentDrawAmps();
-    inputs.torqueCurrentAmps = sim.getCurrentDrawAmps() * 12.0 / appliedVoltage;
-    inputs.absolutePosition = sim.getAngularPositionRotations();
+    inputs.torqueCurrentAmps =
+        (appliedVoltage > 0.0) ? sim.getCurrentDrawAmps() * 12.0 / appliedVoltage : 0.0;
+    inputs.absolutePosition =
+        MathUtil.inputModulus(
+            sim.getAngularPositionRotations() / HoodIOReal.getSensorToMechanismReduction(),
+            0.0,
+            1.0);
   }
 
   @Override
@@ -56,10 +63,10 @@ public class HoodIOSim implements HoodIO {
   }
 
   @Override
-  public void runPosition(double position, int slot) {
+  public void runPosition(double elevation, int slot) {
     mode = ControlMode.Position;
     controller.setPID(slotConfigs[slot].kP, slotConfigs[slot].kI, slotConfigs[slot].kD);
-    controller.setSetpoint(position / 360.0);
+    controller.setSetpoint(Units.degreesToRotations(elevation));
   }
 
   @Override
@@ -68,8 +75,8 @@ public class HoodIOSim implements HoodIO {
   }
 
   @Override
-  public void setPosition(double rotations) {
-    sim.setAngle(Units.rotationsToRadians(rotations));
+  public void setPosition(double elevation) {
+    sim.setAngle(Units.degreesToRadians(elevation));
   }
 
   @Override

@@ -16,11 +16,13 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.IntakeCommands;
+import frc.robot.commands.ShooterCommands;
 import frc.robot.commands.auton.Auton;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intakePivot.IntakePivot;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.ShiftUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
@@ -105,6 +107,39 @@ public class RobotContainer {
                                 new Pose2d(FieldConstants.Hub.nearRightCorner, new Rotation2d())
                                     .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
                         .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
+    shooter.setDefaultCommand(ShooterCommands.runDynamic());
+    operatorController
+        .triangle()
+        .onTrue(ShooterCommands.runStatic(ShooterConstants.StaticShot.hub));
+    operatorController
+        .square()
+        .onTrue(ShooterCommands.runStatic(ShooterConstants.StaticShot.neutralZone));
+    operatorController
+        .circle()
+        .onTrue(ShooterCommands.runStatic(ShooterConstants.StaticShot.oppAllianceZone));
+    operatorController
+        .share()
+        .onTrue(
+            Commands.runOnce(() -> RobotSystem.manualShootToggle = !RobotSystem.manualShootToggle)
+                .ignoringDisable(true)
+                .withName("ShooterManuelShootToggle"));
+    operatorController
+        .R2()
+        .onTrue(
+            Commands.runOnce(() -> RobotSystem.shooterHold = true)
+                .ignoringDisable(true)
+                .withName("ShooterHoldTrue"))
+        .onFalse(
+            Commands.runOnce(() -> RobotSystem.shooterHold = false)
+                .ignoringDisable(true)
+                .withName("ShooterHoldFalse"));
+    driverController.rightTrigger().whileTrue(ShooterCommands.shootLoop(false));
+    operatorController
+        .PS()
+        .onTrue(
+            Commands.runOnce(() -> RobotSystem.noPass = !RobotSystem.noPass)
+                .ignoringDisable(true)
+                .withName("NoPass"));
 
     driverController
         .back()

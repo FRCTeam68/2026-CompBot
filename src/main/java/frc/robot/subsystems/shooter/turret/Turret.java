@@ -2,12 +2,16 @@ package frc.robot.subsystems.shooter.turret;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.Mode;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
 import lombok.Getter;
@@ -15,27 +19,36 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Turret extends SubsystemBase {
+  @Getter private static final double minimum = 0;
+  @Getter private static final double maximum = 360;
+  private static boolean posistionAmbiguous = false;
+  private static final double ambiguousBand = 20;
+
   private final TurretIO io;
   protected final TurretIOInputsAutoLogged inputs = new TurretIOInputsAutoLogged();
 
-  private final Alert turretMotorDisconnectedAlert =
+  private final Alert motorDisconnectedAlert =
       new Alert("Turret motor disconnected!", AlertType.kError);
-  private final Alert turretMotorTempAlert =
-      new Alert("Turret motor is too hot.", AlertType.kWarning);
-  private final Debouncer turretMotorDebouncer = new Debouncer(0.5, DebounceType.kRising);
+  private final Alert turretCancoderDisconnectedAlert =
+      new Alert("Turret cancoder disconnected!", AlertType.kError);
+  private final Alert posistionAmbiguousAlert = new Alert("Posistion ambiguous!", AlertType.kError);
+  private final Alert motorTempAlert = new Alert("Turret motor is too hot.", AlertType.kWarning);
+  private final Debouncer motorDebouncer = new Debouncer(0.5, DebounceType.kRising);
+  private final Debouncer cancoderDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Turret/Slot0/kP", 0);
-  private LoggedTunableNumber kD0 = new LoggedTunableNumber("Turret/Slot0/kD", 0);
-  private LoggedTunableNumber kS0 = new LoggedTunableNumber("Turret/Slot0/kS", 0);
+  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kP", 100);
+  private LoggedTunableNumber kD0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kD", 0);
+  private LoggedTunableNumber kS0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kS", 0);
 
   private LoggedTunableNumber mmVelocity =
-      new LoggedTunableNumber("Turret/MotionMagic/Velocity", 0);
+      new LoggedTunableNumber("Shooter/Turret/MotionMagic/Velocity", 0);
   private LoggedTunableNumber mmAcceleration =
-      new LoggedTunableNumber("Turret/MotionMagic/Acceleration", 0);
-  private LoggedTunableNumber mmJerk = new LoggedTunableNumber("Turret/MotionMagic/Jerk", 0);
+      new LoggedTunableNumber("Shooter/Turret/MotionMagic/Acceleration", 0);
+  private LoggedTunableNumber mmJerk =
+      new LoggedTunableNumber("Shooter/Turret/MotionMagic/Jerk", 0);
 
   private LoggedTunableNumber setpointBandPosition =
-      new LoggedTunableNumber("Turret/PositionSetpointBand", 0);
+      new LoggedTunableNumber("Shooter/Turret/PositionSetpointBand", 10);
 
   @Getter private double setpoint = 0.0;
 
@@ -43,27 +56,42 @@ public class Turret extends SubsystemBase {
 
   public Turret(TurretIO io) {
     this.io = io;
+    if (Constants.getMode() == Mode.REAL) {
+      posistionAmbiguous =
+          getPosition() < ambiguousBand / 2 || getPosition() > 360 - (ambiguousBand / 2);
+    }
+    SmartDashboard.putData(
+        Commands.runOnce(() -> setRotation())
+            .ignoringDisable(true)
+            .withName("Disambiguate Turret"));
   }
 
   public void periodic() {
+    // Update inputs
     io.updateInputs(inputs);
-    Logger.processInputs("Turret", inputs);
-    turretMotorDisconnectedAlert.set(!turretMotorDebouncer.calculate(inputs.connected));
-    turretMotorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
+    Logger.processInputs("Shooter/Turret", inputs);
 
-    Logger.recordOutput("Turret/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
+    // Update alerts
+    motorDisconnectedAlert.set(!motorDebouncer.calculate(inputs.motorConnected));
+    turretCancoderDisconnectedAlert.set(!cancoderDebouncer.calculate(inputs.cancoderConnected));
+    motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
+    posistionAmbiguousAlert.set(posistionAmbiguous);
+
+    // Update logged setpoints
     Logger.recordOutput(
-        "Turret/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
+        "Shooter/Turret/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
+    Logger.recordOutput(
+        "Shooter/Turret/SetpointPositionDeg", (mode == ControlMode.Position) ? setpoint : 0);
 
     // Update tunable numbers
-    if (kP0.hasChanged(hashCode()) || kD0.hasChanged(hashCode()) || kS0.hasChanged(hashCode())) {
+    if (kP0.hasChanged(hashCode()) | kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
 
       io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
     }
 
     if (mmVelocity.hasChanged(hashCode())
-        || mmAcceleration.hasChanged(hashCode())
-        || mmJerk.hasChanged(hashCode())) {
+        | mmAcceleration.hasChanged(hashCode())
+        | mmJerk.hasChanged(hashCode())) {
       io.setMotionMagic(
           new MotionMagicConfigs()
               .withMotionMagicCruiseVelocity(mmVelocity.get())
@@ -73,77 +101,85 @@ public class Turret extends SubsystemBase {
   }
 
   /**
-   * Set applied voltage to the motor
+   * Run system at specified voltage.
    *
-   * @param inputVolts Voltage to drive motor at
+   * @param volts Voltage to run the motor at.
    */
   public void runVolts(double volts) {
     setpoint = volts;
     mode = ControlMode.Voltage;
-    io.runVolts(volts);
+    if (posistionAmbiguous == false) {
+      io.runVolts(volts);
+    }
   }
 
   /**
-   * Set goal position in mechanism rotations
+   * Run system to position.
    *
-   * @param position Goal position
+   * <p><b>Units:</b> Mechanism degrees.
+   *
+   * @param degrees Goal position.
+   * @param slot PID gain slot to use during motion.
    */
-  public void runPosition(double position, int slot) {
+  public void runPosition(double degrees, int slot) {
+    setpoint = MathUtil.inputModulus(degrees, minimum, maximum);
     mode = ControlMode.Position;
-    io.runPosition(position, 0);
+    if (posistionAmbiguous == false) {
+      io.runPosition(setpoint, 0);
+    }
   }
 
-  /** Stop motor */
+  /** Stop motor with neutral output. */
   public void stop() {
     mode = ControlMode.Neutral;
     io.stop();
   }
 
-  /** Set the current mechanism position to zero */
+  /** Set the current mechanism position to zero. */
   public void zero() {
     io.setPosition(0);
   }
 
-  /**
-   * Set the current mechanism position
-   *
-   * @param rotations Position in mechanism rotations
-   */
-  public void setPosition(double rotations) {
-    io.setPosition(rotations);
+  public void setRotation() {
+    if (getPosition() > ambiguousBand / 2 && getPosition() < 360 - (ambiguousBand / 2)) {
+      io.setPosition(MathUtil.inputModulus(getPosition(), 0, 360));
+      posistionAmbiguous = false;
+    }
   }
 
   /**
-   * Position of the mechanism in degrees of elevation
+   * Position of the system in mechanism degrees.
    *
-   * @return Elevation of the wrist
+   * @return Position.
    */
   public double getPosition() {
-    return inputs.positionRots;
+    return inputs.positionDeg;
   }
 
   /**
-   * Current corresponding to the torque output by the lead motor. Similar to StatorCurrent. Users
-   * will likely prefer this current to calculate the applied torque to the rotor.
+   * Current corresponding to the torque output by the motor. Similar to StatorCurrent. Users will
+   * likely prefer this current to calculate the applied torque to the rotor.
    *
    * <p>Stator current where positive current means torque is applied in the forward direction as
    * determined by the Inverted setting.
    *
-   * @return Lead motor torque current
+   * @return Motor torque current.
    */
   public double getTorqueCurrent() {
     return inputs.torqueCurrentAmps;
   }
 
   /**
-   * Check if mechanism is at goal position with error of setpointBandPosition
+   * Returns true if the error is within the tolerance of the setpoint.
    *
-   * @return True if in position control mode and mechanism is at goal position, false otherwise
+   * <p>This will return false when not position controlled.
+   *
+   * @return Whether the error is within the acceptable bounds.
    */
-  @AutoLogOutput(key = "Hood/atSetpoint")
+  @AutoLogOutput(key = "Shooter/Turret/atSetpoint")
   public boolean atSetpoint() {
     return switch (mode) {
-      case Position -> Math.abs(setpoint - inputs.positionRots) < setpointBandPosition.get();
+      case Position -> Math.abs(setpoint - getPosition()) < setpointBandPosition.get();
       default -> false;
     };
   }

@@ -3,7 +3,6 @@ package frc.robot.subsystems.shooter.hood;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -28,19 +27,16 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.util.PhoenixUtil;
 import lombok.Getter;
 
 public class HoodIOReal implements HoodIO {
-  private static final double rotorToSensorReduction = (48.0 / 12.0) * (16.0 / 40.0);
-  private static final double sensorToMechanismReduction = (295.0 / 30.0);
-  @Getter private static final double minimumElevation = 43.364;
-  @Getter private static final double maximumElevation = 73.364;
+  @Getter private static final double rotorToSensorReduction = (48.0 / 12.0) * (16.0 / 40.0);
+  @Getter private static final double sensorToMechanismReduction = (295.0 / 30.0);
 
   @Getter
   private static final double reduction = rotorToSensorReduction * sensorToMechanismReduction;
-
-  private static final CANBus canBus = new CANBus("rio");
 
   // Hardware
   private final TalonFX talon;
@@ -67,8 +63,8 @@ public class HoodIOReal implements HoodIO {
   private final NeutralOut neutralOut = new NeutralOut();
 
   public HoodIOReal() {
-    talon = new TalonFX(0, canBus);
-    cancoder = new CANcoder(1, canBus);
+    talon = new TalonFX(27, ShooterConstants.canBus);
+    cancoder = new CANcoder(28, ShooterConstants.canBus);
 
     // Configure Motor
     talonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -83,10 +79,17 @@ public class HoodIOReal implements HoodIO {
     talonConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     talonConfig.Feedback.RotorToSensorRatio = rotorToSensorReduction;
     talonConfig.Feedback.SensorToMechanismRatio = sensorToMechanismReduction;
+    // Motion Limits
+    talonConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    talonConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Hood.getMaximum();
+    talonConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    talonConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Hood.getMinimum();
+    tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
+
+    // Configure CANcoder
     cancoderConfig.MagnetSensor.MagnetOffset = 0.0;
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
     cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.25;
-    tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
 
     position = talon.getPosition();
@@ -110,7 +113,7 @@ public class HoodIOReal implements HoodIO {
                 absolutePosition));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon, cancoder));
     PhoenixUtil.registerSignals(
-        canBus,
+        ShooterConstants.canBus,
         position,
         velocity,
         appliedVoltage,
@@ -126,8 +129,8 @@ public class HoodIOReal implements HoodIO {
         BaseStatusSignal.isAllGood(
             position, velocity, appliedVoltage, supplyCurrent, torqueCurrent);
     inputs.cancoderConnected = BaseStatusSignal.isAllGood(absolutePosition);
-    inputs.positionElvation = position.getValueAsDouble() * 360.0;
-    inputs.velocityDegPerSec = velocity.getValueAsDouble() * 360.0;
+    inputs.positionElvation = Units.rotationsToDegrees(position.getValueAsDouble());
+    inputs.velocityDegPerSec = Units.rotationsToDegrees(velocity.getValueAsDouble());
     inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
     inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
     inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();
@@ -141,8 +144,8 @@ public class HoodIOReal implements HoodIO {
   }
 
   @Override
-  public void runPosition(double position, int slot) {
-    talon.setControl(positionOut.withPosition(position / 360.0).withSlot(slot));
+  public void runPosition(double elevation, int slot) {
+    talon.setControl(positionOut.withPosition(Units.degreesToRotations(elevation)).withSlot(slot));
   }
 
   @Override
@@ -151,8 +154,8 @@ public class HoodIOReal implements HoodIO {
   }
 
   @Override
-  public void setPosition(double degrees) {
-    talon.setPosition(Units.degreesToRotations(degrees));
+  public void setPosition(double elevation) {
+    talon.setPosition(Units.degreesToRotations(elevation));
   }
 
   @Override
