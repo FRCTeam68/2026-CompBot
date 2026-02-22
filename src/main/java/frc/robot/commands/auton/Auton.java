@@ -11,6 +11,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.RobotSystem;
 import frc.robot.commands.IntakeCommands;
+import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.PathUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
@@ -46,6 +47,7 @@ public class Auton {
 
   public static enum StartingPose {
     Left,
+    Left1,
     Right,
     Center
   }
@@ -67,6 +69,7 @@ public class Auton {
   public static void initDashboardInputs() {
     // Configure starting pose
     autonStartingPose.addOption("Left", Auton.StartingPose.Left);
+    autonStartingPose.addOption("Left1", Auton.StartingPose.Left1);
     autonStartingPose.addOption("Center", Auton.StartingPose.Center);
     autonStartingPose.addOption("Right", Auton.StartingPose.Right);
 
@@ -100,6 +103,9 @@ public class Auton {
     switch (autonStartingPose.get()) {
       case Left:
         return Apollo();
+
+      case Left1:
+        return Apollo1();
 
       case Center:
         return Terra();
@@ -189,6 +195,49 @@ public class Auton {
         .withName("Auton_Apollo");
   }
 
+  private static Command Apollo1() {
+    return new DeferredCommand(
+            () -> {
+              Command myCommand1;
+              Command myCommand2;
+
+              myCommand1 =
+                  Commands.sequence(
+                      Commands.parallel(
+                          PathUtil.followPath("Left Trench A1"),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                      PathUtil.followPath("Left Trench A2"),
+                      IntakeCommands.stop(),
+                      PathUtil.followPath("Left Trench B1"),
+                      ShooterCommands.shootLoop(false).withTimeout(3.0));
+
+              if (autonDepot.get()) {
+                myCommand2 =
+                    Commands.sequence(
+                        PathUtil.followPath("Left Depot1"),
+                        Commands.parallel(
+                            PathUtil.followPath("Left Depot2"),
+                            IntakeCommands.intakeOn(),
+                            ShooterCommands.shootLoop(false).withTimeout(5.0)),
+                        IntakeCommands.stop());
+              } else {
+                myCommand2 =
+                    Commands.sequence(
+                        Commands.parallel(
+                            PathUtil.followPath("Left Trench C1"),
+                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                        IntakeCommands.stop(),
+                        PathUtil.followPath("Left Trench D1"),
+                        ShooterCommands.shootLoop(false).withTimeout(5.0),
+                        IntakeCommands.stop());
+              }
+
+              return myCommand1.andThen(myCommand2);
+            },
+            Set.of(drive))
+        .withName("Auton_Apollo1");
+  }
+
   private static Command Neptune() {
     return new DeferredCommand(
             () -> {
@@ -235,6 +284,9 @@ public class Auton {
     switch (autonStartingPose.get()) {
       case Left:
         return AllianceFlipUtil.apply(PathUtil.getStartingPose("Left Trench A"));
+
+      case Left1:
+        return AllianceFlipUtil.apply(PathUtil.getStartingPose("Left Trench A1"));
 
       case Center:
         return AllianceFlipUtil.apply(PathUtil.getStartingPose("Center Depot"));
