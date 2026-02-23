@@ -7,11 +7,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.Optional;
 import java.util.function.Supplier;
 import lombok.Getter;
-import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class ShiftUtil {
+public class HubShiftUtil {
   private static Optional<Boolean> blueActiveFirst = Optional.empty();
   private static double teleopStartTime = -1.0;
   private static double prevTeleopStartTime = 0.0;
@@ -43,14 +42,7 @@ public class ShiftUtil {
    * The current shift. Before teleop starts, when not connected to FMS, or if not in practice mode
    * this will return the Transition shift.
    */
-  @AutoLogOutput(key = "Shift/CurrentShift")
-  @Getter
-  private static Shift currentShift = Shift.Transition;
-
-  /** Override hub active status to always be active. This only affects {@link #isHubActive()}. */
-  @AutoLogOutput(key = "Shift/Override")
-  @Setter
-  private static boolean override = false;
+  @Getter private static Shift currentShift = Shift.Transition;
 
   /**
    * Update Shift conditions.
@@ -60,12 +52,15 @@ public class ShiftUtil {
   public static void update() {
     // Read game specific data
     // DriverStation.getGameSpecificMessage() is not cleared when no data is entered
-    blueActiveFirst =
-        switch (DriverStation.getGameSpecificMessage()) {
-          case "R" -> Optional.of(true);
-          case "B" -> Optional.of(false);
-          default -> Optional.empty();
-        };
+    String message = DriverStation.getGameSpecificMessage();
+    if (message.length() > 0) {
+      blueActiveFirst =
+          switch (message.charAt(0)) {
+            case 'R' -> Optional.of(true);
+            case 'B' -> Optional.of(false);
+            default -> Optional.empty();
+          };
+    }
 
     // If conditions have changed
     if (teleopStartTime != prevTeleopStartTime
@@ -105,6 +100,7 @@ public class ShiftUtil {
             nextActiveHub =
                 blueActiveFirst.get() ? Optional.of(Alliance.Blue) : Optional.of(Alliance.Red);
             shiftTime = () -> getTeleopTime().get() - Shift.Shift1.startTime;
+            Logger.recordOutput("HubShift/CurrentShift", "TRANSITION");
             break;
 
           case Shift1:
@@ -113,6 +109,7 @@ public class ShiftUtil {
             nextActiveHub =
                 blueActiveFirst.get() ? Optional.of(Alliance.Red) : Optional.of(Alliance.Blue);
             shiftTime = () -> getTeleopTime().get() - Shift.Shift2.startTime;
+            Logger.recordOutput("HubShift/CurrentShift", "1");
             break;
 
           case Shift2:
@@ -121,6 +118,7 @@ public class ShiftUtil {
             nextActiveHub =
                 blueActiveFirst.get() ? Optional.of(Alliance.Blue) : Optional.of(Alliance.Red);
             shiftTime = () -> getTeleopTime().get() - Shift.Shift3.startTime;
+            Logger.recordOutput("HubShift/CurrentShift", "2");
             break;
 
           case Shift3:
@@ -129,6 +127,7 @@ public class ShiftUtil {
             nextActiveHub =
                 blueActiveFirst.get() ? Optional.of(Alliance.Red) : Optional.of(Alliance.Blue);
             shiftTime = () -> getTeleopTime().get() - Shift.Shift4.startTime;
+            Logger.recordOutput("HubShift/CurrentShift", "3");
             break;
 
           case Shift4:
@@ -136,12 +135,14 @@ public class ShiftUtil {
                 blueActiveFirst.get() ? Optional.of(Alliance.Red) : Optional.of(Alliance.Blue);
             nextActiveHub = Optional.empty();
             shiftTime = () -> getTeleopTime().get() - Shift.EndGame.startTime;
+            Logger.recordOutput("HubShift/CurrentShift", "4");
             break;
 
           case EndGame:
             currentActiveHub = Optional.empty();
             nextActiveHub = Optional.empty();
             shiftTime = () -> Math.max(getTeleopTime().get(), 0.0);
+            Logger.recordOutput("HubShift/CurrentShift", "END GAME");
             break;
         }
       }
@@ -152,8 +153,8 @@ public class ShiftUtil {
       prevBlueActiveFirst = blueActiveFirst;
     }
 
-    // Logging
-    Logger.recordOutput("Shift/ShiftSec", shiftTime.get());
+    // Log shift time
+    Logger.recordOutput("HubShift/ShiftSec", shiftTime.get());
   }
 
   /**
@@ -172,12 +173,11 @@ public class ShiftUtil {
   }
 
   /** Returns true if our hub is currently active. */
-  @AutoLogOutput(key = "Shift/HubActive")
+  @AutoLogOutput(key = "HubShift/HubActive")
   public static boolean isHubActive() {
     return currentActiveHub.isEmpty()
         || (DriverStation.getAlliance().isPresent()
-            && DriverStation.getAlliance().get() == currentActiveHub.get())
-        || override;
+            && DriverStation.getAlliance().get() == currentActiveHub.get());
   }
 
   /**

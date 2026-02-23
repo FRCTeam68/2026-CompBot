@@ -1,0 +1,98 @@
+{
+  "Docking": {
+    "Data": []
+  },
+  "MainWindow": {
+    "GLOBAL": {
+      "font": "Proggy Dotted",
+      "fps": "120",
+      "height": "692",
+      "maximized": "0",
+      "style": "0",
+      "userScale": "2",
+      "width": "1280",
+      "xpos": "-1613",
+      "ypos": "426"
+    }
+  },
+  "Table": {
+    "0x965B9C9E,2": {
+      "Column 0  Width": "130",
+      "Column 1  Weight": "1.0000",
+      "RefScale": "13"
+    },
+    "0xE56EC1C2,4": {
+      "Column 0  Weight": "1.0000",
+      "Column 1  Weight": "1.0000",
+      "Column 2  Weight": "1.0000",
+      "Column 3  Weight": "1.0000"
+    }
+  },
+  "Window": {
+    "###/AdvantageKit/RealOutputs/Alerts": {
+      "Collapsed": "0",
+      "Pos": "905,23",
+      "Size": "369,419"
+    },
+    "###/FMSInfo": {
+      "Collapsed": "0",
+      "Pos": "157,63",
+      "Size": "169,167"
+    },
+    "###FMS": {
+      "Collapsed": "0",
+      "Pos": "6,24",
+      "Size": "283,140"
+    },
+    "###Joysticks": {
+      "Collapsed": "0",
+      "Pos": "205,446",
+      "Size": "796,240"
+    },
+    "###Keyboard 0 Settings": {
+      "Collapsed": "0",
+      "Pos": "10,50",
+      "Size": "300,560"
+    },
+    "###NetworkTables": {
+      "Collapsed": "0",
+      "Pos": "186,171",
+      "Size": "712,270"
+    },
+    "###NetworkTables Info": {
+      "Collapsed": "0",
+      "Pos": "295,24",
+      "Size": "603,140"
+    },
+    "###Other Devices": {
+      "Collapsed": "0",
+      "Pos": "1025,20",
+      "Size": "242,231"
+    },
+    "###RoboRIO": {
+      "Collapsed": "0",
+      "Pos": "5,125",
+      "Size": "193,192"
+    },
+    "###System Joysticks": {
+      "Collapsed": "0",
+      "Pos": "7,468",
+      "Size": "192,218"
+    },
+    "###Timing": {
+      "Collapsed": "0",
+      "Pos": "7,335",
+      "Size": "141,127"
+    },
+    "Debug##Default": {
+      "Collapsed": "0",
+      "Pos": "60,60",
+      "Size": "400,400"
+    },
+    "Robot State": {
+      "Collapsed": "0",
+      "Pos": "7,213",
+      "Size": "99,116"
+    }
+  }
+}

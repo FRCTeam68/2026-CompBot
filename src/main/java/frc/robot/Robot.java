@@ -15,9 +15,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.auton.Auton;
 import frc.robot.util.CanBusUtil;
+import frc.robot.util.ElasticUtil;
+import frc.robot.util.HubShiftUtil;
 import frc.robot.util.LoggedTracer;
 import frc.robot.util.PhoenixUtil;
-import frc.robot.util.ShiftUtil;
+import frc.robot.util.geometry.AllianceFlipUtil;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
@@ -149,7 +151,7 @@ public class Robot extends LoggedRobot {
     disabledTimer.restart();
 
     // Set up auto logging
-    AutoLogOutputManager.addObject(new ShiftUtil());
+    AutoLogOutputManager.addObject(new HubShiftUtil());
 
     // Instantiate our RobotContainer
     robotContainer = new RobotContainer();
@@ -168,7 +170,7 @@ public class Robot extends LoggedRobot {
     // Threads.setCurrentThreadPriority(true, 99);
 
     // Update shift conditions
-    ShiftUtil.update();
+    HubShiftUtil.update();
 
     // Refresh all Phoenix signals
     LoggedTracer.reset();
@@ -216,7 +218,7 @@ public class Robot extends LoggedRobot {
         && !DriverStation.isAutonomous()
         && DriverStation.getMatchTime() == 0) robotContainer.saveLimelightRewind();
 
-    // TODO: this should be done in auton init
+    // Set robot pose for auton if in simulation
     Auton.loadStartPoseSim();
   }
 
@@ -230,7 +232,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledExit() {
     // This must be done here to reset time for repeated practice matches
-    ShiftUtil.seedMatchTime();
+    HubShiftUtil.seedMatchTime();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
@@ -240,6 +242,14 @@ public class Robot extends LoggedRobot {
 
     if (autonomousCommand != null) {
       CommandScheduler.getInstance().schedule(autonomousCommand);
+    }
+
+    if (DriverStation.isFMSAttached()) {
+      if (AllianceFlipUtil.shouldFlip()) {
+        ElasticUtil.selectTab("Teleop-Red");
+      } else {
+        ElasticUtil.selectTab("Teleop-Blue");
+      }
     }
   }
 

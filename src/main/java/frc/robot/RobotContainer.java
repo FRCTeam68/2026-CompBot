@@ -23,7 +23,7 @@ import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.util.ShiftUtil;
+import frc.robot.util.HubShiftUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
 
 /**
@@ -53,7 +53,7 @@ public class RobotContainer {
 
   // Triggers
   private final Trigger hubTransitionWarningTrigger =
-      new Trigger(() -> ShiftUtil.hubToActiveWarning(3) || ShiftUtil.hubToInactiveWarning(3));
+      new Trigger(() -> HubShiftUtil.hubToActiveWarning(3) || HubShiftUtil.hubToInactiveWarning(3));
 
   /** The container for the robot. */
   public RobotContainer() {

@@ -4,6 +4,8 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.drive.GyroIO;
@@ -14,6 +16,9 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.intakePivot.IntakePivot;
 import frc.robot.subsystems.intakePivot.IntakePivotIO;
 import frc.robot.subsystems.intakePivot.IntakePivotIOSim;
+import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.lights.LightsIO;
+import frc.robot.subsystems.lights.LightsIOCANdle;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIO;
 import frc.robot.subsystems.rollers.RollerSystemIOSim;
@@ -42,6 +47,7 @@ public class RobotSystem {
   // Subsystems
   @Getter private final Drive drive;
   @Getter private final Vision vision;
+  @Getter private final Lights lights;
   @Getter private final IntakePivot intakePivot;
   @Getter private final RollerSystem intakeSpin;
   @Getter private final Shooter shooter;
@@ -57,6 +63,8 @@ public class RobotSystem {
 
   @AutoLogOutput(key = "Shooter/NoPass")
   public static boolean noPass = false;
+
+  private final Field2d field = new Field2d();
 
   public RobotSystem() {
     Flywheel flywheel;
@@ -80,6 +88,8 @@ public class RobotSystem {
                 drive::getFieldVelocity,
                 new VisionIOLimelight(CameraInfo.LL_4),
                 new VisionIOLimelight(CameraInfo.LL_3G));
+
+        lights = new Lights(new LightsIOCANdle());
 
         // TODO: uncomment real implementation for shooter, spindexer, and feeder. Leave intake
         // simulated until it gets put on the robot.
@@ -144,6 +154,8 @@ public class RobotSystem {
 
         vision = new Vision(drive::addVisionMeasurement, drive::getPose, drive::getFieldVelocity);
 
+        lights = new Lights(new LightsIO() {});
+
         flywheel = new Flywheel(new FlywheelIOSim());
         hood = new Hood(drive::getPose, new HoodIOSim());
         turret = new Turret(new TurretIOSim());
@@ -178,6 +190,8 @@ public class RobotSystem {
                 drive::getFieldVelocity,
                 new VisionIO() {},
                 new VisionIO() {});
+
+        lights = new Lights(new LightsIO() {});
 
         flywheel = new Flywheel(new FlywheelIO() {});
         hood = new Hood(drive::getPose, new HoodIO() {});
@@ -235,5 +249,8 @@ public class RobotSystem {
                 ShooterConstants.shooterPosition,
                 new Rotation3d(
                     0, 0, Units.degreesToRadians(shooter.getTurret().getPosition()) + Math.PI)));
+
+    field.setRobotPose(drive.getPose());
+    SmartDashboard.putData("Field", field);
   }
 }
