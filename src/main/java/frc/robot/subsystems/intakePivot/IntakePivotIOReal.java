@@ -137,7 +137,7 @@ public class IntakePivotIOReal implements IntakePivotIO {
     inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();
     inputs.tempCelsius = tempCelsius.getValueAsDouble();
     inputs.magnetHealth = magnetHealth.getValue();
-    inputs.absolutePositionRots = absolutePosition.getValueAsDouble();
+    inputs.absolutePosition = absolutePosition.getValueAsDouble();
   }
 
   @Override

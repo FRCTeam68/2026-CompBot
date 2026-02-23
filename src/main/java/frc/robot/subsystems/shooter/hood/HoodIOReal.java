@@ -135,7 +135,7 @@ public class HoodIOReal implements HoodIO {
         BaseStatusSignal.isAllGood(
             position, velocity, appliedVoltage, supplyCurrent, torqueCurrent);
     inputs.cancoderConnected = BaseStatusSignal.isAllGood(magnetHealth, absolutePosition);
-    inputs.positionElvation = Units.rotationsToDegrees(position.getValueAsDouble());
+    inputs.positionDeg = Units.rotationsToDegrees(position.getValueAsDouble());
     inputs.velocityDegPerSec = Units.rotationsToDegrees(velocity.getValueAsDouble());
     inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
     inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();

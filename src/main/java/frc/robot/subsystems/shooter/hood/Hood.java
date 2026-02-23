@@ -82,7 +82,7 @@ public class Hood extends SubsystemBase {
     // Log setpoint
     Logger.recordOutput("Shooter/Hood/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput(
-        "Shooter/Hood/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
+        "Shooter/Hood/SetpointPositionDeg", (mode == ControlMode.Position) ? setpoint : 0);
 
     // Run hood if entering/leaving trench box
     if (prevInTrenchBox != inTrenchBox()) {
@@ -152,7 +152,7 @@ public class Hood extends SubsystemBase {
    * @return Elevation.
    */
   public double getElevation() {
-    return inputs.positionElvation;
+    return inputs.positionDeg;
   }
 
   /**

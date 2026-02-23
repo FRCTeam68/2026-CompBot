@@ -9,6 +9,11 @@
       "RoboRIO Input": {
         "open": true
       }
+    },
+    "Timing": {
+      "window": {
+        "visible": false
+      }
     }
   },
   "NTProvider": {
@@ -22,20 +27,17 @@
       "/SmartDashboard/Auton/StartingPose": "String Chooser",
       "/SmartDashboard/Disambiguate Turret": "Command",
       "/SmartDashboard/DisambiguateTurret": "Command",
+      "/SmartDashboard/Feeder/RunVoltage": "Command",
+      "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/IntakePivot/Extend": "Command",
       "/SmartDashboard/IntakePivot/Retract": "Command",
       "/SmartDashboard/IntakePivot/Zero": "Command",
+      "/SmartDashboard/IntakeSpin/RunVoltage": "Command",
       "/SmartDashboard/Move To Starting Pose": "Command",
       "/SmartDashboard/PathPlanner": "Alerts",
       "/SmartDashboard/Shooter/RunStatic": "Command",
+      "/SmartDashboard/Spindexer/RunVoltage": "Command",
       "/SmartDashboard/Vision/SaveRewind": "Command"
-    },
-    "windows": {
-      "/AdvantageKit/RealOutputs/Alerts": {
-        "window": {
-          "visible": true
-        }
-      }
     }
   },
   "NetworkTables": {
@@ -51,7 +53,9 @@
       "Publishers": {
         "open": true
       }
-    },
-    "visible": true
+    }
+  },
+  "NetworkTables View": {
+    "visible": false
   }
 }

@@ -44,7 +44,7 @@ public class HoodIOSim implements HoodIO {
 
     inputs.motorConnected = true;
     inputs.cancoderConnected = true;
-    inputs.positionElvation = Units.rotationsToDegrees(sim.getAngularPositionRotations());
+    inputs.positionDeg = Units.rotationsToDegrees(sim.getAngularPositionRotations());
     inputs.velocityDegPerSec = Units.rotationsToDegrees(sim.getAngularVelocityRPM() / 60.0);
     inputs.appliedVoltage = appliedVoltage;
     inputs.supplyCurrentAmps = sim.getCurrentDrawAmps();
