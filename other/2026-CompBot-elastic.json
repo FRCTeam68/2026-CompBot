@@ -657,7 +657,7 @@
                 }
               },
               {
-                "title": "atSetpoint",
+                "title": "At Setpoint",
                 "x": 224.0,
                 "y": 32.0,
                 "width": 128.0,
@@ -704,7 +704,7 @@
             },
             "children": [
               {
-                "title": "FlywheelVelocity",
+                "title": "Flywheel Velocity",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
@@ -718,7 +718,7 @@
                 }
               },
               {
-                "title": "HoodPosition",
+                "title": "Hood Elevation",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
@@ -732,7 +732,7 @@
                 }
               },
               {
-                "title": "TurretPosition",
+                "title": "Turret Angle",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
@@ -845,7 +845,7 @@
                 }
               },
               {
-                "title": "NoPass",
+                "title": "No Pass",
                 "x": 800.0,
                 "y": 480.0,
                 "width": 128.0,
@@ -862,16 +862,15 @@
                 }
               },
               {
-                "title": "Toggle",
+                "title": "Manual Shoot",
                 "x": 832.0,
                 "y": 480.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Boolean Box",
                 "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/Shooter/Toggle",
+                  "topic": "/AdvantageKit/RealOutputs/Shooter/ManualShoot",
                   "period": 0.06,
-                  "data_type": "boolean",
                   "true_color": 4283215696,
                   "false_color": 4294198070,
                   "true_icon": "None",
@@ -1126,7 +1125,7 @@
             }
           },
           {
-            "title": "FullCycleMS",
+            "title": "Full Cycle MS",
             "x": 1024.0,
             "y": 0.0,
             "width": 512.0,
@@ -1140,6 +1139,23 @@
               "min_value": 0.0,
               "color": 4278238420,
               "line_width": 2.0
+            }
+          },
+          {
+            "title": "In Alliance Zone",
+            "x": 1376.0,
+            "y": 256.0,
+            "width": 160.0,
+            "height": 96.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Drive/inAllianceZone",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
             }
           }
         ]
@@ -1692,7 +1708,7 @@
             }
           },
           {
-            "title": "NoPass",
+            "title": "Shooter No Pass",
             "x": 768.0,
             "y": 0.0,
             "width": 192.0,
@@ -1709,7 +1725,7 @@
             }
           },
           {
-            "title": "Hold",
+            "title": "Shooter Hold",
             "x": 768.0,
             "y": 96.0,
             "width": 192.0,
@@ -1726,16 +1742,15 @@
             }
           },
           {
-            "title": "Toggle",
+            "title": "Manual Shoot",
             "x": 768.0,
             "y": 192.0,
             "width": 192.0,
             "height": 96.0,
             "type": "Boolean Box",
             "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Shooter/Toggle",
+              "topic": "/AdvantageKit/RealOutputs/Shooter/ManualShoot",
               "period": 0.06,
-              "data_type": "boolean",
               "true_color": 4283215696,
               "false_color": 4294198070,
               "true_icon": "None",
@@ -1751,6 +1766,23 @@
             "type": "Boolean Box",
             "properties": {
               "topic": "/AdvantageKit/RealOutputs/Shooter/Hood/InTrenchBox",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "In Alliance Zone",
+            "x": 768.0,
+            "y": 384.0,
+            "width": 192.0,
+            "height": 96.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Drive/inAllianceZone",
               "period": 0.06,
               "data_type": "boolean",
               "true_color": 4283215696,

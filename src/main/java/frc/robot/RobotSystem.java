@@ -234,21 +234,20 @@ public class RobotSystem {
         new Pose3d(
             -0.160018476,
             0.1335875408,
-            0,
-            new Rotation3d(
-                0, 0, Units.degreesToRadians(shooter.getTurret().getPosition()) + Math.PI)));
+            0.0,
+            new Rotation3d(0.0, 0.0, Units.degreesToRadians(shooter.getTurret().getPosition()))));
 
     Logger.recordOutput(
         "RobotPose/3_Hood",
         new Pose3d(
-                -0.2609834506,
-                0.133624955,
+                -0.059053476,
+                0.1335875408,
                 0.4431027206,
-                new Rotation3d(0, Units.degreesToRadians(shooter.getHood().getElevation()), 0))
+                new Rotation3d(0.0, -Units.degreesToRadians(shooter.getHood().getElevation()), 0.0))
             .rotateAround(
                 ShooterConstants.shooterPosition,
                 new Rotation3d(
-                    0, 0, Units.degreesToRadians(shooter.getTurret().getPosition()) + Math.PI)));
+                    0.0, 0.0, Units.degreesToRadians(shooter.getTurret().getPosition()))));
 
     field.setRobotPose(drive.getPose());
     SmartDashboard.putData("Field", field);

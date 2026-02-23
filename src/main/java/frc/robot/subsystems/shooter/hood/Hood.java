@@ -24,8 +24,8 @@ import org.littletonrobotics.junction.Logger;
 
 public class Hood extends SubsystemBase {
   // Positions
-  @Getter private static final double minimum = 53.368453;
-  @Getter private static final double maximum = 79.368453;
+  @Getter private static final double maximum = 72;
+  @Getter private static final double minimum = maximum - 26;
   @Getter private static final double underTrenchMinimum = maximum - 9;
 
   // PID gains
