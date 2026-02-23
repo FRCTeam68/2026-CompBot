@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.ShooterCommands;
 import frc.robot.commands.auton.Auton;
 import frc.robot.util.CanBusUtil;
 import frc.robot.util.ElasticUtil;
@@ -152,6 +153,7 @@ public class Robot extends LoggedRobot {
 
     // Set up auto logging
     AutoLogOutputManager.addObject(new HubShiftUtil());
+    AutoLogOutputManager.addObject(new ShooterCommands());
 
     // Instantiate our RobotContainer
     robotContainer = new RobotContainer();
@@ -233,6 +235,8 @@ public class Robot extends LoggedRobot {
   public void disabledExit() {
     // This must be done here to reset time for repeated practice matches
     HubShiftUtil.seedMatchTime();
+
+    // TODO: set shooter hold setpoint to false
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */

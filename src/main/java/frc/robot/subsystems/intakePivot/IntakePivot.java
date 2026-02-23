@@ -4,6 +4,7 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -21,6 +22,7 @@ public class IntakePivot extends SubsystemBase {
   @Getter private static final double packaged = 0;
   @Getter private static final double extended = 0.23;
   @Getter private static final double inBumperMaximum = 0.1;
+  @Getter private static final double intakeForwardExtension = Units.inchesToMeters(25.32);
 
   // PID gains
   private final LoggedTunableNumber kP0 = new LoggedTunableNumber("IntakePivot/Slot0/kP", 10);
