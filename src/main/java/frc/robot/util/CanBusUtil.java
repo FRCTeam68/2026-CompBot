@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
+import frc.robot.Constants.Mode;
 import org.littletonrobotics.junction.Logger;
 
 public class CanBusUtil {
@@ -29,55 +30,57 @@ public class CanBusUtil {
   private static CanBusReader canivoreReader;
 
   public static void logStatus() {
-    // Check CAN status
-    var canStatus = RobotController.getCANStatus();
-    if (canStatus.transmitErrorCount > 0 || canStatus.receiveErrorCount > 0) {
-      canErrorTimer.restart();
-    }
-    canErrorAlert.set(
-        !canErrorTimer.hasElapsed(canErrorTimeThreshold)
-            && !canInitialErrorTimer.hasElapsed(canErrorTimeThreshold));
-
-    // Log rioBus status
-    if (Constants.getMode() == Constants.Mode.REAL) {
-      if (rioBus != null) {
-        var rioStatus = rioReader.getStatus();
-        if (rioStatus.isPresent()) {
-          Logger.recordOutput("RioStatus/Status", rioStatus.get().Status.getName());
-          Logger.recordOutput("RioStatus/Utilization", rioStatus.get().BusUtilization);
-          Logger.recordOutput("RioStatus/OffCount", rioStatus.get().BusOffCount);
-          Logger.recordOutput("RioStatus/TxFullCount", rioStatus.get().TxFullCount);
-          Logger.recordOutput("RioStatus/ReceiveErrorCount", rioStatus.get().REC);
-          Logger.recordOutput("RioStatus/TransmitErrorCount", rioStatus.get().TEC);
-          if (!rioStatus.get().Status.isOK()
-              || canStatus.transmitErrorCount > 0
-              || canStatus.receiveErrorCount > 0) {
-            rioErrorTimer.restart();
-          }
-        }
-        rioErrorAlert.set(
-            !rioErrorTimer.hasElapsed(rioErrorTimeThreshold)
-                && !canInitialErrorTimer.hasElapsed(canErrorTimeThreshold));
+    if (Constants.getMode() != Mode.SIM) {
+      // Check CAN status
+      var canStatus = RobotController.getCANStatus();
+      if (canStatus.transmitErrorCount > 0 || canStatus.receiveErrorCount > 0) {
+        canErrorTimer.restart();
       }
+      canErrorAlert.set(
+          !canErrorTimer.hasElapsed(canErrorTimeThreshold)
+              && !canInitialErrorTimer.hasElapsed(canErrorTimeThreshold));
 
-      if (canivoreBus != null) {
-        var canivoreStatus = canivoreReader.getStatus();
-        if (canivoreStatus.isPresent()) {
-          Logger.recordOutput("CANivoreStatus/Status", canivoreStatus.get().Status.getName());
-          Logger.recordOutput("CANivoreStatus/Utilization", canivoreStatus.get().BusUtilization);
-          Logger.recordOutput("CANivoreStatus/OffCount", canivoreStatus.get().BusOffCount);
-          Logger.recordOutput("CANivoreStatus/TxFullCount", canivoreStatus.get().TxFullCount);
-          Logger.recordOutput("CANivoreStatus/ReceiveErrorCount", canivoreStatus.get().REC);
-          Logger.recordOutput("CANivoreStatus/TransmitErrorCount", canivoreStatus.get().TEC);
-          if (!canivoreStatus.get().Status.isOK()
-              || canStatus.transmitErrorCount > 0
-              || canStatus.receiveErrorCount > 0) {
-            canivoreErrorTimer.restart();
+      // Log rioBus status
+      if (Constants.getMode() == Constants.Mode.REAL) {
+        if (rioBus != null) {
+          var rioStatus = rioReader.getStatus();
+          if (rioStatus.isPresent()) {
+            Logger.recordOutput("RioStatus/Status", rioStatus.get().Status.getName());
+            Logger.recordOutput("RioStatus/Utilization", rioStatus.get().BusUtilization);
+            Logger.recordOutput("RioStatus/OffCount", rioStatus.get().BusOffCount);
+            Logger.recordOutput("RioStatus/TxFullCount", rioStatus.get().TxFullCount);
+            Logger.recordOutput("RioStatus/ReceiveErrorCount", rioStatus.get().REC);
+            Logger.recordOutput("RioStatus/TransmitErrorCount", rioStatus.get().TEC);
+            if (!rioStatus.get().Status.isOK()
+                || canStatus.transmitErrorCount > 0
+                || canStatus.receiveErrorCount > 0) {
+              rioErrorTimer.restart();
+            }
           }
+          rioErrorAlert.set(
+              !rioErrorTimer.hasElapsed(rioErrorTimeThreshold)
+                  && !canInitialErrorTimer.hasElapsed(canErrorTimeThreshold));
         }
-        canivoreErrorAlert.set(
-            !canivoreErrorTimer.hasElapsed(canivoreErrorTimeThreshold)
-                && !canInitialErrorTimer.hasElapsed(canErrorTimeThreshold));
+
+        if (canivoreBus != null) {
+          var canivoreStatus = canivoreReader.getStatus();
+          if (canivoreStatus.isPresent()) {
+            Logger.recordOutput("CANivoreStatus/Status", canivoreStatus.get().Status.getName());
+            Logger.recordOutput("CANivoreStatus/Utilization", canivoreStatus.get().BusUtilization);
+            Logger.recordOutput("CANivoreStatus/OffCount", canivoreStatus.get().BusOffCount);
+            Logger.recordOutput("CANivoreStatus/TxFullCount", canivoreStatus.get().TxFullCount);
+            Logger.recordOutput("CANivoreStatus/ReceiveErrorCount", canivoreStatus.get().REC);
+            Logger.recordOutput("CANivoreStatus/TransmitErrorCount", canivoreStatus.get().TEC);
+            if (!canivoreStatus.get().Status.isOK()
+                || canStatus.transmitErrorCount > 0
+                || canStatus.receiveErrorCount > 0) {
+              canivoreErrorTimer.restart();
+            }
+          }
+          canivoreErrorAlert.set(
+              !canivoreErrorTimer.hasElapsed(canivoreErrorTimeThreshold)
+                  && !canInitialErrorTimer.hasElapsed(canErrorTimeThreshold));
+        }
       }
     }
   }

@@ -24,8 +24,8 @@ import org.littletonrobotics.junction.Logger;
 
 public class Hood extends SubsystemBase {
   // Positions
-  @Getter private static final double minimum = 53.368453;
-  @Getter private static final double maximum = 79.368453;
+  @Getter private static final double maximum = 72;
+  @Getter private static final double minimum = maximum - 26;
   @Getter private static final double underTrenchMinimum = maximum - 9;
 
   // PID gains
@@ -82,7 +82,7 @@ public class Hood extends SubsystemBase {
     // Log setpoint
     Logger.recordOutput("Shooter/Hood/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput(
-        "Shooter/Hood/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
+        "Shooter/Hood/SetpointPositionDeg", (mode == ControlMode.Position) ? setpoint : 0);
 
     // Run hood if entering/leaving trench box
     if (prevInTrenchBox != inTrenchBox()) {
@@ -152,7 +152,7 @@ public class Hood extends SubsystemBase {
    * @return Elevation.
    */
   public double getElevation() {
-    return inputs.positionElvation;
+    return inputs.positionDeg;
   }
 
   /**

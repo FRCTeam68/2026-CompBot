@@ -329,6 +329,7 @@ public class Drive extends SubsystemBase {
    * Returns if the bumpers are in the alliance zone. This check is approximate and does not take
    * into account the chassis rotation.
    */
+  @AutoLogOutput(key = "Drive/inAllianceZone")
   public boolean inAllianceZone() {
     return AllianceFlipUtil.applyX(getPose().getX())
         < FieldConstants.LinesVertical.allianceZone + Units.inchesToMeters(23.5);

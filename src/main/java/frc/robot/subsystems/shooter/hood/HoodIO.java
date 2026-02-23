@@ -10,7 +10,7 @@ public interface HoodIO {
   static class HoodIOInputs {
     public boolean motorConnected = false;
     public boolean cancoderConnected = false;
-    public double positionElvation = 0.0;
+    public double positionDeg = 0.0;
     public double velocityDegPerSec = 0.0;
     public double appliedVoltage = 0.0;
     public double supplyCurrentAmps = 0.0;

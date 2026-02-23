@@ -170,7 +170,7 @@ out/
 
 # Simulation GUI and other tools window save file
 networktables.json
-/simgui*.json
+simgui*.json
 *-window.json
 
 # Simulation data log directory
@@ -188,3 +188,6 @@ compile_commands.json
 
 # Version file
 src/main/java/frc/robot/BuildConstants.java
+
+# Avoid ignoring other files folder
+!other/**

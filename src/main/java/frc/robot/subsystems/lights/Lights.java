@@ -22,19 +22,22 @@ import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
 public class Lights extends SubsystemBase {
-  private final LightsIO io;
-  protected final LightsIOInputsAutoLogged inputs = new LightsIOInputsAutoLogged();
-
-  private final Debouncer connectedDebouncer = new Debouncer(0.5, DebounceType.kFalling);
+  // Default values
+  @Getter private static final double onboardLEDBrightness = 0.5;
+  private final LoggedTunableNumber defaultAnimationSpeed =
+      new LoggedTunableNumber("CANdle/Default Animation Speed", 200);
 
   // Alerts
   private final Alert disconnectedAlert =
       new Alert("CANdle disconnected.", Alert.AlertType.kWarning);
 
-  // Default values
-  @Getter private static final double onboardLEDBrightness = 0.5;
-  private final LoggedTunableNumber defaultAnimationSpeed =
-      new LoggedTunableNumber("CANdle/Default Animation Speed", 200);
+  // Debouncers
+  private final Debouncer connectedDebouncer = new Debouncer(0.5, DebounceType.kFalling);
+
+  // Sources
+
+  private final LightsIO io;
+  protected final LightsIOInputsAutoLogged inputs = new LightsIOInputsAutoLogged();
 
   public Lights(LightsIO io) {
     this.io = io;

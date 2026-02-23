@@ -17,7 +17,7 @@ public interface IntakePivotIO {
     public double torqueCurrentAmps = 0.0;
     public double tempCelsius = 0.0;
     public MagnetHealthValue magnetHealth = MagnetHealthValue.Magnet_Invalid;
-    public double absolutePositionRots = 0.0;
+    public double absolutePosition = 0.0;
   }
 
   default void updateInputs(IntakePivotIOInputs inputs) {}

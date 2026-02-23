@@ -4,6 +4,8 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import lombok.Getter;
@@ -53,6 +55,13 @@ public class RollerSystem extends SubsystemBase {
       loggerKey =
           loggerKey.concat(nameSplit.substring(0, 1).toUpperCase().concat(nameSplit.substring(1)));
     }
+
+    // Configure dashboard
+    SmartDashboard.putNumber(loggerKey + "/Voltage", 0.0);
+    SmartDashboard.putData(
+        loggerKey + "/RunVoltage",
+        Commands.runOnce(
+            () -> runVolts(SmartDashboard.getNumber(loggerKey + "/Voltage", 0.0)), this));
   }
 
   public void periodic() {
