@@ -19,6 +19,7 @@ import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MagnetHealthValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.util.Units;
@@ -45,6 +46,7 @@ public class HoodIOReal implements HoodIO {
   // Configuration
   private final TalonFXConfiguration talonConfig = new TalonFXConfiguration();
   private final CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
+
   // Status Signals
   private final StatusSignal<Angle> position;
   private final StatusSignal<AngularVelocity> velocity;
@@ -52,6 +54,7 @@ public class HoodIOReal implements HoodIO {
   private final StatusSignal<Current> supplyCurrent;
   private final StatusSignal<Current> torqueCurrent;
   private final StatusSignal<Temperature> tempCelsius;
+  private final StatusSignal<MagnetHealthValue> magnetHealth;
   private final StatusSignal<Angle> absolutePosition;
 
   // Control requests
@@ -66,7 +69,7 @@ public class HoodIOReal implements HoodIO {
     talon = new TalonFX(27, ShooterConstants.canBus);
     cancoder = new CANcoder(28, ShooterConstants.canBus);
 
-    // Configure Motor
+    // Motor output
     talonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     talonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     // Current limits
@@ -86,7 +89,7 @@ public class HoodIOReal implements HoodIO {
     talonConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Hood.getMinimum();
     tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
 
-    // Configure CANcoder
+    // CANcoder
     cancoderConfig.MagnetSensor.MagnetOffset = 0.0;
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
     cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.25;
@@ -98,6 +101,7 @@ public class HoodIOReal implements HoodIO {
     supplyCurrent = talon.getSupplyCurrent();
     torqueCurrent = talon.getTorqueCurrent();
     tempCelsius = talon.getDeviceTemp();
+    magnetHealth = cancoder.getMagnetHealth();
     absolutePosition = cancoder.getAbsolutePosition();
 
     tryUntilOk(
@@ -110,6 +114,7 @@ public class HoodIOReal implements HoodIO {
                 appliedVoltage,
                 supplyCurrent,
                 torqueCurrent,
+                magnetHealth,
                 absolutePosition));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon, cancoder));
     PhoenixUtil.registerSignals(
@@ -120,6 +125,7 @@ public class HoodIOReal implements HoodIO {
         supplyCurrent,
         torqueCurrent,
         tempCelsius,
+        magnetHealth,
         absolutePosition);
   }
 
@@ -128,13 +134,14 @@ public class HoodIOReal implements HoodIO {
     inputs.motorConnected =
         BaseStatusSignal.isAllGood(
             position, velocity, appliedVoltage, supplyCurrent, torqueCurrent);
-    inputs.cancoderConnected = BaseStatusSignal.isAllGood(absolutePosition);
-    inputs.positionElvation = Units.rotationsToDegrees(position.getValueAsDouble());
+    inputs.cancoderConnected = BaseStatusSignal.isAllGood(magnetHealth, absolutePosition);
+    inputs.positionDeg = Units.rotationsToDegrees(position.getValueAsDouble());
     inputs.velocityDegPerSec = Units.rotationsToDegrees(velocity.getValueAsDouble());
     inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
     inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
     inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();
     inputs.tempCelsius = tempCelsius.getValueAsDouble();
+    inputs.magnetHealth = magnetHealth.getValue();
     inputs.absolutePosition = absolutePosition.getValueAsDouble();
   }
 
@@ -162,7 +169,7 @@ public class HoodIOReal implements HoodIO {
   public void setPID(SlotConfigs... newConfig) {
     for (int i = 0; i < Math.min(newConfig.length, 3); i++) {
       /*
-       * TEMPLATE: Optionally add gravity type and static feedforward sign
+       * Optionally add gravity type and static feedforward sign
        * Default gravity type: Elevator_Static
        * Default static feedforward sign: UseVelocitySign
        */

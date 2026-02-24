@@ -3,7 +3,6 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
-import frc.robot.subsystems.vision.VisionConstants.ObjectObservationType;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -12,14 +11,14 @@ public interface VisionIO {
   public static class VisionIOInputs {
     public boolean connected = false;
     public int pipelineIndex = 0;
+    public double cpuTempCelsius = 0.0;
+    public double cpuUsage = 0.0;
     public double ramUsage = 0.0;
-    public double cpuTemperature = 0.0;
-    public double Temperature = 0.0;
+    public double fps = 0.0;
     public TargetObservation latestTargetObservation =
         new TargetObservation(Rotation2d.kZero, Rotation2d.kZero);
     public PoseObservation[] poseObservations = new PoseObservation[0];
     public int[] tagIds = new int[0];
-    public ObjectObservation[] objectObservations = new ObjectObservation[0];
   }
 
   /** Represents the angle to a simple target, not used for pose estimation. */
@@ -38,14 +37,6 @@ public interface VisionIO {
     MEGATAG_1,
     MEGATAG_2
   }
-
-  /** Represents an object sample. */
-  public static record ObjectObservation(
-      double txCenterDeg,
-      double tyCenterDeg,
-      double widthPixels,
-      double heightPixels,
-      ObjectObservationType type) {}
 
   /**
    * Initalize robot rotation supplier. This must be called once for every camera to get accurate

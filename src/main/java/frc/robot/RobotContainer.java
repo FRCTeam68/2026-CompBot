@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -24,7 +23,7 @@ import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.util.ShiftUtil;
+import frc.robot.util.HubShiftUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
 
 /**
@@ -54,30 +53,27 @@ public class RobotContainer {
 
   // Triggers
   private final Trigger hubTransitionWarningTrigger =
-      new Trigger(() -> ShiftUtil.hubToActiveWarning(3) || ShiftUtil.hubToInactiveWarning(3));
+      new Trigger(() -> HubShiftUtil.hubToActiveWarning(3) || HubShiftUtil.hubToInactiveWarning(3));
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  /** The container for the robot. */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
 
-    // Configure dashboard
-    SmartDashboard.putData(
-        "Move To Starting Pose",
-        Commands.runOnce(() -> Commands.none()).andThen(() -> stopSubsystems()));
-
+    // Configure auton dashboard buttons
     Auton.initDashboardInputs();
   }
 
   /** Use this method to define button -> command mappings. */
   private void configureButtonBindings() {
-    // Default command, normal field-relative drive
+    // Default drive command, normal field-relative drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             () -> -driverController.getLeftY(),
             () -> -driverController.getLeftX(),
             () -> -driverController.getRightX()));
 
+    // Drive
     driverController
         .povUp()
         .onTrue(
@@ -87,6 +83,7 @@ public class RobotContainer {
                         AllianceFlipUtil.apply(
                             FieldConstants.Hub.nearFace.transformBy(
                                 new Transform2d(2.0, 0.0, Rotation2d.kPi))))));
+
     driverController
         .povLeft()
         .onTrue(
@@ -97,8 +94,9 @@ public class RobotContainer {
                                 new Pose2d(FieldConstants.Hub.nearLeftCorner, new Rotation2d())
                                     .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
                         .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
+
     driverController
-        .povDown()
+        .povRight()
         .onTrue(
             DriveCommands.autopilotDriveToPose(
                 () ->
@@ -107,40 +105,58 @@ public class RobotContainer {
                                 new Pose2d(FieldConstants.Hub.nearRightCorner, new Rotation2d())
                                     .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
                         .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
-    shooter.setDefaultCommand(ShooterCommands.runDynamic());
+
+    driverController.povDown().whileTrue(DriveCommands.autopilotDriveToHubArc());
+
+    // Intake
+    driverController.leftTrigger().whileTrue(IntakeCommands.intakeWhile());
+
+    driverController.b().whileTrue(IntakeCommands.outtake());
+
+    driverController.leftBumper().onTrue(IntakeCommands.retract());
+
+    // Shooter
+    driverController.rightTrigger().whileTrue(ShooterCommands.shootAutomatic());
+
     operatorController
         .triangle()
         .onTrue(ShooterCommands.runStatic(ShooterConstants.StaticShot.hub));
+
     operatorController
         .square()
         .onTrue(ShooterCommands.runStatic(ShooterConstants.StaticShot.neutralZone));
+
     operatorController
         .circle()
         .onTrue(ShooterCommands.runStatic(ShooterConstants.StaticShot.oppAllianceZone));
-    operatorController
-        .share()
-        .onTrue(
-            Commands.runOnce(() -> RobotSystem.manualShootToggle = !RobotSystem.manualShootToggle)
-                .ignoringDisable(true)
-                .withName("ShooterManuelShootToggle"));
+
+    // TODO: Use command in ShooterCommands
+    // operatorController
+    //     .share()
+    //     .onTrue(
+    //         Commands.runOnce(() -> ShooterCommands.manualShoot = !ShooterCommands.manualShoot)
+    //             .ignoringDisable(true)
+    //             .withName("ShooterManuelShootToggle"));
+
     operatorController
         .R2()
         .onTrue(
-            Commands.runOnce(() -> RobotSystem.shooterHold = true)
+            Commands.runOnce(() -> shooter.holdSetpoint = true)
                 .ignoringDisable(true)
                 .withName("ShooterHoldTrue"))
         .onFalse(
-            Commands.runOnce(() -> RobotSystem.shooterHold = false)
+            Commands.runOnce(() -> shooter.holdSetpoint = false)
                 .ignoringDisable(true)
                 .withName("ShooterHoldFalse"));
-    driverController.rightTrigger().whileTrue(ShooterCommands.shootLoop(false));
+
     operatorController
         .PS()
         .onTrue(
-            Commands.runOnce(() -> RobotSystem.noPass = !RobotSystem.noPass)
+            Commands.runOnce(() -> shooter.noPass = !shooter.noPass)
                 .ignoringDisable(true)
                 .withName("NoPass"));
 
+    // Misc
     driverController
         .back()
         .onTrue(
@@ -160,17 +176,11 @@ public class RobotContainer {
                 .ignoringDisable(true)
                 .withName("StopSubsystems"));
 
-    driverController.leftTrigger().whileTrue(IntakeCommands.intakeWhile());
-
     hubTransitionWarningTrigger.onTrue(
         Commands.runOnce(() -> driverController.setRumble(RumbleType.kBothRumble, 1))
             .andThen(Commands.waitSeconds(1))
             .andThen(() -> driverController.setRumble(RumbleType.kBothRumble, 0))
             .withName("HubTransitionWarning"));
-
-    driverController.b().whileTrue(IntakeCommands.outtake());
-
-    driverController.leftBumper().onTrue(IntakeCommands.retract());
   }
 
   /**
@@ -191,6 +201,7 @@ public class RobotContainer {
     intakePivot.stop();
     intakeSpin.stop();
     shooter.stop();
+    // TODO: add feeder stop
   }
 
   /** Save Limelight 4 rewind to disc. This is only functional on the Limelight 4. */
@@ -198,22 +209,21 @@ public class RobotContainer {
     vision.saveLimelightRewind();
   }
 
+  /** Log component poses for the robot visualization. */
+  public void visualizeRobot() {
+    robotSystem.visualization();
+  }
+
   /**
-   * <b>Alerts always active:</b>
+   * Update alerts.
+   *
+   * <p><b>Alerts always active:</b>
    *
    * <ul>
    *   <li>Controllers disconnected
    * </ul>
-   *
-   * <b>Alerts only active while in autonomous and disabled:</b>
-   *
-   * <ul>
-   *   <li>No autonomous selected
-   *   <li>Current pose does not match autonomous starting pose
-   * </ul>
    */
   public void updateAlerts() {
-    robotSystem.visualization();
     driverControllerDisconnectedAlert.set(!driverController.isConnected());
     operatorControllerDisconnectedAlert.set(!operatorController.isConnected());
   }

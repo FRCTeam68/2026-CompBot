@@ -5,16 +5,10 @@ import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.FieldConstants;
-import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
 import java.util.function.Supplier;
@@ -23,41 +17,52 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Hood extends SubsystemBase {
-  @Getter private static final double minimum = 53.368453;
-  @Getter private static final double maximum = 79.368453;
+  // Positions
+  @Getter private static final double maximum = 72;
+  @Getter private static final double minimum = maximum - 26;
   @Getter private static final double underTrenchMinimum = maximum - 9;
 
-  private final Supplier<Pose2d> poseSupplier;
-  private final HoodIO io;
-  protected final HoodIOInputsAutoLogged inputs = new HoodIOInputsAutoLogged();
-
-  private final Alert motorDisconnectedAlert =
-      new Alert("Hood motor disconnected!", AlertType.kError);
-  private final Alert hoodCancoderDisconnectedAlert =
-      new Alert("Hood cancoder disconnected!", AlertType.kError);
-  private final Alert motorTempAlert = new Alert("Hood motor is too hot.", AlertType.kWarning);
-  private final Debouncer motorDebouncer = new Debouncer(0.5, DebounceType.kRising);
-  private final Debouncer cancoderDebouncer = new Debouncer(0.5, DebounceType.kRising);
-
+  // PID gains
   private LoggedTunableNumber kP0 = new LoggedTunableNumber("Shooter/Hood/Slot0/kP", 20);
   private LoggedTunableNumber kD0 = new LoggedTunableNumber("Shooter/Hood/Slot0/kD", 0);
   private LoggedTunableNumber kS0 = new LoggedTunableNumber("Shooter/Hood/Slot0/kS", 0);
 
+  // TODO: we shouldn't need mm for the hood
+  // Motion magic gains
   private LoggedTunableNumber mmVelocity =
       new LoggedTunableNumber("Shooter/Hood/MotionMagic/Velocity", 0);
   private LoggedTunableNumber mmAcceleration =
       new LoggedTunableNumber("Shooter/Hood/MotionMagic/Acceleration", 0);
   private LoggedTunableNumber mmJerk = new LoggedTunableNumber("Shooter/Hood/MotionMagic/Jerk", 0);
+
+  // Setpoint band
   private LoggedTunableNumber setpointBandPosition =
       new LoggedTunableNumber("Shooter/Hood/PositionSetpointBand", 2);
 
+  // Alerts
+  private final Alert motorDisconnectedAlert =
+      new Alert("Hood motor disconnected!", AlertType.kError);
+  private final Alert hoodCancoderDisconnectedAlert =
+      new Alert("Hood CANcoder disconnected!", AlertType.kError);
+  private final Alert motorTempAlert = new Alert("Hood motor is too hot.", AlertType.kWarning);
+
+  // Debouncers
+  private final Debouncer motorConnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
+  private final Debouncer cancoderConnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
+
+  private final HoodIO io;
+  protected final HoodIOInputsAutoLogged inputs = new HoodIOInputsAutoLogged();
+  private Supplier<Boolean> inTrenchBox = () -> false;
   @Getter private double setpoint = 0.0;
   @Getter private ControlMode mode = ControlMode.Neutral;
   private boolean prevInTrenchBox = false;
 
-  public Hood(HoodIO hoodIO, Supplier<Pose2d> poseSupplier) {
+  public Hood(HoodIO hoodIO) {
     this.io = hoodIO;
-    this.poseSupplier = poseSupplier;
+  }
+
+  public void initInTrenchBoxSupplier(Supplier<Boolean> inTrenchBox) {
+    this.inTrenchBox = inTrenchBox;
   }
 
   public void periodic() {
@@ -66,27 +71,30 @@ public class Hood extends SubsystemBase {
     Logger.processInputs("Shooter/Hood", inputs);
 
     // Update alerts
-    motorDisconnectedAlert.set(!motorDebouncer.calculate(inputs.motorConnected));
-    hoodCancoderDisconnectedAlert.set(!cancoderDebouncer.calculate(inputs.cancoderConnected));
+    motorDisconnectedAlert.set(!motorConnectedDebouncer.calculate(inputs.motorConnected));
+    hoodCancoderDisconnectedAlert.set(
+        !cancoderConnectedDebouncer.calculate(inputs.cancoderConnected));
     motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
-    // Update logged setpoints
+    // Log setpoint
     Logger.recordOutput("Shooter/Hood/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput(
-        "Shooter/Hood/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
+        "Shooter/Hood/SetpointPositionDeg", (mode == ControlMode.Position) ? setpoint : 0);
 
-    // Lower hood if in tench box
-    if (prevInTrenchBox != inTrenchBox()) {
+    // Run hood if entering/leaving trench box
+    if (prevInTrenchBox != inTrenchBox.get()) {
       if (getElevation() < underTrenchMinimum || setpoint < underTrenchMinimum) {
         runElvation(setpoint, 0);
       }
-      prevInTrenchBox = inTrenchBox();
+      prevInTrenchBox = inTrenchBox.get();
     }
-    // Update tunable numbers
+
+    // Update PID gains
     if (kP0.hasChanged(hashCode()) | kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
       io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
     }
 
+    // Update motion magic gains
     if (mmVelocity.hasChanged(hashCode())
         | mmAcceleration.hasChanged(hashCode())
         | mmJerk.hasChanged(hashCode())) {
@@ -121,7 +129,8 @@ public class Hood extends SubsystemBase {
     setpoint = MathUtil.clamp(elevation, minimum, maximum);
     mode = ControlMode.Position;
     io.runPosition(
-        (inTrenchBox()) ? MathUtil.clamp(setpoint, underTrenchMinimum, maximum) : setpoint, slot);
+        (inTrenchBox.get()) ? MathUtil.clamp(setpoint, underTrenchMinimum, maximum) : setpoint,
+        slot);
   }
 
   /** Stop motor with neutral output. */
@@ -141,7 +150,7 @@ public class Hood extends SubsystemBase {
    * @return Elevation.
    */
   public double getElevation() {
-    return inputs.positionElvation;
+    return inputs.positionDeg;
   }
 
   /**
@@ -170,33 +179,5 @@ public class Hood extends SubsystemBase {
       case Position -> Math.abs(setpoint - getElevation()) < setpointBandPosition.get();
       default -> false;
     };
-  }
-
-  /**
-   * Checks if the shooter is near any of the trenches. If so, the hood should be forced down to
-   * avoid collisions.
-   *
-   * @return If the shooter is near the trench.
-   */
-  @AutoLogOutput(key = "Shooter/Hood/InTrenchBox")
-  public boolean inTrenchBox() {
-    Pose2d shooterPosistion =
-        new Pose2d(ShooterConstants.shooterPosition.toTranslation2d(), Rotation2d.kZero)
-            .plus(
-                new Transform2d(
-                    poseSupplier.get().getTranslation(), poseSupplier.get().getRotation()))
-            .rotateAround(poseSupplier.get().getTranslation(), poseSupplier.get().getRotation());
-    double xSize = Units.inchesToMeters(47);
-    if (shooterPosistion.getY() < FieldConstants.LinesHorizontal.rightTrenchOpenStart
-        || shooterPosistion.getY() > FieldConstants.LinesHorizontal.leftTrenchOpenEnd) {
-      if ((shooterPosistion.getX() > FieldConstants.LinesVertical.hubCenter - (xSize / 2)
-              && shooterPosistion.getX() < FieldConstants.LinesVertical.hubCenter + (xSize / 2))
-          || (shooterPosistion.getX() > FieldConstants.LinesVertical.oppHubCenter - (xSize / 2)
-              && shooterPosistion.getX()
-                  < FieldConstants.LinesVertical.oppHubCenter + (xSize / 2))) {
-        return true;
-      }
-    }
-    return false;
   }
 }

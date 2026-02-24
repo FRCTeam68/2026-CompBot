@@ -13,7 +13,6 @@ import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
-import frc.robot.subsystems.vision.VisionConstants.ObjectObservationType;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,7 +34,6 @@ public class VisionIOLimelight implements VisionIO {
   private final DoubleSubscriber tySubscriber;
   private final DoubleArraySubscriber megatag1Subscriber;
   private final DoubleArraySubscriber megatag2Subscriber;
-  private final DoubleArraySubscriber objectSubscriber;
 
   private Supplier<Rotation2d> rotationSupplier = () -> Rotation2d.kZero;
 
@@ -63,7 +61,6 @@ public class VisionIOLimelight implements VisionIO {
     megatag1Subscriber = table.getDoubleArrayTopic("botpose_wpiblue").subscribe(new double[] {});
     megatag2Subscriber =
         table.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(new double[] {});
-    objectSubscriber = table.getDoubleArrayTopic("rawdetections").subscribe(new double[] {});
   }
 
   @Override
@@ -81,9 +78,10 @@ public class VisionIOLimelight implements VisionIO {
     inputs.pipelineIndex = (int) pipelineSubscriber.get();
 
     // Update hardware metrics
+    inputs.cpuTempCelsius = hardwareSubscriber.get()[0];
+    inputs.cpuUsage = hardwareSubscriber.get()[1];
     inputs.ramUsage = hardwareSubscriber.get()[2];
-    inputs.cpuTemperature = hardwareSubscriber.get()[1];
-    inputs.Temperature = hardwareSubscriber.get()[3];
+    inputs.fps = hardwareSubscriber.get()[3];
 
     // Update target observation
     inputs.latestTargetObservation =
@@ -91,6 +89,7 @@ public class VisionIOLimelight implements VisionIO {
             Rotation2d.fromDegrees(txSubscriber.get()), Rotation2d.fromDegrees(tySubscriber.get()));
 
     // Update orientation for MegaTag 2
+    // TODO: should we publish more than just yaw
     orientationPublisher.accept(
         new double[] {rotationSupplier.get().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0});
 
@@ -165,43 +164,6 @@ public class VisionIOLimelight implements VisionIO {
     int n = 0;
     for (int id : tagIds) {
       inputs.tagIds[n++] = id;
-    }
-
-    // Read new object observations from NetworkTables
-    List<ObjectObservation> objectObservations = new LinkedList<>();
-
-    var rawSample = objectSubscriber.get(new double[] {});
-    for (int i = 0; i < rawSample.length; i += 12) {
-      ObjectObservationType objectObservationType;
-      try {
-        objectObservationType = ObjectObservationType.values()[(int) rawSample[i]];
-      } catch (Exception e) {
-        objectObservationType = ObjectObservationType.values()[0];
-      }
-
-      objectObservations.add(
-          new ObjectObservation(
-              // Center X
-              rawSample[i + 1],
-
-              // Center y
-              rawSample[i + 2],
-
-              // Width
-              rawSample[i + 6] - rawSample[i + 4],
-
-              // Height
-              rawSample[i + 11] - rawSample[i + 5],
-
-              // Observation id
-              objectObservationType));
-      // ObjectObservationType.values()[(int) i]));
-    }
-
-    // Save object observations to inputs object
-    inputs.objectObservations = new ObjectObservation[objectObservations.size()];
-    for (int i = 0; i < objectObservations.size(); i++) {
-      inputs.objectObservations[i] = objectObservations.get(i);
     }
   }
 

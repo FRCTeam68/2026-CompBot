@@ -9,14 +9,10 @@ import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -39,7 +35,6 @@ import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
   private final VisionConsumer consumer;
-  private final Supplier<Pose2d> poseSupplier;
   private final Supplier<ChassisSpeeds> chassisSpeedSupplier;
   private final VisionIO[] io;
   private final CameraInfo[] cameraInfo;
@@ -55,7 +50,6 @@ public class Vision extends SubsystemBase {
       Supplier<ChassisSpeeds> chassisSpeedSupplier,
       VisionIO... io) {
     this.consumer = consumer;
-    this.poseSupplier = poseSupplier;
     this.chassisSpeedSupplier = chassisSpeedSupplier;
     this.io = io;
 
@@ -68,7 +62,7 @@ public class Vision extends SubsystemBase {
       this.io[i].initRotationSupplier(() -> poseSupplier.get().getRotation());
       cameraInfo[i] = io[i].getCameraInfo();
       inputs[i] = new VisionIOInputsAutoLogged();
-      connectedDebouncers[i] = new Debouncer(0.5, DebounceType.kFalling);
+      connectedDebouncers[i] = new Debouncer(0.5, DebounceType.kRising);
       disconnectedAlerts[i] =
           new Alert("Camera" + cameraInfo[i].name + " is disconnected.", AlertType.kError);
     }
@@ -138,7 +132,6 @@ public class Vision extends SubsystemBase {
     List<Pose3d> allRobotPoses = new LinkedList<>();
     List<Pose3d> allRobotPosesAccepted = new LinkedList<>();
     List<Pose3d> allRobotPosesRejected = new LinkedList<>();
-    List<Pose3d> allObjectPosesNote = new LinkedList<>();
 
     // Loop over cameras
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
@@ -242,20 +235,21 @@ public class Vision extends SubsystemBase {
           "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag1/RobotPosesAll",
           robotPosesMT1.toArray(new Pose3d[0]));
       Logger.recordOutput(
-          "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag2/RobotPosesAll",
-          robotPosesMT2.toArray(new Pose3d[0]));
-      Logger.recordOutput(
           "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag1/RobotPosesAccepted",
           robotPosesAcceptedMT1.toArray(new Pose3d[0]));
       Logger.recordOutput(
           "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag1/RobotPosesRejected",
           robotPosesRejectedMT1.toArray(new Pose3d[0]));
       Logger.recordOutput(
+          "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag2/RobotPosesAll",
+          robotPosesMT2.toArray(new Pose3d[0]));
+      Logger.recordOutput(
           "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag2/RobotPosesAccepted",
           robotPosesAcceptedMT2.toArray(new Pose3d[0]));
       Logger.recordOutput(
           "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag2/RobotPosesRejected",
           robotPosesRejectedMT2.toArray(new Pose3d[0]));
+
       allTagPoses.addAll(tagPoses);
       allRobotPoses.addAll(robotPosesMT1);
       allRobotPoses.addAll(robotPosesMT2);
@@ -263,64 +257,7 @@ public class Vision extends SubsystemBase {
       allRobotPosesAccepted.addAll(robotPosesAcceptedMT2);
       allRobotPosesRejected.addAll(robotPosesRejectedMT1);
       allRobotPosesRejected.addAll(robotPosesRejectedMT2);
-
-      List<Pose3d> objectPosesNote = new LinkedList<>();
-
-      for (var observation : inputs[cameraIndex].objectObservations) {
-        objectPosesNote.add(
-            new Pose3d(poseSupplier.get())
-                .transformBy(
-                    new Transform3d(
-                        Translation3d.kZero,
-                        new Rotation3d(
-                            0.0,
-                            0.0,
-                            cameraInfo[cameraIndex].pose.getRotation().getZ()
-                                - Math.atan(
-                                    Math.tan(
-                                        Units.degreesToRadians(observation.txCenterDeg())
-                                            / Math.cos(
-                                                cameraInfo[cameraIndex]
-                                                    .pose
-                                                    .getRotation()
-                                                    .getY()))))))
-                // Object specific distance and height
-                .transformBy(
-                    switch (observation.type()) {
-                      case ALGAE -> Transform3d.kZero;
-
-                      case NOTE ->
-                          new Transform3d(
-                              new Translation3d(
-                                  VisionConstants.distanceEquationNote.applyAsDouble(
-                                      observation.widthPixels(), observation.heightPixels()),
-                                  0.0,
-                                  Units.inchesToMeters(1)),
-                              Rotation3d.kZero);
-                    }));
-      }
-
-      Logger.recordOutput(
-          "Vision/" + cameraInfo[cameraIndex].name + "/ObjectDetection/NotePoses",
-          objectPosesNote.toArray(new Pose3d[0]));
-      allObjectPosesNote.addAll(objectPosesNote);
     }
-
-    // Calculate target object
-    List<Pose2d> allObjectPosesNotePose2d = new LinkedList<>();
-    for (Pose3d objectPose3d : allObjectPosesNote) {
-      allObjectPosesNotePose2d.add(objectPose3d.toPose2d());
-    }
-
-    targetNote =
-        switch (allObjectPosesNote.size()) {
-          case 0 -> Optional.empty();
-
-          case 1 -> Optional.of(allObjectPosesNotePose2d.get(0).getTranslation());
-
-          default ->
-              Optional.of(poseSupplier.get().nearest(allObjectPosesNotePose2d).getTranslation());
-        };
 
     // Log summary data
     Logger.recordOutput("Vision/Summary/TagPoses", allTagPoses.toArray(new Pose3d[0]));
@@ -329,15 +266,6 @@ public class Vision extends SubsystemBase {
         "Vision/Summary/RobotPosesAccepted", allRobotPosesAccepted.toArray(new Pose3d[0]));
     Logger.recordOutput(
         "Vision/Summary/RobotPosesRejected", allRobotPosesRejected.toArray(new Pose3d[0]));
-    Logger.recordOutput("Vision/Summary/NotePosesAll", allObjectPosesNote.toArray(new Pose3d[0]));
-    Logger.recordOutput(
-        "Vision/Summary/NoteTarget",
-        targetNote.isPresent()
-            ? new Pose3d[] {
-              new Pose3d(new Pose2d(targetNote.get(), Rotation2d.kZero))
-                  .transformBy(new Transform3d(0.0, 0.0, Units.inchesToMeters(1), Rotation3d.kZero))
-            }
-            : new Pose3d[] {});
   }
 
   @FunctionalInterface

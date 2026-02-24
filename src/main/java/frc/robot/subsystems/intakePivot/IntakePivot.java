@@ -4,6 +4,7 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -20,6 +21,8 @@ public class IntakePivot extends SubsystemBase {
   // Positions
   @Getter private static final double packaged = 0;
   @Getter private static final double extended = 0.23;
+  @Getter private static final double inBumperMaximum = 0.1;
+  @Getter private static final double intakeForwardExtension = Units.inchesToMeters(25.32);
 
   // PID gains
   private final LoggedTunableNumber kP0 = new LoggedTunableNumber("IntakePivot/Slot0/kP", 10);
@@ -32,7 +35,7 @@ public class IntakePivot extends SubsystemBase {
       new LoggedTunableNumber("IntakePivot/Acceleration", 0);
   private final LoggedTunableNumber mmJerk = new LoggedTunableNumber("IntakePivot/Jerk", 0);
 
-  // setpoint band
+  // Setpoint band
   private final LoggedTunableNumber setpointBandPosition =
       new LoggedTunableNumber("IntakePivot/SetpointBand", 0);
 
@@ -59,12 +62,12 @@ public class IntakePivot extends SubsystemBase {
     // Configure dashboard
     SmartDashboard.putData(
         "IntakePivot/Extend",
-        Commands.runOnce(() -> runPosition(extended, 0)).withName("DashboardIntakePivotExtend"));
+        Commands.runOnce(() -> runPosition(extended, 0), this)
+            .withName("DashboardIntakePivotExtend"));
     SmartDashboard.putData(
         "IntakePivot/Retract",
-        Commands.runOnce(() -> runPosition(packaged, 0)).withName("DashboardIntakePivotRetract"));
-    SmartDashboard.putData(
-        "IntakePivot/Zero", Commands.runOnce(() -> zero()).withName("DashboardIntakePivotZero"));
+        Commands.runOnce(() -> runPosition(packaged, 0), this)
+            .withName("DashboardIntakePivotRetract"));
   }
 
   public void periodic() {
@@ -179,5 +182,10 @@ public class IntakePivot extends SubsystemBase {
       case Position -> Math.abs(setpoint - getPosition()) < setpointBandPosition.get();
       default -> false;
     };
+  }
+
+  @AutoLogOutput(key = "IntakePivot/InsideBumper")
+  public boolean insideBumper() {
+    return getPosition() < getInBumperMaximum();
   }
 }

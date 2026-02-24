@@ -69,9 +69,7 @@ public class FlywheelIOSim implements FlywheelIO {
 
   @Override
   public void setPID(SlotConfigs... newConfig) {
-    for (int i = 0; i < Math.min(newConfig.length, 3); i++) {
-      slotConfigs[i] = newConfig[i];
-    }
+    slotConfigs = newConfig;
   }
 
   private void setInputVoltage(double volts) {

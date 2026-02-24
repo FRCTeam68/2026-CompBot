@@ -25,7 +25,7 @@ public class RollerSystemIOSim implements RollerSystemIO {
   @Override
   public void updateInputs(RollerSystemIOInputs inputs) {
     if (DriverStation.isDisabled()) {
-      stop();
+      runVolts(0);
     }
 
     sim.update(Constants.loopPeriodSecs);

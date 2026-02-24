@@ -2,6 +2,7 @@ package frc.robot.subsystems.shooter.hood;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
+import com.ctre.phoenix6.signals.MagnetHealthValue;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface HoodIO {
@@ -9,12 +10,13 @@ public interface HoodIO {
   static class HoodIOInputs {
     public boolean motorConnected = false;
     public boolean cancoderConnected = false;
-    public double positionElvation = 0.0;
+    public double positionDeg = 0.0;
     public double velocityDegPerSec = 0.0;
     public double appliedVoltage = 0.0;
     public double supplyCurrentAmps = 0.0;
     public double torqueCurrentAmps = 0.0;
     public double tempCelsius = 0.0;
+    public MagnetHealthValue magnetHealth = MagnetHealthValue.Magnet_Invalid;
     public double absolutePosition = 0.0;
   }
 
@@ -43,7 +45,7 @@ public interface HoodIO {
   /**
    * Set the current mechanism elevation.
    *
-   * @param elevation Elevation in mechanism rotations.
+   * @param elevation Elevation in mechanism degrees.
    */
   default void setPosition(double elevation) {}
 

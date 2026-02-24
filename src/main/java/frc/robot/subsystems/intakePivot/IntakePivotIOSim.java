@@ -58,7 +58,7 @@ public class IntakePivotIOSim implements IntakePivotIO {
     inputs.torqueCurrentAmps =
         (appliedVoltage > 0.0) ? sim.getCurrentDrawAmps() * 12.0 / appliedVoltage : 0.0;
     inputs.magnetHealth = MagnetHealthValue.Magnet_Green;
-    inputs.absolutePositionRots =
+    inputs.absolutePosition =
         MathUtil.inputModulus(
             sim.getAngularPositionRotations() / IntakePivotIOReal.getSensorToMechanismReduction(),
             0.0,

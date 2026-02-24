@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
  */
 public class FieldConstants {
   public static final FieldType fieldType = FieldType.WELDED;
-  public static final SymmetryType symmetryType = SymmetryType.Rotated;
+  public static final SymmetryType symmetryType = SymmetryType.ROTATIONAL;
 
   // AprilTag related constants
   public static final int aprilTagCount = AprilTagLayoutType.OFFICIAL.getLayout().getTags().size();

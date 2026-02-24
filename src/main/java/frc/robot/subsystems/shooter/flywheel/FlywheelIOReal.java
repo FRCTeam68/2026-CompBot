@@ -63,7 +63,7 @@ public class FlywheelIOReal implements FlywheelIO {
     followerTalon = new TalonFX(26, ShooterConstants.canBus);
     followerTalon.setControl(new Follower(leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed));
 
-    // Configure Motor
+    // Motor output
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     // Current limits
@@ -143,7 +143,7 @@ public class FlywheelIOReal implements FlywheelIO {
   public void setPID(SlotConfigs... newConfig) {
     for (int i = 0; i < Math.min(newConfig.length, 3); i++) {
       /*
-       * TEMPLATE: Optionally add gravity type and static feedforward sign
+       * Optionally add gravity type and static feedforward sign
        * Default gravity type: Elevator_Static
        * Default static feedforward sign: UseVelocitySign
        */

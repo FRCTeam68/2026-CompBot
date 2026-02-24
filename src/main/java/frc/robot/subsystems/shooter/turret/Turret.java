@@ -19,27 +19,16 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Turret extends SubsystemBase {
+  // Positions
   @Getter private static final double minimum = 0;
   @Getter private static final double maximum = 360;
-  private static boolean posistionAmbiguous = false;
-  private static final double ambiguousBand = 20;
 
-  private final TurretIO io;
-  protected final TurretIOInputsAutoLogged inputs = new TurretIOInputsAutoLogged();
-
-  private final Alert motorDisconnectedAlert =
-      new Alert("Turret motor disconnected!", AlertType.kError);
-  private final Alert turretCancoderDisconnectedAlert =
-      new Alert("Turret cancoder disconnected!", AlertType.kError);
-  private final Alert posistionAmbiguousAlert = new Alert("Posistion ambiguous!", AlertType.kError);
-  private final Alert motorTempAlert = new Alert("Turret motor is too hot.", AlertType.kWarning);
-  private final Debouncer motorDebouncer = new Debouncer(0.5, DebounceType.kRising);
-  private final Debouncer cancoderDebouncer = new Debouncer(0.5, DebounceType.kRising);
-
+  // PID gains
   private LoggedTunableNumber kP0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kP", 100);
   private LoggedTunableNumber kD0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kD", 0);
   private LoggedTunableNumber kS0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kS", 0);
 
+  // Motion magic gains
   private LoggedTunableNumber mmVelocity =
       new LoggedTunableNumber("Shooter/Turret/MotionMagic/Velocity", 0);
   private LoggedTunableNumber mmAcceleration =
@@ -47,23 +36,44 @@ public class Turret extends SubsystemBase {
   private LoggedTunableNumber mmJerk =
       new LoggedTunableNumber("Shooter/Turret/MotionMagic/Jerk", 0);
 
+  // Error bands
   private LoggedTunableNumber setpointBandPosition =
       new LoggedTunableNumber("Shooter/Turret/PositionSetpointBand", 10);
+  private static final double ambiguousBand = 20;
 
+  // Alerts
+  private final Alert motorDisconnectedAlert =
+      new Alert("Turret motor disconnected!", AlertType.kError);
+  private final Alert turretCancoderDisconnectedAlert =
+      new Alert("Turret cancoder disconnected!", AlertType.kError);
+  private final Alert motorTempAlert = new Alert("Turret motor is too hot.", AlertType.kWarning);
+  private final Alert posistionAmbiguousAlert =
+      new Alert(
+          "Turret position ambiguous! Turret will not move until position is verified.",
+          AlertType.kError);
+
+  // Debouncers
+  private final Debouncer motorConnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
+  private final Debouncer cancoderConnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
+
+  private final TurretIO io;
+  protected final TurretIOInputsAutoLogged inputs = new TurretIOInputsAutoLogged();
   @Getter private double setpoint = 0.0;
-
   @Getter private ControlMode mode = ControlMode.Neutral;
+  private static boolean posistionAmbiguous = false;
 
   public Turret(TurretIO io) {
     this.io = io;
+
+    // Check if turret position could be ambiguous
     if (Constants.getMode() == Mode.REAL) {
       posistionAmbiguous =
           getPosition() < ambiguousBand / 2 || getPosition() > 360 - (ambiguousBand / 2);
     }
+
+    // Configure dashboard
     SmartDashboard.putData(
-        Commands.runOnce(() -> setRotation())
-            .ignoringDisable(true)
-            .withName("Disambiguate Turret"));
+        Commands.runOnce(() -> setRotation()).ignoringDisable(true).withName("DisambiguateTurret"));
   }
 
   public void periodic() {
@@ -72,23 +82,25 @@ public class Turret extends SubsystemBase {
     Logger.processInputs("Shooter/Turret", inputs);
 
     // Update alerts
-    motorDisconnectedAlert.set(!motorDebouncer.calculate(inputs.motorConnected));
-    turretCancoderDisconnectedAlert.set(!cancoderDebouncer.calculate(inputs.cancoderConnected));
+    motorDisconnectedAlert.set(!motorConnectedDebouncer.calculate(inputs.motorConnected));
+    turretCancoderDisconnectedAlert.set(
+        !cancoderConnectedDebouncer.calculate(inputs.cancoderConnected));
     motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
     posistionAmbiguousAlert.set(posistionAmbiguous);
 
-    // Update logged setpoints
+    // Log setpoint
     Logger.recordOutput(
         "Shooter/Turret/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
     Logger.recordOutput(
         "Shooter/Turret/SetpointPositionDeg", (mode == ControlMode.Position) ? setpoint : 0);
 
-    // Update tunable numbers
+    // Update PID gains
     if (kP0.hasChanged(hashCode()) | kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
 
       io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
     }
 
+    // Update motion magic gains
     if (mmVelocity.hasChanged(hashCode())
         | mmAcceleration.hasChanged(hashCode())
         | mmJerk.hasChanged(hashCode())) {
@@ -114,7 +126,7 @@ public class Turret extends SubsystemBase {
   }
 
   /**
-   * Run system to position.
+   * Run system to specified position.
    *
    * <p><b>Units:</b> Mechanism degrees.
    *
@@ -125,7 +137,7 @@ public class Turret extends SubsystemBase {
     setpoint = MathUtil.inputModulus(degrees, minimum, maximum);
     mode = ControlMode.Position;
     if (posistionAmbiguous == false) {
-      io.runPosition(setpoint, 0);
+      io.runPosition(setpoint, slot);
     }
   }
 

@@ -1,61 +1,72 @@
 package frc.robot.commands;
 
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.FieldConstants;
 import frc.robot.RobotSystem;
-import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
-import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.shooter.ShooterConstants.shotConfig;
-import frc.robot.util.geometry.AllianceFlipUtil;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 public class ShooterCommands {
+  private static final double feederRunVolts = 12;
+  private static final double spindexerRunVolts = 12;
+
   // Subsystems
   private static final RobotSystem robotSystem = RobotSystem.getInstance();
-  private static final Drive drive = robotSystem.getDrive();
   private static final Shooter shooter = robotSystem.getShooter();
   private static final RollerSystem spindexer = robotSystem.getSpindexer();
   private static final RollerSystem feeder = robotSystem.getFeeder();
 
-  public static Command shootLoop(boolean manual) {
+  @AutoLogOutput(key = "Shooter/ManualShoot")
+  private static boolean forceManualShoot = false;
+
+  // TODO: I split shooting into 2 commands. We need to fix the commands though
+  public static Command shootAutomatic() {
     return Commands.run(
             () -> {
-              if (!manual && !RobotSystem.manualShootToggle) {
-                if (!RobotSystem.shooterHold) {
+              if (!forceManualShoot) {
+                if (!shooter.holdSetpoint) {
                   if (shooter.atSetpoint()) {
-                    feeder.runVolts(12);
-                    spindexer.runVolts(12);
+                    feeder.runVolts(feederRunVolts);
+                    spindexer.runVolts(spindexerRunVolts);
                   } else {
                     feeder.stop();
                     spindexer.stop();
                   }
                 } else {
-                  RobotSystem.shooterHold = false;
+                  shooter.holdSetpoint = false;
                 }
               } else {
-                feeder.runVolts(12);
-                spindexer.runVolts(12);
+                feeder.runVolts(feederRunVolts);
+                spindexer.runVolts(spindexerRunVolts);
               }
             },
             feeder,
             spindexer)
+        .beforeStarting(() -> robotSystem.isShooting = true)
         .finallyDo(
             () -> {
               feeder.stop();
               spindexer.stop();
+              robotSystem.isShooting = false;
             })
         .withName("ShootLoop");
   }
 
+  public static Command shootManual() {
+    return Commands.none()
+        .beforeStarting(() -> robotSystem.isShooting = true)
+        .finallyDo(
+            () -> {
+              robotSystem.isShooting = false;
+            });
+  }
+
   public static Command runStatic(
       double flywheelVelocity, double hoodElevation, double turretPosition) {
-    return Commands.sequence(
-            Commands.runOnce(() -> RobotSystem.shooterHold = true),
-            Commands.runOnce(
-                () -> shooter.runStatic(flywheelVelocity, hoodElevation, turretPosition), shooter))
+    return Commands.runOnce(
+            () -> shooter.runStatic(flywheelVelocity, hoodElevation, turretPosition), shooter)
         .withName("ShootStatic");
   }
 
@@ -63,45 +74,24 @@ public class ShooterCommands {
     return runStatic(config.flywheelVelocity(), config.hoodAngle(), config.turretAngle());
   }
 
-  public static Command runDynamic() {
-    return Commands.run(
-            () -> {
-              if (!RobotSystem.shooterHold) {
-                Translation2d target;
-                boolean isPass;
-                if (shooter.inAllianceZone() || RobotSystem.noPass) {
-                  target = AllianceFlipUtil.apply(ShooterConstants.Target.hub);
-                  isPass = false;
-                } else {
-                  if (drive.getPose().getTranslation().getY()
-                      < FieldConstants.LinesHorizontal.center) {
-                    target =
-                        (AllianceFlipUtil.shouldFlip())
-                            ? ShooterConstants.Target.passLeft
-                            : ShooterConstants.Target.passRight;
-                  } else {
-                    target =
-                        (AllianceFlipUtil.shouldFlip())
-                            ? ShooterConstants.Target.passRight
-                            : ShooterConstants.Target.passLeft;
-                  }
-                  target = AllianceFlipUtil.apply(target);
-                  isPass = true;
-                }
-
-                if (isPass || shooter.inAllianceZone()) {
-                  shooter.runDynamic(target, isPass);
-                }
-              }
-            },
-            shooter)
-        .withName("ShootDynamic");
-  }
-
   public static Command stop() {
-    return Commands.sequence(
-            Commands.runOnce(() -> RobotSystem.shooterHold = true),
-            Commands.runOnce(() -> shooter.stop(), shooter))
+    return Commands.sequence(Commands.runOnce(() -> shooter.stop(), shooter))
         .withName("ShooterStop");
   }
+
+  public static Command setHoldSetpoint(boolean value) {
+    return Commands.runOnce(() -> shooter.holdSetpoint = value)
+        .ignoringDisable(true)
+        .withName("ShooterSetHoldSetpoint");
+  }
+
+  /** Toggle the state of noPass. Optionally specify the value to set. */
+  public static Command toggleNoPass(boolean... value) {
+    return Commands.runOnce(() -> shooter.noPass = !shooter.noPass)
+        .onlyIf(() -> value.length == 0 || shooter.noPass != value[0])
+        .ignoringDisable(true)
+        .withName("ShooterToggleNoPass");
+  }
+
+  // TODO: create a command to toggle manual shoot
 }

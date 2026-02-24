@@ -1,7 +1,6 @@
 package frc.robot.commands.auton;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -12,6 +11,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.RobotSystem;
 import frc.robot.commands.IntakeCommands;
+import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.PathUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
@@ -47,6 +47,7 @@ public class Auton {
 
   public static enum StartingPose {
     Left,
+    Left1,
     Right,
     Center
   }
@@ -68,6 +69,7 @@ public class Auton {
   public static void initDashboardInputs() {
     // Configure starting pose
     autonStartingPose.addOption("Left", Auton.StartingPose.Left);
+    autonStartingPose.addOption("Left1", Auton.StartingPose.Left1);
     autonStartingPose.addOption("Center", Auton.StartingPose.Center);
     autonStartingPose.addOption("Right", Auton.StartingPose.Right);
 
@@ -100,14 +102,16 @@ public class Auton {
 
     switch (autonStartingPose.get()) {
       case Left:
-        // TODO: AUTON - update to call new Command added to handle left auton
-        return Commands.none();
+        return Apollo();
+
+      case Left1:
+        return Apollo1();
 
       case Center:
         return Terra();
 
       case Right:
-        return Test01();
+        return Neptune();
 
       default:
         return Commands.none();
@@ -116,45 +120,125 @@ public class Auton {
 
   private static Command Terra() {
     return new DeferredCommand(
-        () -> {
-          Command myCommand;
-          if (autonDepot.get()) {
-            myCommand = (IntakeCommands.intakeOn());
-            myCommand = myCommand.andThen(PathUtil.followPath("Center Depot"));
-            myCommand = myCommand.andThen(PathUtil.followPath("Depot Tower"));
-            if (autonOutpost.get()) {
-              myCommand = myCommand.andThen(PathUtil.followPath("Tower Outpost"));
-            }
-          } else {
-            myCommand = (IntakeCommands.intakeOn());
-            myCommand = myCommand.andThen(PathUtil.followPath("Center Outpost"));
-            myCommand = myCommand.andThen(PathUtil.followPath("Outpost Tower"));
-          }
-          return myCommand;
-        },
-        Set.of(drive));
+            () -> {
+              Command myCommand1;
+              Command myCommand2 = Commands.none();
+              if (autonDepot.get()) {
+
+                myCommand1 =
+                    Commands.sequence(
+                        Commands.parallel(
+                            PathUtil.followPath("Center Depot"),
+                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                        IntakeCommands.stop(),
+                        PathUtil.followPath("Depot Tower"),
+                        Commands.waitSeconds(
+                            3.0) // replace with ShootCommands.Shootloop.withTimeOut(3.0.)
+                        );
+
+                if (autonOutpost.get()) {
+                  myCommand2 = PathUtil.followPath("Tower Outpost");
+                  myCommand2 =
+                      myCommand2.andThen(
+                          Commands.waitSeconds(
+                              3.0)); // replace with ShootCommands.Shootloop.withTimeOut(3.0.)
+                }
+              } else {
+                myCommand1 =
+                    Commands.sequence(
+                        Commands.parallel(
+                            PathUtil.followPath("Center Outpost"),
+                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                        IntakeCommands.stop(),
+                        PathUtil.followPath("Outpost Tower"),
+                        Commands.waitSeconds(
+                            3.0) // replace with ShootCommands.Shootloop.withTimeOut(3.0.)
+                        );
+              }
+
+              return myCommand1.andThen(myCommand2);
+            },
+            Set.of(drive))
+        .withName("Auton_Terra");
   }
 
-  // TODO: AUTON - copy this whole Command, rename, call for left trench paths, use autonDeport
-  // instead of autonOutpost
-  private static Command Neptune() {
+  private static Command Apollo() {
     return new DeferredCommand(
-        () -> {
-          Command myCommand;
-          myCommand = (IntakeCommands.intakeOn());
-          myCommand = myCommand.andThen(PathUtil.followPath("Right Trench A"));
-          myCommand = myCommand.andThen(PathUtil.followPath("Right Trench B"));
-          if (autonOutpost.get()) {
-            myCommand = myCommand.andThen(PathUtil.followPath("Right Outpost"));
-          } else {
-            myCommand = myCommand.andThen(PathUtil.followPath("Right Free Seconds"));
-          }
-          return myCommand;
-        },
-        Set.of(drive));
+            () -> {
+              Command myCommand1;
+              Command myCommand2;
+
+              myCommand1 =
+                  Commands.sequence(
+                      Commands.parallel(
+                          PathUtil.followPath("Left Trench A"),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                      IntakeCommands.stop(),
+                      PathUtil.followPath("Left Trench B"),
+                      Commands.waitSeconds(
+                          3.0) // replace with ShootCommands.Shootloop.withTimeOut(3.0.)
+                      );
+
+              if (autonDepot.get()) {
+                myCommand2 = PathUtil.followPath("Left Depot");
+                myCommand2 =
+                    myCommand2.andThen(
+                        Commands.waitSeconds(
+                            3.0)); // replace with ShootCommands.Shootloop.withTimeOut(3.0.)
+              } else {
+                myCommand2 = PathUtil.followPath("Left Free Seconds");
+              }
+
+              return myCommand1.andThen(myCommand2);
+            },
+            Set.of(drive))
+        .withName("Auton_Apollo");
   }
 
-  private static Command Test01() {
+  private static Command Apollo1() {
+    return new DeferredCommand(
+            () -> {
+              Command myCommand1;
+              Command myCommand2;
+
+              myCommand1 =
+                  Commands.sequence(
+                      Commands.parallel(
+                          PathUtil.followPath("Left Trench A1"),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                      PathUtil.followPath("Left Trench A2"),
+                      IntakeCommands.stop(),
+                      PathUtil.followPath("Left Trench B1"),
+                      ShooterCommands.shootAutomatic().withTimeout(3.0));
+
+              if (autonDepot.get()) {
+                myCommand2 =
+                    Commands.sequence(
+                        PathUtil.followPath("Left Depot1"),
+                        Commands.parallel(
+                            PathUtil.followPath("Left Depot2"),
+                            IntakeCommands.intakeOn(),
+                            ShooterCommands.shootAutomatic().withTimeout(5.0)),
+                        IntakeCommands.stop());
+              } else {
+                myCommand2 =
+                    Commands.sequence(
+                        Commands.parallel(
+                            PathUtil.followPath("Left Trench C1"),
+                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                        IntakeCommands.stop(),
+                        PathUtil.followPath("Left Trench D1"),
+                        ShooterCommands.shootAutomatic().withTimeout(5.0),
+                        IntakeCommands.stop());
+              }
+
+              return myCommand1.andThen(myCommand2);
+            },
+            Set.of(drive))
+        .withName("Auton_Apollo1");
+  }
+
+  private static Command Neptune() {
     return new DeferredCommand(
             () -> {
               Command myCommand1;
@@ -184,7 +268,7 @@ public class Auton {
               return myCommand1.andThen(myCommand2);
             },
             Set.of(drive))
-        .withName("Auton_Test01");
+        .withName("Auton_Neptune");
   }
 
   @SuppressWarnings("unused")
@@ -199,8 +283,10 @@ public class Auton {
 
     switch (autonStartingPose.get()) {
       case Left:
-        // TODO: AUTON - update to use first left path when left paths added
-        return AllianceFlipUtil.apply(new Pose2d(4.0, 7.5, Rotation2d.kZero));
+        return AllianceFlipUtil.apply(PathUtil.getStartingPose("Left Trench A"));
+
+      case Left1:
+        return AllianceFlipUtil.apply(PathUtil.getStartingPose("Left Trench A1"));
 
       case Center:
         return AllianceFlipUtil.apply(PathUtil.getStartingPose("Center Depot"));

@@ -13,8 +13,8 @@ import frc.robot.Constants;
 
 /** Physics sim implementation of module IO. Simulation is always based on voltage control. */
 public class ModuleIOSim implements ModuleIO {
-  private static final DCMotor driveMotorModel = DCMotor.getFalcon500Foc(1);
-  private static final DCMotor turnMotorModel = DCMotor.getFalcon500Foc(1);
+  private static final DCMotor driveMotorModel = DCMotor.getKrakenX60Foc(1);
+  private static final DCMotor turnMotorModel = DCMotor.getKrakenX44Foc(1);
 
   private final DCMotorSim driveSim =
       new DCMotorSim(
@@ -27,8 +27,8 @@ public class ModuleIOSim implements ModuleIO {
 
   private boolean driveClosedLoop = false;
   private boolean turnClosedLoop = false;
-  private PIDController driveController = new PIDController(0, 0, 0);
-  private PIDController turnController = new PIDController(0, 0, 0);
+  private PIDController driveController = new PIDController(0.0, 0.0, 0.0);
+  private PIDController turnController = new PIDController(0.0, 0.0, 0.0);
   private double driveAppliedVolts = 0.0;
   private double turnAppliedVolts = 0.0;
 
@@ -41,19 +41,22 @@ public class ModuleIOSim implements ModuleIO {
   public void updateInputs(ModuleIOInputs inputs) {
     // Run closed-loop control
     if (driveClosedLoop) {
-      driveAppliedVolts = driveController.calculate(driveSim.getAngularVelocityRadPerSec());
+      driveAppliedVolts =
+          MathUtil.clamp(
+              driveController.calculate(driveSim.getAngularVelocityRadPerSec()), -12.0, 12.0);
     } else {
       driveController.reset();
     }
     if (turnClosedLoop) {
-      turnAppliedVolts = turnController.calculate(turnSim.getAngularPositionRad());
+      turnAppliedVolts =
+          MathUtil.clamp(turnController.calculate(turnSim.getAngularPositionRad()), -12.0, 12.0);
     } else {
       turnController.reset();
     }
 
     // Update simulation state
-    driveSim.setInputVoltage(MathUtil.clamp(driveAppliedVolts, -12.0, 12.0));
-    turnSim.setInputVoltage(MathUtil.clamp(turnAppliedVolts, -12.0, 12.0));
+    driveSim.setInputVoltage(driveAppliedVolts);
+    turnSim.setInputVoltage(turnAppliedVolts);
     driveSim.update(Constants.loopPeriodSecs);
     turnSim.update(Constants.loopPeriodSecs);
 
@@ -74,7 +77,6 @@ public class ModuleIOSim implements ModuleIO {
     inputs.turnEncoderConnected = true;
     inputs.turnAbsolutePosition = new Rotation2d(turnSim.getAngularPositionRad());
     inputs.turnEncoderMagnetHealth = MagnetHealthValue.Magnet_Green;
-    inputs.turnEncoderSyncStickyFault = false;
 
     // Update odometry inputs (50Hz because high-frequency odometry in sim doesn't matter)
     inputs.odometryTimestamps = new double[] {Timer.getFPGATimestamp()};
@@ -97,7 +99,6 @@ public class ModuleIOSim implements ModuleIO {
   @Override
   public void runDriveVelocity(double velocityRadPerSec) {
     driveClosedLoop = true;
-    // driveFFVolts = DRIVE_KS * Math.signum(velocityRadPerSec) + DRIVE_KV * velocityRadPerSec;
     driveController.setSetpoint(velocityRadPerSec);
   }
 
