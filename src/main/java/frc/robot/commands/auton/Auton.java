@@ -209,7 +209,7 @@ public class Auton {
                       PathUtil.followPath("Left Trench A2"),
                       IntakeCommands.stop(),
                       PathUtil.followPath("Left Trench B1"),
-                      ShooterCommands.shootLoop(false).withTimeout(3.0));
+                      ShooterCommands.shootAutomatic().withTimeout(3.0));
 
               if (autonDepot.get()) {
                 myCommand2 =
@@ -218,7 +218,7 @@ public class Auton {
                         Commands.parallel(
                             PathUtil.followPath("Left Depot2"),
                             IntakeCommands.intakeOn(),
-                            ShooterCommands.shootLoop(false).withTimeout(5.0)),
+                            ShooterCommands.shootAutomatic().withTimeout(5.0)),
                         IntakeCommands.stop());
               } else {
                 myCommand2 =
@@ -228,7 +228,7 @@ public class Auton {
                             Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
                         IntakeCommands.stop(),
                         PathUtil.followPath("Left Trench D1"),
-                        ShooterCommands.shootLoop(false).withTimeout(5.0),
+                        ShooterCommands.shootAutomatic().withTimeout(5.0),
                         IntakeCommands.stop());
               }
 
