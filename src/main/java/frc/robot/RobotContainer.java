@@ -114,9 +114,7 @@ public class RobotContainer {
     driverController.leftBumper().onTrue(IntakeCommands.retract());
 
     // Shooter
-    shooter.setDefaultCommand(ShooterCommands.runDynamic());
-
-    driverController.rightTrigger().whileTrue(ShooterCommands.shootLoop(false));
+    driverController.rightTrigger().whileTrue(ShooterCommands.shootAutomatic());
 
     operatorController
         .triangle()
@@ -130,28 +128,29 @@ public class RobotContainer {
         .circle()
         .onTrue(ShooterCommands.runStatic(ShooterConstants.StaticShot.oppAllianceZone));
 
-    operatorController
-        .share()
-        .onTrue(
-            Commands.runOnce(() -> RobotSystem.manualShootToggle = !RobotSystem.manualShootToggle)
-                .ignoringDisable(true)
-                .withName("ShooterManuelShootToggle"));
+    // TODO: Use command in ShooterCommands
+    // operatorController
+    //     .share()
+    //     .onTrue(
+    //         Commands.runOnce(() -> ShooterCommands.manualShoot = !ShooterCommands.manualShoot)
+    //             .ignoringDisable(true)
+    //             .withName("ShooterManuelShootToggle"));
 
     operatorController
         .R2()
         .onTrue(
-            Commands.runOnce(() -> RobotSystem.shooterHold = true)
+            Commands.runOnce(() -> shooter.holdSetpoint = true)
                 .ignoringDisable(true)
                 .withName("ShooterHoldTrue"))
         .onFalse(
-            Commands.runOnce(() -> RobotSystem.shooterHold = false)
+            Commands.runOnce(() -> shooter.holdSetpoint = false)
                 .ignoringDisable(true)
                 .withName("ShooterHoldFalse"));
 
     operatorController
         .PS()
         .onTrue(
-            Commands.runOnce(() -> RobotSystem.noPass = !RobotSystem.noPass)
+            Commands.runOnce(() -> shooter.noPass = !shooter.noPass)
                 .ignoringDisable(true)
                 .withName("NoPass"));
 

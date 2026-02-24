@@ -21,6 +21,8 @@ public final class DriveConstants {
   public static final CANBus canBus = CanBusUtil.getCanivoreBus();
   public static final double trackWidthX = Units.inchesToMeters(21.75); // meters
   public static final double trackWidthY = Units.inchesToMeters(21.75); // meters
+  public static final double fullWidth = Units.inchesToMeters(34.5);
+  public static final double fullLength = Units.inchesToMeters(34.5);
   public static final double driveReduction = 6.12;
   public static final double turnReduction = 150.0 / 7.0;
   public static final double maxLinearVelocity = 5.03; // meters/second

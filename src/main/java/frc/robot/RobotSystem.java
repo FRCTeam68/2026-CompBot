@@ -38,7 +38,6 @@ import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import lombok.Getter;
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class RobotSystem {
@@ -53,16 +52,6 @@ public class RobotSystem {
   @Getter private final Shooter shooter;
   @Getter private final RollerSystem spindexer;
   @Getter private final RollerSystem feeder;
-
-  // Shooter
-  @AutoLogOutput(key = "Shooter/Hold")
-  public static boolean shooterHold = false;
-
-  @AutoLogOutput(key = "Shooter/Toggle")
-  public static boolean manualShootToggle = false;
-
-  @AutoLogOutput(key = "Shooter/NoPass")
-  public static boolean noPass = false;
 
   private final Field2d field = new Field2d();
 
@@ -204,7 +193,9 @@ public class RobotSystem {
         feeder = new RollerSystem("feeder", new RollerSystemIO() {});
     }
 
-    shooter = new Shooter(flywheel, hood, turret, drive::getPose, drive::getFieldVelocity);
+    shooter =
+        new Shooter(
+            flywheel, hood, turret, drive::getPose, drive::getFieldVelocity, drive::inAllianceZone);
   }
 
   /**
