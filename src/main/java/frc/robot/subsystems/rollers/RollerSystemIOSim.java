@@ -9,7 +9,6 @@ import frc.robot.Constants;
 
 public class RollerSystemIOSim implements RollerSystemIO {
   private final DCMotorSim sim;
-
   private double appliedVoltage = 0.0;
 
   /**
@@ -17,7 +16,7 @@ public class RollerSystemIOSim implements RollerSystemIO {
    * @param reduction The ratio of motor to mechanism rotations, where a ratio greater than 1 is a
    *     reduction.
    * @param moi The moment of inertia of the roller. This can be roughly calculated from the CAD.
-   *     Units are in J/KgMetersSquared.
+   *     Units are J/KgMetersSquared.
    */
   public RollerSystemIOSim(DCMotor motor, double reduction, double moi) {
     sim = new DCMotorSim(LinearSystemId.createDCMotorSystem(motor, moi, reduction), motor);
@@ -26,7 +25,7 @@ public class RollerSystemIOSim implements RollerSystemIO {
   @Override
   public void updateInputs(RollerSystemIOInputs inputs) {
     if (DriverStation.isDisabled()) {
-      runVolts(0);
+      stop();
     }
 
     sim.update(Constants.loopPeriodSecs);

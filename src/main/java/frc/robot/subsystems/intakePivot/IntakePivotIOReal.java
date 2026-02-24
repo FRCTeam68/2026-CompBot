@@ -36,8 +36,8 @@ import lombok.Getter;
 
 public class IntakePivotIOReal implements IntakePivotIO {
   private static final CANBus canBus = CanBusUtil.getRioBus();
-  private static final double rotorToSensorReduction = (40.0 / 8.0) * (60.0 / 20.0);
-  private static final double sensorToMechanismReduction = (32.0 / 16.0);
+  @Getter private static final double rotorToSensorReduction = (40.0 / 8.0) * (60.0 / 20.0);
+  @Getter private static final double sensorToMechanismReduction = (32.0 / 16.0);
 
   @Getter
   private static final double reduction = rotorToSensorReduction * sensorToMechanismReduction;
@@ -147,8 +147,8 @@ public class IntakePivotIOReal implements IntakePivotIO {
   }
 
   @Override
-  public void runPosition(double position, int slot) {
-    talon.setControl(positionOut.withPosition(position).withSlot(slot));
+  public void runPosition(double rotations, int slot) {
+    talon.setControl(positionOut.withPosition(rotations).withSlot(slot));
   }
 
   @Override

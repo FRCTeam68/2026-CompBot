@@ -6,7 +6,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -52,12 +51,6 @@ public class RobotContainer {
       new Alert("Driver Xbox controller disconnected.", AlertType.kError);
   private final Alert operatorControllerDisconnectedAlert =
       new Alert("Operator PS4 controller disconnected.", AlertType.kError);
-  private final Alert noAutoSelectedAlert =
-      new Alert("No autonomous routine selected.", AlertType.kWarning);
-  private final Alert startingPoseAlert =
-      new Alert(
-          "Current robot pose does not match the starting pose for selected auton. Possible causes include the incorrect auton is selected, the camera is not getting a clear view of an april tag, or the robot is in the wrong location.",
-          AlertType.kError);
 
   // Triggers
   private final Trigger hubTransitionWarningTrigger =
@@ -191,7 +184,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return Auton.command();
+    return Auton.SelectedCommand();
   }
 
   /** Stops all subsystems, cancels all scheduled commands, and stops controller rumble. */
@@ -228,20 +221,5 @@ public class RobotContainer {
     robotSystem.visualization();
     driverControllerDisconnectedAlert.set(!driverController.isConnected());
     operatorControllerDisconnectedAlert.set(!operatorController.isConnected());
-
-    if (DriverStation.isAutonomous() && DriverStation.isDisabled()) {
-      //     noAutoSelectedAlert.set(autonChooser.get() == null);
-      //     getStartingPoseAlert.set(
-      //         autonChooser.get() != null
-      //             &&
-      // (AutonUtil.getStartingPose().minus(drive.getPose()).getTranslation().getNorm()
-      //                     > 0.25
-      //                 ||
-      //   AutonUtil.getStartingPose().minus(drive.getPose()).getRotation().getDegrees()
-      //                   > 20));
-    } else {
-      noAutoSelectedAlert.set(false);
-      startingPoseAlert.set(false);
-    }
   }
 }

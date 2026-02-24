@@ -1,0 +1,720 @@
+{
+  "hubs": [
+    {
+      "x": 481,
+      "y": 12,
+      "width": 1567,
+      "height": 788,
+      "state": {
+        "sidebar": {
+          "width": 489,
+          "expanded": [
+            "/Drive/Module0/TurnPosition",
+            "/DriveState",
+            "/DriveState/Speeds",
+            "/AdvantageKit/RealOutputs/SwerveStates/Measured/0",
+            "/AdvantageKit/RealOutputs/SwerveStates/Setpoints/0",
+            "/AdvantageKit/RealOutputs/SwerveStates/SetpointsOptimized/0",
+            "/AdvantageKit/RealOutputs/SwerveChassisSpeeds/Measured",
+            "/AdvantageKit/RealOutputs/SwerveChassisSpeeds/Setpoints",
+            "/AdvantageKit/RealOutputs/SwerveStates/Measured/0/angle",
+            "/AdvantageKit/RealOutputs/SwerveStates/SetpointsOptimized/0/angle",
+            "/AdvantageKit/Vision/Camera1",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/RobotPoses",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/RobotPosesAccepted",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/RobotPosesRejected",
+            "/AdvantageKit/RealOutputs/Vision/Summary",
+            "/AdvantageKit/Vision/Camera0/LatestTargetObservation",
+            "/AdvantageKit/Vision/Camera0/PoseObservations",
+            "/AdvantageKit/Vision/Camera0/TagIds",
+            "/AdvantageKit/Vision/Camera0/PoseObservations/0",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/TagPoses",
+            "/AdvantageKit/RealOutputs/Vision/Summary/RobotPoses",
+            "/AdvantageKit/RealOutputs/Vision/Summary/RobotPosesAccepted",
+            "/AdvantageKit/RealOutputs/Vision/Summary/RobotPosesRejected",
+            "/AdvantageKit/Vision/Camera0/LatestTargetObservation/ty",
+            "/AdvantageKit/Vision/Camera0/LatestTargetObservation/tx",
+            "/AdvantageKit/Vision/Camera0/PoseObservations/0/pose",
+            "/AdvantageKit/Vision/Camera0/PoseObservations/0/pose/translation",
+            "/Tuning/Shooter",
+            "/AdvantageKit/Roller",
+            "/Tuning/Drive/Module",
+            "/AdvantageKit/RealOutputs",
+            "/AdvantageKit/RealOutputs/Roller",
+            "/AdvantageKit/RollerLeft",
+            "/AdvantageKit/RollerRight",
+            "/AdvantageKit/Vision/Camera0/PoseObservations/0/pose/rotation",
+            "/AdvantageKit/Vision/Camera0/PoseObservations/1",
+            "/AdvantageKit/Vision/Camera1/TagIds",
+            "/AdvantageKit/Vision/Camera1/PoseObservations/0",
+            "/AdvantageKit/Vision/Camera1/LatestTargetObservation/ty",
+            "/AdvantageKit/Vision/Camera1/LatestTargetObservation/tx",
+            "/AdvantageKit/RealOutputs/Vision/Camera1",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/RobotPoses/0/rotation/q",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/RobotPoses/1/translation",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/RobotPosesAccepted",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/RobotPosesAccepted/0",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/RobotPosesAccepted/0/translation",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/RobotPosesAccepted/0/rotation/q",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/TagPoses/0",
+            "/AdvantageKit/SystemStats/CANBus",
+            "/Tuning/Roller/Wrist",
+            "/AdvantageKit/NetworkInputs/SmartDashboard",
+            "/AdvantageKit/RealOutputs/CANBUS/rio",
+            "/AdvantageKit/RealOutputs/CANBUS/DRIVEbus",
+            "/AdvantageKit/RealOutputs/Vision/Summary/TagPoses",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/TagPoses",
+            "/AdvantageKit/Vision/Camera1/PoseObservations/1/pose",
+            "/AdvantageKit/Vision/Camera1/PoseObservations/1/pose/rotation",
+            "/AdvantageKit/Vision/Camera1/PoseObservations/1/pose/translation",
+            "/AdvantageKit/Vision/Camera1/PoseObservations/0/pose",
+            "/AdvantageKit/Vision/Camera1/PoseObservations/0/pose/translation",
+            "/AdvantageKit/Vision/Camera1/PoseObservations/0/pose/rotation",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/RobotPosesAccepted/1",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/RobotPosesAccepted/1/translation",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/RobotPosesRejected",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/RobotPosesRejected/0/translation",
+            "/AdvantageKit/Vision/Camera1/PoseObservations/1",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/RobotPoses/0",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/RobotPoses/1",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/TagPoses/0/translation",
+            "/AdvantageKit/RealOutputs/Vision/Summary/TagPoses/0/translation",
+            "/AdvantageKit/Elevator",
+            "/AdvantageKit/IntakeShooter",
+            "/AdvantageKit/Wrist",
+            "/AdvantageKit/ElevatorFollower",
+            "/AdvantageKit/RealOutputs/CAN_range",
+            "/AdvantageKit/RealOutputs/CAN_range/intakeCoral",
+            "/AdvantageKit/RealOutputs/CANBUS",
+            "/AdvantageKit/RealOutputs/LED",
+            "/AdvantageKit/RealOutputs/CAN_range/ElevatorHeight",
+            "/AdvantageKit/RealOutputs/ElevatorWristSubSystem",
+            "/Tuning/Roller",
+            "/AdvantageKit/RealOutputs/Odometry/Robot",
+            "/AdvantageKit/RealOutputs/Odometry/Robot/translation",
+            "/AdvantageKit/RealOutputs/Odometry/Robot/rotation",
+            "/AdvantageKit/NetworkInputs",
+            "/AdvantageKit/DriverStation",
+            "/AdvantageKit/RealOutputs/SwerveStates/Measured",
+            "/AdvantageKit/Climber",
+            "/RealOutputs/CAN_range/intakeCoral",
+            "/NetworkInputs/SmartDashboard",
+            "/RealOutputs/Roller",
+            "/RealOutputs/Odometry/Robot",
+            "/RealOutputs/Odometry/Robot/translation",
+            "/RealOutputs/Odometry/Robot/rotation",
+            "/Vision/Camera1",
+            "/Vision/Camera1/TagIds",
+            "/Vision/Camera1/LatestTargetObservation/tx",
+            "/Vision/Camera1/LatestTargetObservation/ty",
+            "/Vision/Camera1/PoseObservations/0",
+            "/RealOutputs/Vision/Camera1",
+            "/RealOutputs/Vision/Camera1/TagPoses/0",
+            "/RealOutputs/Vision/Camera1/TagPoses/1",
+            "/RealOutputs/Vision/Camera1/TagPoses/0/translation",
+            "/Vision/Camera1/LatestTargetObservation",
+            "/RealOutputs/Roller/Elevator",
+            "/RealOutputs/Roller/Wrist",
+            "/RealOutputs/Vision/Camera1/RobotPosesAccepted",
+            "/RealOutputs/Vision/Camera1/RobotPosesAccepted/0",
+            "/RealOutputs/Vision/Camera1/RobotPosesRejected",
+            "/RealOutputs/Manipulator/IntakeShooter",
+            "/RealOutputs/SwerveStates/Setpoints",
+            "/RealOutputs/SwerveStates/SetpointsOptimized",
+            "/RealOutputs/SwerveChassisSpeeds/Measured",
+            "/RealOutputs/SwerveChassisSpeeds/Setpoints",
+            "/Drive/Gyro",
+            "/Drive/Gyro/YawPosition",
+            "/RealOutputs/CANBUS/DRIVEbus",
+            "/RealOutputs/CANBUS/rio",
+            "/Phoenix6",
+            "/Phoenix6/Pigeon2-50",
+            "/RadioStatus/Status",
+            "/SystemStats/5vRail",
+            "/SystemStats/3v3Rail",
+            "/SystemStats/6vRail",
+            "/RadioStatus/Status/networkStatus6",
+            "/RadioStatus/Status/networkStatus24",
+            "/RealOutputs/CAN_range/ElevatorHeight",
+            "/RealOutputs/Roller/Climber",
+            "/RealOutputs/Roller/IntakeShooter",
+            "/RealOutputs/Vision/Camera1/RobotPosesRejected/0/rotation",
+            "/RealOutputs/Vision/Camera1/RobotPosesRejected/0/rotation/q",
+            "/CameraPublisher",
+            "/AdvantageKit/Vision",
+            "/AdvantageKit/RealOutputs/Vision/Summary/TagPoses/0/rotation/q",
+            "/AdvantageKit/RealOutputs/Vision/Camera0",
+            "/AdvantageKit",
+            "/AdvantageKit/RealOutputs/RollerSystem",
+            "/AdvantageKit/RealOutputs/Manipulator/IntakeShooter",
+            "/AdvantageKit/RealOutputs/Roller/Elevator",
+            "/AdvantageKit/RealOutputs/Manipulator",
+            "/AdvantageKit/Drive/Gyro",
+            "/AdvantageKit/RealOutputs/Odometry",
+            "/AdvantageKit/RealOutputs/RobotPose",
+            "/AdvantageKit/Drive/Module0",
+            "/AdvantageKit/Drive/Module1",
+            "/AdvantageKit/Drive/Module2",
+            "/AdvantageKit/Drive/Module3",
+            "/AdvantageKit/RealOutputs/RollerData",
+            "/AdvantageKit/RealOutputs/RollerData/Wrist",
+            "/AdvantageKit/RealOutputs/wristRollerSystem",
+            "/AdvantageKit/RealOutputs/Vision",
+            "/CameraPublisher/limelight-reef",
+            "/AdvantageKit/Drive",
+            "/RealOutputs/SwerveStates/Measured",
+            "/RealOutputs/Vision/Summary",
+            "/Vision/Camera1/PoseObservations/1",
+            "/RealOutputs/RollerData/IntakeShooter",
+            "/RealOutputs/RollerData/IntakeShooterLow",
+            "/RealOutputs/RollerData/Elevator",
+            "/RealOutputs/RollerData/Wrist",
+            "/ElevatorFollower",
+            "/NetworkInputs/SmartDashboard/Auto",
+            "/RealOutputs/ElevatorWristSubSystem",
+            "/Drive/Module0",
+            "/RealOutputs/SwerveStates/Measured/0",
+            "/RealOutputs/CANrange",
+            "/RealOutputs/CANrange/Coral Sensor",
+            "/DriverStation/Joystick0/AxisValues",
+            "/DriverStation/Joystick1/AxisValues",
+            "/RealOutputs/RobotPose/Setpoint",
+            "/RealOutputs/RobotPose/Setpoint/Elevator",
+            "/RealOutputs/RobotPose/Measured",
+            "/RealOutputs/RobotPose/Setpoint/Coral",
+            "/Vision/limelight-donotuse",
+            "/Vision/limelight-reef",
+            "/Vision/limelight-reef/LatestTargetObservation",
+            "/Vision/limelight-donotuse/LatestTargetObservation",
+            "/RealOutputs/Vision/Summary/RobotPosesAccepted",
+            "/NetworkInputs/Tuning/Elevator",
+            "/RealOutputs/RobotPose/Setpoint/Elevator/0",
+            "/Tuning/Roller/IntakeShooter",
+            "/Tuning/Elevator",
+            "/Tuning/Elevator/Slot 0 Configs",
+            "/RealOutputs/Vision/Summary/RobotPosesAccepted/0",
+            "/Sensors/Coral CANrange",
+            "/Sensors/Reef CANrange",
+            "/RealOutputs/Manipulator",
+            "/RealOutputs/PathPlanner/warnings",
+            "/RealOutputs/PathPlanner/infos",
+            "/RealOutputs/PathPlanner/errors",
+            "/Drive/Module0/TurnAbsolutePosition",
+            "/RealOutputs/SwerveStates/Setpoints/0",
+            "/RealOutputs/Drive/ChassisSpeeds",
+            "/RealOutputs/RobotPose/Drive",
+            "/Drive/Module0(FrontLeft)",
+            "/RealOutputs/Vision",
+            "/RealOutputs/Vision/Summary/TagPoses",
+            "/RealOutputs/Vision/limelight-four",
+            "/RealOutputs/Vision/limelight-four/MegaTag2",
+            "/RealOutputs/Alerts",
+            "/RealOutputs/Alerts/warnings",
+            "/RealOutputs/Alerts/infos",
+            "/RealOutputs/Alerts/errors",
+            "/RealOutputs/CANivoreStatus",
+            "/RealOutputs/LoggedTracer",
+            "/NetworkInputs",
+            "/NetworkInputs/SmartDashboard/Auton",
+            "/IntakeSpin",
+            "/IntakePivot",
+            "/RealOutputs",
+            "/RealOutputs/IntakePivot",
+            "/RealOutputs/IntakeSpin"
+          ]
+        },
+        "tabs": {
+          "selected": 6,
+          "tabs": [
+            {
+              "type": 0,
+              "title": "",
+              "controller": null,
+              "controllerUUID": "grimvlgu9aluj8btvwotco2wpj0pto2h",
+              "renderer": "",
+              "controlsHeight": 0
+            },
+            {
+              "type": 1,
+              "title": "CAN",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "/RealOutputs/CANivoreStatus/Utilization",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "/RealOutputs/CANivoreStatus/TransmitErrorCount",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [
+                  {
+                    "type": "stripes",
+                    "logKey": "/RealOutputs/CANivoreStatus/Status",
+                    "logType": "String",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b"
+                    }
+                  },
+                  {
+                    "type": "stripes",
+                    "logKey": "/DriverStation/Autonomous",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#80588e"
+                    }
+                  },
+                  {
+                    "type": "stripes",
+                    "logKey": "/DriverStation/Enabled",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32"
+                    }
+                  }
+                ],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "rightUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "oi0uihlabvlhw5dhuwnmyxsyki5keqzo",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 5,
+              "title": "Console",
+              "controller": "/RealOutputs/Console",
+              "controllerUUID": "2zpzqh8eycu4frgfiaj6ey74ku0rdswh",
+              "renderer": {
+                "highlight": false
+              },
+              "controlsHeight": 0
+            },
+            {
+              "type": 1,
+              "title": "Line Graph",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "/RealOutputs/CANivoreStatus/Utilization",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#858584",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "/RealOutputs/LoggedRobot/UserCodeMS",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#3b875a",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [
+                  {
+                    "type": "stripes",
+                    "logKey": "/RealOutputs/Alerts/errors/0",
+                    "logType": "String",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2"
+                    }
+                  },
+                  {
+                    "type": "stripes",
+                    "logKey": "/RealOutputs/Alerts/errors/1",
+                    "logType": "String",
+                    "visible": true,
+                    "options": {
+                      "color": "#80588e"
+                    }
+                  },
+                  {
+                    "type": "stripes",
+                    "logKey": "/RealOutputs/Alerts/errors/2",
+                    "logType": "String",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32"
+                    }
+                  },
+                  {
+                    "type": "stripes",
+                    "logKey": "/RealOutputs/Alerts/errors/3",
+                    "logType": "String",
+                    "visible": true,
+                    "options": {
+                      "color": "#c0b487"
+                    }
+                  },
+                  {
+                    "type": "stripes",
+                    "logKey": "/RealOutputs/Alerts/warnings/0",
+                    "logType": "String",
+                    "visible": true,
+                    "options": {
+                      "color": "#5f4528"
+                    }
+                  },
+                  {
+                    "type": "stripes",
+                    "logKey": "/DriverStation/Enabled",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b"
+                    }
+                  },
+                  {
+                    "type": "stripes",
+                    "logKey": "/DriverStation/Autonomous",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437"
+                    }
+                  }
+                ],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "rightUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "8aryfmhec84aiwj423ytmg3terl5oqdq",
+              "renderer": null,
+              "controlsHeight": 406
+            },
+            {
+              "type": 1,
+              "title": "Auton",
+              "controller": {
+                "leftSources": [],
+                "rightSources": [],
+                "discreteSources": [
+                  {
+                    "type": "stripes",
+                    "logKey": "/NetworkInputs/SmartDashboard/Auton/StartingPose",
+                    "logType": "String",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b"
+                    }
+                  },
+                  {
+                    "type": "stripes",
+                    "logKey": "/NetworkInputs/SmartDashboard/Auton/Climb",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2"
+                    }
+                  },
+                  {
+                    "type": "stripes",
+                    "logKey": "/NetworkInputs/SmartDashboard/Auton/Special",
+                    "logType": "String",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437"
+                    }
+                  }
+                ],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "rightUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "bcnpzdd03o4t5ibh08udc1l9mb571yvk",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 1,
+              "title": "Intake",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "/IntakePivot/PositionRots",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "/RealOutputs/IntakePivot/SetpointPositionRots",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "/IntakeSpin/VelocityRotsPerSec",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "/RealOutputs/IntakeSpin/SetpointVolts",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#c0b487",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "/IntakeSpin/AppliedVoltage",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#858584",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [
+                  {
+                    "type": "stripes",
+                    "logKey": "/IntakePivot/MotorConnected",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437"
+                    }
+                  },
+                  {
+                    "type": "stripes",
+                    "logKey": "/IntakeSpin/Connected",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#80588e"
+                    }
+                  }
+                ],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "rightUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "lksrl3y4afh19at8wbnf7biuvyhqag0d",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 3,
+              "title": "3D Field",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "robot",
+                    "logKey": "/RealOutputs/RobotPose/Drive",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {
+                      "model": "2026"
+                    }
+                  },
+                  {
+                    "type": "component",
+                    "logKey": "/RealOutputs/RobotPose/Intake",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {}
+                  },
+                  {
+                    "type": "component",
+                    "logKey": "/RealOutputs/RobotPose/Turret",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {}
+                  },
+                  {
+                    "type": "component",
+                    "logKey": "/RealOutputs/RobotPose/Hood",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {}
+                  },
+                  {
+                    "type": "trajectory",
+                    "logKey": "/RealOutputs/PathPlanner/Trajectory",
+                    "logType": "Pose2d[]",
+                    "visible": true,
+                    "options": {
+                      "color": "#00ff00",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "/RealOutputs/Vision/Summary/RobotPosesAccepted",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "model": "2026 KitBot",
+                      "color": "#00ff00"
+                    }
+                  }
+                ],
+                "game": "FRC:2026 Field"
+              },
+              "controllerUUID": "58bsrlwvrb8sdnukl6cxpky860v2pxr6",
+              "renderer": {
+                "cameraIndex": -1,
+                "orbitFov": 50,
+                "cameraPosition": [
+                  -6.4526210183447335,
+                  1.1029861368552067,
+                  1.6275449487304674
+                ],
+                "cameraTarget": [
+                  -6.230188151814562,
+                  -2.1830068740158235,
+                  3.2276810349310123
+                ]
+              },
+              "controlsHeight": 327
+            },
+            {
+              "type": 9,
+              "title": "Swerve",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "states",
+                    "logKey": "/RealOutputs/SwerveStates/Measured",
+                    "logType": "SwerveModuleState[]",
+                    "visible": true,
+                    "options": {
+                      "color": "#ff0000",
+                      "arrangement": "0,1,2,3"
+                    }
+                  },
+                  {
+                    "type": "states",
+                    "logKey": "/RealOutputs/SwerveStates/Setpoints",
+                    "logType": "SwerveModuleState[]",
+                    "visible": true,
+                    "options": {
+                      "color": "#0000ff",
+                      "arrangement": "0,1,2,3"
+                    }
+                  }
+                ],
+                "maxSpeed": 5,
+                "sizeX": 0.65,
+                "sizeY": 0.65,
+                "orientation": 1
+              },
+              "controllerUUID": "y7eryph6d7pwxj0w8e55z8ovcem03vsv",
+              "renderer": null,
+              "controlsHeight": 200
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "satellites": [
+    {
+      "x": 728,
+      "y": 25,
+      "width": 1300,
+      "height": 976,
+      "state": {
+        "type": 3,
+        "visualizer": {
+          "cameraIndex": -1,
+          "orbitFov": 50,
+          "cameraPosition": [
+            -8.502624728386095,
+            10.333096511117768,
+            2.762062343143673
+          ],
+          "cameraTarget": [
+            -3.4892682741196253,
+            -3.1356836324263333,
+            2.315284567785223
+          ]
+        }
+      },
+      "uuid": "58bsrlwvrb8sdnukl6cxpky860v2pxr6"
+    }
+  ],
+  "version": "26.0.0"
+}
