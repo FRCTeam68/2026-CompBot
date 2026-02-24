@@ -48,16 +48,14 @@ public class RobotSystem {
   @Getter private final RollerSystem spindexer;
   @Getter private final RollerSystem feeder;
 
-  public static class ShooterFunctions {
-    @AutoLogOutput(key = "Shooter/Hold")
-    public static boolean shooterHold = false;
+  @AutoLogOutput(key = "Shooter/Hold")
+  public static boolean shooterHold = false;
 
-    @AutoLogOutput(key = "Shooter/Toggle")
-    public static boolean manualShootToggle = false;
+  @AutoLogOutput(key = "Shooter/Toggle")
+  public static boolean manualShootToggle = false;
 
-    @AutoLogOutput(key = "Shooter/NoPass")
-    public static boolean noPass = false;
-  }
+  @AutoLogOutput(key = "Shooter/NoPass")
+  public static boolean noPass = false;
 
   public RobotSystem() {
     Flywheel flywheel;

@@ -23,8 +23,8 @@ public class ShooterCommands {
   public static Command shootLoop(boolean manual) {
     return Commands.run(
             () -> {
-              if (!manual && !RobotSystem.ShooterFunctions.manualShootToggle) {
-                if (!RobotSystem.ShooterFunctions.shooterHold) {
+              if (!manual && !RobotSystem.manualShootToggle) {
+                if (!RobotSystem.shooterHold) {
                   if (shooter.atSetpoint()) {
                     feeder.runVolts(12);
                     spindexer.runVolts(12);
@@ -33,7 +33,7 @@ public class ShooterCommands {
                     spindexer.stop();
                   }
                 } else {
-                  RobotSystem.ShooterFunctions.shooterHold = false;
+                  RobotSystem.shooterHold = false;
                 }
               } else {
                 feeder.runVolts(12);
@@ -53,7 +53,7 @@ public class ShooterCommands {
   public static Command runStatic(
       double flywheelVelocity, double hoodElevation, double turretPosition) {
     return Commands.sequence(
-            Commands.runOnce(() -> RobotSystem.ShooterFunctions.shooterHold = true),
+            Commands.runOnce(() -> RobotSystem.shooterHold = true),
             Commands.runOnce(
                 () -> shooter.runStatic(flywheelVelocity, hoodElevation, turretPosition), shooter))
         .withName("ShootStatic");
@@ -66,10 +66,10 @@ public class ShooterCommands {
   public static Command runDynamic() {
     return Commands.run(
             () -> {
-              if (!RobotSystem.ShooterFunctions.shooterHold) {
+              if (!RobotSystem.shooterHold) {
                 Translation2d target;
                 boolean isPass;
-                if (shooter.inAllianceZone() || RobotSystem.ShooterFunctions.noPass) {
+                if (shooter.inAllianceZone() || RobotSystem.noPass) {
                   target = AllianceFlipUtil.apply(ShooterConstants.Target.hub);
                   isPass = false;
                 } else {
@@ -100,7 +100,7 @@ public class ShooterCommands {
 
   public static Command stop() {
     return Commands.sequence(
-            Commands.runOnce(() -> RobotSystem.ShooterFunctions.shooterHold = true),
+            Commands.runOnce(() -> RobotSystem.shooterHold = true),
             Commands.runOnce(() -> shooter.stop(), shooter))
         .withName("ShooterStop");
   }
