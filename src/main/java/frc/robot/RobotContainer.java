@@ -96,7 +96,7 @@ public class RobotContainer {
                         .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
 
     driverController
-        .povDown()
+        .povRight()
         .onTrue(
             DriveCommands.autopilotDriveToPose(
                 () ->
@@ -105,6 +105,8 @@ public class RobotContainer {
                                 new Pose2d(FieldConstants.Hub.nearRightCorner, new Rotation2d())
                                     .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
                         .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
+
+    driverController.povDown().whileTrue(DriveCommands.autopilotDriveToHubArc());
 
     // Intake
     driverController.leftTrigger().whileTrue(IntakeCommands.intakeWhile());

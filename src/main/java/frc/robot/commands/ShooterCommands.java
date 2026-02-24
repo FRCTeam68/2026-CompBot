@@ -44,16 +44,23 @@ public class ShooterCommands {
             },
             feeder,
             spindexer)
+        .beforeStarting(() -> robotSystem.isShooting = true)
         .finallyDo(
             () -> {
               feeder.stop();
               spindexer.stop();
+              robotSystem.isShooting = false;
             })
         .withName("ShootLoop");
   }
 
   public static Command shootManual() {
-    return Commands.none();
+    return Commands.none()
+        .beforeStarting(() -> robotSystem.isShooting = true)
+        .finallyDo(
+            () -> {
+              robotSystem.isShooting = false;
+            });
   }
 
   public static Command runStatic(

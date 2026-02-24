@@ -20,6 +20,9 @@ public class IntakeCommands {
         .withName("IntakeRetract");
   }
 
+  // TODO: create a command to retract the intake while a button is held and then put it out again
+  // when released.
+
   public static Command intakeOn() {
     return Commands.sequence(
             Commands.runOnce(

@@ -43,6 +43,8 @@ import org.littletonrobotics.junction.Logger;
 public class RobotSystem {
   private static RobotSystem instance = null;
 
+  public boolean isShooting = false;
+
   // Subsystems
   @Getter private final Drive drive;
   @Getter private final Vision vision;
@@ -114,7 +116,7 @@ public class RobotSystem {
         //             36.0 / 12.0));
 
         flywheel = new Flywheel(new FlywheelIOSim());
-        hood = new Hood(drive::getPose, new HoodIOSim());
+        hood = new Hood(new HoodIOSim());
         turret = new Turret(new TurretIOSim());
 
         intakePivot = new IntakePivot(new IntakePivotIOSim() {});
@@ -146,7 +148,7 @@ public class RobotSystem {
         lights = new Lights(new LightsIO() {});
 
         flywheel = new Flywheel(new FlywheelIOSim());
-        hood = new Hood(drive::getPose, new HoodIOSim());
+        hood = new Hood(new HoodIOSim());
         turret = new Turret(new TurretIOSim());
 
         intakePivot = new IntakePivot(new IntakePivotIOSim() {});
@@ -183,7 +185,7 @@ public class RobotSystem {
         lights = new Lights(new LightsIO() {});
 
         flywheel = new Flywheel(new FlywheelIO() {});
-        hood = new Hood(drive::getPose, new HoodIO() {});
+        hood = new Hood(new HoodIO() {});
         turret = new Turret(new TurretIO() {});
 
         intakePivot = new IntakePivot(new IntakePivotIO() {});
@@ -196,6 +198,8 @@ public class RobotSystem {
     shooter =
         new Shooter(
             flywheel, hood, turret, drive::getPose, drive::getFieldVelocity, drive::inAllianceZone);
+
+    hood.initInTrenchBoxSupplier(shooter::inTrenchBox);
   }
 
   /**

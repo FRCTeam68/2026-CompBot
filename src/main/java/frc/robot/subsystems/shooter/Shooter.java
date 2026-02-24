@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -28,7 +29,7 @@ public class Shooter extends SubsystemBase {
   @Getter private final Hood hood;
   @Getter private final Turret turret;
 
-  private Translation2d target;
+  private Translation2d target = Translation2d.kZero;
   @Getter private boolean isTargetHub = true;
 
   @AutoLogOutput(key = "Shooter/HoldSetpoint")
@@ -102,7 +103,7 @@ public class Shooter extends SubsystemBase {
     }
 
     // Run shooter to target
-    if (!holdSetpoint) {
+    if (!holdSetpoint && (!isTargetHub || inAllianceZoneSupplier.get())) {
       runDynamic();
     }
   }
@@ -173,6 +174,42 @@ public class Shooter extends SubsystemBase {
         .plus(ShooterConstants.shooterPosition.toTranslation2d())
         .rotateAround(
             drivePoseSupplier.get().getTranslation(), drivePoseSupplier.get().getRotation());
+  }
+
+  /**
+   * Checks if the shooter is near any of the trenches. If so, the hood should be forced down to
+   * avoid collisions.
+   *
+   * @return If the shooter is near the trench.
+   */
+  @AutoLogOutput(key = "Shooter/InTrenchBox")
+  public boolean inTrenchBox() {
+    Translation2d shooterTranslation = getShooterFieldTranslation();
+
+    // The maximum time for the hood to lower to underTrenchMinimum
+    double hoodLowerTime = 0.5;
+
+    // Default box size. xMin should be set big enough to allow ample time for the hood to go down
+    // from 0 velocity.
+    double xSize = Units.inchesToMeters(47);
+    double ySize = FieldConstants.LinesHorizontal.rightTrenchOpenStart;
+
+    // Adjust x limits based on velocity
+    double xOffestPos =
+        (xSize / 2) + (-Math.min(0, driveVelocitySupplier.get().vxMetersPerSecond) * hoodLowerTime);
+    double xOffsetNeg =
+        (-xSize / 2) - (Math.max(0, driveVelocitySupplier.get().vxMetersPerSecond) * hoodLowerTime);
+
+    // Check y position
+    return (shooterTranslation.getY() < ySize
+            || shooterTranslation.getY() > FieldConstants.fieldWidth - ySize)
+        // Check blue alliance x position
+        && ((shooterTranslation.getX() < FieldConstants.LinesVertical.hubCenter + xOffestPos
+                && shooterTranslation.getX() > FieldConstants.LinesVertical.hubCenter + xOffsetNeg)
+            // Check red alliance x position
+            || (shooterTranslation.getX() < FieldConstants.LinesVertical.oppHubCenter + xOffestPos
+                && shooterTranslation.getX()
+                    > FieldConstants.LinesVertical.oppHubCenter + xOffsetNeg));
   }
 
   @AutoLogOutput(key = "Shooter/DistanceToTarget")
