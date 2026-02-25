@@ -187,6 +187,7 @@ public class RobotContainer {
     intakeSpin.stop();
     shooter.stop();
     feeder.stop();
+    spindexer.stop();
   }
 
   /** Save Limelight 4 rewind to disc. This is only functional on the Limelight 4. */

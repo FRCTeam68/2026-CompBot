@@ -54,7 +54,7 @@ public interface VisionIO {
    * @return Camera information
    */
   public default CameraInfo getCameraInfo() {
-    return CameraInfo.LL_2;
+    return CameraInfo.values()[1];
   }
 
   /**

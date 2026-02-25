@@ -9,18 +9,16 @@ public class VisionConstants {
   // Camera information
   public static enum CameraInfo {
     // Limelight 4 name must start with "limelight-four" to work with special functions.
-    LL_2("limelight-two", Pose3d.kZero, 1.0),
-    // TODO: set camera poses
     LL_3G(
         "limelight-threeg",
         new Pose3d(
-            new Translation3d(-0.401129, 0.0, 0.258806),
+            new Translation3d(-0.264950, -0.272987, 0.223248),
             new Rotation3d(0.0, Units.degreesToRadians(10.0), Math.PI)),
         1.0),
     LL_4(
         "limelight-four",
         new Pose3d(
-            new Translation3d(-0.401129, 0.0, 0.258806),
+            new Translation3d(-0.292719, 0.273426, 0.306539),
             new Rotation3d(0.0, Units.degreesToRadians(10.0), Math.PI)),
         1.0);
 

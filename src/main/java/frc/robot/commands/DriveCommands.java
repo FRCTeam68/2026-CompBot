@@ -1,5 +1,7 @@
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.Meters;
+
 import com.therekrab.autopilot.APTarget;
 import com.therekrab.autopilot.Autopilot;
 import com.therekrab.autopilot.Autopilot.APResult;
@@ -16,6 +18,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.FieldConstants;
 import frc.robot.RobotSystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
@@ -27,6 +30,7 @@ import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -37,9 +41,10 @@ public class DriveCommands {
   private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
   private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
-  private static final double hubArcRadius = 2.0;
 
-  // Max shooting speeds
+  // Shooting constants
+  private static final LoggedTunableNumber hubArcRadius =
+      new LoggedTunableNumber("Drive/HubShot/ArcRadius", 2.5);
   private static final LoggedTunableNumber hubShotMaxLinearVelocity =
       new LoggedTunableNumber("Drive/HubShot/MaxLinearVelocity", 1.0);
   private static final LoggedTunableNumber hubShotMaxAngularVelocity =
@@ -151,11 +156,17 @@ public class DriveCommands {
             DriveConstants.angularPID.kI,
             DriveConstants.angularPID.kD,
             new TrapezoidProfile.Constraints(
-                getAdjustedMaxAngularVelocity(), DriveConstants.maxAngularAcceleration));
+                DriveConstants.maxAngularVelocity, DriveConstants.maxAngularAcceleration));
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
 
     // Construct command
     return Commands.run(
             () -> {
+              // Update constraints
+              angleController.setConstraints(
+                  new TrapezoidProfile.Constraints(
+                      getAdjustedMaxAngularVelocity(), DriveConstants.maxAngularAcceleration));
+
               // Get linear velocity
               Translation2d linearVelocity =
                   getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
@@ -187,7 +198,6 @@ public class DriveCommands {
         // Reset PID controller when command starts
         .beforeStarting(
             () -> {
-              angleController.enableContinuousInput(-Math.PI, Math.PI);
               angleController.reset(
                   drive.getRotation().getRadians(), drive.getChassisSpeeds().omegaRadiansPerSecond);
             })
@@ -209,11 +219,17 @@ public class DriveCommands {
             DriveConstants.angularPID.kI,
             DriveConstants.angularPID.kD,
             new TrapezoidProfile.Constraints(
-                getAdjustedMaxAngularVelocity(), DriveConstants.maxAngularAcceleration));
+                DriveConstants.maxAngularVelocity, DriveConstants.maxAngularAcceleration));
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
 
     // Construct command
     return Commands.run(
             () -> {
+              // Update constraints
+              angleController.setConstraints(
+                  new TrapezoidProfile.Constraints(
+                      getAdjustedMaxAngularVelocity(), DriveConstants.maxAngularAcceleration));
+
               // Get linear velocity
               Translation2d linearVelocity =
                   getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
@@ -250,7 +266,6 @@ public class DriveCommands {
         // Reset PID controller when command starts
         .beforeStarting(
             () -> {
-              angleController.enableContinuousInput(-Math.PI, Math.PI);
               angleController.reset(
                   drive.getRotation().getRadians(), drive.getChassisSpeeds().omegaRadiansPerSecond);
             })
@@ -275,11 +290,17 @@ public class DriveCommands {
             DriveConstants.angularPID.kI,
             DriveConstants.angularPID.kD,
             new TrapezoidProfile.Constraints(
-                getAdjustedMaxAngularVelocity(), DriveConstants.maxAngularAcceleration));
+                DriveConstants.maxAngularVelocity, DriveConstants.maxAngularAcceleration));
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
 
     // Construct command
     return Commands.run(
             () -> {
+              // Update constraints
+              angleController.setConstraints(
+                  new TrapezoidProfile.Constraints(
+                      getAdjustedMaxAngularVelocity(), DriveConstants.maxAngularAcceleration));
+
               // Get linear velocity
               Translation2d linearVelocity =
                   getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
@@ -327,7 +348,6 @@ public class DriveCommands {
         // Reset PID controller when command starts
         .beforeStarting(
             () -> {
-              angleController.enableContinuousInput(-Math.PI, Math.PI);
               angleController.reset(
                   drive.getRotation().getRadians(), drive.getChassisSpeeds().omegaRadiansPerSecond);
             })
@@ -360,12 +380,8 @@ public class DriveCommands {
    */
   public static Command autopilotDriveToPose(Supplier<APTarget> targetSupplier) {
     // Configure Autopilot controller
-    Autopilot autopilot;
-    if (targetSupplier.get().getVelocity() == 0.0) {
-      autopilot = new Autopilot(DriveConstants.apConfigStatic);
-    } else {
-      autopilot = new Autopilot(DriveConstants.apConfigDynamic);
-    }
+    AtomicReference<Autopilot> autopilot =
+        new AtomicReference<>(new Autopilot(DriveConstants.apConfigStatic));
 
     // Configure PID controller
     ProfiledPIDController angleController =
@@ -374,7 +390,8 @@ public class DriveCommands {
             DriveConstants.angularPID.kI,
             DriveConstants.angularPID.kD,
             new TrapezoidProfile.Constraints(
-                getAdjustedMaxAngularVelocity(), DriveConstants.maxAngularAcceleration));
+                DriveConstants.maxAngularVelocity, DriveConstants.maxAngularAcceleration));
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
 
     List<Pose2d> trajectory = new LinkedList<>();
 
@@ -387,10 +404,31 @@ public class DriveCommands {
               Logger.recordOutput(
                   "Autopilot/Target", new Pose2d[] {targetSupplier.get().getReference()});
 
+              // Update constraints
+              if (targetSupplier.get().getVelocity() == 0.0) {
+                autopilot.set(
+                    new Autopilot(
+                        DriveConstants.apConfigStatic.withConstraints(
+                            DriveConstants.apConfigStatic
+                                .getConstraints()
+                                .withVelocity(getAdjustedMaxLinearVelocity()))));
+              } else {
+                autopilot.set(
+                    new Autopilot(
+                        DriveConstants.apConfigDynamic.withConstraints(
+                            DriveConstants.apConfigDynamic
+                                .getConstraints()
+                                .withVelocity(getAdjustedMaxLinearVelocity()))));
+              }
+              angleController.setConstraints(
+                  new TrapezoidProfile.Constraints(
+                      getAdjustedMaxAngularVelocity(), DriveConstants.maxAngularAcceleration));
+
               // Calculate Autopilot result
               APResult result =
-                  autopilot.calculate(
-                      drive.getPose(), drive.getChassisSpeeds(), targetSupplier.get());
+                  autopilot
+                      .get()
+                      .calculate(drive.getPose(), drive.getChassisSpeeds(), targetSupplier.get());
 
               // Calculate angular speed
               double omega =
@@ -407,10 +445,9 @@ public class DriveCommands {
             drive)
         .repeatedly()
 
-        // Before starting, configure angle controller, clear trajectory list, and logging
+        // Before starting configure angle controller, clear trajectory list, and logging
         .beforeStarting(
             () -> {
-              angleController.enableContinuousInput(-Math.PI, Math.PI);
               angleController.reset(
                   drive.getRotation().getRadians(), drive.getChassisSpeeds().omegaRadiansPerSecond);
 
@@ -420,7 +457,7 @@ public class DriveCommands {
             })
 
         // Run until robot is within error of target pose
-        .until(() -> autopilot.atTarget(drive.getPose(), targetSupplier.get()))
+        .until(() -> autopilot.get().atTarget(drive.getPose(), targetSupplier.get()))
 
         // When at target or interupted, if end velocity is non-zero then stop the drive motors
         // Also reset logged values
@@ -437,7 +474,7 @@ public class DriveCommands {
               Logger.recordOutput("Autopilot/Trajectory", new Pose2d[] {});
               Logger.recordOutput("Autopilot/Target", new Pose2d[] {});
 
-              if (autopilot.atTarget(drive.getPose(), targetSupplier.get())) {
+              if (autopilot.get().atTarget(drive.getPose(), targetSupplier.get())) {
                 Logger.recordOutput("Autopilot/State", "At Target");
               } else {
                 Logger.recordOutput("Autopilot/State", "Interrupted");
@@ -449,8 +486,12 @@ public class DriveCommands {
   /** Drive to hub arc using autopilot. */
   public static Command autopilotDriveToHubArc() {
     // Configure Autopilot controller
-    Autopilot autopilot = new Autopilot(DriveConstants.apConfigDynamic);
-    APTarget target = new APTarget(new Pose2d());
+    AtomicReference<Autopilot> autopilot =
+        new AtomicReference<>(
+            new Autopilot(
+                DriveConstants.apConfigStatic.withBeelineRadius(
+                    Meters.of(Double.POSITIVE_INFINITY))));
+    AtomicReference<APTarget> target = new AtomicReference<>();
 
     // Configure PID controller
     ProfiledPIDController angleController =
@@ -459,21 +500,35 @@ public class DriveCommands {
             DriveConstants.angularPID.kI,
             DriveConstants.angularPID.kD,
             new TrapezoidProfile.Constraints(
-                getAdjustedMaxAngularVelocity(), DriveConstants.maxAngularAcceleration));
+                DriveConstants.maxAngularVelocity, DriveConstants.maxAngularAcceleration));
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
 
     List<Pose2d> trajectory = new LinkedList<>();
-    // TODO: actually update this
+
     return Commands.run(
             () -> {
               // Logging
               trajectory.add(drive.getPose());
               Logger.recordOutput(
                   "Autopilot/Trajectory", trajectory.toArray(new Pose2d[trajectory.size()]));
-              Logger.recordOutput("Autopilot/Target", new Pose2d[] {target.getReference()});
+              Logger.recordOutput("Autopilot/Target", new Pose2d[] {target.get().getReference()});
+
+              // Update constraints
+              autopilot.set(
+                  new Autopilot(
+                      DriveConstants.apConfigStatic.withConstraints(
+                          DriveConstants.apConfigStatic
+                              .getConstraints()
+                              .withVelocity(getAdjustedMaxLinearVelocity()))));
+              angleController.setConstraints(
+                  new TrapezoidProfile.Constraints(
+                      getAdjustedMaxAngularVelocity(), DriveConstants.maxAngularAcceleration));
 
               // Calculate Autopilot result
               APResult result =
-                  autopilot.calculate(drive.getPose(), drive.getChassisSpeeds(), target);
+                  autopilot
+                      .get()
+                      .calculate(drive.getPose(), drive.getChassisSpeeds(), target.get());
 
               // Calculate angular speed
               double omega =
@@ -490,10 +545,29 @@ public class DriveCommands {
             drive)
         .repeatedly()
 
-        // Before starting, configure angle controller, clear trajectory list, and logging
+        // Do nothing if not in alliance zone
+        .onlyIf(() -> drive.inAllianceZone())
+
+        // Before starting calculate pose, configure angle controller, clear trajectory list, and
+        // logging
         .beforeStarting(
             () -> {
-              angleController.enableContinuousInput(-Math.PI, Math.PI);
+              Translation2d hub =
+                  AllianceFlipUtil.apply(FieldConstants.Hub.innerCenterPoint.toTranslation2d());
+
+              Double offset =
+                  hub.getDistance(shooter.getShooterFieldTranslation())
+                      - hub.getDistance(drive.getPose().getTranslation());
+
+              target.set(
+                  new APTarget(
+                      new Pose2d(
+                          hub.plus(
+                              new Translation2d(
+                                  hubArcRadius.get() - offset,
+                                  drive.getPose().getTranslation().minus(hub).getAngle())),
+                          drive.getRotation())));
+
               angleController.reset(
                   drive.getRotation().getRadians(), drive.getChassisSpeeds().omegaRadiansPerSecond);
 
@@ -503,19 +577,18 @@ public class DriveCommands {
             })
 
         // Run until robot is within error of target pose
-        .until(() -> autopilot.atTarget(drive.getPose(), target))
+        .until(() -> autopilot.get().atTarget(drive.getPose(), target.get()))
 
         // When at target or interupted, if end velocity is non-zero then stop the drive motors
         // Also reset logged values
         .finallyDo(
             () -> {
-              drive.stopWithX();
-
               Logger.recordOutput("Autopilot/Trajectory", new Pose2d[] {});
               Logger.recordOutput("Autopilot/Target", new Pose2d[] {});
 
-              if (autopilot.atTarget(drive.getPose(), target)) {
+              if (autopilot.get().atTarget(drive.getPose(), target.get())) {
                 Logger.recordOutput("Autopilot/State", "At Target");
+                drive.stopWithX();
               } else {
                 Logger.recordOutput("Autopilot/State", "Interrupted");
               }

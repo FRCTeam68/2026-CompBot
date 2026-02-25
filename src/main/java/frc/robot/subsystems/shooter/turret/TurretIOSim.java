@@ -49,7 +49,8 @@ public class TurretIOSim implements TurretIO {
     inputs.torqueCurrentAmps =
         (appliedVoltage > 0.0) ? sim.getCurrentDrawAmps() * 12.0 / appliedVoltage : 0.0;
     inputs.magnetHealth = MagnetHealthValue.Magnet_Green;
-    inputs.absolutePosition = sim.getAngularPositionRotations();
+    inputs.absolutePositionDeg =
+        Units.rotationsToDegrees(MathUtil.inputModulus(sim.getAngularPositionRotations(), 0, 1));
   }
 
   @Override

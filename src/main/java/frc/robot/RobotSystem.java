@@ -29,11 +29,9 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
-import frc.robot.subsystems.shooter.flywheel.FlywheelIOReal;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.shooter.hood.HoodIO;
-import frc.robot.subsystems.shooter.hood.HoodIOReal;
 import frc.robot.subsystems.shooter.hood.HoodIOSim;
 import frc.robot.subsystems.shooter.turret.Turret;
 import frc.robot.subsystems.shooter.turret.TurretIO;
@@ -89,8 +87,8 @@ public class RobotSystem {
 
         lights = new Lights(new LightsIOCANdle());
 
-        flywheel = new Flywheel(new FlywheelIOReal());
-        hood = new Hood(new HoodIOReal());
+        // flywheel = new Flywheel(new FlywheelIOReal());
+        // hood = new Hood(new HoodIOReal());
         turret = new Turret(new TurretIOReal());
 
         // intakePivot = new IntakePivot(new IntakePivotIOReal());
@@ -126,11 +124,13 @@ public class RobotSystem {
                     NeutralModeValue.Coast,
                     36.0 / 12.0));
 
+        // Simulate systems since the motors are not wired yet
+        flywheel = new Flywheel(new FlywheelIOSim());
+        hood = new Hood(new HoodIOSim());
         intakePivot = new IntakePivot(new IntakePivotIOSim() {});
         intakeSpin =
             new RollerSystem(
                 "intakeSpin", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 1, 0.74));
-
         break;
 
       case SIM:

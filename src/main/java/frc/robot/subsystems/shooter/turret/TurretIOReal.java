@@ -87,7 +87,7 @@ public class TurretIOReal implements TurretIO {
     talonConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Turret.getMaximum();
     talonConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     talonConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Turret.getMinimum();
-    cancoderConfig.MagnetSensor.MagnetOffset = 0.0;
+    cancoderConfig.MagnetSensor.MagnetOffset = 0.519775390625;
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
     cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.0;
     tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
@@ -139,7 +139,7 @@ public class TurretIOReal implements TurretIO {
     inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
     inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();
     inputs.tempCelsius = tempCelsius.getValueAsDouble();
-    inputs.absolutePosition = absolutePosition.getValueAsDouble();
+    inputs.absolutePositionDeg = Units.rotationsToDegrees(absolutePosition.getValueAsDouble());
     inputs.magnetHealth = magnetHealth.getValue();
   }
 

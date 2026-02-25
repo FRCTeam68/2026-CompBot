@@ -68,11 +68,12 @@ public class Turret extends SubsystemBase {
     // Check if turret position could be ambiguous
     if (Constants.getMode() == Mode.REAL) {
       posistionAmbiguous =
-          getPosition() < ambiguousBand / 2 || getPosition() > 360 - (ambiguousBand / 2);
+          getPosition() < (ambiguousBand / 2) || getPosition() > 360 - (ambiguousBand / 2);
     }
 
     // Configure dashboard
     SmartDashboard.putData(
+        "Shooter/DisambiguateTurret",
         Commands.runOnce(() -> setRotation()).ignoringDisable(true).withName("DisambiguateTurret"));
   }
 
@@ -153,7 +154,8 @@ public class Turret extends SubsystemBase {
   }
 
   public void setRotation() {
-    if (getPosition() > ambiguousBand / 2 && getPosition() < 360 - (ambiguousBand / 2)) {
+    if (getAbsolutePosition() > ambiguousBand / 2
+        && getAbsolutePosition() < 360 - (ambiguousBand / 2)) {
       io.setPosition(MathUtil.inputModulus(getPosition(), 0, 360));
       posistionAmbiguous = false;
     }
@@ -166,6 +168,15 @@ public class Turret extends SubsystemBase {
    */
   public double getPosition() {
     return inputs.positionDeg;
+  }
+
+  /**
+   * Absolute position of the system in mechanism degrees.
+   *
+   * @return Absolute position.
+   */
+  public double getAbsolutePosition() {
+    return inputs.absolutePositionDeg;
   }
 
   /**
