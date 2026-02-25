@@ -1,6 +1,5 @@
 package frc.robot.subsystems.shooter.flywheel;
 
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
@@ -19,15 +18,6 @@ public class Flywheel extends SubsystemBase {
   private LoggedTunableNumber kP0 = new LoggedTunableNumber("Shooter/Flywheel/Slot0/kP", 20);
   private LoggedTunableNumber kD0 = new LoggedTunableNumber("Shooter/Flywheel/Slot0/kD", 0);
   private LoggedTunableNumber kS0 = new LoggedTunableNumber("Shooter/Flywheel/Slot0/kS", 0);
-
-  // TODO: we shouldn't need mm for the flywheel
-  // Motion magic gains
-  private LoggedTunableNumber mmVelocity =
-      new LoggedTunableNumber("Shooter/Flywheel/MotionMagic/Velocity", 0);
-  private LoggedTunableNumber mmAcceleration =
-      new LoggedTunableNumber("Shooter/Flywheel/MotionMagic/Acceleration", 0);
-  private LoggedTunableNumber mmJerk =
-      new LoggedTunableNumber("Shooter/Flywheel/MotionMagic/Jerk", 0);
 
   // Setpoint band
   private LoggedTunableNumber setpointBandVelocity =
@@ -77,17 +67,6 @@ public class Flywheel extends SubsystemBase {
     // Update PID gains
     if (kP0.hasChanged(hashCode()) | kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
       io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
-    }
-
-    // Update motion magic gains
-    if (mmVelocity.hasChanged(hashCode())
-        | mmAcceleration.hasChanged(hashCode())
-        | mmJerk.hasChanged(hashCode())) {
-      io.setMotionMagic(
-          new MotionMagicConfigs()
-              .withMotionMagicCruiseVelocity(mmVelocity.get())
-              .withMotionMagicAcceleration(mmAcceleration.get())
-              .withMotionMagicJerk(mmJerk.get()));
     }
   }
 

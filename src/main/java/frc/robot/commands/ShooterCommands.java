@@ -93,5 +93,10 @@ public class ShooterCommands {
         .withName("ShooterToggleNoPass");
   }
 
-  // TODO: create a command to toggle manual shoot
+  public static Command toggleManualShoot(boolean... value) {
+    return Commands.runOnce(() -> forceManualShoot = !forceManualShoot)
+        .onlyIf(() -> value.length == 0 || forceManualShoot != value[0])
+        .ignoringDisable(true)
+        .withName("ToggleManualShoot");
+  }
 }

@@ -20,8 +20,14 @@ public class IntakeCommands {
         .withName("IntakeRetract");
   }
 
-  // TODO: create a command to retract the intake while a button is held and then put it out again
-  // when released.
+  public static Command retractHold() {
+    return Commands.sequence(
+            Commands.runOnce(
+                () -> intakePivot.runPosition(IntakePivot.getPackaged(), 0), intakePivot),
+            Commands.runOnce(() -> intakeSpin.stop(), intakeSpin))
+        .finallyDo(() -> intakePivot.runPosition(IntakePivot.getExtended(), 0))
+        .withName("RetractHold");
+  }
 
   public static Command intakeOn() {
     return Commands.sequence(

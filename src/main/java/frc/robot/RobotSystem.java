@@ -1,5 +1,7 @@
 package frc.robot;
 
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -22,21 +24,26 @@ import frc.robot.subsystems.lights.LightsIOCANdle;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIO;
 import frc.robot.subsystems.rollers.RollerSystemIOSim;
+import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIOReal;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.shooter.hood.HoodIO;
+import frc.robot.subsystems.shooter.hood.HoodIOReal;
 import frc.robot.subsystems.shooter.hood.HoodIOSim;
 import frc.robot.subsystems.shooter.turret.Turret;
 import frc.robot.subsystems.shooter.turret.TurretIO;
+import frc.robot.subsystems.shooter.turret.TurretIOReal;
 import frc.robot.subsystems.shooter.turret.TurretIOSim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.util.CanBusUtil;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
@@ -82,55 +89,47 @@ public class RobotSystem {
 
         lights = new Lights(new LightsIOCANdle());
 
-        // TODO: uncomment real implementation for shooter, spindexer, and feeder. Leave intake
-        // simulated until it gets put on the robot.
-        // flywheel = new Flywheel(new FlywheelIOReal());
-        // hood = new Hood(drive::getPose, new HoodIOReal());
-        // turret = new Turret(new TurretIOReal());
+        flywheel = new Flywheel(new FlywheelIOReal());
+        hood = new Hood(new HoodIOReal());
+        turret = new Turret(new TurretIOReal());
 
         // intakePivot = new IntakePivot(new IntakePivotIOReal());
-        //         intakeSpin =
-        //             new RollerSystem(
-        //                 "intakeSpin", new
-        // RollerSystemIOTalonFX(22,CanBusUtil.getRioBus(),80,InvertedValue.CounterClockwise_Positive,NeutralModeValue.Coast,24.0/18.0));
-
-        //         spindexer =
+        // intakeSpin =
         //     new RollerSystem(
-        //         "spindexer",
+        //         "intakeSpin",
         //         new RollerSystemIOTalonFX(
-        //             23,
-        //             CanBusUtil.getCanivoreBus(),
-        //             80,
-        //             InvertedValue.Clockwise_Positive,
-        //             NeutralModeValue.Coast,
-        //             4.0 * 5.0 * (64.0 / 16.0)));
-        // feeder =
-        //     new RollerSystem(
-        //         "feeder",
-        //         new RollerSystemIOTalonFX(
-        //             24,
-        //             CanBusUtil.getCanivoreBus(),
+        //             22,
+        //             CanBusUtil.getRioBus(),
         //             80,
         //             InvertedValue.CounterClockwise_Positive,
         //             NeutralModeValue.Coast,
-        //             36.0 / 12.0));
+        //             24.0 / 18.0));
 
-        flywheel = new Flywheel(new FlywheelIOSim());
-        hood = new Hood(new HoodIOSim());
-        turret = new Turret(new TurretIOSim());
+        spindexer =
+            new RollerSystem(
+                "spindexer",
+                new RollerSystemIOTalonFX(
+                    23,
+                    CanBusUtil.getCanivoreBus(),
+                    80,
+                    InvertedValue.Clockwise_Positive,
+                    NeutralModeValue.Coast,
+                    4.0 * 5.0 * (64.0 / 16.0)));
+        feeder =
+            new RollerSystem(
+                "feeder",
+                new RollerSystemIOTalonFX(
+                    24,
+                    CanBusUtil.getCanivoreBus(),
+                    80,
+                    InvertedValue.CounterClockwise_Positive,
+                    NeutralModeValue.Coast,
+                    36.0 / 12.0));
 
         intakePivot = new IntakePivot(new IntakePivotIOSim() {});
         intakeSpin =
             new RollerSystem(
                 "intakeSpin", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 1, 0.74));
-
-        spindexer =
-            new RollerSystem(
-                "spindexer",
-                new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4 * 5 * (64 / 16), 0.1));
-        feeder =
-            new RollerSystem(
-                "feeder", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 36 / 12, 0.1));
 
         break;
 

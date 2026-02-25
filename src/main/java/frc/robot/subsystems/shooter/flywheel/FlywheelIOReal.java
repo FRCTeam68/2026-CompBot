@@ -4,7 +4,6 @@ import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.Slot2Configs;
@@ -155,10 +154,5 @@ public class FlywheelIOReal implements FlywheelIO {
       }
     }
     tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(config, 0.25));
-  }
-
-  @Override
-  public void setMotionMagic(MotionMagicConfigs newConfig) {
-    tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(newConfig, 0.25));
   }
 }

@@ -1,6 +1,5 @@
 package frc.robot.subsystems.shooter.flywheel;
 
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -51,11 +50,4 @@ public interface FlywheelIO {
    * @param newConfig PID gains
    */
   public default void setPID(SlotConfigs... newConfig) {}
-
-  /**
-   * Set motion magic configs.
-   *
-   * @param newConfig Motion magic config
-   */
-  public default void setMotionMagic(MotionMagicConfigs newConfig) {}
 }

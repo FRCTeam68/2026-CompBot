@@ -40,6 +40,8 @@ public class RobotContainer {
   private final IntakePivot intakePivot = robotSystem.getIntakePivot();
   private final RollerSystem intakeSpin = robotSystem.getIntakeSpin();
   private final Shooter shooter = robotSystem.getShooter();
+  private final RollerSystem feeder = robotSystem.getFeeder();
+  private final RollerSystem spindexer = robotSystem.getSpindexer();
 
   // Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
@@ -130,31 +132,14 @@ public class RobotContainer {
         .circle()
         .onTrue(ShooterCommands.runStatic(ShooterConstants.StaticShot.oppAllianceZone));
 
-    // TODO: Use command in ShooterCommands
-    // operatorController
-    //     .share()
-    //     .onTrue(
-    //         Commands.runOnce(() -> ShooterCommands.manualShoot = !ShooterCommands.manualShoot)
-    //             .ignoringDisable(true)
-    //             .withName("ShooterManuelShootToggle"));
+    operatorController.share().onTrue(ShooterCommands.toggleManualShoot());
 
     operatorController
         .R2()
-        .onTrue(
-            Commands.runOnce(() -> shooter.holdSetpoint = true)
-                .ignoringDisable(true)
-                .withName("ShooterHoldTrue"))
-        .onFalse(
-            Commands.runOnce(() -> shooter.holdSetpoint = false)
-                .ignoringDisable(true)
-                .withName("ShooterHoldFalse"));
+        .onTrue(ShooterCommands.setHoldSetpoint(true))
+        .onFalse(ShooterCommands.setHoldSetpoint(false));
 
-    operatorController
-        .PS()
-        .onTrue(
-            Commands.runOnce(() -> shooter.noPass = !shooter.noPass)
-                .ignoringDisable(true)
-                .withName("NoPass"));
+    operatorController.PS().onTrue(ShooterCommands.toggleNoPass());
 
     // Misc
     driverController
@@ -201,7 +186,7 @@ public class RobotContainer {
     intakePivot.stop();
     intakeSpin.stop();
     shooter.stop();
-    // TODO: add feeder stop
+    feeder.stop();
   }
 
   /** Save Limelight 4 rewind to disc. This is only functional on the Limelight 4. */
