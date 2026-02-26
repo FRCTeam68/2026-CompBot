@@ -9,11 +9,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.drive.GyroIO;
-import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
-import frc.robot.subsystems.drive.ModuleIOReal;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.intakePivot.IntakePivot;
 import frc.robot.subsystems.intakePivot.IntakePivotIO;
@@ -29,6 +26,7 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIOReal;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.shooter.hood.HoodIO;
@@ -69,13 +67,21 @@ public class RobotSystem {
 
     switch (Constants.getMode()) {
       case REAL:
+        // drive =
+        //     new Drive(
+        //         new GyroIOPigeon2(),
+        //         new ModuleIOReal(DriveConstants.moduleConfigs[0]),
+        //         new ModuleIOReal(DriveConstants.moduleConfigs[1]),
+        //         new ModuleIOReal(DriveConstants.moduleConfigs[2]),
+        //         new ModuleIOReal(DriveConstants.moduleConfigs[3]));
+
         drive =
             new Drive(
-                new GyroIOPigeon2(),
-                new ModuleIOReal(DriveConstants.moduleConfigs[0]),
-                new ModuleIOReal(DriveConstants.moduleConfigs[1]),
-                new ModuleIOReal(DriveConstants.moduleConfigs[2]),
-                new ModuleIOReal(DriveConstants.moduleConfigs[3]));
+                new GyroIO() {},
+                new ModuleIOSim(),
+                new ModuleIOSim(),
+                new ModuleIOSim(),
+                new ModuleIOSim());
 
         vision =
             new Vision(
@@ -87,7 +93,7 @@ public class RobotSystem {
 
         lights = new Lights(new LightsIOCANdle());
 
-        // flywheel = new Flywheel(new FlywheelIOReal());
+        flywheel = new Flywheel(new FlywheelIOReal());
         // hood = new Hood(new HoodIOReal());
         turret = new Turret(new TurretIOReal());
 
@@ -125,7 +131,7 @@ public class RobotSystem {
                     36.0 / 12.0));
 
         // Simulate systems since the motors are not wired yet
-        flywheel = new Flywheel(new FlywheelIOSim());
+        // flywheel = new Flywheel(new FlywheelIOSim());
         hood = new Hood(new HoodIOSim());
         intakePivot = new IntakePivot(new IntakePivotIOSim() {});
         intakeSpin =

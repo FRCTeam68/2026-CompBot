@@ -70,6 +70,9 @@ public class Shooter extends SubsystemBase {
                   SmartDashboard.getNumber("Shooter/TurretPosition", 0.0));
             },
             this));
+
+    SmartDashboard.putData("Shooter/Tuning/1", Commands.runOnce(() -> runStatic(0, 0, 1)));
+    SmartDashboard.putData("Shooter/Tuning/360", Commands.runOnce(() -> runStatic(0, 0, 360)));
   }
 
   public void periodic() {
@@ -135,11 +138,11 @@ public class Shooter extends SubsystemBase {
   public void runDynamic() {
     double targetDistance = target.minus(getShooterFieldTranslation()).getNorm();
     double flightTime = ShooterConstants.DynamicShot.hubShotFlightTime.get(targetDistance);
-    Translation2d adjustedTarget =
-        target.plus(
-            new Translation2d(
-                driveVelocitySupplier.get().vxMetersPerSecond * flightTime * -1,
-                driveVelocitySupplier.get().vyMetersPerSecond * flightTime * -1));
+    Translation2d adjustedTarget = target;
+    // target.plus(
+    //     new Translation2d(
+    //         driveVelocitySupplier.get().vxMetersPerSecond * flightTime * -1,
+    //         driveVelocitySupplier.get().vyMetersPerSecond * flightTime * -1));
     double adjustedTargetDistance = target.minus(getShooterFieldTranslation()).getNorm();
 
     Logger.recordOutput(
@@ -167,6 +170,7 @@ public class Shooter extends SubsystemBase {
   }
 
   /** Returns the the field relative position of the shooter. */
+  @AutoLogOutput
   public Translation2d getShooterFieldTranslation() {
     return drivePoseSupplier
         .get()

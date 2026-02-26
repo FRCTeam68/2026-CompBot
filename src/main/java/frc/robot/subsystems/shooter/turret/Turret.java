@@ -5,6 +5,7 @@ import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -24,15 +25,15 @@ public class Turret extends SubsystemBase {
   @Getter private static final double maximum = 360;
 
   // PID gains
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kP", 100);
+  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kP", 70);
   private LoggedTunableNumber kD0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kD", 0);
-  private LoggedTunableNumber kS0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kS", 0);
+  private LoggedTunableNumber kS0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kS", 0.3);
 
   // Motion magic gains
   private LoggedTunableNumber mmVelocity =
-      new LoggedTunableNumber("Shooter/Turret/MotionMagic/Velocity", 0);
+      new LoggedTunableNumber("Shooter/Turret/MotionMagic/Velocity", 400);
   private LoggedTunableNumber mmAcceleration =
-      new LoggedTunableNumber("Shooter/Turret/MotionMagic/Acceleration", 0);
+      new LoggedTunableNumber("Shooter/Turret/MotionMagic/Acceleration", 9999);
   private LoggedTunableNumber mmJerk =
       new LoggedTunableNumber("Shooter/Turret/MotionMagic/Jerk", 0);
 
@@ -67,6 +68,7 @@ public class Turret extends SubsystemBase {
 
     // Check if turret position could be ambiguous
     if (Constants.getMode() == Mode.REAL) {
+      this.io.updateInputs(inputs);
       posistionAmbiguous =
           getPosition() < (ambiguousBand / 2) || getPosition() > 360 - (ambiguousBand / 2);
     }
@@ -74,7 +76,9 @@ public class Turret extends SubsystemBase {
     // Configure dashboard
     SmartDashboard.putData(
         "Shooter/DisambiguateTurret",
-        Commands.runOnce(() -> setRotation()).ignoringDisable(true).withName("DisambiguateTurret"));
+        Commands.runOnce(() -> disambiguate())
+            .ignoringDisable(true)
+            .withName("DisambiguateTurret"));
   }
 
   public void periodic() {
@@ -97,7 +101,6 @@ public class Turret extends SubsystemBase {
 
     // Update PID gains
     if (kP0.hasChanged(hashCode()) | kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
-
       io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
     }
 
@@ -107,9 +110,9 @@ public class Turret extends SubsystemBase {
         | mmJerk.hasChanged(hashCode())) {
       io.setMotionMagic(
           new MotionMagicConfigs()
-              .withMotionMagicCruiseVelocity(mmVelocity.get())
-              .withMotionMagicAcceleration(mmAcceleration.get())
-              .withMotionMagicJerk(mmJerk.get()));
+              .withMotionMagicCruiseVelocity(Units.degreesToRotations(mmVelocity.get()))
+              .withMotionMagicAcceleration(Units.degreesToRotations(mmAcceleration.get()))
+              .withMotionMagicJerk(Units.degreesToRotations(mmJerk.get())));
     }
   }
 
@@ -119,9 +122,9 @@ public class Turret extends SubsystemBase {
    * @param volts Voltage to run the motor at.
    */
   public void runVolts(double volts) {
-    setpoint = volts;
-    mode = ControlMode.Voltage;
     if (posistionAmbiguous == false) {
+      setpoint = volts;
+      mode = ControlMode.Voltage;
       io.runVolts(volts);
     }
   }
@@ -135,9 +138,9 @@ public class Turret extends SubsystemBase {
    * @param slot PID gain slot to use during motion.
    */
   public void runPosition(double degrees, int slot) {
-    setpoint = MathUtil.inputModulus(degrees, minimum, maximum);
-    mode = ControlMode.Position;
     if (posistionAmbiguous == false) {
+      setpoint = MathUtil.inputModulus(degrees, minimum, maximum);
+      mode = ControlMode.Position;
       io.runPosition(setpoint, slot);
     }
   }
@@ -153,10 +156,11 @@ public class Turret extends SubsystemBase {
     io.setPosition(0);
   }
 
-  public void setRotation() {
-    if (getAbsolutePosition() > ambiguousBand / 2
-        && getAbsolutePosition() < 360 - (ambiguousBand / 2)) {
-      io.setPosition(MathUtil.inputModulus(getPosition(), 0, 360));
+  public void disambiguate() {
+    if (getAbsolutePosition() > (ambiguousBand / 2)
+        && getAbsolutePosition() < 360 - (ambiguousBand / 2)
+        && inputs.velocityDegPerSec < 0.1) {
+      io.setPosition(getAbsolutePosition());
       posistionAmbiguous = false;
     }
   }

@@ -11,8 +11,8 @@ import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
@@ -60,8 +60,8 @@ public class TurretIOReal implements TurretIO {
 
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true);
-  private final PositionVoltage positionOut = new PositionVoltage(0).withEnableFOC(true);
-  //   private final MotionMagicVoltage positionOut = new MotionMagicVoltage(0).withEnableFOC(true);
+  // private final PositionVoltage positionOut = new PositionVoltage(0).withEnableFOC(true);
+  private final MotionMagicVoltage positionOut = new MotionMagicVoltage(0).withEnableFOC(true);
   //   private final TorqueCurrentFOC positionOut = new TorqueCurrentFOC(0);
   //   private final MotionMagicTorqueCurrentFOC positionOut = new MotionMagicTorqueCurrentFOC(0);
   private final NeutralOut neutralOut = new NeutralOut();
@@ -87,9 +87,9 @@ public class TurretIOReal implements TurretIO {
     talonConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Turret.getMaximum();
     talonConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     talonConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Turret.getMinimum();
-    cancoderConfig.MagnetSensor.MagnetOffset = 0.519775390625;
+    cancoderConfig.MagnetSensor.MagnetOffset = -0.58544921875;
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-    cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.0;
+    cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
     tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
 
@@ -160,7 +160,7 @@ public class TurretIOReal implements TurretIO {
 
   @Override
   public void setPosition(double degrees) {
-    talon.setPosition(Units.degreesToRotations(degrees));
+    cancoder.setPosition(Units.degreesToRotations(degrees));
   }
 
   @Override
@@ -183,6 +183,7 @@ public class TurretIOReal implements TurretIO {
 
   @Override
   public void setMotionMagic(MotionMagicConfigs newConfig) {
-    tryUntilOk(5, () -> talon.getConfigurator().apply(newConfig, 0.25));
+    talonConfig.MotionMagic = newConfig;
+    tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
   }
 }
