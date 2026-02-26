@@ -47,16 +47,15 @@ public class Auton {
 
   public static enum StartingPose {
     Left,
-    Left1,
     Right,
     Center
   }
 
   public static enum Special {
     None,
-    Minimal,
-    Full,
-    Fast
+    Left_LigerBot,
+    Left_Tune_PP_3M_slow,
+    Left_Tune_PP_3M_fast
   }
 
   private static final Alert noAutoSelectedAlert =
@@ -69,15 +68,14 @@ public class Auton {
   public static void initDashboardInputs() {
     // Configure starting pose
     autonStartingPose.addOption("Left", Auton.StartingPose.Left);
-    autonStartingPose.addOption("Left1", Auton.StartingPose.Left1);
     autonStartingPose.addOption("Center", Auton.StartingPose.Center);
     autonStartingPose.addOption("Right", Auton.StartingPose.Right);
 
     // Configure special
     autonSpecial.addDefaultOption("None", Auton.Special.None);
-    autonSpecial.addOption("Minimal", Auton.Special.Minimal);
-    autonSpecial.addOption("Full", Auton.Special.Full);
-    autonSpecial.addOption("Fast", Auton.Special.Fast);
+    autonSpecial.addOption("Left_LigerBot", Auton.Special.Left_LigerBot);
+    autonSpecial.addOption("Left_Tune_PP_3M_fast", Auton.Special.Left_Tune_PP_3M_fast);
+    autonSpecial.addOption("Left_Tune_PP_3M_slow", Auton.Special.Left_Tune_PP_3M_slow);
   }
 
   public static void UpdateAlerts() {
@@ -102,10 +100,21 @@ public class Auton {
 
     switch (autonStartingPose.get()) {
       case Left:
-        return Apollo();
-
-      case Left1:
-        return Apollo1();
+        switch (autonSpecial.get()) {
+          case Left_Tune_PP_3M_slow:
+            return PathUtil.followPath("Left_Tune_PP_3M_Forward_slow")
+                .andThen(Commands.waitSeconds(3))
+                .andThen(PathUtil.followPath("Left_Tune_PP_3M_Back_slow"));
+          case Left_Tune_PP_3M_fast:
+            return PathUtil.followPath("Left_Tune_PP_3M_Forward_fast")
+                .andThen(Commands.waitSeconds(3))
+                .andThen(PathUtil.followPath("Left_Tune_PP_3M_Back_fast"));
+          case Left_LigerBot:
+            return Left_LigerBot();
+          case None:
+          default:
+            return Apollo();
+        }
 
       case Center:
         return Terra();
@@ -195,7 +204,7 @@ public class Auton {
         .withName("Auton_Apollo");
   }
 
-  private static Command Apollo1() {
+  private static Command Left_LigerBot() {
     return new DeferredCommand(
             () -> {
               Command myCommand1;
@@ -284,9 +293,6 @@ public class Auton {
     switch (autonStartingPose.get()) {
       case Left:
         return AllianceFlipUtil.apply(PathUtil.getStartingPose("Left Trench A"));
-
-      case Left1:
-        return AllianceFlipUtil.apply(PathUtil.getStartingPose("Left Trench A1"));
 
       case Center:
         return AllianceFlipUtil.apply(PathUtil.getStartingPose("Center Depot"));
