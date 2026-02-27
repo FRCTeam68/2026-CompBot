@@ -167,15 +167,20 @@ public class TurretIOReal implements TurretIO {
   public void setPID(SlotConfigs... newConfig) {
     for (int i = 0; i < Math.min(newConfig.length, 3); i++) {
       /*
-       * Optionally add gravity type and static feedforward sign
-       * Default gravity type: Elevator_Static
-       * Default static feedforward sign: UseVelocitySign
-       */
-      SlotConfigs slotConfig = newConfig[i];
+      Optionally add gravity type and static feedforward sign.
+      Default gravity type: Elevator_Static
+      Default static feedforward sign: UseVelocitySign
+      */
       switch (i) {
-        case 0 -> talonConfig.Slot0 = Slot0Configs.from(slotConfig);
-        case 1 -> talonConfig.Slot1 = Slot1Configs.from(slotConfig);
-        case 2 -> talonConfig.Slot2 = Slot2Configs.from(slotConfig);
+        case 0:
+          talonConfig.Slot0 = Slot0Configs.from(newConfig[i]);
+          break;
+        case 1:
+          talonConfig.Slot1 = Slot1Configs.from(newConfig[i]);
+          break;
+        case 2:
+          talonConfig.Slot2 = Slot2Configs.from(newConfig[i]);
+          break;
       }
     }
     tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));

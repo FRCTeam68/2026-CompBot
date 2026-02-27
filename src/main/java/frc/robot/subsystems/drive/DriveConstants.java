@@ -54,13 +54,13 @@ public final class DriveConstants {
 
   // Autopilot configuration
   public static final APProfile apConfigStatic =
-      new APProfile(new APConstraints(64.0, 14.0))
+      new APProfile(new APConstraints(64.0, Double.POSITIVE_INFINITY))
           .withErrorXY(Inches.of(1))
           .withErrorTheta(Degrees.of(1))
           .withBeelineRadius(Inches.of(5));
 
   public static final APProfile apConfigDynamic =
-      new APProfile(new APConstraints(100.0, 10))
+      new APProfile(new APConstraints(maxLinearAcceleration, Double.POSITIVE_INFINITY))
           .withErrorXY(Inches.of(6))
           .withErrorTheta(Degrees.of(6))
           .withBeelineRadius(Inches.of(12));

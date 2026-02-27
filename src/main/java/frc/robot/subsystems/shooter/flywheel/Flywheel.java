@@ -1,5 +1,8 @@
 package frc.robot.subsystems.shooter.flywheel;
 
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
@@ -15,9 +18,9 @@ import org.littletonrobotics.junction.Logger;
 
 public class Flywheel extends SubsystemBase {
   // PID gains
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Shooter/Flywheel/Slot0/kP", 20);
-  private LoggedTunableNumber kD0 = new LoggedTunableNumber("Shooter/Flywheel/Slot0/kD", 0);
-  private LoggedTunableNumber kS0 = new LoggedTunableNumber("Shooter/Flywheel/Slot0/kS", 0);
+  private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Flywheel/kP", 20);
+  private LoggedTunableNumber kD = new LoggedTunableNumber("Shooter/Flywheel/kD", 0);
+  private LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Flywheel/kS", 0);
 
   // Setpoint band
   private LoggedTunableNumber setpointBandVelocity =
@@ -57,16 +60,9 @@ public class Flywheel extends SubsystemBase {
     leaderTempAlert.set(inputs.leaderTempCelsius > Constants.warningTempCelsius);
     followerTempAlert.set(inputs.followerTempCelsius > Constants.warningTempCelsius);
 
-    // Log setpoint
-    Logger.recordOutput(
-        "Shooter/Flywheel/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
-    Logger.recordOutput(
-        "Shooter/Flywheel/SetpointVelocityRotsPerSec",
-        (mode == ControlMode.Velocity) ? setpoint : 0);
-
     // Update PID gains
-    if (kP0.hasChanged(hashCode()) | kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
-      io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
+    if (kP.hasChanged(hashCode()) | kD.hasChanged(hashCode()) | kS.hasChanged(hashCode())) {
+      io.setPID(new SlotConfigs().withKP(kP.get()).withKD(kD.get()).withKS(kS.get()));
     }
   }
 
@@ -76,9 +72,9 @@ public class Flywheel extends SubsystemBase {
    * @param volts Voltage to run the motor at.
    */
   public void runVolts(double volts) {
-    setpoint = volts;
     mode = ControlMode.Voltage;
     io.runVolts(volts);
+    Logger.recordOutput("Shooter/Flywheel/SetpointVolts", volts, Volts);
   }
 
   /**
@@ -87,12 +83,12 @@ public class Flywheel extends SubsystemBase {
    * <p><b>Units:</b> Mechanism rotations per second.
    *
    * @param velocity Goal velocity.
-   * @param slot PID gain slot to use during motion.
    */
-  public void runVelocity(double velocity, int slot) {
+  public void runVelocity(double velocity) {
     setpoint = velocity;
     mode = ControlMode.Velocity;
-    io.runVelocity(velocity, slot);
+    io.runVelocity(velocity, 0);
+    Logger.recordOutput("Shooter/Flywheel/SetpointVelocity", setpoint, RotationsPerSecond);
   }
 
   /** Stop motor with neutral output. */

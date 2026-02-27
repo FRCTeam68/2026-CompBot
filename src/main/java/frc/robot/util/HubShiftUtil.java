@@ -1,5 +1,7 @@
 package frc.robot.util;
 
+import static edu.wpi.first.units.Units.Seconds;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -154,7 +156,7 @@ public class HubShiftUtil {
     }
 
     // Log shift time
-    Logger.recordOutput("HubShift/ShiftSec", shiftTime.get());
+    Logger.recordOutput("HubShift/ShiftSec", shiftTime.get(), Seconds);
   }
 
   /**

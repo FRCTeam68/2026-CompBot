@@ -70,9 +70,6 @@ public class Shooter extends SubsystemBase {
                   SmartDashboard.getNumber("Shooter/TurretPosition", 0.0));
             },
             this));
-
-    SmartDashboard.putData("Shooter/Tuning/1", Commands.runOnce(() -> runStatic(0, 0, 1)));
-    SmartDashboard.putData("Shooter/Tuning/360", Commands.runOnce(() -> runStatic(0, 0, 360)));
   }
 
   public void periodic() {
@@ -120,9 +117,9 @@ public class Shooter extends SubsystemBase {
    */
   public void runStatic(double flywheelVelocity, double hoodElevation, double turretAngle) {
     holdSetpoint = true;
-    flywheel.runVelocity(flywheelVelocity, 0);
-    hood.runElvation(hoodElevation, 0);
-    turret.runPosition(turretAngle, 0);
+    flywheel.runVelocity(flywheelVelocity);
+    hood.runElvation(hoodElevation);
+    turret.runPosition(turretAngle);
   }
 
   /**
@@ -152,13 +149,11 @@ public class Shooter extends SubsystemBase {
             Rotation3d.kZero));
 
     flywheel.runVelocity(
-        ShooterConstants.DynamicShot.hubShotFlywheelVelocity.get(adjustedTargetDistance), 0);
-    hood.runElvation(
-        ShooterConstants.DynamicShot.hubShotHoodElevation.get(adjustedTargetDistance), 0);
+        ShooterConstants.DynamicShot.hubShotFlywheelVelocity.get(adjustedTargetDistance));
+    hood.runElvation(ShooterConstants.DynamicShot.hubShotHoodElevation.get(adjustedTargetDistance));
     turret.runPosition(
         adjustedTarget.minus(getShooterFieldTranslation()).getAngle().getDegrees()
-            - drivePoseSupplier.get().getRotation().getDegrees(),
-        0);
+            - drivePoseSupplier.get().getRotation().getDegrees());
   }
 
   /** Stop all shooter subsytems. */
@@ -170,7 +165,6 @@ public class Shooter extends SubsystemBase {
   }
 
   /** Returns the the field relative position of the shooter. */
-  @AutoLogOutput
   public Translation2d getShooterFieldTranslation() {
     return drivePoseSupplier
         .get()
@@ -216,7 +210,8 @@ public class Shooter extends SubsystemBase {
                     > FieldConstants.LinesVertical.oppHubCenter + xOffsetNeg));
   }
 
-  @AutoLogOutput(key = "Shooter/DistanceToTarget")
+  /** Returns the distance in meters to the automatically selected target. */
+  @AutoLogOutput(key = "Shooter/DistanceToTarget", unit = "Meters")
   public double getDistanceToTarget() {
     return drivePoseSupplier.get().getTranslation().minus(target).getNorm();
   }

@@ -154,15 +154,20 @@ public class FlywheelIOReal implements FlywheelIO {
   public void setPID(SlotConfigs... newConfig) {
     for (int i = 0; i < Math.min(newConfig.length, 3); i++) {
       /*
-       * Optionally add gravity type and static feedforward sign
-       * Default gravity type: Elevator_Static
-       * Default static feedforward sign: UseVelocitySign
-       */
-      SlotConfigs slotConfig = newConfig[i];
+      Optionally add gravity type and static feedforward sign.
+      Default gravity type: Elevator_Static
+      Default static feedforward sign: UseVelocitySign
+      */
       switch (i) {
-        case 0 -> leaderConfig.Slot0 = Slot0Configs.from(slotConfig);
-        case 1 -> leaderConfig.Slot1 = Slot1Configs.from(slotConfig);
-        case 2 -> leaderConfig.Slot2 = Slot2Configs.from(slotConfig);
+        case 0:
+          leaderConfig.Slot0 = Slot0Configs.from(newConfig[i]);
+          break;
+        case 1:
+          leaderConfig.Slot1 = Slot1Configs.from(newConfig[i]);
+          break;
+        case 2:
+          leaderConfig.Slot2 = Slot2Configs.from(newConfig[i]);
+          break;
       }
     }
     tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(leaderConfig, 0.25));

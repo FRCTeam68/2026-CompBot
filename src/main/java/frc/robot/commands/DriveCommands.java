@@ -29,7 +29,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -273,88 +272,6 @@ public class DriveCommands {
   }
 
   /**
-   * Field relative drive command using joystick for linear control and PID for angular control.
-   * Similar to joystickDriveAtAngle but without the need to precalculate angle when pointing at a
-   * single point.
-   */
-  public static Command joystickDriveAtOptionalTarget(
-      DoubleSupplier xSupplier,
-      DoubleSupplier ySupplier,
-      DoubleSupplier omegaSupplier,
-      Supplier<Optional<Translation2d>> targetSupplier) {
-
-    // Configure PID controller
-    ProfiledPIDController angleController =
-        new ProfiledPIDController(
-            DriveConstants.angularPID.kP,
-            DriveConstants.angularPID.kI,
-            DriveConstants.angularPID.kD,
-            new TrapezoidProfile.Constraints(
-                DriveConstants.maxAngularVelocity, DriveConstants.maxAngularAcceleration));
-    angleController.enableContinuousInput(-Math.PI, Math.PI);
-
-    // Construct command
-    return Commands.run(
-            () -> {
-              // Update constraints
-              angleController.setConstraints(
-                  new TrapezoidProfile.Constraints(
-                      getAdjustedMaxAngularVelocity(), DriveConstants.maxAngularAcceleration));
-
-              // Get linear velocity
-              Translation2d linearVelocity =
-                  getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
-
-              // Calculate angular speed
-              double omega;
-              if (targetSupplier.get().isPresent()) {
-                omega =
-                    angleController.calculate(
-                        drive.getRotation().getRadians(),
-                        targetSupplier
-                            .get()
-                            .get()
-                            .rotateAround(drive.getPose().getTranslation(), Rotation2d.kPi)
-                            .minus(drive.getPose().getTranslation())
-                            .getAngle()
-                            .getRadians());
-              } else {
-                // Apply rotation deadband
-                omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
-
-                // Square rotation value for more precise control
-                omega = Math.copySign(omega * omega, omega) * getAdjustedMaxAngularVelocity();
-              }
-
-              // Convert to field relative speeds & send command
-              ChassisSpeeds fieldRelativeSpeeds =
-                  new ChassisSpeeds(
-                      linearVelocity.getX() * getAdjustedMaxLinearVelocity(),
-                      linearVelocity.getY() * getAdjustedMaxLinearVelocity(),
-                      omega);
-              if (robotSystem.isShooting && isChassisSpeedsZero(fieldRelativeSpeeds)) {
-                drive.stopWithX();
-              } else {
-                drive.runVelocity(
-                    ChassisSpeeds.fromFieldRelativeSpeeds(
-                        fieldRelativeSpeeds,
-                        AllianceFlipUtil.shouldFlip()
-                            ? drive.getRotation().rotateBy(Rotation2d.kPi)
-                            : drive.getRotation()));
-              }
-            },
-            drive)
-
-        // Reset PID controller when command starts
-        .beforeStarting(
-            () -> {
-              angleController.reset(
-                  drive.getRotation().getRadians(), drive.getChassisSpeeds().omegaRadiansPerSecond);
-            })
-        .withName("JoystickDriveAtOptionalTarget");
-  }
-
-  /**
    * Drive to a specified pose using autopilot. This command will run until the target pose it met.
    *
    * <ul>
@@ -511,7 +428,6 @@ public class DriveCommands {
               trajectory.add(drive.getPose());
               Logger.recordOutput(
                   "Autopilot/Trajectory", trajectory.toArray(new Pose2d[trajectory.size()]));
-              Logger.recordOutput("Autopilot/Target", new Pose2d[] {target.get().getReference()});
 
               // Update constraints
               autopilot.set(
@@ -555,18 +471,15 @@ public class DriveCommands {
               Translation2d hub =
                   AllianceFlipUtil.apply(FieldConstants.Hub.innerCenterPoint.toTranslation2d());
 
-              Double offset =
-                  hub.getDistance(shooter.getShooterFieldTranslation())
-                      - hub.getDistance(drive.getPose().getTranslation());
+              Rotation2d angleToTarget = hub.minus(drive.getPose().getTranslation()).getAngle();
 
               target.set(
                   new APTarget(
                       new Pose2d(
                           hub.plus(
                               new Translation2d(
-                                  hubArcRadius.get() - offset,
-                                  drive.getPose().getTranslation().minus(hub).getAngle())),
-                          drive.getRotation())));
+                                  hubArcRadius.get(), angleToTarget.rotateBy(Rotation2d.kPi))),
+                          angleToTarget)));
 
               angleController.reset(
                   drive.getRotation().getRadians(), drive.getChassisSpeeds().omegaRadiansPerSecond);
@@ -574,6 +487,7 @@ public class DriveCommands {
               trajectory.clear();
 
               Logger.recordOutput("Autopilot/State", "Moving to Target");
+              Logger.recordOutput("Autopilot/Target", new Pose2d[] {target.get().getReference()});
             })
 
         // Run until robot is within error of target pose
@@ -594,6 +508,104 @@ public class DriveCommands {
               }
             })
         .withName("AutopilotDrivetoHubArc");
+  }
+
+  /**
+   * Field relative drive command using joystick for linear control and PID for angular control.
+   * Similar to joystickDriveAtAngle but without the need to precalculate angle when pointing at a
+   * single point.
+   */
+  public static Command driveTuning(Pose2d targetPose) {
+    // Configure tunable numbers
+    LoggedTunableNumber linearKP = new LoggedTunableNumber("Drive/Tuning/LinearKP", 0);
+    LoggedTunableNumber linearKD = new LoggedTunableNumber("Drive/Tuning/LinearKD", 0);
+    LoggedTunableNumber angularKP = new LoggedTunableNumber("Drive/Tuning/AngularKP", 0);
+    LoggedTunableNumber angularKD = new LoggedTunableNumber("Drive/Tuning/AngularKD", 0);
+
+    // Configure PID controllers
+    AtomicReference<ProfiledPIDController> xController = new AtomicReference<>();
+    AtomicReference<ProfiledPIDController> yController = new AtomicReference<>();
+    AtomicReference<ProfiledPIDController> angleController = new AtomicReference<>();
+
+    // Construct command
+    return Commands.run(
+            () -> {
+              // // Update constraints
+              // angleController.get().setConstraints(
+              //     new TrapezoidProfile.Constraints(
+              //         getAdjustedMaxAngularVelocity(), DriveConstants.maxAngularAcceleration));
+
+              // // Calculate linear speed
+
+              // // Calculate angular speed
+              // double omega =
+              //     angleController.get().calculate(
+              //         drive.getRotation().getRadians(),
+              //         targetPose.getTranslation()
+              //             .minus(drive.getPose().getTranslation())
+              //             .getAngle()
+              //             .getRadians());
+
+              // // Convert to field relative speeds & send command
+              // ChassisSpeeds fieldRelativeSpeeds =
+              //     new ChassisSpeeds(
+              //         omega);
+              // if (robotSystem.isShooting && isChassisSpeedsZero(fieldRelativeSpeeds)) {
+              //   drive.stopWithX();
+              // } else {
+              //   drive.runVelocity(
+              //       ChassisSpeeds.fromFieldRelativeSpeeds(
+              //           fieldRelativeSpeeds,
+              //           AllianceFlipUtil.shouldFlip()
+              //               ? drive.getRotation().rotateBy(Rotation2d.kPi)
+              //               : drive.getRotation()));
+              // }
+            },
+            drive)
+
+        // Reset PID controller when command starts
+        .beforeStarting(
+            () -> {
+              angleController.set(
+                  new ProfiledPIDController(
+                      DriveConstants.angularPID.kP,
+                      0.0,
+                      DriveConstants.angularPID.kD,
+                      new TrapezoidProfile.Constraints(
+                          DriveConstants.maxAngularVelocity,
+                          DriveConstants.maxAngularAcceleration)));
+              angleController.get().enableContinuousInput(-Math.PI, Math.PI);
+              angleController
+                  .get()
+                  .reset(
+                      drive.getRotation().getRadians(),
+                      drive.getChassisSpeeds().omegaRadiansPerSecond);
+
+              xController.set(
+                  new ProfiledPIDController(
+                      DriveConstants.angularPID.kP,
+                      0.0,
+                      DriveConstants.angularPID.kD,
+                      new TrapezoidProfile.Constraints(
+                          DriveConstants.maxAngularVelocity,
+                          DriveConstants.maxAngularAcceleration)));
+              xController
+                  .get()
+                  .reset(drive.getPose().getX(), drive.getChassisSpeeds().vxMetersPerSecond);
+
+              yController.set(
+                  new ProfiledPIDController(
+                      DriveConstants.angularPID.kP,
+                      0.0,
+                      DriveConstants.angularPID.kD,
+                      new TrapezoidProfile.Constraints(
+                          DriveConstants.maxAngularVelocity,
+                          DriveConstants.maxAngularAcceleration)));
+              yController
+                  .get()
+                  .reset(drive.getPose().getY(), drive.getChassisSpeeds().vyMetersPerSecond);
+            })
+        .withName("DriveTuning");
   }
 
   /**
@@ -653,10 +665,9 @@ public class DriveCommands {
                       double kV = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
 
                       NumberFormat formatter = new DecimalFormat("#0.00000");
-                      java.lang.System.out.println(
-                          "********** Drive FF Characterization Results **********");
-                      java.lang.System.out.println("\tkS: " + formatter.format(kS));
-                      java.lang.System.out.println("\tkV: " + formatter.format(kV));
+                      System.out.println("********** Drive FF Characterization Results **********");
+                      System.out.println("\tkS: " + formatter.format(kS));
+                      System.out.println("\tkV: " + formatter.format(kV));
                     }))
         .withName("DriveFeedforwardCharacterization");
   }
@@ -716,13 +727,13 @@ public class DriveCommands {
                               (state.gyroDelta * DriveConstants.driveBaseRadius) / wheelDelta;
 
                           NumberFormat formatter = new DecimalFormat("#0.000");
-                          java.lang.System.out.println(
+                          System.out.println(
                               "********** Wheel Radius Characterization Results **********");
-                          java.lang.System.out.println(
+                          System.out.println(
                               "\tWheel Delta: " + formatter.format(wheelDelta) + " radians");
-                          java.lang.System.out.println(
+                          System.out.println(
                               "\tGyro Delta: " + formatter.format(state.gyroDelta) + " radians");
-                          java.lang.System.out.println(
+                          System.out.println(
                               "\tWheel Radius: "
                                   + formatter.format(wheelRadius)
                                   + " meters, "

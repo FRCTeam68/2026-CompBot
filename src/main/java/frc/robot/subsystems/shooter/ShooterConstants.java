@@ -27,7 +27,7 @@ public class ShooterConstants {
   }
 
   public static class StaticShot {
-    public static final shotConfig hub =
+    public static final shotConfig hubArc =
         shotConfig.builder().flywheelVelocity(0.000).hoodAngle(0.000).turretAngle(0.000).build();
     public static final shotConfig neutralZone =
         shotConfig.builder().flywheelVelocity(0.000).hoodAngle(0.000).turretAngle(0.000).build();

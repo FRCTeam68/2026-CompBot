@@ -1,5 +1,7 @@
 package frc.robot.subsystems.rollers;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.Alert;
@@ -82,14 +84,14 @@ public class RollerSystem extends SubsystemBase {
   public void runVolts(double volts) {
     setpointVolts = volts;
     io.runVolts(setpointVolts);
-    Logger.recordOutput(loggerKey + "/SetpointVolts", setpointVolts);
+    Logger.recordOutput(loggerKey + "/SetpointVolts", setpointVolts, Volts);
   }
 
   /** Stop motor with neutral output. */
   public void stop() {
     setpointVolts = 0.0;
     io.stop();
-    Logger.recordOutput(loggerKey + "/SetpointVolts", 0.0);
+    Logger.recordOutput(loggerKey + "/SetpointVolts", 0.0, Volts);
   }
 
   /**

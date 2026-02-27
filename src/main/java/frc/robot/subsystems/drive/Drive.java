@@ -50,7 +50,7 @@ public class Drive extends SubsystemBase {
   private final Alert gyroDisconnectedAlert =
       new Alert("Disconnected gyro, using kinematics as fallback!", AlertType.kError);
 
-  private final Debouncer gyroDebouncer = new Debouncer(0.5, DebounceType.kFalling);
+  private final Debouncer gyroDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
   private SwerveDriveKinematics kinematics =
       new SwerveDriveKinematics(DriveConstants.moduleTranslations);

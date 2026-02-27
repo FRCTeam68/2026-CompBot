@@ -1,5 +1,8 @@
 package frc.robot.subsystems.shooter.turret;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.MathUtil;
@@ -13,6 +16,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.util.ElasticUtil;
+import frc.robot.util.ElasticUtil.Notification;
+import frc.robot.util.ElasticUtil.NotificationLevel;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
 import lombok.Getter;
@@ -25,9 +31,9 @@ public class Turret extends SubsystemBase {
   @Getter private static final double maximum = 360;
 
   // PID gains
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kP", 70);
-  private LoggedTunableNumber kD0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kD", 0);
-  private LoggedTunableNumber kS0 = new LoggedTunableNumber("Shooter/Turret/Slot0/kS", 0.3);
+  private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Turret/kP", 70);
+  private LoggedTunableNumber kD = new LoggedTunableNumber("Shooter/Turret/kD", 0);
+  private LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Turret/kS", 0.3);
 
   // Motion magic gains
   private LoggedTunableNumber mmVelocity =
@@ -50,7 +56,7 @@ public class Turret extends SubsystemBase {
   private final Alert motorTempAlert = new Alert("Turret motor is too hot.", AlertType.kWarning);
   private final Alert posistionAmbiguousAlert =
       new Alert(
-          "Turret position ambiguous! Turret will not move until position is verified.",
+          "Turret position ambiguous! Turret will not move until position is Disambiguated.",
           AlertType.kError);
 
   // Debouncers
@@ -67,8 +73,8 @@ public class Turret extends SubsystemBase {
     this.io = io;
 
     // Check if turret position could be ambiguous
-    if (Constants.getMode() == Mode.REAL) {
-      this.io.updateInputs(inputs);
+    if (Constants.getMode() != Mode.SIM) {
+      periodic();
       posistionAmbiguous =
           getPosition() < (ambiguousBand / 2) || getPosition() > 360 - (ambiguousBand / 2);
     }
@@ -93,15 +99,9 @@ public class Turret extends SubsystemBase {
     motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
     posistionAmbiguousAlert.set(posistionAmbiguous);
 
-    // Log setpoint
-    Logger.recordOutput(
-        "Shooter/Turret/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
-    Logger.recordOutput(
-        "Shooter/Turret/SetpointPositionDeg", (mode == ControlMode.Position) ? setpoint : 0);
-
     // Update PID gains
-    if (kP0.hasChanged(hashCode()) | kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
-      io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
+    if (kP.hasChanged(hashCode()) | kD.hasChanged(hashCode()) | kS.hasChanged(hashCode())) {
+      io.setPID(new SlotConfigs().withKP(kP.get()).withKD(kD.get()).withKS(kS.get()));
     }
 
     // Update motion magic gains
@@ -122,11 +122,12 @@ public class Turret extends SubsystemBase {
    * @param volts Voltage to run the motor at.
    */
   public void runVolts(double volts) {
+    setpoint = volts;
+    mode = ControlMode.Voltage;
     if (posistionAmbiguous == false) {
-      setpoint = volts;
-      mode = ControlMode.Voltage;
       io.runVolts(volts);
     }
+    Logger.recordOutput("Shooter/Turret/SetpointVolts", volts, Volts);
   }
 
   /**
@@ -135,14 +136,14 @@ public class Turret extends SubsystemBase {
    * <p><b>Units:</b> Mechanism degrees.
    *
    * @param degrees Goal position.
-   * @param slot PID gain slot to use during motion.
    */
-  public void runPosition(double degrees, int slot) {
+  public void runPosition(double degrees) {
+    setpoint = MathUtil.inputModulus(degrees, minimum, maximum);
+    mode = ControlMode.Position;
     if (posistionAmbiguous == false) {
-      setpoint = MathUtil.inputModulus(degrees, minimum, maximum);
-      mode = ControlMode.Position;
-      io.runPosition(setpoint, slot);
+      io.runPosition(setpoint, 0);
     }
+    Logger.recordOutput("Shooter/Turret/SetpointPosition", setpoint, Degrees);
   }
 
   /** Stop motor with neutral output. */
@@ -159,9 +160,14 @@ public class Turret extends SubsystemBase {
   public void disambiguate() {
     if (getAbsolutePosition() > (ambiguousBand / 2)
         && getAbsolutePosition() < 360 - (ambiguousBand / 2)
-        && inputs.velocityDegPerSec < 0.1) {
+        && inputs.velocityDegPerSec < 0.01) {
       io.setPosition(getAbsolutePosition());
       posistionAmbiguous = false;
+      ElasticUtil.sendNotification(
+          new Notification(
+              NotificationLevel.INFO,
+              "Turret Position Disambiguated",
+              "Turret will now run normally."));
     }
   }
 

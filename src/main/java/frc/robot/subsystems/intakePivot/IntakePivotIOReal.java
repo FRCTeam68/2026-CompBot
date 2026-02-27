@@ -168,11 +168,16 @@ public class IntakePivotIOReal implements IntakePivotIO {
       Default gravity type: Elevator_Static
       Default static feedforward sign: UseVelocitySign
       */
-      SlotConfigs slotConfig = newConfig[i];
       switch (i) {
-        case 0 -> talonConfig.Slot0 = Slot0Configs.from(slotConfig);
-        case 1 -> talonConfig.Slot1 = Slot1Configs.from(slotConfig);
-        case 2 -> talonConfig.Slot2 = Slot2Configs.from(slotConfig);
+        case 0:
+          talonConfig.Slot0 = Slot0Configs.from(newConfig[i]);
+          break;
+        case 1:
+          talonConfig.Slot1 = Slot1Configs.from(newConfig[i]);
+          break;
+        case 2:
+          talonConfig.Slot2 = Slot2Configs.from(newConfig[i]);
+          break;
       }
     }
     tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
@@ -180,6 +185,7 @@ public class IntakePivotIOReal implements IntakePivotIO {
 
   @Override
   public void setMotionMagic(MotionMagicConfigs newConfig) {
-    tryUntilOk(5, () -> talon.getConfigurator().apply(newConfig, 0.25));
+    talonConfig.MotionMagic = newConfig;
+    tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
   }
 }

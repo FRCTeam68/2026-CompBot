@@ -1,5 +1,8 @@
 package frc.robot.subsystems.intakePivot;
 
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.filter.Debouncer;
@@ -25,9 +28,9 @@ public class IntakePivot extends SubsystemBase {
   @Getter private static final double intakeForwardExtension = Units.inchesToMeters(25.32);
 
   // PID gains
-  private final LoggedTunableNumber kP0 = new LoggedTunableNumber("IntakePivot/Slot0/kP", 10);
-  private final LoggedTunableNumber kD0 = new LoggedTunableNumber("IntakePivot/Slot0/kD", 0);
-  private final LoggedTunableNumber kS0 = new LoggedTunableNumber("IntakePivot/Slot0/kS", 0);
+  private final LoggedTunableNumber kP = new LoggedTunableNumber("IntakePivot/kP", 10);
+  private final LoggedTunableNumber kD = new LoggedTunableNumber("IntakePivot/kD", 0);
+  private final LoggedTunableNumber kS = new LoggedTunableNumber("IntakePivot/kS", 0);
 
   // Motion magic gains
   private final LoggedTunableNumber mmVelocity = new LoggedTunableNumber("IntakePivot/Velocity", 0);
@@ -62,11 +65,10 @@ public class IntakePivot extends SubsystemBase {
     // Configure dashboard
     SmartDashboard.putData(
         "IntakePivot/Extend",
-        Commands.runOnce(() -> runPosition(extended, 0), this)
-            .withName("DashboardIntakePivotExtend"));
+        Commands.runOnce(() -> runPosition(extended), this).withName("DashboardIntakePivotExtend"));
     SmartDashboard.putData(
         "IntakePivot/Retract",
-        Commands.runOnce(() -> runPosition(packaged, 0), this)
+        Commands.runOnce(() -> runPosition(packaged), this)
             .withName("DashboardIntakePivotRetract"));
   }
 
@@ -81,14 +83,9 @@ public class IntakePivot extends SubsystemBase {
         !cancoderDisconnectedDebouncer.calculate(inputs.cancoderConnected));
     motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
-    // Log setpoint
-    Logger.recordOutput("IntakePivot/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
-    Logger.recordOutput(
-        "IntakePivot/SetpointPositionRots", (mode == ControlMode.Position) ? setpoint : 0);
-
     // Update PID gains
-    if (kP0.hasChanged(hashCode()) | kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
-      io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
+    if (kP.hasChanged(hashCode()) | kD.hasChanged(hashCode()) | kS.hasChanged(hashCode())) {
+      io.setPID(new SlotConfigs().withKP(kP.get()).withKD(kD.get()).withKS(kS.get()));
     }
 
     // Update motion magic gains
@@ -108,9 +105,9 @@ public class IntakePivot extends SubsystemBase {
    * @param volts Voltage to run the motor at.
    */
   public void runVolts(double volts) {
-    setpoint = volts;
     mode = ControlMode.Voltage;
     io.runVolts(volts);
+    Logger.recordOutput("IntakePivot/SetpointVolts", volts, Volts);
   }
 
   /**
@@ -119,12 +116,12 @@ public class IntakePivot extends SubsystemBase {
    * <p><b>Units:</b> Mechanism rotations.
    *
    * @param rotations Goal position.
-   * @param slot PID gain slot to use during motion.
    */
-  public void runPosition(double rotations, int slot) {
+  public void runPosition(double rotations) {
     setpoint = rotations;
     mode = ControlMode.Position;
-    io.runPosition(rotations, slot);
+    io.runPosition(rotations, 0);
+    Logger.recordOutput("IntakePivot/SetpointPosition", setpoint, Rotations);
   }
 
   /** Stop motor with neutral output. */

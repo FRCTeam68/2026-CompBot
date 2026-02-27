@@ -26,8 +26,6 @@ public class HoodIOSim implements HoodIO {
     sim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(motor, .1, HoodIOReal.getReduction()), motor);
-
-    setPosition(Hood.getMaximum());
   }
 
   @Override
@@ -51,11 +49,12 @@ public class HoodIOSim implements HoodIO {
     inputs.torqueCurrentAmps =
         (appliedVoltage > 0.0) ? sim.getCurrentDrawAmps() * 12.0 / appliedVoltage : 0.0;
     inputs.magnetHealth = MagnetHealthValue.Magnet_Green;
-    inputs.absolutePosition =
-        MathUtil.inputModulus(
-            sim.getAngularPositionRotations() / HoodIOReal.getSensorToMechanismReduction(),
-            0.0,
-            1.0);
+    inputs.absolutePositionDeg =
+        Units.rotationsToDegrees(
+            MathUtil.inputModulus(
+                sim.getAngularPositionRotations() / HoodIOReal.getSensorToMechanismReduction(),
+                0.0,
+                1.0));
   }
 
   @Override

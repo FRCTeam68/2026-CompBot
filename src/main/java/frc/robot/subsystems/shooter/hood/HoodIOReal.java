@@ -11,8 +11,8 @@ import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
@@ -59,8 +59,8 @@ public class HoodIOReal implements HoodIO {
 
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true);
-  private final PositionVoltage positionOut = new PositionVoltage(0).withEnableFOC(true);
-  //   private final MotionMagicVoltage positionOut = new MotionMagicVoltage(0).withEnableFOC(true);
+  // private final PositionVoltage positionOut = new PositionVoltage(0).withEnableFOC(true);
+  private final MotionMagicVoltage positionOut = new MotionMagicVoltage(0).withEnableFOC(true);
   //   private final TorqueCurrentFOC positionOut = new TorqueCurrentFOC(0);
   //   private final MotionMagicTorqueCurrentFOC positionOut = new MotionMagicTorqueCurrentFOC(0);
   private final NeutralOut neutralOut = new NeutralOut();
@@ -70,7 +70,7 @@ public class HoodIOReal implements HoodIO {
     cancoder = new CANcoder(28, ShooterConstants.canBus);
 
     // Motor output
-    talonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    talonConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     talonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     // Current limits
     talonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -90,9 +90,9 @@ public class HoodIOReal implements HoodIO {
     tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
 
     // CANcoder
-    cancoderConfig.MagnetSensor.MagnetOffset = 0.0;
-    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-    cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.25;
+    cancoderConfig.MagnetSensor.MagnetOffset = 0.0; // Minimum elevation
+    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+    cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.1;
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
 
     position = talon.getPosition();
@@ -142,7 +142,7 @@ public class HoodIOReal implements HoodIO {
     inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();
     inputs.tempCelsius = tempCelsius.getValueAsDouble();
     inputs.magnetHealth = magnetHealth.getValue();
-    inputs.absolutePosition = absolutePosition.getValueAsDouble();
+    inputs.absolutePositionDeg = Units.rotationsToDegrees(absolutePosition.getValueAsDouble());
   }
 
   @Override
@@ -162,22 +162,27 @@ public class HoodIOReal implements HoodIO {
 
   @Override
   public void setPosition(double elevation) {
-    talon.setPosition(Units.degreesToRotations(elevation));
+    cancoder.setPosition(Units.degreesToRotations(elevation));
   }
 
   @Override
   public void setPID(SlotConfigs... newConfig) {
     for (int i = 0; i < Math.min(newConfig.length, 3); i++) {
       /*
-       * Optionally add gravity type and static feedforward sign
-       * Default gravity type: Elevator_Static
-       * Default static feedforward sign: UseVelocitySign
-       */
-      SlotConfigs slotConfig = newConfig[i];
+      Optionally add gravity type and static feedforward sign.
+      Default gravity type: Elevator_Static
+      Default static feedforward sign: UseVelocitySign
+      */
       switch (i) {
-        case 0 -> talonConfig.Slot0 = Slot0Configs.from(slotConfig);
-        case 1 -> talonConfig.Slot1 = Slot1Configs.from(slotConfig);
-        case 2 -> talonConfig.Slot2 = Slot2Configs.from(slotConfig);
+        case 0:
+          talonConfig.Slot0 = Slot0Configs.from(newConfig[i]);
+          break;
+        case 1:
+          talonConfig.Slot1 = Slot1Configs.from(newConfig[i]);
+          break;
+        case 2:
+          talonConfig.Slot2 = Slot2Configs.from(newConfig[i]);
+          break;
       }
     }
     tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
@@ -185,6 +190,7 @@ public class HoodIOReal implements HoodIO {
 
   @Override
   public void setMotionMagic(MotionMagicConfigs newConfig) {
-    tryUntilOk(5, () -> talon.getConfigurator().apply(newConfig, 0.25));
+    talonConfig.MotionMagic = newConfig;
+    tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
   }
 }

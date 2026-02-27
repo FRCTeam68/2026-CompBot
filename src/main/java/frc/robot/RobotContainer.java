@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -64,6 +65,51 @@ public class RobotContainer {
 
     // Configure auton dashboard buttons
     Auton.initDashboardInputs();
+
+    // Configure tuning dashboard buttons
+    if (Constants.tuningMode) {
+      // Drive
+      SmartDashboard.putData(
+          "Tuning/DriveLinear_Right",
+          DriveCommands.autopilotDriveToPose(
+              () ->
+                  new APTarget(drive.getPose().plus(new Transform2d(0, -2, Rotation2d.kZero)))
+                      .withEntryAngle(Rotation2d.kCW_90deg)));
+      SmartDashboard.putData(
+          "Tuning/DriveLinear_Left",
+          DriveCommands.autopilotDriveToPose(
+              () ->
+                  new APTarget(drive.getPose().plus(new Transform2d(0, 2, Rotation2d.kZero)))
+                      .withEntryAngle(Rotation2d.kCCW_90deg)));
+      SmartDashboard.putData(
+          "Tuning/DriveAngular_CW",
+          DriveCommands.autopilotDriveToPose(
+              () ->
+                  new APTarget(drive.getPose().plus(new Transform2d(0, 2, Rotation2d.kZero)))
+                      .withEntryAngle(Rotation2d.kCCW_90deg)));
+      SmartDashboard.putData(
+          "Tuning/DriveAngular_CCW",
+          DriveCommands.autopilotDriveToPose(
+              () ->
+                  new APTarget(drive.getPose().plus(new Transform2d(0, 2, Rotation2d.kZero)))
+                      .withEntryAngle(Rotation2d.kCCW_90deg)));
+      SmartDashboard.putData(
+          "Tuning/wheelRadiusCharacterization", DriveCommands.wheelRadiusCharacterization());
+      // Turret
+      SmartDashboard.putData(
+          "Tuning/Turret_1", ShooterCommands.runStatic(0, shooter.getHood().getElevation(), 1));
+      SmartDashboard.putData(
+          "Tuning/Turret_360", ShooterCommands.runStatic(0, shooter.getHood().getElevation(), 360));
+      // Hood
+      SmartDashboard.putData(
+          "Tuning/Hood_Min",
+          ShooterCommands.runStatic(
+              0, shooter.getHood().getMinimum(), shooter.getTurret().getPosition()));
+      SmartDashboard.putData(
+          "Tuning/Hood_Max",
+          ShooterCommands.runStatic(
+              0, shooter.getHood().getMaximum(), shooter.getTurret().getPosition()));
+    }
   }
 
   /** Use this method to define button -> command mappings. */
@@ -122,7 +168,7 @@ public class RobotContainer {
 
     operatorController
         .triangle()
-        .onTrue(ShooterCommands.runStatic(ShooterConstants.StaticShot.hub));
+        .onTrue(ShooterCommands.runStatic(ShooterConstants.StaticShot.hubArc));
 
     operatorController
         .square()

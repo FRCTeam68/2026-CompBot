@@ -1,10 +1,14 @@
 package frc.robot.subsystems.shooter.hood;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -23,11 +27,10 @@ public class Hood extends SubsystemBase {
   @Getter private static final double underTrenchMinimum = maximum - 9;
 
   // PID gains
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Shooter/Hood/Slot0/kP", 20);
-  private LoggedTunableNumber kD0 = new LoggedTunableNumber("Shooter/Hood/Slot0/kD", 0);
-  private LoggedTunableNumber kS0 = new LoggedTunableNumber("Shooter/Hood/Slot0/kS", 0);
+  private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Hood/kP", 20);
+  private LoggedTunableNumber kD = new LoggedTunableNumber("Shooter/Hood/kD", 0);
+  private LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Hood/kS", 0);
 
-  // TODO: we shouldn't need mm for the hood
   // Motion magic gains
   private LoggedTunableNumber mmVelocity =
       new LoggedTunableNumber("Shooter/Hood/MotionMagic/Velocity", 0);
@@ -54,11 +57,16 @@ public class Hood extends SubsystemBase {
   protected final HoodIOInputsAutoLogged inputs = new HoodIOInputsAutoLogged();
   private Supplier<Boolean> inTrenchBox = () -> false;
   @Getter private double setpoint = 0.0;
+  private double setpointAdjusted = 0.0;
   @Getter private ControlMode mode = ControlMode.Neutral;
   private boolean prevInTrenchBox = false;
 
   public Hood(HoodIO hoodIO) {
     this.io = hoodIO;
+
+    // Set current position
+    periodic();
+    io.setPosition(maximum + getAbsolutePosition());
   }
 
   public void initInTrenchBoxSupplier(Supplier<Boolean> inTrenchBox) {
@@ -76,22 +84,17 @@ public class Hood extends SubsystemBase {
         !cancoderConnectedDebouncer.calculate(inputs.cancoderConnected));
     motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
-    // Log setpoint
-    Logger.recordOutput("Shooter/Hood/SetpointVolts", (mode == ControlMode.Voltage) ? setpoint : 0);
-    Logger.recordOutput(
-        "Shooter/Hood/SetpointPositionDeg", (mode == ControlMode.Position) ? setpoint : 0);
-
     // Run hood if entering/leaving trench box
     if (prevInTrenchBox != inTrenchBox.get()) {
       if (getElevation() < underTrenchMinimum || setpoint < underTrenchMinimum) {
-        runElvation(setpoint, 0);
+        runElvation(setpoint);
       }
       prevInTrenchBox = inTrenchBox.get();
     }
 
     // Update PID gains
-    if (kP0.hasChanged(hashCode()) | kD0.hasChanged(hashCode()) | kS0.hasChanged(hashCode())) {
-      io.setPID(new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS0.get()));
+    if (kP.hasChanged(hashCode()) | kD.hasChanged(hashCode()) | kS.hasChanged(hashCode())) {
+      io.setPID(new SlotConfigs().withKP(kP.get()).withKD(kD.get()).withKS(kS.get()));
     }
 
     // Update motion magic gains
@@ -100,9 +103,9 @@ public class Hood extends SubsystemBase {
         | mmJerk.hasChanged(hashCode())) {
       io.setMotionMagic(
           new MotionMagicConfigs()
-              .withMotionMagicCruiseVelocity(mmVelocity.get())
-              .withMotionMagicAcceleration(mmAcceleration.get())
-              .withMotionMagicJerk(mmJerk.get()));
+              .withMotionMagicCruiseVelocity(Units.degreesToRotations(mmVelocity.get()))
+              .withMotionMagicAcceleration(Units.degreesToRotations(mmAcceleration.get()))
+              .withMotionMagicJerk(Units.degreesToRotations(mmJerk.get())));
     }
   }
 
@@ -112,9 +115,9 @@ public class Hood extends SubsystemBase {
    * @param volts Voltage to run the motor at.
    */
   public void runVolts(double volts) {
-    setpoint = volts;
     mode = ControlMode.Voltage;
     io.runVolts(volts);
+    Logger.recordOutput("Shooter/Hood/SetpointVolts", volts, Volts);
   }
 
   /**
@@ -123,14 +126,17 @@ public class Hood extends SubsystemBase {
    * <p><b>Units:</b> Mechanism degrees.
    *
    * @param elevation Goal elevation.
-   * @param slot PID gain slot to use during motion.
    */
-  public void runElvation(double elevation, int slot) {
+  public void runElvation(double elevation) {
     setpoint = MathUtil.clamp(elevation, minimum, maximum);
+    setpointAdjusted =
+        (inTrenchBox.get()) ? MathUtil.clamp(setpoint, underTrenchMinimum, maximum) : setpoint;
     mode = ControlMode.Position;
-    io.runPosition(
-        (inTrenchBox.get()) ? MathUtil.clamp(setpoint, underTrenchMinimum, maximum) : setpoint,
-        slot);
+
+    io.runPosition(setpointAdjusted, 0);
+
+    Logger.recordOutput("Shooter/Hood/SetpointPosition", setpoint, Degrees);
+    Logger.recordOutput("Shooter/Hood/SetpointPositionAdjusted", setpointAdjusted, Degrees);
   }
 
   /** Stop motor with neutral output. */
@@ -151,6 +157,15 @@ public class Hood extends SubsystemBase {
    */
   public double getElevation() {
     return inputs.positionDeg;
+  }
+
+  /**
+   * Absolute position of the system in mechanism degrees.
+   *
+   * @return Absolute position.
+   */
+  public double getAbsolutePosition() {
+    return inputs.absolutePositionDeg;
   }
 
   /**
