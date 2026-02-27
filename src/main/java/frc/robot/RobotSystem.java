@@ -33,7 +33,6 @@ import frc.robot.subsystems.shooter.hood.HoodIO;
 import frc.robot.subsystems.shooter.hood.HoodIOSim;
 import frc.robot.subsystems.shooter.turret.Turret;
 import frc.robot.subsystems.shooter.turret.TurretIO;
-import frc.robot.subsystems.shooter.turret.TurretIOReal;
 import frc.robot.subsystems.shooter.turret.TurretIOSim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
@@ -95,7 +94,7 @@ public class RobotSystem {
 
         flywheel = new Flywheel(new FlywheelIOReal());
         // hood = new Hood(new HoodIOReal());
-        turret = new Turret(new TurretIOReal());
+        // turret = new Turret(new TurretIOReal());
 
         // intakePivot = new IntakePivot(new IntakePivotIOReal());
         // intakeSpin =
@@ -132,6 +131,7 @@ public class RobotSystem {
 
         // Simulate systems since the motors are not wired yet
         // flywheel = new Flywheel(new FlywheelIOSim());
+        turret = new Turret(new TurretIOSim());
         hood = new Hood(new HoodIOSim());
         intakePivot = new IntakePivot(new IntakePivotIOSim() {});
         intakeSpin =

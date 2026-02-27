@@ -1,0 +1,151 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.057524590163935,
+        "y": 0.669265060240964
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.057524590163935,
+        "y": 0.6692650602409635
+      },
+      "isLocked": false,
+      "linkedName": "Right shoot"
+    },
+    {
+      "anchor": {
+        "x": 5.818713114754099,
+        "y": 0.7929754098360648
+      },
+      "prevControl": {
+        "x": 5.713948570388661,
+        "y": 0.5659855637109525
+      },
+      "nextControl": {
+        "x": 5.923477659119537,
+        "y": 1.0199652559611774
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.71088524590164,
+        "y": 2.0006475409836058
+      },
+      "prevControl": {
+        "x": 5.703696721311476,
+        "y": 1.7131065573770492
+      },
+      "nextControl": {
+        "x": 5.71713329369169,
+        "y": 2.250569452585637
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.71088524590164,
+        "y": 3.7690245901639337
+      },
+      "prevControl": {
+        "x": 5.472182488613068,
+        "y": 3.6947212008547425
+      },
+      "nextControl": {
+        "x": 5.949588003190211,
+        "y": 3.8433279794731248
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.595073770491804,
+        "y": 3.4958606557377045
+      },
+      "prevControl": {
+        "x": 6.121904789241607,
+        "y": 4.123533794130823
+      },
+      "nextControl": {
+        "x": 6.947311475409837,
+        "y": 3.0286065573770484
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.595073770491804,
+        "y": 1.2170983606557366
+      },
+      "prevControl": {
+        "x": 6.806045973679763,
+        "y": 1.5968483263940605
+      },
+      "nextControl": {
+        "x": 6.343475409836065,
+        "y": 0.7642213114754091
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.7843606557377045,
+        "y": 0.669265060240964
+      },
+      "prevControl": {
+        "x": 5.171745901639347,
+        "y": 0.6348278688524578
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Right shoot to outpost"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5158660844250331,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 1.5173216885007181,
+      "rotationDegrees": 95.84393600971143
+    },
+    {
+      "waypointRelativePos": 3.107423580786012,
+      "rotationDegrees": 83.75163395773038
+    },
+    {
+      "waypointRelativePos": 4.050655021834066,
+      "rotationDegrees": -88.27527284165164
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 177.81194160478822
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -1.6280155517416652
+  },
+  "useDefaultConstraints": false
+}

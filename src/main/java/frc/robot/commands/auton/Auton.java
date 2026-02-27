@@ -55,7 +55,8 @@ public class Auton {
     None,
     Left_LigerBot,
     Left_Tune_PP_3M_slow,
-    Left_Tune_PP_3M_fast
+    Left_Tune_PP_3M_fast,
+    Right_1768
   }
 
   private static final Alert noAutoSelectedAlert =
@@ -76,6 +77,7 @@ public class Auton {
     autonSpecial.addOption("Left_LigerBot", Auton.Special.Left_LigerBot);
     autonSpecial.addOption("Left_Tune_PP_3M_fast", Auton.Special.Left_Tune_PP_3M_fast);
     autonSpecial.addOption("Left_Tune_PP_3M_slow", Auton.Special.Left_Tune_PP_3M_slow);
+    autonSpecial.addOption("Right_1768", Auton.Special.Right_1768);
   }
 
   public static void UpdateAlerts() {
@@ -120,7 +122,13 @@ public class Auton {
         return Terra();
 
       case Right:
-        return Neptune();
+        switch (autonSpecial.get()) {
+          case Right_1768:
+            return Right_1768();
+          case None:
+          default:
+            return Neptune();
+        }
 
       default:
         return Commands.none();
@@ -245,6 +253,45 @@ public class Auton {
             },
             Set.of(drive))
         .withName("Auton_Apollo1");
+  }
+
+  private static Command Right_1768() {
+    return new DeferredCommand(
+            () -> {
+              Command myCommand1;
+              Command myCommand2;
+
+              myCommand1 =
+                  Commands.sequence(
+                      Commands.parallel(
+                          PathUtil.followPath("Right_1768_AB1"),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                      IntakeCommands.stop(),
+                      ShooterCommands.shootAutomatic().withTimeout(3.0));
+
+              if (autonOutpost.get()) {
+                myCommand2 =
+                    Commands.sequence(
+                        Commands.parallel(
+                            PathUtil.followPath("Right_1768_Outpost"),
+                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                        Commands.waitSeconds(1)
+                            .andThen(ShooterCommands.shootAutomatic().withTimeout(5.0)),
+                        IntakeCommands.stop());
+              } else {
+                myCommand2 =
+                    Commands.sequence(
+                        Commands.parallel(
+                            PathUtil.followPath("Right_1768_CD1"),
+                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                        IntakeCommands.stop(),
+                        ShooterCommands.shootAutomatic().withTimeout(5.0));
+              }
+
+              return myCommand1.andThen(myCommand2);
+            },
+            Set.of(drive))
+        .withName("Auton_ARight_1768");
   }
 
   private static Command Neptune() {
