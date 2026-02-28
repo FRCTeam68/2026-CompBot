@@ -27,7 +27,7 @@ public class Hood extends SubsystemBase {
   @Getter private static final double underTrenchMinimum = maximum - 9;
 
   // PID gains
-  private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Hood/kP", 20);
+  private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Hood/kP", 0);
   private LoggedTunableNumber kD = new LoggedTunableNumber("Shooter/Hood/kD", 0);
   private LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Hood/kS", 0);
 
@@ -66,7 +66,10 @@ public class Hood extends SubsystemBase {
 
     // Set current position
     periodic();
-    io.setPosition(maximum + getAbsolutePosition());
+    System.out.println("pos: " + getElevation());
+    System.out.println("abspos: " + getAbsolutePosition());
+
+    // io.setPosition((maximum * HoodIOReal.getSensorToMechanismReduction()));
   }
 
   public void initInTrenchBoxSupplier(Supplier<Boolean> inTrenchBox) {
