@@ -2,7 +2,9 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants;
 import frc.robot.RobotSystem;
+import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants.shotConfig;
@@ -17,6 +19,7 @@ public class ShooterCommands {
   private static final Shooter shooter = robotSystem.getShooter();
   private static final RollerSystem spindexer = robotSystem.getSpindexer();
   private static final RollerSystem feeder = robotSystem.getFeeder();
+  private static final Lights lights = robotSystem.getLights();
 
   @AutoLogOutput(key = "Shooter/ManualShoot")
   private static boolean forceManualShoot = false;
@@ -30,9 +33,11 @@ public class ShooterCommands {
                   if (shooter.atSetpoint()) {
                     feeder.runVolts(feederRunVolts);
                     spindexer.runVolts(spindexerRunVolts);
+                    lights.setSolidColor(Constants.LEDColor.ORANGE, Constants.LEDSegment.ALL);
                   } else {
                     feeder.stop();
                     spindexer.stop();
+                    lights.disableLEDs(Constants.LEDSegment.ALL);
                   }
                 } else {
                   shooter.holdSetpoint = false;
@@ -40,6 +45,7 @@ public class ShooterCommands {
               } else {
                 feeder.runVolts(feederRunVolts);
                 spindexer.runVolts(spindexerRunVolts);
+                lights.setSolidColor(Constants.LEDColor.RED, Constants.LEDSegment.ALL);
               }
             },
             feeder,
@@ -50,6 +56,7 @@ public class ShooterCommands {
               feeder.stop();
               spindexer.stop();
               robotSystem.isShooting = false;
+              lights.disableLEDs(Constants.LEDSegment.ALL);
             })
         .withName("ShootLoop");
   }

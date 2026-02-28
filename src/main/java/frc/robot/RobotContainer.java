@@ -20,6 +20,7 @@ import frc.robot.commands.ShooterCommands;
 import frc.robot.commands.auton.Auton;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intakePivot.IntakePivot;
+import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants;
@@ -43,6 +44,7 @@ public class RobotContainer {
   private final Shooter shooter = robotSystem.getShooter();
   private final RollerSystem feeder = robotSystem.getFeeder();
   private final RollerSystem spindexer = robotSystem.getSpindexer();
+  private final Lights lights = robotSystem.getLights();
 
   // Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
@@ -110,6 +112,45 @@ public class RobotContainer {
           ShooterCommands.runStatic(
               0, shooter.getHood().getMaximum(), shooter.getTurret().getPosition()));
     }
+
+    addLightTest();
+  }
+
+  void addLightTest() {
+    SmartDashboard.putData(
+        "Lights/green",
+        Commands.runOnce(
+                () -> lights.setSolidColor(Constants.LEDColor.GREEN, Constants.LEDSegment.ALL))
+            .withName("LightsGreen"));
+    SmartDashboard.putData(
+        "Lights/orange",
+        Commands.runOnce(
+                () -> lights.setSolidColor(Constants.LEDColor.ORANGE, Constants.LEDSegment.ALL))
+            .withName("LightsOrange"));
+    SmartDashboard.putData(
+        "Lights/blue",
+        Commands.runOnce(
+                () -> lights.setSolidColor(Constants.LEDColor.BLUE, Constants.LEDSegment.ALL))
+            .withName("LightsBlue"));
+    SmartDashboard.putData(
+        "Lights/red",
+        Commands.runOnce(
+                () -> lights.setSolidColor(Constants.LEDColor.RED, Constants.LEDSegment.ALL))
+            .withName("LightsRed"));
+    SmartDashboard.putData(
+        "Lights/white",
+        Commands.runOnce(
+                () -> lights.setSolidColor(Constants.LEDColor.WHITE, Constants.LEDSegment.ALL))
+            .withName("LightsWhite"));
+    SmartDashboard.putData(
+        "Lights/off",
+        Commands.runOnce(() -> lights.disableLEDs(Constants.LEDSegment.ALL)).withName("LightsOff"));
+    SmartDashboard.putData(
+        "Lights/blueStrobe",
+        Commands.runOnce(
+                () ->
+                    lights.setStrobeAnimation(Constants.LEDColor.BLUE, Constants.LEDSegment.ALL, 1))
+            .withName("LightsBlueStrobe"));
   }
 
   /** Use this method to define button -> command mappings. */
