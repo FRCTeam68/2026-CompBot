@@ -55,12 +55,14 @@ public class ShooterCommands {
   }
 
   public static Command shootManual() {
-    return Commands.none()
+    return Commands.runOnce(() -> {feeder.runVolts(feederRunVolts); spindexer.runVolts(spindexerRunVolts);})
         .beforeStarting(() -> robotSystem.isShooting = true)
         .finallyDo(
             () -> {
+              feeder.stop();
+              spindexer.stop();
               robotSystem.isShooting = false;
-            });
+            }).withName("ShootManual");
   }
 
   public static Command runStatic(
