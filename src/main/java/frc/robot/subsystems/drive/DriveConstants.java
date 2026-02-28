@@ -94,7 +94,7 @@ public final class DriveConstants {
         .encoderId(15)
         .encoderOffset(Rotation2d.fromRotations(0.308349609375))
         .turnInverted(true)
-        .driveInverted(true)
+        .driveInverted(false)
         .encoderInverted(false)
         .build(),
     // Module 1 (Front Right)
@@ -104,7 +104,7 @@ public final class DriveConstants {
         .encoderId(16)
         .encoderOffset(Rotation2d.fromRotations(-0.275634765625).rotateBy(Rotation2d.kPi))
         .turnInverted(true)
-        .driveInverted(true)
+        .driveInverted(false)
         .encoderInverted(false)
         .build(),
     // Module 2 (Back Left)
@@ -114,7 +114,7 @@ public final class DriveConstants {
         .encoderId(17)
         .encoderOffset(Rotation2d.fromRotations(0.188232421875))
         .turnInverted(true)
-        .driveInverted(true)
+        .driveInverted(false)
         .encoderInverted(false)
         .build(),
     // Module 3 (Back Right)
@@ -124,7 +124,7 @@ public final class DriveConstants {
         .encoderId(18)
         .encoderOffset(Rotation2d.fromRotations(0.361083984375).rotateBy(Rotation2d.kPi))
         .turnInverted(true)
-        .driveInverted(true)
+        .driveInverted(false)
         .encoderInverted(false)
         .build(),
   };

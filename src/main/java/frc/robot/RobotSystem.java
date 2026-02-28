@@ -9,11 +9,15 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.drive.GyroIO;
+import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
+import frc.robot.subsystems.drive.ModuleIOReal;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.intakePivot.IntakePivot;
 import frc.robot.subsystems.intakePivot.IntakePivotIO;
+import frc.robot.subsystems.intakePivot.IntakePivotIOReal;
 import frc.robot.subsystems.intakePivot.IntakePivotIOSim;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.LightsIO;
@@ -30,9 +34,11 @@ import frc.robot.subsystems.shooter.flywheel.FlywheelIOReal;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.shooter.hood.HoodIO;
+import frc.robot.subsystems.shooter.hood.HoodIOReal;
 import frc.robot.subsystems.shooter.hood.HoodIOSim;
 import frc.robot.subsystems.shooter.turret.Turret;
 import frc.robot.subsystems.shooter.turret.TurretIO;
+import frc.robot.subsystems.shooter.turret.TurretIOReal;
 import frc.robot.subsystems.shooter.turret.TurretIOSim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
@@ -66,21 +72,13 @@ public class RobotSystem {
 
     switch (Constants.getMode()) {
       case REAL:
-        // drive =
-        //     new Drive(
-        //         new GyroIOPigeon2(),
-        //         new ModuleIOReal(DriveConstants.moduleConfigs[0]),
-        //         new ModuleIOReal(DriveConstants.moduleConfigs[1]),
-        //         new ModuleIOReal(DriveConstants.moduleConfigs[2]),
-        //         new ModuleIOReal(DriveConstants.moduleConfigs[3]));
-
         drive =
             new Drive(
-                new GyroIO() {},
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                new ModuleIOSim());
+                new GyroIOPigeon2(),
+                new ModuleIOReal(DriveConstants.moduleConfigs[0]),
+                new ModuleIOReal(DriveConstants.moduleConfigs[1]),
+                new ModuleIOReal(DriveConstants.moduleConfigs[2]),
+                new ModuleIOReal(DriveConstants.moduleConfigs[3]));
 
         vision =
             new Vision(
@@ -93,20 +91,20 @@ public class RobotSystem {
         lights = new Lights(new LightsIOCANdle());
 
         flywheel = new Flywheel(new FlywheelIOReal());
-        // hood = new Hood(new HoodIOReal());
-        // turret = new Turret(new TurretIOReal());
+        hood = new Hood(new HoodIOReal());
+        turret = new Turret(new TurretIOReal());
 
-        // intakePivot = new IntakePivot(new IntakePivotIOReal());
-        // intakeSpin =
-        //     new RollerSystem(
-        //         "intakeSpin",
-        //         new RollerSystemIOTalonFX(
-        //             22,
-        //             CanBusUtil.getRioBus(),
-        //             80,
-        //             InvertedValue.CounterClockwise_Positive,
-        //             NeutralModeValue.Coast,
-        //             24.0 / 18.0));
+        intakePivot = new IntakePivot(new IntakePivotIOReal());
+        intakeSpin =
+            new RollerSystem(
+                "intakeSpin",
+                new RollerSystemIOTalonFX(
+                    22,
+                    CanBusUtil.getRioBus(),
+                    80,
+                    InvertedValue.CounterClockwise_Positive,
+                    NeutralModeValue.Coast,
+                    24.0 / 18.0));
 
         spindexer =
             new RollerSystem(
@@ -128,15 +126,6 @@ public class RobotSystem {
                     InvertedValue.CounterClockwise_Positive,
                     NeutralModeValue.Coast,
                     36.0 / 12.0));
-
-        // Simulate systems since the motors are not wired yet
-        // flywheel = new Flywheel(new FlywheelIOSim());
-        turret = new Turret(new TurretIOSim());
-        hood = new Hood(new HoodIOSim());
-        intakePivot = new IntakePivot(new IntakePivotIOSim() {});
-        intakeSpin =
-            new RollerSystem(
-                "intakeSpin", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 1, 0.74));
         break;
 
       case SIM:

@@ -8,6 +8,8 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
@@ -18,9 +20,9 @@ import org.littletonrobotics.junction.Logger;
 
 public class Flywheel extends SubsystemBase {
   // PID gains
-  private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Flywheel/kP", 20);
+  private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Flywheel/kP", .6);
   private LoggedTunableNumber kD = new LoggedTunableNumber("Shooter/Flywheel/kD", 0);
-  private LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Flywheel/kS", 0);
+  private LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Flywheel/kS", 0.27);
 
   // Setpoint band
   private LoggedTunableNumber setpointBandVelocity =
@@ -47,6 +49,12 @@ public class Flywheel extends SubsystemBase {
 
   public Flywheel(FlywheelIO flywheelIO) {
     this.io = flywheelIO;
+
+    // Configure dashboard
+    SmartDashboard.putNumber("Flywheel/Voltage", 0.0);
+    SmartDashboard.putData(
+        "Flywheel/RunVoltage",
+        Commands.runOnce(() -> runVolts(SmartDashboard.getNumber("Flywheel/Voltage", 0.0)), this));
   }
 
   public void periodic() {

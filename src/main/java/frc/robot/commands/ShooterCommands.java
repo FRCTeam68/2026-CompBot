@@ -24,7 +24,6 @@ public class ShooterCommands {
   @AutoLogOutput(key = "Shooter/ManualShoot")
   private static boolean forceManualShoot = false;
 
-  // TODO: I split shooting into 2 commands. We need to fix the commands though
   public static Command shootAutomatic() {
     return Commands.run(
             () -> {
@@ -58,16 +57,23 @@ public class ShooterCommands {
               robotSystem.isShooting = false;
               lights.disableLEDs(Constants.LEDSegment.ALL);
             })
-        .withName("ShootLoop");
+        .withName("ShootAutomatic");
   }
 
   public static Command shootManual() {
-    return Commands.none()
+    return Commands.runOnce(
+            () -> {
+              feeder.runVolts(feederRunVolts);
+              spindexer.runVolts(spindexerRunVolts);
+            })
         .beforeStarting(() -> robotSystem.isShooting = true)
         .finallyDo(
             () -> {
+              feeder.stop();
+              spindexer.stop();
               robotSystem.isShooting = false;
-            });
+            })
+        .withName("ShootManual");
   }
 
   public static Command runStatic(

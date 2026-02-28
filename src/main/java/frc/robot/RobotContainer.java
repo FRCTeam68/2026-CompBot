@@ -24,6 +24,7 @@ import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants;
+import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.HubShiftUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
@@ -105,12 +106,10 @@ public class RobotContainer {
       // Hood
       SmartDashboard.putData(
           "Tuning/Hood_Min",
-          ShooterCommands.runStatic(
-              0, shooter.getHood().getMinimum(), shooter.getTurret().getPosition()));
+          ShooterCommands.runStatic(0, Hood.getMinimum() + 3, shooter.getTurret().getPosition()));
       SmartDashboard.putData(
           "Tuning/Hood_Max",
-          ShooterCommands.runStatic(
-              0, shooter.getHood().getMaximum(), shooter.getTurret().getPosition()));
+          ShooterCommands.runStatic(0, Hood.getMaximum() - 3, shooter.getTurret().getPosition()));
     }
 
     addLightTest();

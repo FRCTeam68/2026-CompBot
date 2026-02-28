@@ -204,6 +204,12 @@ public class HubShiftUtil {
         && shiftTime.get() < warningTime;
   }
 
+  /** Returns if the shooter should be allowed to shoot and fuel will score. */
+  public static boolean shouldShoot() {
+    // TODO: make this use the dynamic flight time
+    return isHubActive() || hubToActiveWarning(3);
+  }
+
   /**
    * Returns the current active shift.
    *
