@@ -36,12 +36,12 @@ public final class Constants {
 
   public static final class LEDSegment {
     // standard segments
-    public static final Segment LEFT_SIDE = new Segment(8, 36, 1);
+    public static final Segment LEFT_SIDE = new Segment(8, 44, 1);
     // public static final Segment MIDDLE = new Segment(45, 62, 2).withOverlappingAnimationSlots(4);
     // public static final Segment RIGHT_SIDE =
     //     new Segment(63, 98, 3).withOverlappingAnimationSlots(4);
     public static final Segment ALL =
-        new Segment(8, 36, 4); // .withOverlappingAnimationSlots(1, 2, 3);
+        new Segment(8, 44, 4); // .withOverlappingAnimationSlots(1, 2, 3);
 
     // // auton setup
     // public static final Segment AUTON_Y_LEFT =

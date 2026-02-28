@@ -120,36 +120,44 @@ public class RobotContainer {
         "Lights/green",
         Commands.runOnce(
                 () -> lights.setSolidColor(Constants.LEDColor.GREEN, Constants.LEDSegment.ALL))
-            .withName("LightsGreen"));
+            .withName("LightsGreen")
+            .andThen(() -> System.out.println("green light")));
     SmartDashboard.putData(
         "Lights/orange",
         Commands.runOnce(
                 () -> lights.setSolidColor(Constants.LEDColor.ORANGE, Constants.LEDSegment.ALL))
-            .withName("LightsOrange"));
+            .withName("LightsOrange")
+            .andThen(() -> System.out.println("orange light")));
     SmartDashboard.putData(
         "Lights/blue",
         Commands.runOnce(
                 () -> lights.setSolidColor(Constants.LEDColor.BLUE, Constants.LEDSegment.ALL))
-            .withName("LightsBlue"));
+            .withName("LightsBlue")
+            .andThen(() -> System.out.println("blue light")));
     SmartDashboard.putData(
         "Lights/red",
         Commands.runOnce(
                 () -> lights.setSolidColor(Constants.LEDColor.RED, Constants.LEDSegment.ALL))
-            .withName("LightsRed"));
+            .withName("LightsRed")
+            .andThen(() -> System.out.println("red light")));
     SmartDashboard.putData(
         "Lights/white",
         Commands.runOnce(
                 () -> lights.setSolidColor(Constants.LEDColor.WHITE, Constants.LEDSegment.ALL))
-            .withName("LightsWhite"));
+            .withName("LightsWhite")
+            .andThen(() -> System.out.println("white light")));
     SmartDashboard.putData(
         "Lights/off",
-        Commands.runOnce(() -> lights.disableLEDs(Constants.LEDSegment.ALL)).withName("LightsOff"));
+        Commands.runOnce(() -> lights.disableLEDs(Constants.LEDSegment.ALL))
+            .withName("LightsOff")
+            .andThen(() -> System.out.println("off light")));
     SmartDashboard.putData(
         "Lights/blueStrobe",
         Commands.runOnce(
                 () ->
                     lights.setStrobeAnimation(Constants.LEDColor.BLUE, Constants.LEDSegment.ALL, 1))
-            .withName("LightsBlueStrobe"));
+            .withName("LightsBlueStrobe")
+            .andThen(() -> System.out.println("strobe light")));
   }
 
   /** Use this method to define button -> command mappings. */
