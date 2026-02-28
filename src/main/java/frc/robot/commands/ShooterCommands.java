@@ -55,6 +55,7 @@ public class ShooterCommands {
               feeder.runVolts(feederRunVolts);
               spindexer.runVolts(spindexerRunVolts);
             })
+        .andThen(Commands.idle(feeder, spindexer))
         .beforeStarting(() -> robotSystem.isShooting = true)
         .finallyDo(
             () -> {

@@ -163,7 +163,7 @@ public class RobotContainer {
     driverController.leftBumper().onTrue(IntakeCommands.retract());
 
     // Shooter
-    driverController.rightTrigger().whileTrue(ShooterCommands.shootAutomatic());
+    driverController.rightTrigger().whileTrue(ShooterCommands.shootManual());
 
     operatorController
         .triangle()
