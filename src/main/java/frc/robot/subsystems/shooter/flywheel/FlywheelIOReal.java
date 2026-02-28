@@ -50,7 +50,7 @@ public class FlywheelIOReal implements FlywheelIO {
 
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true);
-  private final VelocityVoltage velocityOut = new VelocityVoltage(0).withEnableFOC(true);
+  private final VelocityVoltage velocityOut = new VelocityVoltage(0); // .withEnableFOC(true);
   //   private final MotionMagicVelocityVoltage velocityOut = new
   // MotionMagicVelocityVoltage(0).withEnableFOC(true);
   //   private final VelocityTorqueCurrentFOC velocityOut = new VelocityTorqueCurrentFOC(0);
@@ -84,7 +84,8 @@ public class FlywheelIOReal implements FlywheelIO {
         leaderConfig.CurrentLimits.SupplyCurrentLowerLimit;
     tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(followerConfig, 0.25));
     followerTalon.setControl(
-        new Follower(leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed).withUpdateFreqHz(50));
+        new Follower(
+            leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed)); // .withUpdateFreqHz(50));
 
     position = leaderTalon.getPosition();
     velocity = leaderTalon.getVelocity();

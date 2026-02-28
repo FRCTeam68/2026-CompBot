@@ -23,12 +23,12 @@ import org.littletonrobotics.junction.Logger;
 public class IntakePivot extends SubsystemBase {
   // Positions
   @Getter private static final double packaged = 0;
-  @Getter private static final double extended = 0.23;
+  @Getter private static final double extended = 0.1274;
   @Getter private static final double inBumperMaximum = 0.1;
   @Getter private static final double intakeForwardExtension = Units.inchesToMeters(25.32);
 
   // PID gains
-  private final LoggedTunableNumber kP = new LoggedTunableNumber("IntakePivot/kP", 10);
+  private final LoggedTunableNumber kP = new LoggedTunableNumber("IntakePivot/kP", 4);
   private final LoggedTunableNumber kD = new LoggedTunableNumber("IntakePivot/kD", 0);
   private final LoggedTunableNumber kS = new LoggedTunableNumber("IntakePivot/kS", 0);
 
