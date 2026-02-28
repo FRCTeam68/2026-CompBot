@@ -6,6 +6,7 @@ import frc.robot.RobotSystem;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants.shotConfig;
+import frc.robot.util.HubShiftUtil;
 import org.littletonrobotics.junction.AutoLogOutput;
 
 public class ShooterCommands {
@@ -21,25 +22,19 @@ public class ShooterCommands {
   @AutoLogOutput(key = "Shooter/ManualShoot")
   private static boolean forceManualShoot = false;
 
-  // TODO: I split shooting into 2 commands. We need to fix the commands though
   public static Command shootAutomatic() {
     return Commands.run(
             () -> {
-              if (!forceManualShoot) {
-                if (!shooter.holdSetpoint) {
-                  if (shooter.atSetpoint()) {
-                    feeder.runVolts(feederRunVolts);
-                    spindexer.runVolts(spindexerRunVolts);
-                  } else {
-                    feeder.stop();
-                    spindexer.stop();
-                  }
+              if (!shooter.holdSetpoint) {
+                if (shooter.atSetpoint() && HubShiftUtil.shouldShoot()) {
+                  feeder.runVolts(feederRunVolts);
+                  spindexer.runVolts(spindexerRunVolts);
                 } else {
-                  shooter.holdSetpoint = false;
+                  feeder.stop();
+                  spindexer.stop();
                 }
               } else {
-                feeder.runVolts(feederRunVolts);
-                spindexer.runVolts(spindexerRunVolts);
+                shooter.holdSetpoint = false;
               }
             },
             feeder,
@@ -51,18 +46,23 @@ public class ShooterCommands {
               spindexer.stop();
               robotSystem.isShooting = false;
             })
-        .withName("ShootLoop");
+        .withName("ShootAutomatic");
   }
 
   public static Command shootManual() {
-    return Commands.runOnce(() -> {feeder.runVolts(feederRunVolts); spindexer.runVolts(spindexerRunVolts);})
+    return Commands.runOnce(
+            () -> {
+              feeder.runVolts(feederRunVolts);
+              spindexer.runVolts(spindexerRunVolts);
+            })
         .beforeStarting(() -> robotSystem.isShooting = true)
         .finallyDo(
             () -> {
               feeder.stop();
               spindexer.stop();
               robotSystem.isShooting = false;
-            }).withName("ShootManual");
+            })
+        .withName("ShootManual");
   }
 
   public static Command runStatic(
