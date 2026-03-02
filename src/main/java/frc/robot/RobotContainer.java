@@ -119,45 +119,71 @@ public class RobotContainer {
     SmartDashboard.putData(
         "Lights/green",
         Commands.runOnce(
-                () -> lights.setSolidColor(Constants.LEDColor.GREEN, Constants.LEDSegment.ALL))
-            .withName("LightsGreen")
-            .andThen(() -> System.out.println("green light")));
+                () -> {
+                  lights.setSolidColor(Constants.LEDColor.GREEN, Constants.LEDSegment.ALL);
+                  System.out.println("green light");
+                },
+                lights)
+            .ignoringDisable(true)
+            .withName("LightsGreen"));
     SmartDashboard.putData(
         "Lights/orange",
         Commands.runOnce(
-                () -> lights.setSolidColor(Constants.LEDColor.ORANGE, Constants.LEDSegment.ALL))
-            .withName("LightsOrange")
-            .andThen(() -> System.out.println("orange light")));
+                () -> {
+                  lights.setSolidColor(Constants.LEDColor.ORANGE, Constants.LEDSegment.ALL);
+                  System.out.println("orange light");
+                },
+                lights)
+            .ignoringDisable(true)
+            .withName("LightsOrange"));
     SmartDashboard.putData(
         "Lights/blue",
         Commands.runOnce(
-                () -> lights.setSolidColor(Constants.LEDColor.BLUE, Constants.LEDSegment.ALL))
-            .withName("LightsBlue")
-            .andThen(() -> System.out.println("blue light")));
+                () -> {
+                  lights.setSolidColor(Constants.LEDColor.BLUE, Constants.LEDSegment.ALL);
+                  System.out.println("blue light");
+                },
+                lights)
+            .ignoringDisable(true)
+            .withName("LightsBlue"));
     SmartDashboard.putData(
         "Lights/red",
         Commands.runOnce(
-                () -> lights.setSolidColor(Constants.LEDColor.RED, Constants.LEDSegment.ALL))
-            .withName("LightsRed")
-            .andThen(() -> System.out.println("red light")));
+                () -> {
+                  lights.setSolidColor(Constants.LEDColor.RED, Constants.LEDSegment.ALL);
+                  System.out.println("red light");
+                },
+                lights)
+            .ignoringDisable(true)
+            .withName("LightsRed"));
     SmartDashboard.putData(
         "Lights/white",
         Commands.runOnce(
-                () -> lights.setSolidColor(Constants.LEDColor.WHITE, Constants.LEDSegment.ALL))
-            .withName("LightsWhite")
-            .andThen(() -> System.out.println("white light")));
+                () -> {
+                  lights.setSolidColor(Constants.LEDColor.WHITE, Constants.LEDSegment.ALL);
+                  System.out.println("white light");
+                },
+                lights)
+            .ignoringDisable(true)
+            .withName("LightsWhite"));
     SmartDashboard.putData(
         "Lights/off",
-        Commands.runOnce(() -> lights.disableLEDs(Constants.LEDSegment.ALL))
-            .withName("LightsOff")
-            .andThen(() -> System.out.println("off light")));
+        Commands.runOnce(
+                () -> {
+                  lights.disableLEDs(Constants.LEDSegment.ALL);
+                  System.out.println("Lights off");
+                })
+            .ignoringDisable(true)
+            .withName("LightsOff"));
     SmartDashboard.putData(
         "Lights/blueStrobe",
         Commands.runOnce(
-                () ->
-                    lights.setStrobeAnimation(Constants.LEDColor.BLUE, Constants.LEDSegment.ALL, 1))
-            .withName("LightsBlueStrobe")
-            .andThen(() -> System.out.println("strobe light")));
+                () -> {
+                  lights.setStrobeAnimation(Constants.LEDColor.BLUE, Constants.LEDSegment.ALL, 1);
+                  System.out.println("blue strobe light");
+                })
+            .ignoringDisable(true)
+            .withName("LightsBlueStrobe"));
   }
 
   /** Use this method to define button -> command mappings. */
