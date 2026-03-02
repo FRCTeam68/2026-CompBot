@@ -28,6 +28,7 @@ public class IntakePivot extends SubsystemBase {
   @Getter private static final double intakeForwardExtension = Units.inchesToMeters(25.32);
 
   // PID gains
+  // TODO: add slot 1 gains for retract
   private final LoggedTunableNumber kP = new LoggedTunableNumber("IntakePivot/kP", 4);
   private final LoggedTunableNumber kD = new LoggedTunableNumber("IntakePivot/kD", 0);
   private final LoggedTunableNumber kS = new LoggedTunableNumber("IntakePivot/kS", 0);
@@ -65,10 +66,11 @@ public class IntakePivot extends SubsystemBase {
     // Configure dashboard
     SmartDashboard.putData(
         "IntakePivot/Extend",
-        Commands.runOnce(() -> runPosition(extended), this).withName("DashboardIntakePivotExtend"));
+        Commands.runOnce(() -> runPosition(extended, 0), this)
+            .withName("DashboardIntakePivotExtend"));
     SmartDashboard.putData(
         "IntakePivot/Retract",
-        Commands.runOnce(() -> runPosition(packaged), this)
+        Commands.runOnce(() -> runPosition(packaged, 1), this)
             .withName("DashboardIntakePivotRetract"));
   }
 
@@ -116,11 +118,12 @@ public class IntakePivot extends SubsystemBase {
    * <p><b>Units:</b> Mechanism rotations.
    *
    * @param rotations Goal position.
+   * @param slot PID gain slot to use during motion.
    */
-  public void runPosition(double rotations) {
+  public void runPosition(double rotations, int slot) {
     setpoint = rotations;
     mode = ControlMode.Position;
-    io.runPosition(rotations, 0);
+    io.runPosition(rotations, slot);
     Logger.recordOutput("IntakePivot/SetpointPosition", setpoint, Rotations);
   }
 

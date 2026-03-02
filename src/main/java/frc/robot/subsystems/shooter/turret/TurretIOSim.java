@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 import frc.robot.util.PhoenixUtil.ControlMode;
 
+// TODO: sim has no motion limits
 public class TurretIOSim implements TurretIO {
   private final DCMotor motor = DCMotor.getKrakenX44Foc(1);
 

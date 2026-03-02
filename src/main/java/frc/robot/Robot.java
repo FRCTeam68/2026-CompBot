@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.Mode;
 import frc.robot.commands.ShooterCommands;
 import frc.robot.commands.auton.Auton;
 import frc.robot.util.CanBusUtil;
@@ -96,7 +97,7 @@ public class Robot extends LoggedRobot {
     setUseTiming(Constants.getMode() != frc.robot.Constants.Mode.REPLAY);
 
     // CTRE Hoot logging
-    if (Constants.hootLogging) {
+    if (Constants.hootLogging && Constants.getMode() == Mode.REAL) {
       SignalLogger.setPath("//media/sda1/logs");
       SignalLogger.start();
     } else {

@@ -25,16 +25,16 @@ public class ShooterCommands {
   public static Command shootAutomatic() {
     return Commands.run(
             () -> {
-              if (!shooter.holdSetpoint) {
-                if (shooter.atSetpoint() && HubShiftUtil.shouldShoot()) {
-                  feeder.runVolts(feederRunVolts);
-                  spindexer.runVolts(spindexerRunVolts);
-                } else {
-                  feeder.stop();
-                  spindexer.stop();
-                }
-              } else {
+              if (shooter.holdSetpoint) {
                 shooter.holdSetpoint = false;
+              }
+
+              if (shooter.atSetpoint() && HubShiftUtil.shouldShoot()) {
+                feeder.runVolts(feederRunVolts);
+                spindexer.runVolts(spindexerRunVolts);
+              } else {
+                feeder.stop();
+                spindexer.stop();
               }
             },
             feeder,
@@ -96,10 +96,17 @@ public class ShooterCommands {
         .withName("ShooterToggleNoPass");
   }
 
+  /** Toggle the state of forceManualShoot. Optionally specify the value to set. */
   public static Command toggleManualShoot(boolean... value) {
     return Commands.runOnce(() -> forceManualShoot = !forceManualShoot)
         .onlyIf(() -> value.length == 0 || forceManualShoot != value[0])
         .ignoringDisable(true)
         .withName("ToggleManualShoot");
+  }
+
+  public static Command clearStaticSetpoint() {
+    return Commands.runOnce(() -> shooter.staticSetpoint = false)
+        .ignoringDisable(true)
+        .withName("ShooterClearStaticSetpoint");
   }
 }

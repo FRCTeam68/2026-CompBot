@@ -27,7 +27,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class Turret extends SubsystemBase {
   // Positions
-  @Getter private static final double minimum = 0;
+  @Getter private static final double minimum = 30;
   @Getter private static final double maximum = 360;
 
   // PID gains
@@ -138,7 +138,7 @@ public class Turret extends SubsystemBase {
    * @param degrees Goal position.
    */
   public void runPosition(double degrees) {
-    setpoint = MathUtil.inputModulus(degrees, minimum, maximum);
+    setpoint = MathUtil.inputModulus(degrees, 0.0, 360.0);
     mode = ControlMode.Position;
     if (posistionAmbiguous == false) {
       io.runPosition(setpoint, 0);

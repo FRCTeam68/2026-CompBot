@@ -84,9 +84,10 @@ public class HoodIOReal implements HoodIO {
     talonConfig.Feedback.SensorToMechanismRatio = sensorToMechanismReduction;
     // Motion Limits
     talonConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    talonConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Hood.getMaximum();
+    talonConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.0;
     talonConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    talonConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Hood.getMinimum();
+    talonConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
+        Hood.getMinimum() - Hood.getMaximum();
     tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
 
     // CANcoder

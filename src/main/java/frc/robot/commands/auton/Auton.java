@@ -146,7 +146,7 @@ public class Auton {
                     Commands.sequence(
                         Commands.parallel(
                             PathUtil.followPath("Center Depot"),
-                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
                         IntakeCommands.stop(),
                         PathUtil.followPath("Depot Tower"),
                         Commands.waitSeconds(
@@ -165,7 +165,7 @@ public class Auton {
                     Commands.sequence(
                         Commands.parallel(
                             PathUtil.followPath("Center Outpost"),
-                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
                         IntakeCommands.stop(),
                         PathUtil.followPath("Outpost Tower"),
                         Commands.waitSeconds(
@@ -189,7 +189,7 @@ public class Auton {
                   Commands.sequence(
                       Commands.parallel(
                           PathUtil.followPath("Left Trench A"),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
                       IntakeCommands.stop(),
                       PathUtil.followPath("Left Trench B"),
                       Commands.waitSeconds(
@@ -222,7 +222,7 @@ public class Auton {
                   Commands.sequence(
                       Commands.parallel(
                           PathUtil.followPath("Left Trench A1"),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
                       PathUtil.followPath("Left Trench A2"),
                       IntakeCommands.stop(),
                       PathUtil.followPath("Left Trench B1"),
@@ -234,7 +234,7 @@ public class Auton {
                         PathUtil.followPath("Left Depot1"),
                         Commands.parallel(
                             PathUtil.followPath("Left Depot2"),
-                            IntakeCommands.intakeOn(),
+                            IntakeCommands.intakeRemainOn(),
                             ShooterCommands.shootAutomatic().withTimeout(5.0)),
                         IntakeCommands.stop());
               } else {
@@ -242,7 +242,7 @@ public class Auton {
                     Commands.sequence(
                         Commands.parallel(
                             PathUtil.followPath("Left Trench C1"),
-                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
                         IntakeCommands.stop(),
                         PathUtil.followPath("Left Trench D1"),
                         ShooterCommands.shootAutomatic().withTimeout(5.0),
@@ -265,7 +265,7 @@ public class Auton {
                   Commands.sequence(
                       Commands.parallel(
                           PathUtil.followPath("Right_1768_AB1"),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
                       IntakeCommands.stop(),
                       ShooterCommands.shootAutomatic().withTimeout(3.0));
 
@@ -274,7 +274,7 @@ public class Auton {
                     Commands.sequence(
                         Commands.parallel(
                             PathUtil.followPath("Right_1768_Outpost"),
-                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
                         Commands.waitSeconds(1)
                             .andThen(ShooterCommands.shootAutomatic().withTimeout(5.0)),
                         IntakeCommands.stop());
@@ -283,7 +283,7 @@ public class Auton {
                     Commands.sequence(
                         Commands.parallel(
                             PathUtil.followPath("Right_1768_CD1"),
-                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
                         IntakeCommands.stop(),
                         ShooterCommands.shootAutomatic().withTimeout(5.0));
               }
@@ -304,7 +304,7 @@ public class Auton {
                   Commands.sequence(
                       Commands.parallel(
                           PathUtil.followPath("Right Trench A"),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeOn())),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
                       IntakeCommands.stop(),
                       PathUtil.followPath("Right Trench B"),
                       Commands.waitSeconds(
