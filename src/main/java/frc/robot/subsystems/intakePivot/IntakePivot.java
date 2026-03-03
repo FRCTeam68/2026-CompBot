@@ -29,8 +29,10 @@ public class IntakePivot extends SubsystemBase {
 
   // PID gains
   // TODO: add slot 1 gains for retract
-  private final LoggedTunableNumber kP = new LoggedTunableNumber("IntakePivot/kP", 4);
-  private final LoggedTunableNumber kD = new LoggedTunableNumber("IntakePivot/kD", 0);
+  private final LoggedTunableNumber kP0 = new LoggedTunableNumber("IntakePivot/kP", 35);
+  private final LoggedTunableNumber kD0 = new LoggedTunableNumber("IntakePivot/kD", 0);
+  private final LoggedTunableNumber kP1 = new LoggedTunableNumber("IntakePivot/kP", 35);
+  private final LoggedTunableNumber kD1 = new LoggedTunableNumber("IntakePivot/kD", 0);
   private final LoggedTunableNumber kS = new LoggedTunableNumber("IntakePivot/kS", 0);
 
   // Motion magic gains
@@ -86,8 +88,14 @@ public class IntakePivot extends SubsystemBase {
     motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
     // Update PID gains
-    if (kP.hasChanged(hashCode()) | kD.hasChanged(hashCode()) | kS.hasChanged(hashCode())) {
-      io.setPID(new SlotConfigs().withKP(kP.get()).withKD(kD.get()).withKS(kS.get()));
+    if (kP0.hasChanged(hashCode())
+        | kD0.hasChanged(hashCode())
+        | kS.hasChanged(hashCode())
+        | kP1.hasChanged(hashCode())
+        | kD1.hasChanged(hashCode())) {
+      io.setPID(
+          new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS.get()),
+          new SlotConfigs().withKP(kP1.get()).withKD(kD1.get()).withKS(kS.get()));
     }
 
     // Update motion magic gains

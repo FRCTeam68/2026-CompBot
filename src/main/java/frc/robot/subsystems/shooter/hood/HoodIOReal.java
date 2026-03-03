@@ -70,7 +70,7 @@ public class HoodIOReal implements HoodIO {
     cancoder = new CANcoder(28, ShooterConstants.canBus);
 
     // Motor output
-    talonConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    talonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     talonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     // Current limits
     talonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -91,7 +91,7 @@ public class HoodIOReal implements HoodIO {
     tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
 
     // CANcoder
-    cancoderConfig.MagnetSensor.MagnetOffset = -0.097900390625; // Minimum elevation
+    cancoderConfig.MagnetSensor.MagnetOffset = 0.067626953125; // Minimum elevation
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.1;
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));

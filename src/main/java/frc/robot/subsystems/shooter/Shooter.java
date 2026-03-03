@@ -103,7 +103,7 @@ public class Shooter extends SubsystemBase {
     }
 
     // Run shooter to target dynamically
-    if ((!staticSetpoint || !holdSetpoint) && (!isTargetHub || inAllianceZoneSupplier.get())) {
+    if ((!staticSetpoint && !holdSetpoint) && (!isTargetHub || inAllianceZoneSupplier.get())) {
       runDynamic();
     }
   }

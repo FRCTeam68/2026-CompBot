@@ -20,9 +20,9 @@ import org.littletonrobotics.junction.Logger;
 
 public class Flywheel extends SubsystemBase {
   // PID gains
-  private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Flywheel/kP", 2);
+  private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Flywheel/kP", 0.8);
   private LoggedTunableNumber kD = new LoggedTunableNumber("Shooter/Flywheel/kD", 0);
-  private LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Flywheel/kS", 0.27);
+  private LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Flywheel/kS", 0.4);
 
   // Setpoint band
   private LoggedTunableNumber setpointBandVelocity =

@@ -16,7 +16,7 @@ public class IntakeCommands {
     return Commands.sequence(
             Commands.runOnce(() -> intakeSpin.stop(), intakeSpin),
             Commands.runOnce(
-                () -> intakePivot.runPosition(IntakePivot.getPackaged(), 0), intakePivot))
+                () -> intakePivot.runPosition(IntakePivot.getPackaged(), 1), intakePivot))
         .withName("IntakeRetract");
   }
 
@@ -24,7 +24,7 @@ public class IntakeCommands {
     return Commands.sequence(
             Commands.runOnce(() -> intakeSpin.stop(), intakeSpin),
             Commands.runOnce(
-                () -> intakePivot.runPosition(IntakePivot.getPackaged(), 0), intakePivot),
+                () -> intakePivot.runPosition(IntakePivot.getPackaged(), 1), intakePivot),
             Commands.either(
                 Commands.idle(intakePivot, intakeSpin),
                 Commands.waitSeconds(timeout[0]),
