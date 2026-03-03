@@ -116,6 +116,8 @@ public class RobotContainer {
   }
 
   void addLightTest() {
+    lights.setSolidColor(Constants.LEDColor.BLUE, Constants.LEDSegment.ALL);
+
     SmartDashboard.putData(
         "Lights/green",
         Commands.runOnce(
