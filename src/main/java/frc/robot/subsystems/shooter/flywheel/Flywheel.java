@@ -26,7 +26,7 @@ public class Flywheel extends SubsystemBase {
 
   // Setpoint band
   private LoggedTunableNumber setpointBandVelocity =
-      new LoggedTunableNumber("Shooter/Flywheel/VelocitySetpointBandPercent", 0.1);
+      new LoggedTunableNumber("Shooter/Flywheel/VelocitySetpointBandPercent", 0.3);
 
   // Alerts
   private final Alert leaderDisconnectedAlert =
