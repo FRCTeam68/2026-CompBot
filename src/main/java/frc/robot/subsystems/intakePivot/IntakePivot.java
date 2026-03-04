@@ -29,7 +29,7 @@ public class IntakePivot extends SubsystemBase {
 
   // PID gains
   // TODO: add slot 1 gains for retract
-  private final LoggedTunableNumber kP0 = new LoggedTunableNumber("IntakePivot/kP", 35);
+  private final LoggedTunableNumber kP0 = new LoggedTunableNumber("IntakePivot/kP", 25);
   private final LoggedTunableNumber kD0 = new LoggedTunableNumber("IntakePivot/kD", 0);
   private final LoggedTunableNumber kP1 = new LoggedTunableNumber("IntakePivot/kP", 35);
   private final LoggedTunableNumber kD1 = new LoggedTunableNumber("IntakePivot/kD", 0);
