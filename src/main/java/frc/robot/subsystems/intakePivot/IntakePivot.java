@@ -28,7 +28,6 @@ public class IntakePivot extends SubsystemBase {
   @Getter private static final double intakeForwardExtension = Units.inchesToMeters(25.32);
 
   // PID gains
-  // TODO: add slot 1 gains for retract
   private final LoggedTunableNumber kP0 = new LoggedTunableNumber("IntakePivot/kP", 25);
   private final LoggedTunableNumber kD0 = new LoggedTunableNumber("IntakePivot/kD", 0);
   private final LoggedTunableNumber kP1 = new LoggedTunableNumber("IntakePivot/kP", 35);
@@ -43,7 +42,7 @@ public class IntakePivot extends SubsystemBase {
 
   // Setpoint band
   private final LoggedTunableNumber setpointBandPosition =
-      new LoggedTunableNumber("IntakePivot/SetpointBand", 0);
+      new LoggedTunableNumber("IntakePivot/SetpointBand", 0.02);
 
   // Alerts
   private final Alert motorDisconnectedAlert =

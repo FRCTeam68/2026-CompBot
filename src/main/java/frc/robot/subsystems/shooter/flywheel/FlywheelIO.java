@@ -13,7 +13,9 @@ public interface FlywheelIO {
     public double leaderAppliedVoltage = 0.0;
     public double followerAppliedVoltage = 0.0;
     public double leaderSupplyCurrentAmps = 0.0;
+    public double followerSupplyCurrentAmps = 0.0;
     public double leaderTorqueCurrentAmps = 0.0;
+    public double followerTorqueCurrentAmps = 0.0;
     public double leaderTempCelsius = 0.0;
     public double followerTempCelsius = 0.0;
   }

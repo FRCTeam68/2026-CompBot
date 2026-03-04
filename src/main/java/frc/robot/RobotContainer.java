@@ -27,6 +27,7 @@ import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.HubShiftUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
+import org.littletonrobotics.junction.networktables.LoggedNetworkString;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -57,7 +58,7 @@ public class RobotContainer {
 
   // Triggers
   private final Trigger hubTransitionWarningTrigger =
-      new Trigger(() -> HubShiftUtil.hubToActiveWarning(3) || HubShiftUtil.hubToInactiveWarning(3));
+      new Trigger(() -> HubShiftUtil.hubToActive(3) || HubShiftUtil.hubToInactive(3));
 
   /** The container for the robot. */
   public RobotContainer() {
@@ -69,6 +70,8 @@ public class RobotContainer {
 
     // Configure tuning dashboard buttons
     if (Constants.tuningMode) {
+      @SuppressWarnings("unused")
+      LoggedNetworkString logLabel = new LoggedNetworkString("SmartDashboard/LogLabel", "");
       // Drive
       SmartDashboard.putData(
           "Tuning/DriveLinear_Right",
@@ -160,7 +163,7 @@ public class RobotContainer {
 
     driverController.b().whileTrue(IntakeCommands.outtake());
 
-    driverController.leftBumper().onTrue(IntakeCommands.retract());
+    driverController.leftBumper().whileTrue(IntakeCommands.agitate());
 
     // Shooter
     driverController.rightTrigger().whileTrue(ShooterCommands.shootAutomatic());

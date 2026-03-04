@@ -28,11 +28,12 @@ public class Shooter extends SubsystemBase {
 
   private Translation2d target = Translation2d.kZero;
   @Getter private boolean isTargetHub = true;
+  @Getter private double flightTime = 0.0;
 
   @AutoLogOutput(key = "Shooter/HoldSetpoint")
   public boolean holdSetpoint = false;
 
-  @AutoLogOutput(key = "Shooter/Static")
+  @AutoLogOutput(key = "Shooter/StaticSetpoint")
   public boolean staticSetpoint = false;
 
   @AutoLogOutput(key = "Shooter/NoPass")
@@ -82,6 +83,7 @@ public class Shooter extends SubsystemBase {
     if (inAllianceZoneSupplier.get() || noPass) {
       isTargetHub = true;
       target = AllianceFlipUtil.apply(ShooterConstants.Target.hub);
+      flightTime = ShooterConstants.DynamicShot.hubShotFlightTime.get(getDistanceToTarget());
       Logger.recordOutput("Shooter/Target", "Hub");
     } else {
       isTargetHub = false;
@@ -100,6 +102,7 @@ public class Shooter extends SubsystemBase {
                     : ShooterConstants.Target.passLeft);
         Logger.recordOutput("Shooter/Target", "Pass Left");
       }
+      flightTime = ShooterConstants.DynamicShot.passShotFlightTime.get(getDistanceToTarget());
     }
 
     // Run shooter to target dynamically
@@ -138,10 +141,8 @@ public class Shooter extends SubsystemBase {
     ChassisSpeeds targetRelativeVelocity =
         ChassisSpeeds.fromFieldRelativeSpeeds(
             driveVelocitySupplier.get(), target.minus(getShooterFieldTranslation()).getAngle());
-    double targetDistance = target.minus(getShooterFieldTranslation()).getNorm();
-    double flightTime = ShooterConstants.DynamicShot.hubShotFlightTime.get(targetDistance);
     double targetDistanceAdjusted =
-        targetDistance - (targetRelativeVelocity.vxMetersPerSecond * flightTime);
+        getDistanceToTarget() - (targetRelativeVelocity.vxMetersPerSecond * flightTime);
 
     flywheel.runVelocity(
         ShooterConstants.DynamicShot.hubShotFlywheelVelocity.get(targetDistanceAdjusted));
@@ -152,7 +153,8 @@ public class Shooter extends SubsystemBase {
             .getAngle()
             .minus(
                 new Translation2d(
-                        targetDistance, targetRelativeVelocity.vyMetersPerSecond * flightTime)
+                        getDistanceToTarget(),
+                        targetRelativeVelocity.vyMetersPerSecond * flightTime)
                     .getAngle())
             .minus(drivePoseSupplier.get().getRotation())
             .getDegrees());
@@ -161,6 +163,7 @@ public class Shooter extends SubsystemBase {
   /** Stop all shooter subsytems. */
   public void stop() {
     holdSetpoint = true;
+    staticSetpoint = false;
     flywheel.stop();
     hood.stop();
     turret.stop();
@@ -215,7 +218,7 @@ public class Shooter extends SubsystemBase {
   /** Returns the distance in meters to the automatically selected target. */
   @AutoLogOutput(key = "Shooter/DistanceToTarget", unit = "Meters")
   public double getDistanceToTarget() {
-    return drivePoseSupplier.get().getTranslation().minus(target).getNorm();
+    return target.minus(getShooterFieldTranslation()).getNorm();
   }
 
   /** Returns true if all shooter subsystems are at their individual setpoints. */

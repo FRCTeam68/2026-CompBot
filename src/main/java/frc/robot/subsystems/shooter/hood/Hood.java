@@ -27,9 +27,24 @@ public class Hood extends SubsystemBase {
   @Getter private static final double underTrenchMinimum = maximum - 9;
 
   // PID gains
-  private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Hood/kP", 500);
-  private LoggedTunableNumber kD = new LoggedTunableNumber("Shooter/Hood/kD", 0);
-  private LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Hood/kS", 0.4);
+  private static final LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Hood/kP");
+  private static final LoggedTunableNumber kD = new LoggedTunableNumber("Shooter/Hood/kD");
+  private static final LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Hood/kS");
+
+  static {
+    switch (Constants.getMode()) {
+      case REAL, REPLAY -> {
+        kP.initDefault(500);
+        kD.initDefault(0.0);
+        kS.initDefault(0.4);
+      }
+      case SIM -> {
+        kP.initDefault(5);
+        kD.initDefault(0.0);
+        kS.initDefault(0.0);
+      }
+    }
+  }
 
   // Motion magic gains
   private LoggedTunableNumber mmVelocity =

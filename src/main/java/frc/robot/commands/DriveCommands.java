@@ -42,14 +42,16 @@ public class DriveCommands {
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
 
   // Shooting constants
+  // Max linear velocity: 5.03
+  // Max angular velocity: 12.87
   private static final LoggedTunableNumber hubArcRadius =
       new LoggedTunableNumber("Drive/HubShot/ArcRadius", 2.5);
   private static final LoggedTunableNumber hubShotMaxLinearVelocity =
-      new LoggedTunableNumber("Drive/HubShot/MaxLinearVelocity", 1.0);
+      new LoggedTunableNumber("Drive/HubShot/MaxLinearVelocity", 2.0);
   private static final LoggedTunableNumber hubShotMaxAngularVelocity =
       new LoggedTunableNumber("Drive/HubShot/MaxAngularVelocity", 5.0);
   private static final LoggedTunableNumber passShotMaxLinearVelocity =
-      new LoggedTunableNumber("Drive/PassShot/MaxLinearVelocity", 2.0);
+      new LoggedTunableNumber("Drive/PassShot/MaxLinearVelocity", 10.0);
   private static final LoggedTunableNumber passShotMaxAngularVelocity =
       new LoggedTunableNumber("Drive/PassShot/MaxAngularVelocity", 8.0);
 
@@ -360,7 +362,6 @@ public class DriveCommands {
                   ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, drive.getRotation()));
             },
             drive)
-        .repeatedly()
 
         // Before starting configure angle controller, clear trajectory list, and logging
         .beforeStarting(
@@ -459,7 +460,6 @@ public class DriveCommands {
                   ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, drive.getRotation()));
             },
             drive)
-        .repeatedly()
 
         // Do nothing if not in alliance zone
         .onlyIf(() -> drive.inAllianceZone())

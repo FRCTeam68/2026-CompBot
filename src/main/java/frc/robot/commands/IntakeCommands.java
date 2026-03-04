@@ -21,13 +21,14 @@ public class IntakeCommands {
   }
 
   public static Command agitate(double... timeout) {
+    double waitTime = (timeout.length == 0) ? 0.0 : timeout[0];
     return Commands.sequence(
             Commands.runOnce(() -> intakeSpin.stop(), intakeSpin),
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getPackaged(), 1), intakePivot),
             Commands.either(
                 Commands.idle(intakePivot, intakeSpin),
-                Commands.waitSeconds(timeout[0]),
+                Commands.waitSeconds(waitTime),
                 () -> timeout.length == 0))
         .finallyDo(() -> intakePivot.runPosition(IntakePivot.getExtended(), 0))
         .withName("IntakeAgitate");
@@ -37,6 +38,7 @@ public class IntakeCommands {
     return Commands.sequence(
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
+            Commands.waitUntil(() -> intakePivot.atSetpoint()),
             Commands.runOnce(() -> intakeSpin.runVolts(7), intakeSpin))
         .withName("IntakeOn");
   }
@@ -45,6 +47,7 @@ public class IntakeCommands {
     return Commands.sequence(
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
+            Commands.waitUntil(() -> intakePivot.atSetpoint()),
             Commands.runOnce(() -> intakeSpin.runVolts(7), intakeSpin),
             Commands.idle())
         .finallyDo(() -> intakeSpin.stop())
@@ -55,6 +58,7 @@ public class IntakeCommands {
     return Commands.sequence(
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
+            Commands.waitUntil(() -> intakePivot.atSetpoint()),
             Commands.runOnce(() -> intakeSpin.runVolts(-7), intakeSpin),
             Commands.idle())
         .finallyDo(() -> intakeSpin.stop())

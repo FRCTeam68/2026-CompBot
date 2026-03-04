@@ -50,17 +50,17 @@ public final class DriveConstants {
 
   // Simple profiled PID configuration
   public static final PIDConstants linearPID = new PIDConstants(5.0, 0.0, 0.0);
-  public static final PIDConstants angularPID = new PIDConstants(4.0, 0.0, 0.0);
+  public static final PIDConstants angularPID = new PIDConstants(10.0, 0.0, 0.0);
 
   // Autopilot configuration
   public static final APProfile apConfigStatic =
-      new APProfile(new APConstraints(64.0, Double.POSITIVE_INFINITY))
+      new APProfile(new APConstraints(64.0, 9999))
           .withErrorXY(Inches.of(1))
           .withErrorTheta(Degrees.of(1))
           .withBeelineRadius(Inches.of(5));
 
   public static final APProfile apConfigDynamic =
-      new APProfile(new APConstraints(maxLinearAcceleration, Double.POSITIVE_INFINITY))
+      new APProfile(new APConstraints(maxLinearAcceleration, 9999))
           .withErrorXY(Inches.of(6))
           .withErrorTheta(Degrees.of(6))
           .withBeelineRadius(Inches.of(12));

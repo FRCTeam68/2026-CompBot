@@ -82,6 +82,16 @@ public class ShooterCommands {
         .withName("ShooterStop");
   }
 
+  // TODO: create bumpFlywheel command
+  public static Command bumpFlywheel(boolean increaseSpeed) {
+    return Commands.none();
+  }
+
+  // TODO: create bumpHood command
+  public static Command bumpHood(boolean increaseElevation) {
+    return Commands.none();
+  }
+
   public static Command setHoldSetpoint(boolean value) {
     return Commands.runOnce(() -> shooter.holdSetpoint = value)
         .ignoringDisable(true)
