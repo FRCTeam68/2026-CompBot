@@ -83,14 +83,19 @@ public class TurretIOReal implements TurretIO {
     talonConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     talonConfig.Feedback.RotorToSensorRatio = rotorToSensorReduction;
     talonConfig.Feedback.SensorToMechanismRatio = sensorToMechanismReduction;
+    // Motion limits
     talonConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    talonConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Turret.getMaximum();
+    talonConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
+        Units.degreesToRotations(Turret.getMaximum());
     talonConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    talonConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Turret.getMinimum();
-    cancoderConfig.MagnetSensor.MagnetOffset = -0.58544921875;
+    talonConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
+        Units.degreesToRotations(Turret.getMinimum());
+    tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
+
+    // CANcoder
+    cancoderConfig.MagnetSensor.MagnetOffset = -0.9677734375;
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
     cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
-    tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
 
     position = talon.getPosition();

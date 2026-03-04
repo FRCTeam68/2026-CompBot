@@ -92,6 +92,8 @@ public class RobotSystem {
 
         flywheel = new Flywheel(new FlywheelIOReal());
         hood = new Hood(new HoodIOReal());
+        // flywheel = new Flywheel(new FlywheelIOSim());
+        // hood = new Hood(new HoodIOSim());
         turret = new Turret(new TurretIOReal());
 
         intakePivot = new IntakePivot(new IntakePivotIOReal());

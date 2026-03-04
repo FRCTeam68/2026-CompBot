@@ -259,7 +259,9 @@ public class RobotContainer {
     operatorController
         .R2()
         .onTrue(ShooterCommands.setHoldSetpoint(true))
-        .onFalse(ShooterCommands.setHoldSetpoint(false));
+        .onFalse(
+            ShooterCommands.setHoldSetpoint(false)
+                .alongWith(ShooterCommands.clearStaticSetpoint()));
 
     operatorController.PS().onTrue(ShooterCommands.toggleNoPass());
 

@@ -14,29 +14,37 @@ public class IntakeCommands {
 
   public static Command retract() {
     return Commands.sequence(
-            Commands.runOnce(() -> intakePivot.runPosition(IntakePivot.getPackaged()), intakePivot),
-            Commands.runOnce(() -> intakeSpin.stop(), intakeSpin))
+            Commands.runOnce(() -> intakeSpin.stop(), intakeSpin),
+            Commands.runOnce(
+                () -> intakePivot.runPosition(IntakePivot.getPackaged(), 1), intakePivot))
         .withName("IntakeRetract");
   }
 
-  public static Command retractHold() {
+  public static Command agitate(double... timeout) {
     return Commands.sequence(
-            Commands.runOnce(() -> intakePivot.runPosition(IntakePivot.getPackaged()), intakePivot),
-            Commands.runOnce(() -> intakeSpin.stop(), intakeSpin))
-        .finallyDo(() -> intakePivot.runPosition(IntakePivot.getExtended()))
-        .withName("RetractHold");
+            Commands.runOnce(() -> intakeSpin.stop(), intakeSpin),
+            Commands.runOnce(
+                () -> intakePivot.runPosition(IntakePivot.getPackaged(), 1), intakePivot),
+            Commands.either(
+                Commands.idle(intakePivot, intakeSpin),
+                Commands.waitSeconds(timeout[0]),
+                () -> timeout.length == 0))
+        .finallyDo(() -> intakePivot.runPosition(IntakePivot.getExtended(), 0))
+        .withName("IntakeAgitate");
   }
 
-  public static Command intakeOn() {
+  public static Command intakeRemainOn() {
     return Commands.sequence(
-            Commands.runOnce(() -> intakePivot.runPosition(IntakePivot.getExtended()), intakePivot),
+            Commands.runOnce(
+                () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
             Commands.runOnce(() -> intakeSpin.runVolts(7), intakeSpin))
         .withName("IntakeOn");
   }
 
   public static Command intakeWhile() {
     return Commands.sequence(
-            Commands.runOnce(() -> intakePivot.runPosition(IntakePivot.getExtended()), intakePivot),
+            Commands.runOnce(
+                () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
             Commands.runOnce(() -> intakeSpin.runVolts(7), intakeSpin),
             Commands.idle())
         .finallyDo(() -> intakeSpin.stop())
@@ -45,7 +53,8 @@ public class IntakeCommands {
 
   public static Command outtake() {
     return Commands.sequence(
-            Commands.runOnce(() -> intakePivot.runPosition(IntakePivot.getExtended()), intakePivot),
+            Commands.runOnce(
+                () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
             Commands.runOnce(() -> intakeSpin.runVolts(-7), intakeSpin),
             Commands.idle())
         .finallyDo(() -> intakeSpin.stop())

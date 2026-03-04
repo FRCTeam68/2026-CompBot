@@ -1,10 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -34,6 +31,9 @@ public class Shooter extends SubsystemBase {
 
   @AutoLogOutput(key = "Shooter/HoldSetpoint")
   public boolean holdSetpoint = false;
+
+  @AutoLogOutput(key = "Shooter/Static")
+  public boolean staticSetpoint = false;
 
   @AutoLogOutput(key = "Shooter/NoPass")
   public boolean noPass = false;
@@ -102,8 +102,8 @@ public class Shooter extends SubsystemBase {
       }
     }
 
-    // Run shooter to target
-    if (!holdSetpoint && (!isTargetHub || inAllianceZoneSupplier.get())) {
+    // Run shooter to target dynamically
+    if ((!staticSetpoint && !holdSetpoint) && (!isTargetHub || inAllianceZoneSupplier.get())) {
       runDynamic();
     }
   }
@@ -116,7 +116,7 @@ public class Shooter extends SubsystemBase {
    * @param turretAngle The counterclockwise angle of the turret in degrees.
    */
   public void runStatic(double flywheelVelocity, double hoodElevation, double turretAngle) {
-    holdSetpoint = true;
+    staticSetpoint = true;
     flywheel.runVelocity(flywheelVelocity);
     hood.runElvation(hoodElevation);
     turret.runPosition(turretAngle);
@@ -133,27 +133,29 @@ public class Shooter extends SubsystemBase {
 
   /** Run the shooter dynamically. */
   public void runDynamic() {
+    // vx - toward target
+    // vy - CW tangent to target
+    ChassisSpeeds targetRelativeVelocity =
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+            driveVelocitySupplier.get(), target.minus(getShooterFieldTranslation()).getAngle());
     double targetDistance = target.minus(getShooterFieldTranslation()).getNorm();
     double flightTime = ShooterConstants.DynamicShot.hubShotFlightTime.get(targetDistance);
-    Translation2d adjustedTarget = target;
-    // target.plus(
-    //     new Translation2d(
-    //         driveVelocitySupplier.get().vxMetersPerSecond * flightTime * -1,
-    //         driveVelocitySupplier.get().vyMetersPerSecond * flightTime * -1));
-    double adjustedTargetDistance = target.minus(getShooterFieldTranslation()).getNorm();
-
-    Logger.recordOutput(
-        "Shooter/AdjustedTarget",
-        new Pose3d(
-            new Translation3d(adjustedTarget).plus(new Translation3d(0.0, 0.0, 1.8)),
-            Rotation3d.kZero));
+    double targetDistanceAdjusted =
+        targetDistance - (targetRelativeVelocity.vxMetersPerSecond * flightTime);
 
     flywheel.runVelocity(
-        ShooterConstants.DynamicShot.hubShotFlywheelVelocity.get(adjustedTargetDistance));
-    hood.runElvation(ShooterConstants.DynamicShot.hubShotHoodElevation.get(adjustedTargetDistance));
+        ShooterConstants.DynamicShot.hubShotFlywheelVelocity.get(targetDistanceAdjusted));
+    hood.runElvation(ShooterConstants.DynamicShot.hubShotHoodElevation.get(targetDistanceAdjusted));
     turret.runPosition(
-        adjustedTarget.minus(getShooterFieldTranslation()).getAngle().getDegrees()
-            - drivePoseSupplier.get().getRotation().getDegrees());
+        target
+            .minus(getShooterFieldTranslation())
+            .getAngle()
+            .minus(
+                new Translation2d(
+                        targetDistance, targetRelativeVelocity.vyMetersPerSecond * flightTime)
+                    .getAngle())
+            .minus(drivePoseSupplier.get().getRotation())
+            .getDegrees());
   }
 
   /** Stop all shooter subsytems. */

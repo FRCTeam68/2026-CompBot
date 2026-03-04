@@ -23,13 +23,16 @@ import org.littletonrobotics.junction.Logger;
 public class IntakePivot extends SubsystemBase {
   // Positions
   @Getter private static final double packaged = 0;
-  @Getter private static final double extended = 0.23;
+  @Getter private static final double extended = 0.1274;
   @Getter private static final double inBumperMaximum = 0.1;
   @Getter private static final double intakeForwardExtension = Units.inchesToMeters(25.32);
 
   // PID gains
-  private final LoggedTunableNumber kP = new LoggedTunableNumber("IntakePivot/kP", 10);
-  private final LoggedTunableNumber kD = new LoggedTunableNumber("IntakePivot/kD", 0);
+  // TODO: add slot 1 gains for retract
+  private final LoggedTunableNumber kP0 = new LoggedTunableNumber("IntakePivot/kP", 25);
+  private final LoggedTunableNumber kD0 = new LoggedTunableNumber("IntakePivot/kD", 0);
+  private final LoggedTunableNumber kP1 = new LoggedTunableNumber("IntakePivot/kP", 35);
+  private final LoggedTunableNumber kD1 = new LoggedTunableNumber("IntakePivot/kD", 0);
   private final LoggedTunableNumber kS = new LoggedTunableNumber("IntakePivot/kS", 0);
 
   // Motion magic gains
@@ -65,10 +68,11 @@ public class IntakePivot extends SubsystemBase {
     // Configure dashboard
     SmartDashboard.putData(
         "IntakePivot/Extend",
-        Commands.runOnce(() -> runPosition(extended), this).withName("DashboardIntakePivotExtend"));
+        Commands.runOnce(() -> runPosition(extended, 0), this)
+            .withName("DashboardIntakePivotExtend"));
     SmartDashboard.putData(
         "IntakePivot/Retract",
-        Commands.runOnce(() -> runPosition(packaged), this)
+        Commands.runOnce(() -> runPosition(packaged, 1), this)
             .withName("DashboardIntakePivotRetract"));
   }
 
@@ -84,8 +88,14 @@ public class IntakePivot extends SubsystemBase {
     motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
     // Update PID gains
-    if (kP.hasChanged(hashCode()) | kD.hasChanged(hashCode()) | kS.hasChanged(hashCode())) {
-      io.setPID(new SlotConfigs().withKP(kP.get()).withKD(kD.get()).withKS(kS.get()));
+    if (kP0.hasChanged(hashCode())
+        | kD0.hasChanged(hashCode())
+        | kS.hasChanged(hashCode())
+        | kP1.hasChanged(hashCode())
+        | kD1.hasChanged(hashCode())) {
+      io.setPID(
+          new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS.get()),
+          new SlotConfigs().withKP(kP1.get()).withKD(kD1.get()).withKS(kS.get()));
     }
 
     // Update motion magic gains
@@ -116,11 +126,12 @@ public class IntakePivot extends SubsystemBase {
    * <p><b>Units:</b> Mechanism rotations.
    *
    * @param rotations Goal position.
+   * @param slot PID gain slot to use during motion.
    */
-  public void runPosition(double rotations) {
+  public void runPosition(double rotations, int slot) {
     setpoint = rotations;
     mode = ControlMode.Position;
-    io.runPosition(rotations, 0);
+    io.runPosition(rotations, slot);
     Logger.recordOutput("IntakePivot/SetpointPosition", setpoint, Rotations);
   }
 

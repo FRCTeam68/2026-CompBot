@@ -27,15 +27,15 @@ public class Hood extends SubsystemBase {
   @Getter private static final double underTrenchMinimum = maximum - 9;
 
   // PID gains
-  private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Hood/kP", 0);
+  private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Hood/kP", 500);
   private LoggedTunableNumber kD = new LoggedTunableNumber("Shooter/Hood/kD", 0);
-  private LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Hood/kS", 0);
+  private LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Hood/kS", 0.4);
 
   // Motion magic gains
   private LoggedTunableNumber mmVelocity =
-      new LoggedTunableNumber("Shooter/Hood/MotionMagic/Velocity", 0);
+      new LoggedTunableNumber("Shooter/Hood/MotionMagic/Velocity", 100);
   private LoggedTunableNumber mmAcceleration =
-      new LoggedTunableNumber("Shooter/Hood/MotionMagic/Acceleration", 0);
+      new LoggedTunableNumber("Shooter/Hood/MotionMagic/Acceleration", 100);
   private LoggedTunableNumber mmJerk = new LoggedTunableNumber("Shooter/Hood/MotionMagic/Jerk", 0);
 
   // Setpoint band
@@ -63,13 +63,6 @@ public class Hood extends SubsystemBase {
 
   public Hood(HoodIO hoodIO) {
     this.io = hoodIO;
-
-    // Set current position
-    periodic();
-    System.out.println("pos: " + getElevation());
-    System.out.println("abspos: " + getAbsolutePosition());
-
-    // io.setPosition((maximum * HoodIOReal.getSensorToMechanismReduction()));
   }
 
   public void initInTrenchBoxSupplier(Supplier<Boolean> inTrenchBox) {
@@ -136,7 +129,7 @@ public class Hood extends SubsystemBase {
         (inTrenchBox.get()) ? MathUtil.clamp(setpoint, underTrenchMinimum, maximum) : setpoint;
     mode = ControlMode.Position;
 
-    io.runPosition(setpointAdjusted, 0);
+    io.runPosition(setpointAdjusted - maximum, 0);
 
     Logger.recordOutput("Shooter/Hood/SetpointPosition", setpoint, Degrees);
     Logger.recordOutput("Shooter/Hood/SetpointPositionAdjusted", setpointAdjusted, Degrees);
@@ -158,8 +151,9 @@ public class Hood extends SubsystemBase {
    *
    * @return Elevation.
    */
+  @AutoLogOutput(key = "Shooter/Hood/ElevationMeasured", unit = "Degrees")
   public double getElevation() {
-    return inputs.positionDeg;
+    return maximum + inputs.positionDeg;
   }
 
   /**

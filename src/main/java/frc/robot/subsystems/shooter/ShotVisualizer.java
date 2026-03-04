@@ -16,7 +16,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class ShotVisualizer {
   // Constants
-  private static final double stepSecs = 0.04;
+  private static final double stepSecs = 0.1;
   private static final double FlywheelDiameter = 4.0;
   private static final double gravity = 9.8;
 

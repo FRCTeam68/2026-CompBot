@@ -8,6 +8,7 @@ import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants.shotConfig;
+import frc.robot.util.HubShiftUtil;
 import org.littletonrobotics.junction.AutoLogOutput;
 
 public class ShooterCommands {
@@ -27,24 +28,16 @@ public class ShooterCommands {
   public static Command shootAutomatic() {
     return Commands.run(
             () -> {
-              if (!forceManualShoot) {
-                if (!shooter.holdSetpoint) {
-                  if (shooter.atSetpoint()) {
-                    feeder.runVolts(feederRunVolts);
-                    spindexer.runVolts(spindexerRunVolts);
-                    lights.setSolidColor(Constants.LEDColor.ORANGE, Constants.LEDSegment.ALL);
-                  } else {
-                    feeder.stop();
-                    spindexer.stop();
-                    lights.disableLEDs(Constants.LEDSegment.ALL);
-                  }
-                } else {
-                  shooter.holdSetpoint = false;
-                }
-              } else {
+              if (shooter.holdSetpoint) {
+                shooter.holdSetpoint = false;
+              }
+
+              if (shooter.atSetpoint() && HubShiftUtil.shouldShoot()) {
                 feeder.runVolts(feederRunVolts);
                 spindexer.runVolts(spindexerRunVolts);
-                lights.setSolidColor(Constants.LEDColor.RED, Constants.LEDSegment.ALL);
+              } else {
+                feeder.stop();
+                spindexer.stop();
               }
             },
             feeder,
@@ -66,6 +59,7 @@ public class ShooterCommands {
               feeder.runVolts(feederRunVolts);
               spindexer.runVolts(spindexerRunVolts);
             })
+        .andThen(Commands.idle(feeder, spindexer))
         .beforeStarting(() -> robotSystem.isShooting = true)
         .finallyDo(
             () -> {
@@ -106,10 +100,17 @@ public class ShooterCommands {
         .withName("ShooterToggleNoPass");
   }
 
+  /** Toggle the state of forceManualShoot. Optionally specify the value to set. */
   public static Command toggleManualShoot(boolean... value) {
     return Commands.runOnce(() -> forceManualShoot = !forceManualShoot)
         .onlyIf(() -> value.length == 0 || forceManualShoot != value[0])
         .ignoringDisable(true)
         .withName("ToggleManualShoot");
+  }
+
+  public static Command clearStaticSetpoint() {
+    return Commands.runOnce(() -> shooter.staticSetpoint = false)
+        .ignoringDisable(true)
+        .withName("ShooterClearStaticSetpoint");
   }
 }

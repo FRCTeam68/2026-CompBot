@@ -11,7 +11,7 @@ import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.NeutralOut;
-import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -50,10 +50,10 @@ public class FlywheelIOReal implements FlywheelIO {
 
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true);
-  private final VelocityVoltage velocityOut = new VelocityVoltage(0).withEnableFOC(true);
+  // private final VelocityVoltage velocityOut = new VelocityVoltage(0).withEnableFOC(true);
   //   private final MotionMagicVelocityVoltage velocityOut = new
   // MotionMagicVelocityVoltage(0).withEnableFOC(true);
-  //   private final VelocityTorqueCurrentFOC velocityOut = new VelocityTorqueCurrentFOC(0);
+  private final VelocityTorqueCurrentFOC velocityOut = new VelocityTorqueCurrentFOC(0);
   //   private final MotionMagicVelocityTorqueCurrentFOC velocityOut = new
   // MotionMagicVelocityTorqueCurrentFOC(0);
   private final NeutralOut neutralOut = new NeutralOut();
@@ -84,7 +84,8 @@ public class FlywheelIOReal implements FlywheelIO {
         leaderConfig.CurrentLimits.SupplyCurrentLowerLimit;
     tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(followerConfig, 0.25));
     followerTalon.setControl(
-        new Follower(leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed).withUpdateFreqHz(50));
+        new Follower(
+            leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed)); // .withUpdateFreqHz(50));
 
     position = leaderTalon.getPosition();
     velocity = leaderTalon.getVelocity();
