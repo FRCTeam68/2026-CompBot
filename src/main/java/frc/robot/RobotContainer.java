@@ -124,37 +124,37 @@ public class RobotContainer {
             () -> -driverController.getRightX()));
 
     // Drive
-    driverController
-        .povUp()
-        .onTrue(
-            DriveCommands.autopilotDriveToPose(
-                () ->
-                    new APTarget(
-                        AllianceFlipUtil.apply(
-                            FieldConstants.Hub.nearFace.transformBy(
-                                new Transform2d(2.0, 0.0, Rotation2d.kPi))))));
+    // driverController
+    //     .povUp()
+    //     .onTrue(
+    //         DriveCommands.autopilotDriveToPose(
+    //             () ->
+    //                 new APTarget(
+    //                     AllianceFlipUtil.apply(
+    //                         FieldConstants.Hub.nearFace.transformBy(
+    //                             new Transform2d(2.0, 0.0, Rotation2d.kPi))))));
 
-    driverController
-        .povLeft()
-        .onTrue(
-            DriveCommands.autopilotDriveToPose(
-                () ->
-                    new APTarget(
-                            AllianceFlipUtil.apply(
-                                new Pose2d(FieldConstants.Hub.nearLeftCorner, new Rotation2d())
-                                    .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
-                        .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
+    // driverController
+    //     .povLeft()
+    //     .onTrue(
+    //         DriveCommands.autopilotDriveToPose(
+    //             () ->
+    //                 new APTarget(
+    //                         AllianceFlipUtil.apply(
+    //                             new Pose2d(FieldConstants.Hub.nearLeftCorner, new Rotation2d())
+    //                                 .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
+    //                     .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
 
-    driverController
-        .povRight()
-        .onTrue(
-            DriveCommands.autopilotDriveToPose(
-                () ->
-                    new APTarget(
-                            AllianceFlipUtil.apply(
-                                new Pose2d(FieldConstants.Hub.nearRightCorner, new Rotation2d())
-                                    .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
-                        .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
+    // driverController
+    //     .povRight()
+    //     .onTrue(
+    //         DriveCommands.autopilotDriveToPose(
+    //             () ->
+    //                 new APTarget(
+    //                         AllianceFlipUtil.apply(
+    //                             new Pose2d(FieldConstants.Hub.nearRightCorner, new Rotation2d())
+    //                                 .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
+    //                     .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
 
     driverController.povDown().whileTrue(DriveCommands.autopilotDriveToHubArc());
 
@@ -164,6 +164,8 @@ public class RobotContainer {
     driverController.b().whileTrue(IntakeCommands.outtake());
 
     driverController.leftBumper().whileTrue(IntakeCommands.agitate());
+
+    driverController.povDown().onTrue(IntakeCommands.retract());
 
     // Shooter
     driverController.rightTrigger().whileTrue(ShooterCommands.shootAutomatic());

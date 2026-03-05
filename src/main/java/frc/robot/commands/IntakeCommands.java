@@ -39,7 +39,7 @@ public class IntakeCommands {
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
             Commands.waitUntil(() -> intakePivot.atSetpoint()),
-            Commands.runOnce(() -> intakeSpin.runVolts(7), intakeSpin))
+            Commands.runOnce(() -> intakeSpin.runVolts(10), intakeSpin))
         .withName("IntakeOn");
   }
 
@@ -48,7 +48,7 @@ public class IntakeCommands {
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
             Commands.waitUntil(() -> intakePivot.atSetpoint()),
-            Commands.runOnce(() -> intakeSpin.runVolts(7), intakeSpin),
+            Commands.runOnce(() -> intakeSpin.runVolts(10), intakeSpin),
             Commands.idle())
         .finallyDo(() -> intakeSpin.stop())
         .withName("IntakeWhile");
@@ -59,7 +59,7 @@ public class IntakeCommands {
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
             Commands.waitUntil(() -> intakePivot.atSetpoint()),
-            Commands.runOnce(() -> intakeSpin.runVolts(-7), intakeSpin),
+            Commands.runOnce(() -> intakeSpin.runVolts(-10), intakeSpin),
             Commands.idle())
         .finallyDo(() -> intakeSpin.stop())
         .withName("Outtake");

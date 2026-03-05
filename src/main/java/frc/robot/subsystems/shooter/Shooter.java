@@ -142,7 +142,10 @@ public class Shooter extends SubsystemBase {
         ChassisSpeeds.fromFieldRelativeSpeeds(
             driveVelocitySupplier.get(), target.minus(getShooterFieldTranslation()).getAngle());
     double targetDistanceAdjusted =
-        getDistanceToTarget() - (targetRelativeVelocity.vxMetersPerSecond * flightTime);
+        getDistanceToTarget()
+            - (targetRelativeVelocity.vxMetersPerSecond
+                * flightTime
+                * ShooterConstants.DynamicShot.adjustMultiplier);
 
     flywheel.runVelocity(
         ShooterConstants.DynamicShot.hubShotFlywheelVelocity.get(targetDistanceAdjusted));
@@ -154,7 +157,9 @@ public class Shooter extends SubsystemBase {
             .minus(
                 new Translation2d(
                         getDistanceToTarget(),
-                        targetRelativeVelocity.vyMetersPerSecond * flightTime)
+                        targetRelativeVelocity.vyMetersPerSecond
+                            * flightTime
+                            * ShooterConstants.DynamicShot.adjustMultiplier)
                     .getAngle())
             .minus(drivePoseSupplier.get().getRotation())
             .getDegrees());
