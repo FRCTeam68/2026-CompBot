@@ -42,7 +42,7 @@ public class IntakePivot extends SubsystemBase {
 
   // Setpoint band
   private final LoggedTunableNumber setpointBandPosition =
-      new LoggedTunableNumber("IntakePivot/SetpointBand", 0.02);
+      new LoggedTunableNumber("IntakePivot/SetpointBand", 0.07);
 
   // Alerts
   private final Alert motorDisconnectedAlert =

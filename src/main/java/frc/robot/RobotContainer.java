@@ -165,7 +165,9 @@ public class RobotContainer {
 
     driverController.leftBumper().whileTrue(IntakeCommands.agitate());
 
-    driverController.povDown().onTrue(IntakeCommands.retract());
+    driverController.povUp().onTrue(IntakeCommands.retract());
+
+    operatorController.L1().whileTrue(IntakeCommands.agitate());
 
     // Shooter
     driverController.rightTrigger().whileTrue(ShooterCommands.shootAutomatic());

@@ -47,7 +47,7 @@ public class DriveCommands {
   private static final LoggedTunableNumber hubArcRadius =
       new LoggedTunableNumber("Drive/HubShot/ArcRadius", 2.5);
   private static final LoggedTunableNumber hubShotMaxLinearVelocity =
-      new LoggedTunableNumber("Drive/HubShot/MaxLinearVelocity", 2.0);
+      new LoggedTunableNumber("Drive/HubShot/MaxLinearVelocity", 1.5);
   private static final LoggedTunableNumber hubShotMaxAngularVelocity =
       new LoggedTunableNumber("Drive/HubShot/MaxAngularVelocity", 5.0);
   private static final LoggedTunableNumber passShotMaxLinearVelocity =

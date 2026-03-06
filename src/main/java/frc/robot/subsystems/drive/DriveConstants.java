@@ -50,7 +50,7 @@ public final class DriveConstants {
 
   // Simple profiled PID configuration
   public static final PIDConstants linearPID = new PIDConstants(5.0, 0.0, 0.0);
-  public static final PIDConstants angularPID = new PIDConstants(10.0, 0.0, 0.0);
+  public static final PIDConstants angularPID = new PIDConstants(5.0, 0.0, 0.0);
 
   // Autopilot configuration
   public static final APProfile apConfigStatic =
