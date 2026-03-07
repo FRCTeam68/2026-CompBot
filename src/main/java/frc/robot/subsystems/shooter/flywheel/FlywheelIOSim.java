@@ -45,6 +45,9 @@ public class FlywheelIOSim implements FlywheelIO {
     inputs.leaderAppliedVoltage = appliedVoltage;
     inputs.followerAppliedVoltage = -appliedVoltage;
     inputs.leaderSupplyCurrentAmps = sim.getCurrentDrawAmps();
+    inputs.followerSupplyCurrentAmps = sim.getCurrentDrawAmps();
+    inputs.leaderTorqueCurrentAmps =
+        (appliedVoltage > 0.0) ? sim.getCurrentDrawAmps() * 12.0 / appliedVoltage : 0.0;
     inputs.leaderTorqueCurrentAmps =
         (appliedVoltage > 0.0) ? sim.getCurrentDrawAmps() * 12.0 / appliedVoltage : 0.0;
   }

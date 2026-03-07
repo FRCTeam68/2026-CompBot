@@ -46,7 +46,7 @@ public class Turret extends SubsystemBase {
   // Error bands
   private LoggedTunableNumber setpointBandPosition =
       new LoggedTunableNumber("Shooter/Turret/PositionSetpointBand", 10);
-  private static final double ambiguousBand = 20;
+  private static final double ambiguousBand = 30;
 
   // Alerts
   private final Alert motorDisconnectedAlert =

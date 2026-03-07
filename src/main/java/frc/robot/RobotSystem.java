@@ -92,8 +92,6 @@ public class RobotSystem {
 
         flywheel = new Flywheel(new FlywheelIOReal());
         hood = new Hood(new HoodIOReal());
-        // flywheel = new Flywheel(new FlywheelIOSim());
-        // hood = new Hood(new HoodIOSim());
         turret = new Turret(new TurretIOReal());
 
         intakePivot = new IntakePivot(new IntakePivotIOReal());
@@ -124,7 +122,7 @@ public class RobotSystem {
                 new RollerSystemIOTalonFX(
                     24,
                     CanBusUtil.getCanivoreBus(),
-                    80,
+                    40,
                     InvertedValue.CounterClockwise_Positive,
                     NeutralModeValue.Coast,
                     36.0 / 12.0));

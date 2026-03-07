@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.ShooterCommands;
@@ -28,6 +29,7 @@ import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.HubShiftUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
+import org.littletonrobotics.junction.networktables.LoggedNetworkString;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -59,7 +61,7 @@ public class RobotContainer {
 
   // Triggers
   private final Trigger hubTransitionWarningTrigger =
-      new Trigger(() -> HubShiftUtil.hubToActiveWarning(3) || HubShiftUtil.hubToInactiveWarning(3));
+      new Trigger(() -> HubShiftUtil.hubToActive(3) || HubShiftUtil.hubToInactive(3));
 
   /** The container for the robot. */
   public RobotContainer() {
@@ -71,6 +73,8 @@ public class RobotContainer {
 
     // Configure tuning dashboard buttons
     if (Constants.tuningMode) {
+      @SuppressWarnings("unused")
+      LoggedNetworkString logLabel = new LoggedNetworkString("SmartDashboard/LogLabel", "");
       // Drive
       SmartDashboard.putData(
           "Tuning/DriveLinear_Right",
@@ -110,6 +114,21 @@ public class RobotContainer {
       SmartDashboard.putData(
           "Tuning/Hood_Max",
           ShooterCommands.runStatic(0, Hood.getMaximum() - 3, shooter.getTurret().getPosition()));
+
+      SmartDashboard.putData(
+          "Drive/Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization());
+      SmartDashboard.putData(
+          "Drive/Drive SysId (Quasistatic Forward)",
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      SmartDashboard.putData(
+          "Drive/Drive SysId (Quasistatic Reverse)",
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      SmartDashboard.putData(
+          "Drive/Drive SysId (Dynamic Forward)",
+          drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      SmartDashboard.putData(
+          "Drive/Drive SysId (Dynamic Reverse)",
+          drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     }
 
     addLightTest();
@@ -198,37 +217,37 @@ public class RobotContainer {
             () -> -driverController.getRightX()));
 
     // Drive
-    driverController
-        .povUp()
-        .onTrue(
-            DriveCommands.autopilotDriveToPose(
-                () ->
-                    new APTarget(
-                        AllianceFlipUtil.apply(
-                            FieldConstants.Hub.nearFace.transformBy(
-                                new Transform2d(2.0, 0.0, Rotation2d.kPi))))));
+    // driverController
+    //     .povUp()
+    //     .onTrue(
+    //         DriveCommands.autopilotDriveToPose(
+    //             () ->
+    //                 new APTarget(
+    //                     AllianceFlipUtil.apply(
+    //                         FieldConstants.Hub.nearFace.transformBy(
+    //                             new Transform2d(2.0, 0.0, Rotation2d.kPi))))));
 
-    driverController
-        .povLeft()
-        .onTrue(
-            DriveCommands.autopilotDriveToPose(
-                () ->
-                    new APTarget(
-                            AllianceFlipUtil.apply(
-                                new Pose2d(FieldConstants.Hub.nearLeftCorner, new Rotation2d())
-                                    .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
-                        .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
+    // driverController
+    //     .povLeft()
+    //     .onTrue(
+    //         DriveCommands.autopilotDriveToPose(
+    //             () ->
+    //                 new APTarget(
+    //                         AllianceFlipUtil.apply(
+    //                             new Pose2d(FieldConstants.Hub.nearLeftCorner, new Rotation2d())
+    //                                 .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
+    //                     .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
 
-    driverController
-        .povRight()
-        .onTrue(
-            DriveCommands.autopilotDriveToPose(
-                () ->
-                    new APTarget(
-                            AllianceFlipUtil.apply(
-                                new Pose2d(FieldConstants.Hub.nearRightCorner, new Rotation2d())
-                                    .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
-                        .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
+    // driverController
+    //     .povRight()
+    //     .onTrue(
+    //         DriveCommands.autopilotDriveToPose(
+    //             () ->
+    //                 new APTarget(
+    //                         AllianceFlipUtil.apply(
+    //                             new Pose2d(FieldConstants.Hub.nearRightCorner, new Rotation2d())
+    //                                 .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
+    //                     .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
 
     driverController.povDown().whileTrue(DriveCommands.autopilotDriveToHubArc());
 
@@ -237,7 +256,11 @@ public class RobotContainer {
 
     driverController.b().whileTrue(IntakeCommands.outtake());
 
-    driverController.leftBumper().onTrue(IntakeCommands.retract());
+    driverController.leftBumper().whileTrue(IntakeCommands.agitate());
+
+    driverController.povUp().onTrue(IntakeCommands.retract());
+
+    operatorController.L1().whileTrue(IntakeCommands.agitate());
 
     // Shooter
     driverController.rightTrigger().whileTrue(ShooterCommands.shootAutomatic());

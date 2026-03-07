@@ -3,7 +3,6 @@ package frc.robot.util;
 import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
@@ -11,14 +10,9 @@ import org.littletonrobotics.junction.Logger;
 
 public class CanBusUtil {
   private static final double canErrorTimeThreshold = 0.5; // Seconds to disable alert
-  private static final double rioErrorTimeThreshold = 0.5; // Seconds to disable alert
-  private static final double canivoreErrorTimeThreshold = 0.5; // Seconds to disable alert
   private static final Timer canInitialErrorTimer = new Timer();
-  private static final Timer canErrorTimer = new Timer();
   private static final Timer canivoreErrorTimer = new Timer();
   private static final Timer rioErrorTimer = new Timer();
-  private static final Alert canErrorAlert =
-      new Alert("CAN errors detected, robot may not be controllable.", AlertType.kError);
   private static final Alert rioErrorAlert =
       new Alert("Rio CAN errors detected, robot may not be controllable.", AlertType.kError);
   private static final Alert canivoreErrorAlert =
@@ -30,57 +24,50 @@ public class CanBusUtil {
   private static CanBusReader canivoreReader;
 
   public static void logStatus() {
-    if (Constants.getMode() != Mode.SIM) {
-      // Check CAN status
-      var canStatus = RobotController.getCANStatus();
-      if (canStatus.transmitErrorCount > 0 || canStatus.receiveErrorCount > 0) {
-        canErrorTimer.restart();
+    if (Constants.getMode() == Mode.REAL) {
+      // rioBus status
+      if (rioBus != null) {
+        var rioStatus = rioReader.getStatus();
+        if (rioStatus.isPresent()) {
+          Logger.recordOutput("CANBusStatus/Rio/Status", rioStatus.get().Status.getName());
+          Logger.recordOutput("CANBusStatus/Rio/Utilization", rioStatus.get().BusUtilization);
+          Logger.recordOutput("CANBusStatus/Rio/OffCount", rioStatus.get().BusOffCount);
+          Logger.recordOutput("CANBusStatus/Rio/TxFullCount", rioStatus.get().TxFullCount);
+          Logger.recordOutput("CANBusStatus/Rio/ReceiveErrorCount", rioStatus.get().REC);
+          Logger.recordOutput("CANBusStatus/Rio/TransmitErrorCount", rioStatus.get().TEC);
+          if (!rioStatus.get().Status.isOK()
+              || rioStatus.get().TEC > 0
+              || rioStatus.get().REC > 0) {
+            rioErrorTimer.restart();
+          }
+        }
+        rioErrorAlert.set(
+            !rioErrorTimer.hasElapsed(canErrorTimeThreshold)
+                && canInitialErrorTimer.hasElapsed(canErrorTimeThreshold));
       }
-      canErrorAlert.set(
-          !canErrorTimer.hasElapsed(canErrorTimeThreshold)
-              && !canInitialErrorTimer.hasElapsed(canErrorTimeThreshold));
 
-      // Log rioBus status
-      if (Constants.getMode() == Constants.Mode.REAL) {
-        if (rioBus != null) {
-          var rioStatus = rioReader.getStatus();
-          if (rioStatus.isPresent()) {
-            Logger.recordOutput("RioStatus/Status", rioStatus.get().Status.getName());
-            Logger.recordOutput("RioStatus/Utilization", rioStatus.get().BusUtilization);
-            Logger.recordOutput("RioStatus/OffCount", rioStatus.get().BusOffCount);
-            Logger.recordOutput("RioStatus/TxFullCount", rioStatus.get().TxFullCount);
-            Logger.recordOutput("RioStatus/ReceiveErrorCount", rioStatus.get().REC);
-            Logger.recordOutput("RioStatus/TransmitErrorCount", rioStatus.get().TEC);
-            if (!rioStatus.get().Status.isOK()
-                || canStatus.transmitErrorCount > 0
-                || canStatus.receiveErrorCount > 0) {
-              rioErrorTimer.restart();
-            }
+      // CANivoreBus status
+      if (canivoreBus != null) {
+        var canivoreStatus = canivoreReader.getStatus();
+        if (canivoreStatus.isPresent()) {
+          Logger.recordOutput(
+              "CANBusStatus/CANivore/Status", canivoreStatus.get().Status.getName());
+          Logger.recordOutput(
+              "CANBusStatus/CANivore/Utilization", canivoreStatus.get().BusUtilization);
+          Logger.recordOutput("CANBusStatus/CANivore/OffCount", canivoreStatus.get().BusOffCount);
+          Logger.recordOutput(
+              "CANBusStatus/CANivore/TxFullCount", canivoreStatus.get().TxFullCount);
+          Logger.recordOutput("CANBusStatus/CANivore/ReceiveErrorCount", canivoreStatus.get().REC);
+          Logger.recordOutput("CANBusStatus/CANivore/TransmitErrorCount", canivoreStatus.get().TEC);
+          if (!canivoreStatus.get().Status.isOK()
+              || canivoreStatus.get().TEC > 0
+              || canivoreStatus.get().REC > 0) {
+            canivoreErrorTimer.restart();
           }
-          rioErrorAlert.set(
-              !rioErrorTimer.hasElapsed(rioErrorTimeThreshold)
-                  && !canInitialErrorTimer.hasElapsed(canErrorTimeThreshold));
         }
-
-        if (canivoreBus != null) {
-          var canivoreStatus = canivoreReader.getStatus();
-          if (canivoreStatus.isPresent()) {
-            Logger.recordOutput("CANivoreStatus/Status", canivoreStatus.get().Status.getName());
-            Logger.recordOutput("CANivoreStatus/Utilization", canivoreStatus.get().BusUtilization);
-            Logger.recordOutput("CANivoreStatus/OffCount", canivoreStatus.get().BusOffCount);
-            Logger.recordOutput("CANivoreStatus/TxFullCount", canivoreStatus.get().TxFullCount);
-            Logger.recordOutput("CANivoreStatus/ReceiveErrorCount", canivoreStatus.get().REC);
-            Logger.recordOutput("CANivoreStatus/TransmitErrorCount", canivoreStatus.get().TEC);
-            if (!canivoreStatus.get().Status.isOK()
-                || canStatus.transmitErrorCount > 0
-                || canStatus.receiveErrorCount > 0) {
-              canivoreErrorTimer.restart();
-            }
-          }
-          canivoreErrorAlert.set(
-              !canivoreErrorTimer.hasElapsed(canivoreErrorTimeThreshold)
-                  && !canInitialErrorTimer.hasElapsed(canErrorTimeThreshold));
-        }
+        canivoreErrorAlert.set(
+            !canivoreErrorTimer.hasElapsed(canErrorTimeThreshold)
+                && canInitialErrorTimer.hasElapsed(canErrorTimeThreshold));
       }
     }
   }

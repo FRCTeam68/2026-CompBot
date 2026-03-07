@@ -6,18 +6,35 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.RobotSystem;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterConstants;
 import java.util.Optional;
 import java.util.function.Supplier;
 import lombok.Getter;
+import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class HubShiftUtil {
+  // Subsystems
+  private static final RobotSystem robotSystem = RobotSystem.getInstance();
+  private static final Shooter shooter = robotSystem.getShooter();
+
   private static Optional<Boolean> blueActiveFirst = Optional.empty();
   private static double teleopStartTime = -1.0;
   private static double prevTeleopStartTime = 0.0;
   private static Shift prevShift = Shift.Transition;
   private static Optional<Boolean> prevBlueActiveFirst = Optional.empty();
+  private static LoggedDashboardChooser<Optional<Boolean>> activeFirstOverride =
+      new LoggedDashboardChooser<>("HubShift/ActiveFirstOverride");
+
+  static {
+    activeFirstOverride.addOption("Blue", Optional.of(true));
+    activeFirstOverride.addDefaultOption("None", Optional.empty());
+    activeFirstOverride.addOption("Red", Optional.of(false));
+  }
 
   /**
    * The remaining time in teleop mode. Before teleop starts, when not connected to FMS, or if not
@@ -46,6 +63,9 @@ public class HubShiftUtil {
    */
   @Getter private static Shift currentShift = Shift.Transition;
 
+  /** If the shouldShoot method should be forced true no matter the shift status. */
+  @Getter @Setter private static boolean override = false;
+
   /**
    * Update Shift conditions.
    *
@@ -54,14 +74,18 @@ public class HubShiftUtil {
   public static void update() {
     // Read game specific data
     // DriverStation.getGameSpecificMessage() is not cleared when no data is entered
-    String message = DriverStation.getGameSpecificMessage();
-    if (message.length() > 0) {
-      blueActiveFirst =
-          switch (message.charAt(0)) {
-            case 'R' -> Optional.of(true);
-            case 'B' -> Optional.of(false);
-            default -> Optional.empty();
-          };
+    if (activeFirstOverride.get().isPresent()) {
+      blueActiveFirst = activeFirstOverride.get();
+    } else {
+      String message = DriverStation.getGameSpecificMessage();
+      if (message.length() > 0) {
+        blueActiveFirst =
+            switch (message.charAt(0)) {
+              case 'R' -> Optional.of(true);
+              case 'B' -> Optional.of(false);
+              default -> Optional.empty();
+            };
+      }
     }
 
     // If conditions have changed
@@ -73,14 +97,14 @@ public class HubShiftUtil {
       // None/grey means no vlaid game data is available
       if (blueActiveFirst.isPresent() && DriverStation.getAlliance().isPresent()) {
         SmartDashboard.putString(
-            "HubActiveFirst",
+            "HubShift/HubActiveFirst",
             ((DriverStation.getAlliance().get() == Alliance.Blue && blueActiveFirst.get())
                     || (DriverStation.getAlliance().get() == Alliance.Red
                         && !blueActiveFirst.get()))
                 ? "#4CAF50"
                 : "#F44336");
       } else {
-        SmartDashboard.putString("HubActiveFirst", "");
+        SmartDashboard.putString("HubShift/HubActiveFirst", "");
       }
 
       // Configure teleop time
@@ -157,6 +181,7 @@ public class HubShiftUtil {
 
     // Log shift time
     Logger.recordOutput("HubShift/ShiftSec", shiftTime.get(), Seconds);
+    Logger.recordOutput("HubShift/Override", override);
   }
 
   /**
@@ -187,8 +212,8 @@ public class HubShiftUtil {
    *
    * <p>This will remain true for the specified time before the hub is active.
    */
-  public static boolean hubToActiveWarning(double warningTime) {
-    return !isHubActive() && shiftTime.get() < warningTime;
+  public static boolean hubToActive(double time) {
+    return !isHubActive() && shiftTime.get() < time;
   }
 
   /**
@@ -196,18 +221,22 @@ public class HubShiftUtil {
    *
    * <p>This will remain true for the specified time before the hub is inactive.
    */
-  public static boolean hubToInactiveWarning(double warningTime) {
+  public static boolean hubToInactive(double time) {
     return isHubActive()
         && nextActiveHub.isPresent()
         && (DriverStation.getAlliance().isPresent()
             && DriverStation.getAlliance().get() != nextActiveHub.get())
-        && shiftTime.get() < warningTime;
+        && shiftTime.get() < time;
   }
 
   /** Returns if the shooter should be allowed to shoot and fuel will score. */
   public static boolean shouldShoot() {
-    // TODO: make this use the dynamic flight time
-    return isHubActive() || hubToActiveWarning(3);
+    // TODO: fix the hub inactive time
+    return !shooter.isTargetHub()
+        || override
+        || isHubActive()
+        || hubToActive(shooter.getFlightTime() + ShooterConstants.hubFilterTime)
+        || hubToInactive(shooter.getFlightTime() + ShooterConstants.hubFilterTime);
   }
 
   /**

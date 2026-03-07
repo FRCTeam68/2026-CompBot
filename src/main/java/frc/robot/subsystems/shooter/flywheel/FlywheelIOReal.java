@@ -44,18 +44,16 @@ public class FlywheelIOReal implements FlywheelIO {
   private final StatusSignal<Voltage> leaderAppliedVoltage;
   private final StatusSignal<Voltage> followerAppliedVoltage;
   private final StatusSignal<Current> leaderSupplyCurrent;
+  private final StatusSignal<Current> followerSupplyCurrent;
   private final StatusSignal<Current> leaderTorqueCurrent;
+  private final StatusSignal<Current> followerTorqueCurrent;
   private final StatusSignal<Temperature> leaderTempCelsius;
   private final StatusSignal<Temperature> followerTempCelsius;
 
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true);
   // private final VelocityVoltage velocityOut = new VelocityVoltage(0).withEnableFOC(true);
-  //   private final MotionMagicVelocityVoltage velocityOut = new
-  // MotionMagicVelocityVoltage(0).withEnableFOC(true);
   private final VelocityTorqueCurrentFOC velocityOut = new VelocityTorqueCurrentFOC(0);
-  //   private final MotionMagicVelocityTorqueCurrentFOC velocityOut = new
-  // MotionMagicVelocityTorqueCurrentFOC(0);
   private final NeutralOut neutralOut = new NeutralOut();
 
   public FlywheelIOReal() {
@@ -67,7 +65,7 @@ public class FlywheelIOReal implements FlywheelIO {
     leaderConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     // Current limits
     leaderConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    leaderConfig.CurrentLimits.SupplyCurrentLimit = 80;
+    leaderConfig.CurrentLimits.SupplyCurrentLimit = 40;
     leaderConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
     leaderConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
     // Feedback
@@ -84,18 +82,24 @@ public class FlywheelIOReal implements FlywheelIO {
         leaderConfig.CurrentLimits.SupplyCurrentLowerLimit;
     tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(followerConfig, 0.25));
     followerTalon.setControl(
-        new Follower(
-            leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed)); // .withUpdateFreqHz(50));
+        new Follower(leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed).withUpdateFreqHz(100));
 
     position = leaderTalon.getPosition();
     velocity = leaderTalon.getVelocity();
     leaderAppliedVoltage = leaderTalon.getMotorVoltage();
     followerAppliedVoltage = followerTalon.getMotorVoltage();
     leaderSupplyCurrent = leaderTalon.getSupplyCurrent();
+    followerSupplyCurrent = followerTalon.getSupplyCurrent();
     leaderTorqueCurrent = leaderTalon.getTorqueCurrent();
+    followerTorqueCurrent = followerTalon.getTorqueCurrent();
     leaderTempCelsius = leaderTalon.getDeviceTemp();
     followerTempCelsius = followerTalon.getDeviceTemp();
 
+    tryUntilOk(
+        5,
+        () ->
+            BaseStatusSignal.setUpdateFrequencyForAll(
+                100, leaderTorqueCurrent, followerTorqueCurrent));
     tryUntilOk(
         5,
         () ->
@@ -106,7 +110,7 @@ public class FlywheelIOReal implements FlywheelIO {
                 leaderAppliedVoltage,
                 followerAppliedVoltage,
                 leaderSupplyCurrent,
-                leaderTorqueCurrent));
+                followerSupplyCurrent));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(leaderTalon, followerTalon));
     PhoenixUtil.registerSignals(
         ShooterConstants.canBus,
@@ -131,7 +135,9 @@ public class FlywheelIOReal implements FlywheelIO {
     inputs.leaderAppliedVoltage = leaderAppliedVoltage.getValueAsDouble();
     inputs.followerAppliedVoltage = followerAppliedVoltage.getValueAsDouble();
     inputs.leaderSupplyCurrentAmps = leaderSupplyCurrent.getValueAsDouble();
+    inputs.followerSupplyCurrentAmps = followerSupplyCurrent.getValueAsDouble();
     inputs.leaderTorqueCurrentAmps = leaderTorqueCurrent.getValueAsDouble();
+    inputs.followerTorqueCurrentAmps = followerTorqueCurrent.getValueAsDouble();
     inputs.leaderTempCelsius = leaderTempCelsius.getValueAsDouble();
     inputs.followerTempCelsius = followerTempCelsius.getValueAsDouble();
   }

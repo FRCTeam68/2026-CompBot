@@ -56,6 +56,7 @@ public class Auton {
     Left_LigerBot,
     Left_Tune_PP_3M_slow,
     Left_Tune_PP_3M_fast,
+    Right_Tune_PP_3M_slow,
     Right_1768
   }
 
@@ -75,9 +76,10 @@ public class Auton {
     // Configure special
     autonSpecial.addDefaultOption("None", Auton.Special.None);
     autonSpecial.addOption("Left_LigerBot", Auton.Special.Left_LigerBot);
+    autonSpecial.addOption("Right_1768", Auton.Special.Right_1768);
     autonSpecial.addOption("Left_Tune_PP_3M_fast", Auton.Special.Left_Tune_PP_3M_fast);
     autonSpecial.addOption("Left_Tune_PP_3M_slow", Auton.Special.Left_Tune_PP_3M_slow);
-    autonSpecial.addOption("Right_1768", Auton.Special.Right_1768);
+    autonSpecial.addOption("Right_Tune_PP_3M_slow", Auton.Special.Right_Tune_PP_3M_slow);
   }
 
   public static void UpdateAlerts() {
@@ -123,6 +125,10 @@ public class Auton {
 
       case Right:
         switch (autonSpecial.get()) {
+          case Right_Tune_PP_3M_slow:
+            return PathUtil.followPath("Right_Tune_PP_3M_Forward_slow")
+                .andThen(Commands.waitSeconds(3))
+                .andThen(PathUtil.followPath("Right_Tune_PP_3M_Back_slow"));
           case Right_1768:
             return Right_1768();
           case None:
@@ -144,33 +150,25 @@ public class Auton {
 
                 myCommand1 =
                     Commands.sequence(
-                        Commands.parallel(
-                            PathUtil.followPath("Center Depot"),
-                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
-                        IntakeCommands.stop(),
-                        PathUtil.followPath("Depot Tower"),
-                        Commands.waitSeconds(
-                            3.0) // replace with ShootCommands.Shootloop.withTimeOut(3.0.)
-                        );
+                        PathUtil.followPath("Center Depot"),
+                        // Commands.parallel(
+                        //     PathUtil.followPath("Center Depot"),
+                        //     Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
+                        // IntakeCommands.stop(),
+                        ShooterCommands.shootAutomatic().repeatedly().withTimeout(5.0),
+                        PathUtil.followPath("Depot Tower"));
 
                 if (autonOutpost.get()) {
                   myCommand2 = PathUtil.followPath("Tower Outpost");
                   myCommand2 =
                       myCommand2.andThen(
-                          Commands.waitSeconds(
-                              3.0)); // replace with ShootCommands.Shootloop.withTimeOut(3.0.)
+                          ShooterCommands.shootAutomatic().repeatedly().withTimeout(5.0));
                 }
               } else {
                 myCommand1 =
                     Commands.sequence(
-                        Commands.parallel(
-                            PathUtil.followPath("Center Outpost"),
-                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
-                        IntakeCommands.stop(),
-                        PathUtil.followPath("Outpost Tower"),
-                        Commands.waitSeconds(
-                            3.0) // replace with ShootCommands.Shootloop.withTimeOut(3.0.)
-                        );
+                        PathUtil.followPath("Center Outpost"),
+                        ShooterCommands.shootAutomatic().repeatedly().withTimeout(5.0));
               }
 
               return myCommand1.andThen(myCommand2);
@@ -252,7 +250,7 @@ public class Auton {
               return myCommand1.andThen(myCommand2);
             },
             Set.of(drive))
-        .withName("Auton_Apollo1");
+        .withName("Auton_Left_LigerBot");
   }
 
   private static Command Right_1768() {
