@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.ShooterCommands;
@@ -111,6 +112,21 @@ public class RobotContainer {
       SmartDashboard.putData(
           "Tuning/Hood_Max",
           ShooterCommands.runStatic(0, Hood.getMaximum() - 3, shooter.getTurret().getPosition()));
+
+      SmartDashboard.putData(
+          "Drive/Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization());
+      SmartDashboard.putData(
+          "Drive/Drive SysId (Quasistatic Forward)",
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      SmartDashboard.putData(
+          "Drive/Drive SysId (Quasistatic Reverse)",
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      SmartDashboard.putData(
+          "Drive/Drive SysId (Dynamic Forward)",
+          drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      SmartDashboard.putData(
+          "Drive/Drive SysId (Dynamic Reverse)",
+          drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     }
   }
 

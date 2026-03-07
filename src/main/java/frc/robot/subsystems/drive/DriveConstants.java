@@ -54,16 +54,16 @@ public final class DriveConstants {
 
   // Autopilot configuration
   public static final APProfile apConfigStatic =
-      new APProfile(new APConstraints(64.0, 9999))
-          .withErrorXY(Inches.of(1))
-          .withErrorTheta(Degrees.of(1))
+      new APProfile(new APConstraints(10.0, 2))
+          .withErrorXY(Inches.of(3))
+          .withErrorTheta(Degrees.of(3))
           .withBeelineRadius(Inches.of(5));
 
   public static final APProfile apConfigDynamic =
-      new APProfile(new APConstraints(maxLinearAcceleration, 9999))
+      new APProfile(new APConstraints(4, 8))
           .withErrorXY(Inches.of(6))
           .withErrorTheta(Degrees.of(6))
-          .withBeelineRadius(Inches.of(12));
+          .withBeelineRadius(Inches.of(5));
 
   // PathPlanner configuration
   public static final RobotConfig ppConfig =

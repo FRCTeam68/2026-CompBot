@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.7116666666666676,
-        "y": 5.95697619047619
+        "x": 4.379734939759036,
+        "y": 0.669265060240964
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.7590357142857154,
-        "y": 6.399678571428572
+        "x": 3.023054611890184,
+        "y": 0.6862919923252733
       },
       "isLocked": false,
-      "linkedName": "Left Depot"
+      "linkedName": "Right Start"
     },
     {
       "anchor": {
-        "x": 1.856214285714287,
-        "y": 3.8514404761904766
+        "x": 1.38,
+        "y": 0.669265060240964
       },
       "prevControl": {
-        "x": 2.6444404761904767,
-        "y": 4.650464285714286
+        "x": 2.3188442622950816,
+        "y": 0.6405109618803082
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Tower Depot"
+      "linkedName": "Right 3M"
     }
   ],
   "rotationTargets": [],
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 1.0,
+    "maxAcceleration": 1.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -0.6365935759634644
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }
