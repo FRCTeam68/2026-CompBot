@@ -78,7 +78,7 @@ public class Lights extends SubsystemBase {
    * @param segment LED segment to turn off
    */
   public void disableLEDs(Segment segment) {
-    // setSolidColor(LEDColor.BLACK, segment);
+    setSolidColor(Constants.LEDColor.BLACK, segment);
   }
 
   /**
