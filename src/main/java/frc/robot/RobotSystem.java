@@ -213,7 +213,9 @@ public class RobotSystem {
     Logger.recordOutput(
         "RobotPose/1_Intake",
         new Pose3d(
-            intakePivot.getPosition() / IntakePivot.getExtended() * Units.inchesToMeters(12),
+            intakePivot.getPosition()
+                / IntakePivot.getExtended()
+                * IntakePivot.getIntakeForwardExtension(),
             0,
             0,
             Rotation3d.kZero));
@@ -238,6 +240,8 @@ public class RobotSystem {
                 new Rotation3d(
                     0.0, 0.0, Units.degreesToRadians(shooter.getTurret().getPosition()))));
 
+    // Red alliance robot color: #F43636
+    // Blue alliance robot color: #3644F4
     field.setRobotPose(drive.getPose());
     SmartDashboard.putData("Field", field);
   }

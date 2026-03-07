@@ -85,6 +85,8 @@ public class HubShiftUtil {
               case 'B' -> Optional.of(false);
               default -> Optional.empty();
             };
+      } else {
+        blueActiveFirst = Optional.empty();
       }
     }
 
@@ -229,14 +231,26 @@ public class HubShiftUtil {
         && shiftTime.get() < time;
   }
 
-  /** Returns if the shooter should be allowed to shoot and fuel will score. */
+  /**
+   * Returns if the shooter should be allowed to shoot and fuel will score. If the target is not the
+   * hub this will always return true.
+   */
+  @AutoLogOutput(key = "HubShift/ShouldShoot")
   public static boolean shouldShoot() {
+    double time = shooter.getFlightTime() + ShooterConstants.hubFilterTime;
     // TODO: fix the hub inactive time
-    return !shooter.isTargetHub()
-        || override
-        || isHubActive()
-        || hubToActive(shooter.getFlightTime() + ShooterConstants.hubFilterTime)
-        || hubToInactive(shooter.getFlightTime() + ShooterConstants.hubFilterTime);
+    if (time < 3.0) {
+      return !shooter.isTargetHub()
+          || override
+          || isHubActive()
+          || hubToActive(time)
+          || shiftTime.get() - (22.0 + time) > 0.0;
+    } else {
+      return !shooter.isTargetHub()
+          || override
+          || (isHubActive() && !hubToInactive(time - 3.0))
+          || hubToActive(time);
+    }
   }
 
   /**

@@ -17,6 +17,7 @@ import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
 import java.util.function.Supplier;
 import lombok.Getter;
+import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -75,6 +76,7 @@ public class Hood extends SubsystemBase {
   private double setpointAdjusted = 0.0;
   @Getter private ControlMode mode = ControlMode.Neutral;
   private boolean prevInTrenchBox = false;
+  @Setter boolean forceDown = false;
 
   public Hood(HoodIO hoodIO) {
     this.io = hoodIO;
@@ -96,11 +98,11 @@ public class Hood extends SubsystemBase {
     motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
     // Run hood if entering/leaving trench box
-    if (prevInTrenchBox != inTrenchBox.get()) {
+    if (prevInTrenchBox != (inTrenchBox.get() || forceDown)) {
       if (getElevation() < underTrenchMinimum || setpoint < underTrenchMinimum) {
         runElvation(setpoint);
       }
-      prevInTrenchBox = inTrenchBox.get();
+      prevInTrenchBox = (inTrenchBox.get() || forceDown);
     }
 
     // Update PID gains
@@ -141,7 +143,9 @@ public class Hood extends SubsystemBase {
   public void runElvation(double elevation) {
     setpoint = MathUtil.clamp(elevation, minimum, maximum);
     setpointAdjusted =
-        (inTrenchBox.get()) ? MathUtil.clamp(setpoint, underTrenchMinimum, maximum) : setpoint;
+        ((inTrenchBox.get() || forceDown))
+            ? MathUtil.clamp(setpoint, underTrenchMinimum, maximum)
+            : setpoint;
     mode = ControlMode.Position;
 
     io.runPosition(setpointAdjusted - maximum, 0);
@@ -156,9 +160,9 @@ public class Hood extends SubsystemBase {
     io.stop();
   }
 
-  /** Set the current mechanism position to the maximum. */
-  public void setPositionMaximum() {
-    io.setPosition(maximum);
+  /** Set the current mechanism position to zero. */
+  public void zero() {
+    io.setPosition(0);
   }
 
   /**

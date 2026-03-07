@@ -200,7 +200,7 @@ public class Shooter extends SubsystemBase {
     // Default box size. xMin should be set big enough to allow ample time for the hood to go down
     // from 0 velocity.
     double xSize = Units.inchesToMeters(47);
-    double ySize = FieldConstants.LinesHorizontal.rightTrenchOpenStart;
+    double ySize = FieldConstants.LinesHorizontal.rightTrenchOpenStart + Units.inchesToMeters(12);
 
     // Adjust x limits based on velocity
     double xOffestPos =

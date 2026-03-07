@@ -19,14 +19,14 @@ public class ShooterConstants {
 
   public static final CANBus canBus = CanBusUtil.getCanivoreBus();
 
-  // The amount of time it takes a ball to filter though the hub
-  public static final double hubFilterTime = 2;
+  // The amount of time it takes a ball to be counted from the top of the hub chute
+  public static final double hubFilterTime = 1.5;
 
   public static class Target {
     public static final Translation2d hub = FieldConstants.Hub.innerCenterPoint.toTranslation2d();
     public static final Translation2d passLeft =
-        new Translation2d(1, FieldConstants.fieldWidth - 1);
-    public static final Translation2d passRight = new Translation2d(1, 1);
+        new Translation2d(1, FieldConstants.fieldWidth - 2);
+    public static final Translation2d passRight = new Translation2d(1, 2);
   }
 
   public static class StaticShot {

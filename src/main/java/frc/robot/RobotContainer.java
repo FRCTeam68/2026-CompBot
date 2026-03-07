@@ -139,39 +139,6 @@ public class RobotContainer {
             () -> -driverController.getLeftX(),
             () -> -driverController.getRightX()));
 
-    // Drive
-    // driverController
-    //     .povUp()
-    //     .onTrue(
-    //         DriveCommands.autopilotDriveToPose(
-    //             () ->
-    //                 new APTarget(
-    //                     AllianceFlipUtil.apply(
-    //                         FieldConstants.Hub.nearFace.transformBy(
-    //                             new Transform2d(2.0, 0.0, Rotation2d.kPi))))));
-
-    // driverController
-    //     .povLeft()
-    //     .onTrue(
-    //         DriveCommands.autopilotDriveToPose(
-    //             () ->
-    //                 new APTarget(
-    //                         AllianceFlipUtil.apply(
-    //                             new Pose2d(FieldConstants.Hub.nearLeftCorner, new Rotation2d())
-    //                                 .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
-    //                     .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
-
-    // driverController
-    //     .povRight()
-    //     .onTrue(
-    //         DriveCommands.autopilotDriveToPose(
-    //             () ->
-    //                 new APTarget(
-    //                         AllianceFlipUtil.apply(
-    //                             new Pose2d(FieldConstants.Hub.nearRightCorner, new Rotation2d())
-    //                                 .transformBy(new Transform2d(-0.5, 0.0, Rotation2d.kPi))))
-    //                     .withEntryAngle(AllianceFlipUtil.apply(Rotation2d.kZero))));
-
     driverController.povDown().whileTrue(DriveCommands.autopilotDriveToHubArc());
 
     // Intake
@@ -180,13 +147,16 @@ public class RobotContainer {
     driverController.b().whileTrue(IntakeCommands.outtake());
 
     driverController.leftBumper().whileTrue(IntakeCommands.agitate());
+    operatorController.L1().whileTrue(IntakeCommands.agitate());
 
     driverController.povUp().onTrue(IntakeCommands.retract());
 
-    operatorController.L1().whileTrue(IntakeCommands.agitate());
-
     // Shooter
-    driverController.rightTrigger().whileTrue(ShooterCommands.shootAutomatic());
+    feeder.setDefaultCommand(ShooterCommands.shootDefault());
+
+    driverController.rightTrigger().whileTrue(ShooterCommands.shoot(false));
+
+    driverController.rightBumper().whileTrue(ShooterCommands.dontShoot());
 
     operatorController
         .triangle()

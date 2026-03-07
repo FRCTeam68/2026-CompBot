@@ -155,20 +155,20 @@ public class Auton {
                         //     PathUtil.followPath("Center Depot"),
                         //     Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
                         // IntakeCommands.stop(),
-                        ShooterCommands.shootAutomatic().repeatedly().withTimeout(5.0),
+                        ShooterCommands.shoot(false).repeatedly().withTimeout(5.0),
                         PathUtil.followPath("Depot Tower"));
 
                 if (autonOutpost.get()) {
                   myCommand2 = PathUtil.followPath("Tower Outpost");
                   myCommand2 =
                       myCommand2.andThen(
-                          ShooterCommands.shootAutomatic().repeatedly().withTimeout(5.0));
+                          ShooterCommands.shoot(false).repeatedly().withTimeout(5.0));
                 }
               } else {
                 myCommand1 =
                     Commands.sequence(
                         PathUtil.followPath("Center Outpost"),
-                        ShooterCommands.shootAutomatic().repeatedly().withTimeout(5.0));
+                        ShooterCommands.shoot(false).repeatedly().withTimeout(5.0));
               }
 
               return myCommand1.andThen(myCommand2);
@@ -224,7 +224,7 @@ public class Auton {
                       PathUtil.followPath("Left Trench A2"),
                       IntakeCommands.stop(),
                       PathUtil.followPath("Left Trench B1"),
-                      ShooterCommands.shootAutomatic().withTimeout(3.0));
+                      ShooterCommands.shoot(false).withTimeout(3.0));
 
               if (autonDepot.get()) {
                 myCommand2 =
@@ -233,7 +233,7 @@ public class Auton {
                         Commands.parallel(
                             PathUtil.followPath("Left Depot2"),
                             IntakeCommands.intakeRemainOn(),
-                            ShooterCommands.shootAutomatic().withTimeout(5.0)),
+                            ShooterCommands.shoot(false).withTimeout(5.0)),
                         IntakeCommands.stop());
               } else {
                 myCommand2 =
@@ -243,7 +243,7 @@ public class Auton {
                             Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
                         IntakeCommands.stop(),
                         PathUtil.followPath("Left Trench D1"),
-                        ShooterCommands.shootAutomatic().withTimeout(5.0),
+                        ShooterCommands.shoot(false).withTimeout(5.0),
                         IntakeCommands.stop());
               }
 
@@ -265,7 +265,7 @@ public class Auton {
                           PathUtil.followPath("Right_1768_AB1"),
                           Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
                       IntakeCommands.stop(),
-                      ShooterCommands.shootAutomatic().withTimeout(3.0));
+                      ShooterCommands.shoot(false).withTimeout(3.0));
 
               if (autonOutpost.get()) {
                 myCommand2 =
@@ -274,7 +274,7 @@ public class Auton {
                             PathUtil.followPath("Right_1768_Outpost"),
                             Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
                         Commands.waitSeconds(1)
-                            .andThen(ShooterCommands.shootAutomatic().withTimeout(5.0)),
+                            .andThen(ShooterCommands.shoot(false).withTimeout(5.0)),
                         IntakeCommands.stop());
               } else {
                 myCommand2 =
@@ -283,7 +283,7 @@ public class Auton {
                             PathUtil.followPath("Right_1768_CD1"),
                             Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
                         IntakeCommands.stop(),
-                        ShooterCommands.shootAutomatic().withTimeout(5.0));
+                        ShooterCommands.shoot(false).withTimeout(5.0));
               }
 
               return myCommand1.andThen(myCommand2);

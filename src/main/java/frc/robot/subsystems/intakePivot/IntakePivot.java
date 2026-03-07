@@ -24,6 +24,7 @@ public class IntakePivot extends SubsystemBase {
   // Positions
   @Getter private static final double packaged = 0;
   @Getter private static final double extended = 0.153076;
+  @Getter private static final double agitate = 0.02;
   @Getter private static final double inBumperMaximum = 0.1;
   @Getter private static final double intakeForwardExtension = Units.inchesToMeters(25.32);
 

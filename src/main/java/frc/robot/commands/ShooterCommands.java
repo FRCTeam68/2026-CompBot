@@ -3,6 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotSystem;
+import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants.shotConfig;
@@ -15,6 +16,7 @@ public class ShooterCommands {
 
   // Subsystems
   private static final RobotSystem robotSystem = RobotSystem.getInstance();
+  private static final Drive drive = robotSystem.getDrive();
   private static final Shooter shooter = robotSystem.getShooter();
   private static final RollerSystem spindexer = robotSystem.getSpindexer();
   private static final RollerSystem feeder = robotSystem.getFeeder();
@@ -22,19 +24,53 @@ public class ShooterCommands {
   @AutoLogOutput(key = "Shooter/ManualShoot")
   private static boolean forceManualShoot = false;
 
-  public static Command shootAutomatic() {
+  public static Command shootDefault() {
+    return Commands.run(
+            () -> {
+              if (drive.inAllianceZone() && HubShiftUtil.shouldShoot()) {
+                robotSystem.isShooting = true;
+                if (shooter.atSetpoint()) {
+                  feeder.runVolts(feederRunVolts);
+                  spindexer.runVolts(spindexerRunVolts);
+                } else {
+                  feeder.stop();
+                  spindexer.stop();
+                }
+              } else {
+                robotSystem.isShooting = false;
+                feeder.stop();
+                spindexer.stop();
+              }
+            },
+            feeder,
+            spindexer)
+        .finallyDo(
+            () -> {
+              feeder.stop();
+              spindexer.stop();
+              robotSystem.isShooting = false;
+            })
+        .withName("ShootDefault");
+  }
+
+  public static Command shoot(boolean manualMode) {
     return Commands.run(
             () -> {
               if (shooter.holdSetpoint) {
                 shooter.holdSetpoint = false;
               }
 
-              if (shooter.atSetpoint() && HubShiftUtil.shouldShoot()) {
+              if (manualMode || forceManualShoot) {
                 feeder.runVolts(feederRunVolts);
                 spindexer.runVolts(spindexerRunVolts);
               } else {
-                feeder.stop();
-                spindexer.stop();
+                if (shooter.atSetpoint() && HubShiftUtil.shouldShoot()) {
+                  feeder.runVolts(feederRunVolts);
+                  spindexer.runVolts(spindexerRunVolts);
+                } else {
+                  feeder.stop();
+                  spindexer.stop();
+                }
               }
             },
             feeder,
@@ -46,24 +82,11 @@ public class ShooterCommands {
               spindexer.stop();
               robotSystem.isShooting = false;
             })
-        .withName("ShootAutomatic");
+        .withName("Shoot");
   }
 
-  public static Command shootManual() {
-    return Commands.runOnce(
-            () -> {
-              feeder.runVolts(feederRunVolts);
-              spindexer.runVolts(spindexerRunVolts);
-            })
-        .andThen(Commands.idle(feeder, spindexer))
-        .beforeStarting(() -> robotSystem.isShooting = true)
-        .finallyDo(
-            () -> {
-              feeder.stop();
-              spindexer.stop();
-              robotSystem.isShooting = false;
-            })
-        .withName("ShootManual");
+  public static Command dontShoot() {
+    return Commands.idle(feeder, spindexer).withName("ShooterDontShoot");
   }
 
   public static Command runStatic(
@@ -92,6 +115,12 @@ public class ShooterCommands {
     return Commands.none();
   }
 
+  public static Command setHoodForceDown(boolean value) {
+    return Commands.runOnce(() -> shooter.getHood().setForceDown(value))
+        .ignoringDisable(true)
+        .withName("ShooterSetHoodForceDown");
+  }
+
   public static Command setHoldSetpoint(boolean value) {
     return Commands.runOnce(() -> shooter.holdSetpoint = value)
         .ignoringDisable(true)
@@ -111,7 +140,7 @@ public class ShooterCommands {
     return Commands.runOnce(() -> forceManualShoot = !forceManualShoot)
         .onlyIf(() -> value.length == 0 || forceManualShoot != value[0])
         .ignoringDisable(true)
-        .withName("ToggleManualShoot");
+        .withName("ShooterToggleManualShoot");
   }
 
   public static Command clearStaticSetpoint() {
