@@ -148,15 +148,15 @@ public class RobotSystem {
         intakePivot = new IntakePivot(new IntakePivotIOSim() {});
         intakeSpin =
             new RollerSystem(
-                "intakeSpin", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 1, 0.74));
+                "intakeSpin", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 1.0, 0.001));
 
         spindexer =
             new RollerSystem(
                 "spindexer",
-                new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4.0 * 5.0 * (64.0 / 16.0), 0.1));
+                new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 3.0 * (64.0 / 16.0), 0.2));
         feeder =
             new RollerSystem(
-                "feeder", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 36.0 / 12.0, 0.1));
+                "feeder", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 36.0 / 12.0, 0.01));
         break;
 
       default:

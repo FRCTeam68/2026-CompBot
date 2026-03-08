@@ -23,7 +23,7 @@ public class FlywheelIOSim implements FlywheelIO {
   public FlywheelIOSim() {
     sim =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(motor, .1, FlywheelIOReal.getReduction()), motor);
+            LinearSystemId.createDCMotorSystem(motor, .02, FlywheelIOReal.getReduction()), motor);
   }
 
   @Override

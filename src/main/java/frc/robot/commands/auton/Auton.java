@@ -258,38 +258,57 @@ public class Auton {
             () -> {
               Command myCommand1;
               Command myCommand2;
+              Command neutralPass1Command;
+              Command neutralPass2Command;
+              Command toOutpostCommand;
+              Command fromOutpostCommand;
 
-              myCommand1 =
+              neutralPass1Command =
                   Commands.sequence(
                       Commands.parallel(
                           PathUtil.followPath("Right_1768_AB1"),
                           Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
-                      IntakeCommands.stop(),
-                      ShooterCommands.shoot(false).withTimeout(3.0));
+                      IntakeCommands.stop());
 
-              if (autonOutpost.get()) {
-                myCommand2 =
+              neutralPass2Command =
+                  Commands.sequence(
+                      Commands.parallel(
+                          PathUtil.followPath("Right_1768_CD1"),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
+                      IntakeCommands.stop());
+
+              toOutpostCommand =
+                  Commands.sequence(
+                      Commands.parallel(
+                          PathUtil.followPath("Right_1768_Outpost_1"),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())));
+
+              if (!autonOutpost.get()) {
+                myCommand1 =
                     Commands.sequence(
-                        Commands.parallel(
-                            PathUtil.followPath("Right_1768_Outpost"),
-                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
-                        Commands.waitSeconds(1)
-                            .andThen(ShooterCommands.shoot(false).withTimeout(5.0)),
-                        IntakeCommands.stop());
+                        neutralPass1Command,
+                        Commands.deadline(
+                            ShooterCommands.shoot(false).repeatedly().withTimeout(3.0),
+                            Commands.waitSeconds(1)
+                                .andThen(IntakeCommands.agitate(1.0).repeatedly())),
+                        neutralPass2Command);
+                myCommand2 = toOutpostCommand;
               } else {
+                myCommand1 = neutralPass1Command;
                 myCommand2 =
                     Commands.sequence(
-                        Commands.parallel(
-                            PathUtil.followPath("Right_1768_CD1"),
-                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
-                        IntakeCommands.stop(),
-                        ShooterCommands.shoot(false).withTimeout(5.0));
+                        Commands.deadline(
+                            toOutpostCommand, ShooterCommands.shoot(false).repeatedly()),
+                        Commands.waitSeconds(3), // wait for fuel to dump into hopper
+                        Commands.deadline(
+                            PathUtil.followPath("Right_1768_Outpost_2"),
+                            ShooterCommands.shoot(false).repeatedly()));
               }
 
               return myCommand1.andThen(myCommand2);
             },
             Set.of(drive))
-        .withName("Auton_ARight_1768");
+        .withName("Auton_Right_1768");
   }
 
   private static Command Neptune() {

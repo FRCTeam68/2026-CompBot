@@ -26,7 +26,7 @@ public class IntakePivot extends SubsystemBase {
   @Getter private static final double extended = 0.153076;
   @Getter private static final double agitate = 0.02;
   @Getter private static final double inBumperMaximum = 0.1;
-  @Getter private static final double intakeForwardExtension = Units.inchesToMeters(25.32);
+  @Getter private static final double intakeForwardExtension = Units.inchesToMeters(12);
 
   // PID gains
   private final LoggedTunableNumber kP0 = new LoggedTunableNumber("IntakePivot/Slot0/kP", 25);
