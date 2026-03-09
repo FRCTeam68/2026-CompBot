@@ -236,8 +236,6 @@ public class Robot extends LoggedRobot {
   public void disabledExit() {
     // This must be done here to reset time for repeated practice matches
     HubShiftUtil.seedMatchTime();
-
-    // TODO: set shooter hold setpoint to false
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
@@ -270,6 +268,8 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
+
+    ShooterCommands.clearStaticSetpoint();
   }
 
   /** This function is called periodically during operator control. */

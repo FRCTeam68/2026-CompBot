@@ -13,6 +13,8 @@ import frc.robot.RobotSystem;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.util.PathUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
 import java.util.Set;
@@ -23,6 +25,7 @@ public class Auton {
   // Subsystems
   private static final RobotSystem robotSystem = RobotSystem.getInstance();
   private static final Drive drive = robotSystem.getDrive();
+  private static final Shooter shooter = robotSystem.getShooter();
 
   // Dashboard inputs
   private static final LoggedDashboardChooser<Auton.StartingPose> autonStartingPose =
@@ -66,6 +69,10 @@ public class Auton {
       new Alert(
           "Current robot pose does not match the starting pose for selected auton. Possible causes include the incorrect auton is selected, the camera is not getting a clear view of an april tag, or the robot is in the wrong location.",
           AlertType.kError);
+  private static final Alert hoodStartingPoseAlert =
+      new Alert(
+          "The hood is not in the correct starting position. Ensure hood is it maximum elevation and then click \"Zero Hood\" in the tuning tab.",
+          AlertType.kError);
 
   public static void initDashboardInputs() {
     // Configure starting pose
@@ -85,15 +92,17 @@ public class Auton {
   public static void UpdateAlerts() {
     if (DriverStation.isAutonomous()) {
       noAutoSelectedAlert.set(autonStartingPose.get() == null);
-
       startingPoseAlert.set(
           autonStartingPose.get() != null
               && (getSelectedStartPose().minus(drive.getPose()).getTranslation().getNorm() > 0.25
                   || getSelectedStartPose().minus(drive.getPose()).getRotation().getDegrees()
                       > 20));
+      hoodStartingPoseAlert.set(
+          Math.abs(shooter.getHood().getElevation() - Hood.getMaximum()) < 2.0);
     } else {
       noAutoSelectedAlert.set(false);
       startingPoseAlert.set(false);
+      hoodStartingPoseAlert.set(false);
     }
   }
 

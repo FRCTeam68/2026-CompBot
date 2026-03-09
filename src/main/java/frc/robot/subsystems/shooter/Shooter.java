@@ -26,9 +26,16 @@ public class Shooter extends SubsystemBase {
   @Getter private final Hood hood;
   @Getter private final Turret turret;
 
+  // Suppliers
+  private final Supplier<Pose2d> drivePoseSupplier;
+  private final Supplier<ChassisSpeeds> driveVelocitySupplier;
+  private final Supplier<Boolean> inAllianceZoneSupplier;
+  private final Supplier<Boolean> doAutoTargetPass;
+
   private Translation2d target = Translation2d.kZero;
   @Getter private boolean isTargetHub = true;
   @Getter private double flightTime = 0.0;
+  public boolean shouldPass = false;
 
   @AutoLogOutput(key = "Shooter/HoldSetpoint")
   public boolean holdSetpoint = false;
@@ -36,26 +43,23 @@ public class Shooter extends SubsystemBase {
   @AutoLogOutput(key = "Shooter/StaticSetpoint")
   public boolean staticSetpoint = false;
 
-  @AutoLogOutput(key = "Shooter/NoPass")
-  public boolean noPass = false;
-
-  private final Supplier<Pose2d> drivePoseSupplier;
-  private final Supplier<ChassisSpeeds> driveVelocitySupplier;
-  private final Supplier<Boolean> inAllianceZoneSupplier;
-
   public Shooter(
       Flywheel flywheel,
       Hood hood,
       Turret turret,
       Supplier<Pose2d> poseSupplier,
       Supplier<ChassisSpeeds> driveVelocitySupplier,
-      Supplier<Boolean> inAllianceZoneSupplier) {
+      Supplier<Boolean> inAllianceZoneSupplier,
+      Supplier<Boolean> doAutoTargetPass) {
     this.flywheel = flywheel;
     this.hood = hood;
     this.turret = turret;
     this.drivePoseSupplier = poseSupplier;
     this.driveVelocitySupplier = driveVelocitySupplier;
     this.inAllianceZoneSupplier = inAllianceZoneSupplier;
+    this.doAutoTargetPass = doAutoTargetPass;
+
+    shouldPass = doAutoTargetPass.get();
 
     // Configure dashboard
     SmartDashboard.putNumber("Shooter/FlywheelVelocity", 0.0);
@@ -80,8 +84,9 @@ public class Shooter extends SubsystemBase {
     }
 
     // Calculate target
-    if (inAllianceZoneSupplier.get() || noPass) {
+    if (inAllianceZoneSupplier.get() || !shouldPass) {
       isTargetHub = true;
+      shouldPass = doAutoTargetPass.get();
       target = AllianceFlipUtil.apply(ShooterConstants.Target.hub);
       flightTime = ShooterConstants.DynamicShot.hubShotFlightTime.get(getDistanceToTarget());
       Logger.recordOutput("Shooter/Target", "Hub");
@@ -106,7 +111,7 @@ public class Shooter extends SubsystemBase {
     }
 
     // Run shooter to target dynamically
-    if ((!staticSetpoint && !holdSetpoint) && (!isTargetHub || inAllianceZoneSupplier.get())) {
+    if (!staticSetpoint && !holdSetpoint && (!isTargetHub || inAllianceZoneSupplier.get())) {
       runDynamic();
     }
   }

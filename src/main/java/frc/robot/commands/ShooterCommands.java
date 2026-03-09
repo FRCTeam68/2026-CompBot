@@ -13,6 +13,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 public class ShooterCommands {
   private static final double feederRunVolts = 12;
   private static final double spindexerRunVolts = 12;
+  private static final double flywheelBumpStep = 0.5;
 
   // Subsystems
   private static final RobotSystem robotSystem = RobotSystem.getInstance();
@@ -27,14 +28,19 @@ public class ShooterCommands {
   public static Command shootDefault() {
     return Commands.run(
             () -> {
-              if (drive.inAllianceZone() && HubShiftUtil.shouldShoot()) {
+              if (drive.inAllianceZone() && HubShiftUtil.shouldShoot() && !shooter.staticSetpoint) {
                 robotSystem.isShooting = true;
-                if (shooter.atSetpoint()) {
-                  feeder.runVolts(feederRunVolts);
-                  spindexer.runVolts(spindexerRunVolts);
+
+                if (!shooter.holdSetpoint) {
+                  if (shooter.atSetpoint()) {
+                    feeder.runVolts(feederRunVolts);
+                    spindexer.runVolts(spindexerRunVolts);
+                  } else {
+                    feeder.stop();
+                    spindexer.stop();
+                  }
                 } else {
-                  feeder.stop();
-                  spindexer.stop();
+                  shooter.holdSetpoint = false;
                 }
               } else {
                 robotSystem.isShooting = false;
@@ -56,21 +62,27 @@ public class ShooterCommands {
   public static Command shoot(boolean manualMode) {
     return Commands.run(
             () -> {
-              if (shooter.holdSetpoint) {
-                shooter.holdSetpoint = false;
-              }
-
-              if (manualMode || forceManualShoot) {
-                feeder.runVolts(feederRunVolts);
-                spindexer.runVolts(spindexerRunVolts);
-              } else {
-                if (shooter.atSetpoint() && HubShiftUtil.shouldShoot()) {
-                  feeder.runVolts(feederRunVolts);
-                  spindexer.runVolts(spindexerRunVolts);
-                } else {
-                  feeder.stop();
-                  spindexer.stop();
+              if (!shooter.holdSetpoint) {
+                if (!drive.inAllianceZone() && !shooter.shouldPass) {
+                  shooter.shouldPass = true;
                 }
+
+                if (drive.inAllianceZone() || !shooter.isTargetHub()) {
+                  if (manualMode || forceManualShoot) {
+                    feeder.runVolts(feederRunVolts);
+                    spindexer.runVolts(spindexerRunVolts);
+                  } else {
+                    if (shooter.atSetpoint() && HubShiftUtil.shouldShoot()) {
+                      feeder.runVolts(feederRunVolts);
+                      spindexer.runVolts(spindexerRunVolts);
+                    } else {
+                      feeder.stop();
+                      spindexer.stop();
+                    }
+                  }
+                }
+              } else {
+                shooter.holdSetpoint = false;
               }
             },
             feeder,
@@ -105,14 +117,13 @@ public class ShooterCommands {
         .withName("ShooterStop");
   }
 
-  // TODO: create bumpFlywheel command
   public static Command bumpFlywheel(boolean increaseSpeed) {
-    return Commands.none();
-  }
-
-  // TODO: create bumpHood command
-  public static Command bumpHood(boolean increaseElevation) {
-    return Commands.none();
+    return Commands.runOnce(
+            () ->
+                shooter.getFlywheel().bumpVelocity +=
+                    (increaseSpeed) ? flywheelBumpStep : -flywheelBumpStep)
+        .ignoringDisable(true)
+        .withName("BumpFlywheel");
   }
 
   public static Command setHoodForceDown(boolean value) {
@@ -129,8 +140,9 @@ public class ShooterCommands {
 
   /** Toggle the state of noPass. Optionally specify the value to set. */
   public static Command toggleNoPass(boolean... value) {
-    return Commands.runOnce(() -> shooter.noPass = !shooter.noPass)
-        .onlyIf(() -> value.length == 0 || shooter.noPass != value[0])
+    return Commands.runOnce(
+            () -> robotSystem.doAutoTargetPass.set(!robotSystem.doAutoTargetPass.get()))
+        .onlyIf(() -> value.length == 0 || robotSystem.doAutoTargetPass.get() != value[0])
         .ignoringDisable(true)
         .withName("ShooterToggleNoPass");
   }

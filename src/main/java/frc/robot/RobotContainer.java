@@ -58,6 +58,8 @@ public class RobotContainer {
       new Alert("Operator PS4 controller disconnected.", AlertType.kError);
 
   // Triggers
+  private final Trigger trenchAlignTrigger =
+      new Trigger(() -> drive.nearTrench() && robotSystem.doTrenchAlign.get());
   private final Trigger hubTransitionWarningTrigger =
       new Trigger(() -> HubShiftUtil.hubToActive(3) || HubShiftUtil.hubToInactive(3));
 
@@ -138,6 +140,10 @@ public class RobotContainer {
             () -> -driverController.getLeftY(),
             () -> -driverController.getLeftX(),
             () -> -driverController.getRightX()));
+
+    trenchAlignTrigger.whileTrue(
+        DriveCommands.trenchAlign(
+            () -> -driverController.getLeftY(), () -> -driverController.getRightX()));
 
     driverController.povDown().whileTrue(DriveCommands.autopilotDriveToHubArc());
 
