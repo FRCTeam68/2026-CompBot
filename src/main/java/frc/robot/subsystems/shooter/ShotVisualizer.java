@@ -16,7 +16,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class ShotVisualizer {
   // Constants
-  private static final double stepSecs = 0.1;
+  private static final double stepSecs = 0.15;
   private static final double FlywheelDiameter = 4.0;
   private static final double gravity = 9.8;
 
@@ -60,10 +60,10 @@ public class ShotVisualizer {
           // Shooter velocity component
           new Translation3d(
                   Units.inchesToMeters(
-                      flywheelVelocitySupplier.get() * FlywheelDiameter * Math.PI / 2.0),
+                      flywheelVelocitySupplier.get() * FlywheelDiameter * Math.PI / 2.0 / 1.15),
                   new Rotation3d(
                       0.0,
-                      -Units.degreesToRadians(hoodElevationSupplier.get()),
+                      -Units.degreesToRadians(hoodElevationSupplier.get() + 12),
                       Units.degreesToRadians(turretAngleSupplier.get())
                           + robotPoseSupplier.get().getRotation().getRadians()))
               // Chassis translation velocity component

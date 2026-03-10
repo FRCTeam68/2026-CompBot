@@ -3,7 +3,6 @@ package frc.robot.subsystems.shooter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -30,12 +29,12 @@ public class Shooter extends SubsystemBase {
   private final Supplier<Pose2d> drivePoseSupplier;
   private final Supplier<ChassisSpeeds> driveVelocitySupplier;
   private final Supplier<Boolean> inAllianceZoneSupplier;
-  private final Supplier<Boolean> doAutoTargetPass;
+  private final Supplier<Boolean> alwaysTargetPass;
 
   private Translation2d target = Translation2d.kZero;
   @Getter private boolean isTargetHub = true;
   @Getter private double flightTime = 0.0;
-  public boolean shouldPass = false;
+  public boolean shouldTargetPass = false;
 
   @AutoLogOutput(key = "Shooter/HoldSetpoint")
   public boolean holdSetpoint = false;
@@ -50,16 +49,14 @@ public class Shooter extends SubsystemBase {
       Supplier<Pose2d> poseSupplier,
       Supplier<ChassisSpeeds> driveVelocitySupplier,
       Supplier<Boolean> inAllianceZoneSupplier,
-      Supplier<Boolean> doAutoTargetPass) {
+      Supplier<Boolean> alwaysTargetPass) {
     this.flywheel = flywheel;
     this.hood = hood;
     this.turret = turret;
     this.drivePoseSupplier = poseSupplier;
     this.driveVelocitySupplier = driveVelocitySupplier;
     this.inAllianceZoneSupplier = inAllianceZoneSupplier;
-    this.doAutoTargetPass = doAutoTargetPass;
-
-    shouldPass = doAutoTargetPass.get();
+    this.alwaysTargetPass = alwaysTargetPass;
 
     // Configure dashboard
     SmartDashboard.putNumber("Shooter/FlywheelVelocity", 0.0);
@@ -78,15 +75,9 @@ public class Shooter extends SubsystemBase {
   }
 
   public void periodic() {
-    // Log shot visualizer if sim
-    if (Constants.getMode() != Mode.REAL) {
-      ShotVisualizer.visualize();
-    }
-
     // Calculate target
-    if (inAllianceZoneSupplier.get() || !shouldPass) {
+    if (inAllianceZoneSupplier.get()) {
       isTargetHub = true;
-      shouldPass = doAutoTargetPass.get();
       target = AllianceFlipUtil.apply(ShooterConstants.Target.hub);
       flightTime = ShooterConstants.DynamicShot.hubShotFlightTime.get(getDistanceToTarget());
       Logger.recordOutput("Shooter/Target", "Hub");
@@ -111,9 +102,24 @@ public class Shooter extends SubsystemBase {
     }
 
     // Run shooter to target dynamically
-    if (!staticSetpoint && !holdSetpoint && (!isTargetHub || inAllianceZoneSupplier.get())) {
-      runDynamic();
+    if (!staticSetpoint && !holdSetpoint) {
+      if (inAllianceZoneSupplier.get() || shouldTargetPass || alwaysTargetPass.get()) {
+        runDynamic();
+      } else {
+        // If not actively targeting lower hood
+        hood.runElvation(Hood.getUnderTrenchMinimum());
+        holdSetpoint = true;
+      }
     }
+
+    // Log shot visualizer if sim
+    if (Constants.getMode() != Mode.REAL) {
+      ShotVisualizer.visualize();
+    }
+
+    // Log distance to target to the dashdoard with 3 decimal places
+    SmartDashboard.putString(
+        "Shooter/DistanceToTarget", String.format("%.3f", getDistanceToTarget()));
   }
 
   /**
@@ -190,32 +196,27 @@ public class Shooter extends SubsystemBase {
   }
 
   /**
-   * Checks if the shooter is near any of the trenches. If so, the hood should be forced down to
-   * avoid collisions.
-   *
-   * @return If the shooter is near the trench.
+   * returns if the shooter is near any of the trenches. The size of the box is proportional to the
+   * robots velocity. If so, the hood should be forced down to avoid collisions.
    */
   @AutoLogOutput(key = "Shooter/InTrenchBox")
   public boolean inTrenchBox() {
     Translation2d shooterTranslation = getShooterFieldTranslation();
 
-    // The maximum time for the hood to lower to underTrenchMinimum
-    double hoodLowerTime = 0.5;
-
-    // Default box size. xMin should be set big enough to allow ample time for the hood to go down
-    // from 0 velocity.
-    double xSize = Units.inchesToMeters(47);
-    double ySize = FieldConstants.LinesHorizontal.rightTrenchOpenStart + Units.inchesToMeters(12);
-
     // Adjust x limits based on velocity
     double xOffestPos =
-        (xSize / 2) + (-Math.min(0, driveVelocitySupplier.get().vxMetersPerSecond) * hoodLowerTime);
+        (ShooterConstants.TrenchZone.halfXSize)
+            + (-Math.min(0, driveVelocitySupplier.get().vxMetersPerSecond)
+                * ShooterConstants.TrenchZone.hoodLowerTime);
     double xOffsetNeg =
-        (-xSize / 2) - (Math.max(0, driveVelocitySupplier.get().vxMetersPerSecond) * hoodLowerTime);
+        (-ShooterConstants.TrenchZone.halfXSize)
+            - (Math.max(0, driveVelocitySupplier.get().vxMetersPerSecond)
+                * ShooterConstants.TrenchZone.hoodLowerTime);
 
     // Check y position
-    return (shooterTranslation.getY() < ySize
-            || shooterTranslation.getY() > FieldConstants.fieldWidth - ySize)
+    return (shooterTranslation.getY() < ShooterConstants.TrenchZone.ySize
+            || shooterTranslation.getY()
+                > FieldConstants.fieldWidth - ShooterConstants.TrenchZone.ySize)
         // Check blue alliance x position
         && ((shooterTranslation.getX() < FieldConstants.LinesVertical.hubCenter + xOffestPos
                 && shooterTranslation.getX() > FieldConstants.LinesVertical.hubCenter + xOffsetNeg)
@@ -223,6 +224,81 @@ public class Shooter extends SubsystemBase {
             || (shooterTranslation.getX() < FieldConstants.LinesVertical.oppHubCenter + xOffestPos
                 && shooterTranslation.getX()
                     > FieldConstants.LinesVertical.oppHubCenter + xOffsetNeg));
+  }
+
+  /**
+   * Returns if the shooter is inside the current alliance tower. If so, no shots should be fired.
+   */
+  @AutoLogOutput(key = "Shooter/InTowerBox")
+  public boolean inTowerBox() {
+    Translation2d shooterTranslation = getShooterFieldTranslation();
+
+    // Check blue alliance
+    return (shooterTranslation.getX() < ShooterConstants.TowerZone.xSize
+            && Math.abs(
+                    shooterTranslation.getY()
+                        - ShooterConstants.TowerZone.yMin
+                        - ShooterConstants.TowerZone.halfYSize)
+                < ShooterConstants.TowerZone.halfYSize)
+        // Check red alliance
+        || (shooterTranslation.getX()
+                > FieldConstants.fieldLength - ShooterConstants.TowerZone.xSize
+            && Math.abs(
+                    FieldConstants.fieldWidth
+                        - shooterTranslation.getY()
+                        - ShooterConstants.TowerZone.yMin
+                        - ShooterConstants.TowerZone.halfYSize)
+                < ShooterConstants.TowerZone.halfYSize);
+  }
+
+  /**
+   * Returns if the shooter is in a spot where pass shots would be blocked by the hub. If so, no
+   * shots should be fired.
+   */
+  @AutoLogOutput(key = "Shooter/IsBehindHub")
+  public boolean isBehindHub() {
+    Translation2d shooterTranslation = getShooterFieldTranslation();
+    double absLocalY = Math.abs(shooterTranslation.getY() - FieldConstants.LinesHorizontal.center);
+    double localXNeutral =
+        shooterTranslation.getX()
+            - AllianceFlipUtil.applyX(FieldConstants.LinesVertical.neutralZoneNear);
+    double localXOpp =
+        shooterTranslation.getX()
+            - AllianceFlipUtil.applyX(FieldConstants.LinesVertical.oppAllianceZone);
+
+    if (AllianceFlipUtil.shouldFlip()) {
+      // Red alliance
+      // Check general y position
+      return absLocalY < ShooterConstants.BehindHubZone.halfBaseWidth
+          // Check neutral zone position
+          && ((Math.abs(localXNeutral + (ShooterConstants.BehindHubZone.halfHeight))
+                      < ShooterConstants.BehindHubZone.halfHeight
+                  && absLocalY
+                      < ShooterConstants.BehindHubZone.halfBaseWidth
+                          + (ShooterConstants.BehindHubZone.slope * localXNeutral))
+              // Check opp alliance zone
+              || (Math.abs(localXOpp + (ShooterConstants.BehindHubZone.halfHeight))
+                      < ShooterConstants.BehindHubZone.halfHeight)
+                  && absLocalY
+                      < ShooterConstants.BehindHubZone.halfBaseWidth
+                          + (ShooterConstants.BehindHubZone.slope * localXOpp));
+    } else {
+      // Blue alliance
+      // Check general y position
+      return absLocalY < ShooterConstants.BehindHubZone.halfBaseWidth
+          // Check neutral zone position
+          && ((Math.abs(localXNeutral - (ShooterConstants.BehindHubZone.halfHeight))
+                      < ShooterConstants.BehindHubZone.halfHeight
+                  && absLocalY
+                      < ShooterConstants.BehindHubZone.halfBaseWidth
+                          - (ShooterConstants.BehindHubZone.slope * localXNeutral))
+              // Check opp alliance zone
+              || (Math.abs(localXOpp - (ShooterConstants.BehindHubZone.halfHeight))
+                      < ShooterConstants.BehindHubZone.halfHeight)
+                  && absLocalY
+                      < ShooterConstants.BehindHubZone.halfBaseWidth
+                          - (ShooterConstants.BehindHubZone.slope * localXOpp));
+    }
   }
 
   /** Returns the distance in meters to the automatically selected target. */

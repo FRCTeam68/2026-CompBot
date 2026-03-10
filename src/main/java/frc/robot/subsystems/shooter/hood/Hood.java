@@ -81,7 +81,7 @@ public class Hood extends SubsystemBase {
   private double setpointAdjusted = 0.0;
   @Getter private ControlMode mode = ControlMode.Neutral;
   private boolean prevInTrenchBox = false;
-  @Setter boolean forceDown = false;
+  @Getter @Setter private boolean forceDown = false;
 
   public Hood(HoodIO hoodIO) {
     this.io = hoodIO;

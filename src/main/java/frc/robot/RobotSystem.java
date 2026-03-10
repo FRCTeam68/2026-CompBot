@@ -55,8 +55,8 @@ public class RobotSystem {
   public boolean isShooting = false;
   public final LoggedNetworkBoolean doTrenchAlign =
       new LoggedNetworkBoolean("SmartDashboard/Drive/DoTrenchAlign", false);
-  public final LoggedNetworkBoolean doAutoTargetPass =
-      new LoggedNetworkBoolean("SmartDashboard/Shooter/DoAutoTargetPass", false);
+  public final LoggedNetworkBoolean alwaysTargetPass =
+      new LoggedNetworkBoolean("SmartDashboard/Shooter/AlwaysTargetPass", false);
 
   // Subsystems
   @Getter private final Drive drive;
@@ -202,7 +202,7 @@ public class RobotSystem {
             drive::getPose,
             drive::getFieldVelocity,
             drive::inAllianceZone,
-            doAutoTargetPass::get);
+            alwaysTargetPass::get);
 
     hood.initInTrenchBoxSupplier(shooter::inTrenchBox);
   }

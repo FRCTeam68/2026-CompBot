@@ -29,14 +29,15 @@ public class HubShiftUtil {
   private static Optional<Boolean> prevBlueActiveFirst = Optional.empty();
   private static LoggedDashboardChooser<Optional<Boolean>> activeFirstOverride =
       new LoggedDashboardChooser<>("HubShift/ActiveFirstOverride");
-  private static LoggedNetworkBoolean override =
-      new LoggedNetworkBoolean("SmartDashboard/HubShift/Override", false);
 
   static {
     activeFirstOverride.addOption("Blue", Optional.of(true));
     activeFirstOverride.addDefaultOption("None", Optional.empty());
     activeFirstOverride.addOption("Red", Optional.of(false));
   }
+
+  public static LoggedNetworkBoolean override =
+      new LoggedNetworkBoolean("SmartDashboard/HubShift/Override", false);
 
   /**
    * The remaining time in teleop mode. Before teleop starts, when not connected to FMS, or if not
