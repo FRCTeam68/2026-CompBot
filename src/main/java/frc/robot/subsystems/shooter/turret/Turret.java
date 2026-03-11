@@ -85,6 +85,9 @@ public class Turret extends SubsystemBase {
         Commands.runOnce(() -> disambiguate())
             .ignoringDisable(true)
             .withName("DisambiguateTurret"));
+    SmartDashboard.putData(
+        "Shooter/ZeroTurret",
+        Commands.runOnce(() -> zero(), this).ignoringDisable(true).withName("ZeroTurret"));
   }
 
   public void periodic() {
@@ -155,6 +158,11 @@ public class Turret extends SubsystemBase {
   /** Set the current mechanism position to zero. */
   public void zero() {
     io.setPosition(0);
+    ElasticUtil.sendNotification(
+        new Notification(
+            NotificationLevel.INFO,
+            "Turret Zeroed",
+            "Turret should be facing forward with the cable completely unwound."));
   }
 
   public void disambiguate() {

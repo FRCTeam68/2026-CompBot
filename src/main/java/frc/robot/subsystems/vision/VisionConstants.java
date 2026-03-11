@@ -13,13 +13,15 @@ public class VisionConstants {
         "limelight-threeg",
         new Pose3d(
             new Translation3d(-0.264950, -0.272987, 0.223248),
-            new Rotation3d(0.0, Units.degreesToRadians(10.0), Math.PI)),
+            new Rotation3d(0.0, Units.degreesToRadians(20.0), Units.degreesToRadians(-120.0))),
         1.0),
     LL_4(
         "limelight-four",
         new Pose3d(
-            new Translation3d(-0.292719, 0.273426, 0.306539),
-            new Rotation3d(0.0, Units.degreesToRadians(30.0), Math.PI)),
+            // new Translation3d(-0.291079, 0.273426, 0.31586),
+            // new Rotation3d(0.0, Units.degreesToRadians(25.0), Math.PI)),
+            new Translation3d(-0.291079, 0.273426, 0.31586),
+            new Rotation3d(0.0, Units.degreesToRadians(25.0), 174)),
         1.0);
 
     String name; // Must match name configured on coprocessor

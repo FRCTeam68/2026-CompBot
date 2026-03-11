@@ -12,10 +12,10 @@ import frc.robot.subsystems.shooter.ShooterConstants;
 import java.util.Optional;
 import java.util.function.Supplier;
 import lombok.Getter;
-import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 public class HubShiftUtil {
   // Subsystems
@@ -35,6 +35,9 @@ public class HubShiftUtil {
     activeFirstOverride.addDefaultOption("None", Optional.empty());
     activeFirstOverride.addOption("Red", Optional.of(false));
   }
+
+  public static LoggedNetworkBoolean override =
+      new LoggedNetworkBoolean("SmartDashboard/HubShift/Override", false);
 
   /**
    * The remaining time in teleop mode. Before teleop starts, when not connected to FMS, or if not
@@ -62,9 +65,6 @@ public class HubShiftUtil {
    * this will return the Transition shift.
    */
   @Getter private static Shift currentShift = Shift.Transition;
-
-  /** If the shouldShoot method should be forced true no matter the shift status. */
-  @Getter @Setter private static boolean override = false;
 
   /**
    * Update Shift conditions.
@@ -238,16 +238,15 @@ public class HubShiftUtil {
   @AutoLogOutput(key = "HubShift/ShouldShoot")
   public static boolean shouldShoot() {
     double time = shooter.getFlightTime() + ShooterConstants.hubFilterTime;
-    // TODO: fix the hub inactive time
     if (time < 3.0) {
       return !shooter.isTargetHub()
-          || override
+          || override.get()
           || isHubActive()
           || hubToActive(time)
           || shiftTime.get() - (22.0 + time) > 0.0;
     } else {
       return !shooter.isTargetHub()
-          || override
+          || override.get()
           || (isHubActive() && !hubToInactive(time - 3.0))
           || hubToActive(time);
     }

@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
@@ -58,6 +57,8 @@ public class RobotContainer {
       new Alert("Operator PS4 controller disconnected.", AlertType.kError);
 
   // Triggers
+  private final Trigger trenchAlignTrigger =
+      new Trigger(() -> drive.nearTrench() && robotSystem.doTrenchAlign.get());
   private final Trigger hubTransitionWarningTrigger =
       new Trigger(() -> HubShiftUtil.hubToActive(3) || HubShiftUtil.hubToInactive(3));
 
@@ -139,6 +140,10 @@ public class RobotContainer {
             () -> -driverController.getLeftX(),
             () -> -driverController.getRightX()));
 
+    trenchAlignTrigger.whileTrue(
+        DriveCommands.trenchAlign(
+            () -> -driverController.getLeftY(), () -> -driverController.getRightX()));
+
     driverController.povDown().whileTrue(DriveCommands.autopilotDriveToHubArc());
 
     // Intake
@@ -156,30 +161,30 @@ public class RobotContainer {
 
     driverController.rightTrigger().whileTrue(ShooterCommands.shoot(false));
 
-    driverController.rightBumper().whileTrue(ShooterCommands.dontShoot());
+    driverController.a().whileTrue(ShooterCommands.dontShoot());
+
+    operatorController
+        .R1()
+        .onTrue(ShooterCommands.setHoodForceDown(true))
+        .onFalse(ShooterCommands.setHoodForceDown(false));
 
     operatorController
         .triangle()
         .onTrue(ShooterCommands.runStatic(ShooterConstants.StaticShot.hubArc));
-
     operatorController
         .square()
         .onTrue(ShooterCommands.runStatic(ShooterConstants.StaticShot.neutralZone));
-
     operatorController
         .circle()
         .onTrue(ShooterCommands.runStatic(ShooterConstants.StaticShot.oppAllianceZone));
+    operatorController.cross().onTrue(ShooterCommands.clearStaticSetpoint());
+
+    operatorController.povUp().onTrue(ShooterCommands.bumpFlywheel(true));
+    operatorController.povDown().onTrue(ShooterCommands.bumpFlywheel(false));
 
     operatorController.share().onTrue(ShooterCommands.toggleManualShoot());
 
-    operatorController
-        .R2()
-        .onTrue(ShooterCommands.setHoldSetpoint(true))
-        .onFalse(
-            ShooterCommands.setHoldSetpoint(false)
-                .alongWith(ShooterCommands.clearStaticSetpoint()));
-
-    operatorController.PS().onTrue(ShooterCommands.toggleNoPass());
+    operatorController.PS().onTrue(ShooterCommands.toggleAlwaysTargetPass());
 
     // Misc
     driverController
@@ -201,20 +206,18 @@ public class RobotContainer {
                 .ignoringDisable(true)
                 .withName("StopSubsystems"));
 
+    operatorController
+        .povLeft()
+        .onTrue(
+            Commands.runOnce(() -> HubShiftUtil.override.set(!HubShiftUtil.override.get()))
+                .ignoringDisable(true)
+                .withName("ShiftToggleOverride"));
+
     hubTransitionWarningTrigger.onTrue(
         Commands.runOnce(() -> driverController.setRumble(RumbleType.kBothRumble, 1))
             .andThen(Commands.waitSeconds(1))
             .andThen(() -> driverController.setRumble(RumbleType.kBothRumble, 0))
             .withName("HubTransitionWarning"));
-  }
-
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    return Auton.SelectedCommand();
   }
 
   /** Stops all subsystems, cancels all scheduled commands, and stops controller rumble. */

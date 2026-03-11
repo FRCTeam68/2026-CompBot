@@ -11,8 +11,13 @@ import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.util.ElasticUtil;
+import frc.robot.util.ElasticUtil.Notification;
+import frc.robot.util.ElasticUtil.NotificationLevel;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
 import java.util.function.Supplier;
@@ -76,10 +81,15 @@ public class Hood extends SubsystemBase {
   private double setpointAdjusted = 0.0;
   @Getter private ControlMode mode = ControlMode.Neutral;
   private boolean prevInTrenchBox = false;
-  @Setter boolean forceDown = false;
+  @Getter @Setter private boolean forceDown = false;
 
   public Hood(HoodIO hoodIO) {
     this.io = hoodIO;
+
+    // Configure dashboard
+    SmartDashboard.putData(
+        "Shooter/ZeroHood",
+        Commands.runOnce(() -> zero(), this).ignoringDisable(true).withName("ZeroHood"));
   }
 
   public void initInTrenchBoxSupplier(Supplier<Boolean> inTrenchBox) {
@@ -163,6 +173,11 @@ public class Hood extends SubsystemBase {
   /** Set the current mechanism position to zero. */
   public void zero() {
     io.setPosition(0);
+    ElasticUtil.sendNotification(
+        new Notification(
+            NotificationLevel.INFO,
+            "Hood Zeroed",
+            "Hood position should be at the maximum elevation."));
   }
 
   /**

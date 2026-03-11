@@ -47,11 +47,16 @@ import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.util.CanBusUtil;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 public class RobotSystem {
   private static RobotSystem instance = null;
 
   public boolean isShooting = false;
+  public final LoggedNetworkBoolean doTrenchAlign =
+      new LoggedNetworkBoolean("SmartDashboard/Drive/DoTrenchAlign", false);
+  public final LoggedNetworkBoolean alwaysTargetPass =
+      new LoggedNetworkBoolean("SmartDashboard/Shooter/AlwaysTargetPass", false);
 
   // Subsystems
   @Getter private final Drive drive;
@@ -191,7 +196,13 @@ public class RobotSystem {
 
     shooter =
         new Shooter(
-            flywheel, hood, turret, drive::getPose, drive::getFieldVelocity, drive::inAllianceZone);
+            flywheel,
+            hood,
+            turret,
+            drive::getPose,
+            drive::getFieldVelocity,
+            drive::inAllianceZone,
+            alwaysTargetPass::get);
 
     hood.initInTrenchBoxSupplier(shooter::inTrenchBox);
   }
@@ -213,9 +224,7 @@ public class RobotSystem {
     Logger.recordOutput(
         "RobotPose/1_Intake",
         new Pose3d(
-            intakePivot.getPosition()
-                / IntakePivot.getExtended()
-                * IntakePivot.getIntakeForwardExtension(),
+            (intakePivot.getPosition() / IntakePivot.getExtended()) * Units.inchesToMeters(12),
             0,
             0,
             Rotation3d.kZero));
