@@ -195,7 +195,19 @@ public class Auton {
               myCommand1 =
                   Commands.sequence(
                       Commands.parallel(
-                          PathUtil.followPath("Left Trench A"),
+                        PathUtil.followPath("Left Trench A"),
+                          Commands.sequence(
+                            // Make sure flywheels don't start
+                              ShooterCommands.runStatic(
+                                  0,
+                                  shooter.getHood().getElevation(),
+                                  shooter.getTurret().getPosition()),
+                              Commands.waitSeconds(1),
+                              // Move to the setpoints that will be called when the robot enters the alliance zone again
+                              ShooterCommands.runStatic(57, 63, 275),
+                              // enable automatic control
+                              // The shooter will remain at the previous setpoint until it enters the alliance zone
+                              ShooterCommands.clearStaticSetpoint()),
                           Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
                       IntakeCommands.stopSpin(),
                       PathUtil.followPath("Left Trench B"),

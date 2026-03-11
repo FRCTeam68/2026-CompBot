@@ -3,6 +3,7 @@ package frc.robot.subsystems.shooter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -103,7 +104,7 @@ public class Shooter extends SubsystemBase {
 
     // Run shooter to target dynamically
     if (!staticSetpoint && !holdSetpoint) {
-      if (inAllianceZoneSupplier.get() || shouldTargetPass || alwaysTargetPass.get()) {
+      if (inAllianceZoneSupplier.get() || (!DriverStation.isAutonomous() && (shouldTargetPass || alwaysTargetPass.get()))) {
         runDynamic();
       } else {
         // If not actively targeting lower hood
