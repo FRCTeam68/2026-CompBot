@@ -241,7 +241,10 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    CommandScheduler.getInstance().schedule(Auton.SelectedCommand());
+    autonomousCommand = Auton.SelectedCommand();
+    if (autonomousCommand != null) {
+      CommandScheduler.getInstance().schedule(autonomousCommand);
+    }
 
     if (DriverStation.isFMSAttached()) {
       if (AllianceFlipUtil.shouldFlip()) {
