@@ -59,21 +59,23 @@ public class RobotSystem {
       new LoggedNetworkBoolean("SmartDashboard/Shooter/AlwaysTargetPass", false);
 
   // Subsystems
-  @Getter private final Drive drive;
-  @Getter private final Vision vision;
-  @Getter private final Lights lights;
-  @Getter private final IntakePivot intakePivot;
-  @Getter private final RollerSystem intakeSpin;
-  @Getter private final Shooter shooter;
-  @Getter private final RollerSystem spindexer;
-  @Getter private final RollerSystem feeder;
+  // TODO: removing final may have performace impacts. Should investigate more.
+  // https://stackoverflow.com/a/73323532
+  @Getter private Drive drive;
+  @Getter private Vision vision;
+  @Getter private Lights lights;
+  @Getter private IntakePivot intakePivot;
+  @Getter private RollerSystem intakeSpin;
+  @Getter private Shooter shooter;
+  @Getter private RollerSystem spindexer;
+  @Getter private RollerSystem feeder;
 
   private final Field2d field = new Field2d();
 
-  public RobotSystem() {
-    Flywheel flywheel;
-    Hood hood;
-    Turret turret;
+  public void instantiateSubsystems() {
+    final Flywheel flywheel;
+    final Hood hood;
+    final Turret turret;
 
     switch (Constants.getMode()) {
       case REAL:
@@ -87,11 +89,7 @@ public class RobotSystem {
 
         vision =
             new Vision(
-                drive::addVisionMeasurement,
-                drive::getPose,
-                drive::getFieldVelocity,
-                new VisionIOLimelight(CameraInfo.LL_4),
-                new VisionIOLimelight(CameraInfo.LL_3G));
+                new VisionIOLimelight(CameraInfo.LL_4), new VisionIOLimelight(CameraInfo.LL_3G));
 
         lights = new Lights(new LightsIOCANdle());
 
@@ -142,7 +140,7 @@ public class RobotSystem {
                 new ModuleIOSim(),
                 new ModuleIOSim());
 
-        vision = new Vision(drive::addVisionMeasurement, drive::getPose, drive::getFieldVelocity);
+        vision = new Vision();
 
         lights = new Lights(new LightsIO() {});
 
@@ -173,13 +171,7 @@ public class RobotSystem {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
-        vision =
-            new Vision(
-                drive::addVisionMeasurement,
-                drive::getPose,
-                drive::getFieldVelocity,
-                new VisionIO() {},
-                new VisionIO() {});
+        vision = new Vision(new VisionIO() {}, new VisionIO() {});
 
         lights = new Lights(new LightsIO() {});
 
@@ -194,29 +186,9 @@ public class RobotSystem {
         feeder = new RollerSystem("feeder", new RollerSystemIO() {});
     }
 
-    shooter =
-        new Shooter(
-            flywheel,
-            hood,
-            turret,
-            drive::getPose,
-            drive::getFieldVelocity,
-            drive::inAllianceZone,
-            alwaysTargetPass::get);
+    shooter = new Shooter(flywheel, hood, turret);
 
     hood.initInTrenchBoxSupplier(shooter::inTrenchBox);
-  }
-
-  /**
-   * Gets the single instance of the System class.
-   *
-   * @return The single instance of the System class.
-   */
-  public static RobotSystem getInstance() {
-    if (instance == null) {
-      instance = new RobotSystem();
-    }
-    return instance;
   }
 
   /** Log component poses for the robot visualization. */
@@ -253,5 +225,18 @@ public class RobotSystem {
     // Blue alliance robot color: #3644F4
     field.setRobotPose(drive.getPose());
     SmartDashboard.putData("Field", field);
+  }
+
+  /**
+   * Gets the single instance of the System class.
+   *
+   * @return The single instance of the System class.
+   */
+  public static RobotSystem getInstance() {
+    if (instance == null) {
+      instance = new RobotSystem();
+      instance.instantiateSubsystems();
+    }
+    return instance;
   }
 }

@@ -10,7 +10,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
@@ -21,6 +20,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.FieldConstants;
+import frc.robot.RobotSystem;
+import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import frc.robot.util.ElasticUtil;
@@ -29,13 +30,14 @@ import frc.robot.util.ElasticUtil.NotificationLevel;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
-  private final VisionConsumer consumer;
-  private final Supplier<ChassisSpeeds> chassisSpeedSupplier;
+  // Subsystems
+  private static final RobotSystem robotSystem = RobotSystem.getInstance();
+  private static final Drive drive = robotSystem.getDrive();
+  private final VisionConsumer consumer = drive::addVisionMeasurement;
   private final VisionIO[] io;
   private final CameraInfo[] cameraInfo;
   private final VisionIOInputsAutoLogged[] inputs;
@@ -44,13 +46,7 @@ public class Vision extends SubsystemBase {
 
   @Getter private Optional<Translation2d> targetNote = Optional.empty();
 
-  public Vision(
-      VisionConsumer consumer,
-      Supplier<Pose2d> poseSupplier,
-      Supplier<ChassisSpeeds> chassisSpeedSupplier,
-      VisionIO... io) {
-    this.consumer = consumer;
-    this.chassisSpeedSupplier = chassisSpeedSupplier;
+  public Vision(VisionIO... io) {
     this.io = io;
 
     // Initialize camera specific information
@@ -59,7 +55,7 @@ public class Vision extends SubsystemBase {
     connectedDebouncers = new Debouncer[io.length];
     disconnectedAlerts = new Alert[io.length];
     for (int i = 0; i < inputs.length; i++) {
-      this.io[i].initRotationSupplier(() -> poseSupplier.get().getRotation());
+      this.io[i].initRotationSupplier(() -> drive.getPose().getRotation());
       cameraInfo[i] = io[i].getCameraInfo();
       inputs[i] = new VisionIOInputsAutoLogged();
       connectedDebouncers[i] = new Debouncer(0.5, DebounceType.kRising);
@@ -169,9 +165,9 @@ public class Vision extends SubsystemBase {
             observation.type() == PoseObservationType.MEGATAG_1
                 && (observation.tagCount() < MT1MinTags
                     || observation.averageTagDistance() > MT1MaxAverageTagDistance
-                    || chassisSpeedSupplier.get().vxMetersPerSecond > MT1MaxLinearVelocity
-                    || chassisSpeedSupplier.get().vyMetersPerSecond > MT1MaxLinearVelocity
-                    || chassisSpeedSupplier.get().omegaRadiansPerSecond > MT1MaxAngularVelocity);
+                    || drive.getFieldVelocity().vxMetersPerSecond > MT1MaxLinearVelocity
+                    || drive.getFieldVelocity().vyMetersPerSecond > MT1MaxLinearVelocity
+                    || drive.getFieldVelocity().omegaRadiansPerSecond > MT1MaxAngularVelocity);
 
         boolean rejectPose =
             rejectMT1Pose

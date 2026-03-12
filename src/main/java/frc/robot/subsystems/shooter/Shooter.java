@@ -1,6 +1,5 @@
 package frc.robot.subsystems.shooter;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -9,27 +8,24 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.FieldConstants;
+import frc.robot.RobotSystem;
+import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.shooter.ShooterConstants.shotConfig;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.shooter.turret.Turret;
 import frc.robot.util.geometry.AllianceFlipUtil;
-import java.util.function.Supplier;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
   // Subsystems
+  private static final RobotSystem robotSystem = RobotSystem.getInstance();
+  private static final Drive drive = robotSystem.getDrive();
   @Getter private final Flywheel flywheel;
   @Getter private final Hood hood;
   @Getter private final Turret turret;
-
-  // Suppliers
-  private final Supplier<Pose2d> drivePoseSupplier;
-  private final Supplier<ChassisSpeeds> driveVelocitySupplier;
-  private final Supplier<Boolean> inAllianceZoneSupplier;
-  private final Supplier<Boolean> alwaysTargetPass;
 
   private Translation2d target = Translation2d.kZero;
   @Getter private boolean isTargetHub = true;
@@ -42,21 +38,10 @@ public class Shooter extends SubsystemBase {
   @AutoLogOutput(key = "Shooter/StaticSetpoint")
   public boolean staticSetpoint = false;
 
-  public Shooter(
-      Flywheel flywheel,
-      Hood hood,
-      Turret turret,
-      Supplier<Pose2d> poseSupplier,
-      Supplier<ChassisSpeeds> driveVelocitySupplier,
-      Supplier<Boolean> inAllianceZoneSupplier,
-      Supplier<Boolean> alwaysTargetPass) {
+  public Shooter(Flywheel flywheel, Hood hood, Turret turret) {
     this.flywheel = flywheel;
     this.hood = hood;
     this.turret = turret;
-    this.drivePoseSupplier = poseSupplier;
-    this.driveVelocitySupplier = driveVelocitySupplier;
-    this.inAllianceZoneSupplier = inAllianceZoneSupplier;
-    this.alwaysTargetPass = alwaysTargetPass;
 
     // Configure dashboard
     SmartDashboard.putNumber("Shooter/FlywheelVelocity", 0.0);
@@ -76,14 +61,14 @@ public class Shooter extends SubsystemBase {
 
   public void periodic() {
     // Calculate target
-    if (inAllianceZoneSupplier.get()) {
+    if (drive.inAllianceZone()) {
       isTargetHub = true;
       target = AllianceFlipUtil.apply(ShooterConstants.Target.hub);
       flightTime = ShooterConstants.DynamicShot.hubShotFlightTime.get(getDistanceToTarget());
       Logger.recordOutput("Shooter/Target", "Hub");
     } else {
       isTargetHub = false;
-      if (drivePoseSupplier.get().getY() < FieldConstants.LinesHorizontal.center) {
+      if (drive.getPose().getY() < FieldConstants.LinesHorizontal.center) {
         target =
             AllianceFlipUtil.apply(
                 (AllianceFlipUtil.shouldFlip())
@@ -103,7 +88,7 @@ public class Shooter extends SubsystemBase {
 
     // Run shooter to target dynamically
     if (!staticSetpoint && !holdSetpoint) {
-      if (inAllianceZoneSupplier.get() || shouldTargetPass || alwaysTargetPass.get()) {
+      if (drive.inAllianceZone() || shouldTargetPass || robotSystem.alwaysTargetPass.get()) {
         runDynamic();
       } else {
         // If not actively targeting lower hood
@@ -151,7 +136,7 @@ public class Shooter extends SubsystemBase {
     // vy - CW tangent to target
     ChassisSpeeds targetRelativeVelocity =
         ChassisSpeeds.fromFieldRelativeSpeeds(
-            driveVelocitySupplier.get(), target.minus(getShooterFieldTranslation()).getAngle());
+            drive.getFieldVelocity(), target.minus(getShooterFieldTranslation()).getAngle());
     double targetDistanceAdjusted =
         getDistanceToTarget()
             - (targetRelativeVelocity.vxMetersPerSecond
@@ -172,7 +157,7 @@ public class Shooter extends SubsystemBase {
                             * flightTime
                             * ShooterConstants.DynamicShot.adjustMultiplier)
                     .getAngle())
-            .minus(drivePoseSupplier.get().getRotation())
+            .minus(drive.getPose().getRotation())
             .getDegrees());
   }
 
@@ -187,12 +172,11 @@ public class Shooter extends SubsystemBase {
 
   /** Returns the the field relative position of the shooter. */
   public Translation2d getShooterFieldTranslation() {
-    return drivePoseSupplier
-        .get()
+    return drive
+        .getPose()
         .getTranslation()
         .plus(ShooterConstants.shooterPosition.toTranslation2d())
-        .rotateAround(
-            drivePoseSupplier.get().getTranslation(), drivePoseSupplier.get().getRotation());
+        .rotateAround(drive.getPose().getTranslation(), drive.getPose().getRotation());
   }
 
   /**
@@ -206,11 +190,11 @@ public class Shooter extends SubsystemBase {
     // Adjust x limits based on velocity
     double xOffestPos =
         (ShooterConstants.TrenchZone.halfXSize)
-            + (-Math.min(0, driveVelocitySupplier.get().vxMetersPerSecond)
+            + (-Math.min(0, drive.getFieldVelocity().vxMetersPerSecond)
                 * ShooterConstants.TrenchZone.hoodLowerTime);
     double xOffsetNeg =
         (-ShooterConstants.TrenchZone.halfXSize)
-            - (Math.max(0, driveVelocitySupplier.get().vxMetersPerSecond)
+            - (Math.max(0, drive.getFieldVelocity().vxMetersPerSecond)
                 * ShooterConstants.TrenchZone.hoodLowerTime);
 
     // Check y position
