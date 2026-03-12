@@ -196,7 +196,7 @@ public class Auton {
                   Commands.sequence(
                       Commands.parallel(
                           PathUtil.followPath("Left Trench A"),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))),
                       IntakeCommands.stopSpin(),
                       PathUtil.followPath("Left Trench B"),
                       Commands.waitSeconds(
@@ -229,7 +229,7 @@ public class Auton {
                   Commands.sequence(
                       Commands.parallel(
                           PathUtil.followPath("Left Trench A1"),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))),
                       PathUtil.followPath("Left Trench A2"),
                       IntakeCommands.stopSpin(),
                       PathUtil.followPath("Left Trench B1"),
@@ -241,7 +241,7 @@ public class Auton {
                         PathUtil.followPath("Left Depot1"),
                         Commands.parallel(
                             PathUtil.followPath("Left Depot2"),
-                            IntakeCommands.intakeRemainOn(),
+                            IntakeCommands.intakeStatic(false),
                             ShooterCommands.shoot(false).withTimeout(5.0)),
                         IntakeCommands.stopSpin());
               } else {
@@ -249,7 +249,7 @@ public class Auton {
                     Commands.sequence(
                         Commands.parallel(
                             PathUtil.followPath("Left Trench C1"),
-                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
+                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))),
                         IntakeCommands.stopSpin(),
                         PathUtil.followPath("Left Trench D1"),
                         ShooterCommands.shoot(false).withTimeout(5.0),
@@ -272,7 +272,7 @@ public class Auton {
                   Commands.sequence(
                       Commands.parallel(
                           PathUtil.followPath("Right_1768_AB1"),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))),
                       IntakeCommands.stopSpin(),
                       ShooterCommands.shoot(false).withTimeout(3.0));
 
@@ -281,7 +281,7 @@ public class Auton {
                     Commands.sequence(
                         Commands.parallel(
                             PathUtil.followPath("Right_1768_Outpost"),
-                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
+                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))),
                         Commands.waitSeconds(1)
                             .andThen(ShooterCommands.shoot(false).withTimeout(5.0)),
                         IntakeCommands.stopSpin());
@@ -290,7 +290,7 @@ public class Auton {
                     Commands.sequence(
                         Commands.parallel(
                             PathUtil.followPath("Right_1768_CD1"),
-                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
+                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))),
                         IntakeCommands.stopSpin(),
                         ShooterCommands.shoot(false).withTimeout(5.0));
               }
@@ -311,7 +311,7 @@ public class Auton {
                   Commands.sequence(
                       Commands.parallel(
                           PathUtil.followPath("Right Trench A"),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))),
                       IntakeCommands.stopSpin(),
                       PathUtil.followPath("Right Trench B"),
                       Commands.waitSeconds(

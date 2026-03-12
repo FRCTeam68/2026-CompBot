@@ -147,7 +147,7 @@ public class RobotContainer {
     driverController.povDown().whileTrue(DriveCommands.autopilotDriveToHubArc());
 
     // Intake
-    driverController.leftTrigger().whileTrue(IntakeCommands.intakeWhile());
+    driverController.leftTrigger().whileTrue(IntakeCommands.intakeAutomatic());
 
     driverController.b().whileTrue(IntakeCommands.outtake());
 
