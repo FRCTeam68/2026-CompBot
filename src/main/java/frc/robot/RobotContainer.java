@@ -238,6 +238,10 @@ public class RobotContainer {
     vision.saveLimelightRewind();
   }
 
+  public void enableMT1() {
+    vision.enableMT1 = true;
+  }
+
   /** Log component poses for the robot visualization. */
   public void visualizeRobot() {
     robotSystem.visualization();

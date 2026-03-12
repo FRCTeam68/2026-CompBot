@@ -15,7 +15,6 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -48,7 +47,7 @@ public class Vision extends SubsystemBase {
   @Getter private Optional<Translation2d> targetNote = Optional.empty();
 
   @AutoLogOutput(key = "Vision/EnableMT1")
-  private boolean enableMT1 = Constants.tuningMode;
+  public boolean enableMT1 = Constants.tuningMode;
 
   public Vision(
       VisionConsumer consumer,
@@ -143,7 +142,7 @@ public class Vision extends SubsystemBase {
       Logger.processInputs(cameraInfo[i].name, inputs[i]);
     }
 
-    if (!gyroConnectedSupplier.get() && DriverStation.isEnabled() && !enableMT1) {
+    if (!gyroConnectedSupplier.get() && !enableMT1) {
       enableMT1 = true;
     }
 
