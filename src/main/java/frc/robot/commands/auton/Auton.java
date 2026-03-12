@@ -186,6 +186,21 @@ public class Auton {
         .withName("Auton_Terra");
   }
 
+  private static Command delayShooterStart() {
+    return Commands.sequence(
+        // Make sure flywheels don't start
+        ShooterCommands.runStatic(
+            0, shooter.getHood().getElevation(), shooter.getTurret().getPosition()),
+        Commands.waitSeconds(1),
+        // Move to the setpoints that will be called when the robot enters the
+        // alliance zone again
+        ShooterCommands.runStatic(57, 63, 275),
+        // enable automatic control
+        // The shooter will remain at the previous setpoint until it enters
+        // the alliance zone
+        ShooterCommands.clearStaticSetpoint());
+  }
+
   private static Command Apollo() {
     return new DeferredCommand(
             () -> {
@@ -195,19 +210,8 @@ public class Auton {
               myCommand1 =
                   Commands.sequence(
                       Commands.parallel(
-                        PathUtil.followPath("Left Trench A"),
-                          Commands.sequence(
-                            // Make sure flywheels don't start
-                              ShooterCommands.runStatic(
-                                  0,
-                                  shooter.getHood().getElevation(),
-                                  shooter.getTurret().getPosition()),
-                              Commands.waitSeconds(1),
-                              // Move to the setpoints that will be called when the robot enters the alliance zone again
-                              ShooterCommands.runStatic(57, 63, 275),
-                              // enable automatic control
-                              // The shooter will remain at the previous setpoint until it enters the alliance zone
-                              ShooterCommands.clearStaticSetpoint()),
+                          PathUtil.followPath("Left Trench A"),
+                          delayShooterStart(),
                           Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
                       IntakeCommands.stopSpin(),
                       PathUtil.followPath("Left Trench B"),
@@ -288,6 +292,7 @@ public class Auton {
                   Commands.sequence(
                       Commands.parallel(
                           PathUtil.followPath("Right_1768_AB1"),
+                          delayShooterStart(),
                           Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
                       IntakeCommands.stopSpin());
 
@@ -295,6 +300,7 @@ public class Auton {
                   Commands.sequence(
                       Commands.parallel(
                           PathUtil.followPath("Right_1768_CD1"),
+                          delayShooterStart(),
                           Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeRemainOn())),
                       IntakeCommands.stopSpin());
 
@@ -308,22 +314,22 @@ public class Auton {
                 myCommand1 =
                     Commands.sequence(
                         neutralPass1Command,
-                        Commands.deadline(
-                            ShooterCommands.shoot(false).repeatedly().withTimeout(3.0),
-                            Commands.waitSeconds(1)
-                                .andThen(IntakeCommands.agitate(1.0).repeatedly())),
+                        Commands.waitSeconds(1)
+                            .andThen(IntakeCommands.agitate(1.0).repeatedly())
+                            .withTimeout(3),
                         neutralPass2Command);
                 myCommand2 = toOutpostCommand;
               } else {
                 myCommand1 = neutralPass1Command;
                 myCommand2 =
                     Commands.sequence(
+                        Commands.waitSeconds(5),
+                        // .andThen(IntakeCommands.agitate(1.0).repeatedly())
+                        // .withTimeout(5), // wait for fuel to dump into hopper
                         Commands.deadline(
-                            toOutpostCommand, ShooterCommands.shoot(false).repeatedly()),
-                        Commands.waitSeconds(3), // wait for fuel to dump into hopper
-                        Commands.deadline(
-                            PathUtil.followPath("Right_1768_Outpost_2"),
-                            ShooterCommands.shoot(false).repeatedly()));
+                                PathUtil.followPath("Right_1768_Outpost_2"),
+                                ShooterCommands.shoot(false).repeatedly())
+                            .withTimeout(5.0));
               }
 
               return myCommand1.andThen(myCommand2);

@@ -104,7 +104,8 @@ public class Shooter extends SubsystemBase {
 
     // Run shooter to target dynamically
     if (!staticSetpoint && !holdSetpoint) {
-      if (inAllianceZoneSupplier.get() || (!DriverStation.isAutonomous() && (shouldTargetPass || alwaysTargetPass.get()))) {
+      if (inAllianceZoneSupplier.get()
+          || (!DriverStation.isAutonomous() && (shouldTargetPass || alwaysTargetPass.get()))) {
         runDynamic();
       } else {
         // If not actively targeting lower hood
