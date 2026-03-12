@@ -15,6 +15,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -31,11 +32,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import lombok.Getter;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
   private final VisionConsumer consumer;
   private final Supplier<ChassisSpeeds> chassisSpeedSupplier;
+  private final Supplier<Boolean> gyroConnectedSupplier;
   private final VisionIO[] io;
   private final CameraInfo[] cameraInfo;
   private final VisionIOInputsAutoLogged[] inputs;
@@ -44,13 +47,18 @@ public class Vision extends SubsystemBase {
 
   @Getter private Optional<Translation2d> targetNote = Optional.empty();
 
+  @AutoLogOutput(key = "Vision/EnableMT1")
+  private boolean enableMT1 = Constants.tuningMode;
+
   public Vision(
       VisionConsumer consumer,
       Supplier<Pose2d> poseSupplier,
       Supplier<ChassisSpeeds> chassisSpeedSupplier,
+      Supplier<Boolean> gyroConnectedSupplier,
       VisionIO... io) {
     this.consumer = consumer;
     this.chassisSpeedSupplier = chassisSpeedSupplier;
+    this.gyroConnectedSupplier = gyroConnectedSupplier;
     this.io = io;
 
     // Initialize camera specific information
@@ -120,11 +128,23 @@ public class Vision extends SubsystemBase {
             NotificationLevel.INFO, "Rewind Saved", "Saved Limelight 4 rewind to disc."));
   }
 
+  /** Returns true if any camera is connected. */
+  public boolean isAnyConnected() {
+    for (int i = 0; i < io.length; i++) {
+      if (inputs[i].connected) return true;
+    }
+    return false;
+  }
+
   @Override
   public void periodic() {
     for (int i = 0; i < io.length; i++) {
       io[i].updateInputs(inputs[i]);
       Logger.processInputs(cameraInfo[i].name, inputs[i]);
+    }
+
+    if (!gyroConnectedSupplier.get() && DriverStation.isEnabled() && !enableMT1) {
+      enableMT1 = true;
     }
 
     // Initialize logging values
@@ -167,8 +187,8 @@ public class Vision extends SubsystemBase {
         // Filter out low quality MT1 poses
         boolean rejectMT1Pose =
             observation.type() == PoseObservationType.MEGATAG_1
-                && (observation.tagCount() < MT1MinTags
-                    || observation.averageTagDistance() > MT1MaxAverageTagDistance
+                && (!enableMT1
+                    || observation.tagCount() < MT1MinTags
                     || chassisSpeedSupplier.get().vxMetersPerSecond > MT1MaxLinearVelocity
                     || chassisSpeedSupplier.get().vyMetersPerSecond > MT1MaxLinearVelocity
                     || chassisSpeedSupplier.get().omegaRadiansPerSecond > MT1MaxAngularVelocity);

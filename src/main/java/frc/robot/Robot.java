@@ -220,9 +220,6 @@ public class Robot extends LoggedRobot {
     if (DriverStation.isFMSAttached()
         && !DriverStation.isAutonomous()
         && DriverStation.getMatchTime() == 0) robotContainer.saveLimelightRewind();
-
-    // Set robot pose for auton if in simulation
-    Auton.loadStartPoseSim();
   }
 
   /** This function is called periodically when disabled. */
@@ -243,6 +240,7 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     autonomousCommand = Auton.SelectedCommand();
     if (autonomousCommand != null) {
+      Auton.setStartPose();
       CommandScheduler.getInstance().schedule(autonomousCommand);
     }
 

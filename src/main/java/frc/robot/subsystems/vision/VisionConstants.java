@@ -40,7 +40,6 @@ public class VisionConstants {
   public static final double MT1MaxLinearVelocity = 0.25; // Meters per second
   public static final double MT1MaxAngularVelocity =
       Units.degreesToRadians(1); // Radians per second
-  public static final double MT1MaxAverageTagDistance = 2.5; // Meters
   public static final double maxZError = 0.25; // Meters
 
   // Higher standard deviations result in less truested data
