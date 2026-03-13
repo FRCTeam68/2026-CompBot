@@ -35,6 +35,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.FieldConstants;
 import frc.robot.util.LocalADStarAK;
+import frc.robot.util.LoggedTracer;
 import frc.robot.util.geometry.AllianceFlipUtil;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -119,6 +120,7 @@ public class Drive extends SubsystemBase {
 
   @Override
   public void periodic() {
+    LoggedTracer.reset();
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
@@ -179,6 +181,7 @@ public class Drive extends SubsystemBase {
     // Update gyro alert
     gyroDisconnectedAlert.set(
         !gyroDebouncer.calculate(gyroInputs.connected) && Constants.getMode() != Mode.SIM);
+    LoggedTracer.record("Periodic/Drive");
   }
 
   /**

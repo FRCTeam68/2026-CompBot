@@ -14,6 +14,7 @@ import frc.robot.subsystems.shooter.ShooterConstants.shotConfig;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.shooter.turret.Turret;
+import frc.robot.util.LoggedTracer;
 import frc.robot.util.geometry.AllianceFlipUtil;
 import java.util.function.Supplier;
 import lombok.Getter;
@@ -76,6 +77,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public void periodic() {
+    LoggedTracer.reset();
     // Calculate target
     if (inAllianceZoneSupplier.get()) {
       isTargetHub = true;
@@ -122,6 +124,7 @@ public class Shooter extends SubsystemBase {
     // Log distance to target to the dashdoard with 3 decimal places
     SmartDashboard.putString(
         "Shooter/DistanceToTarget", String.format("%.3f", getDistanceToTarget()));
+    LoggedTracer.record("ShooterPeriodic");
   }
 
   /**

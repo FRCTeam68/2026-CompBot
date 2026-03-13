@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.util.LoggedTracer;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
 import lombok.Getter;
@@ -77,6 +78,7 @@ public class IntakePivot extends SubsystemBase {
   }
 
   public void periodic() {
+    LoggedTracer.reset();
     // Update inputs
     io.updateInputs(inputs);
     Logger.processInputs("IntakePivot", inputs);
@@ -107,6 +109,7 @@ public class IntakePivot extends SubsystemBase {
               .withMotionMagicAcceleration(mmAcceleration.get())
               .withMotionMagicJerk(mmJerk.get()));
     }
+    LoggedTracer.record("Periodic/IntakePivot");
   }
 
   /**

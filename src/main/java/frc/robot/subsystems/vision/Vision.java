@@ -8,8 +8,6 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -19,18 +17,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.Mode;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import frc.robot.util.ElasticUtil;
 import frc.robot.util.ElasticUtil.Notification;
 import frc.robot.util.ElasticUtil.NotificationLevel;
+import frc.robot.util.LoggedTracer;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Supplier;
-import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -43,8 +39,6 @@ public class Vision extends SubsystemBase {
   private final VisionIOInputsAutoLogged[] inputs;
   private final Debouncer[] connectedDebouncers;
   private final Alert[] disconnectedAlerts;
-
-  @Getter private Optional<Translation2d> targetNote = Optional.empty();
 
   @AutoLogOutput(key = "Vision/EnableMT1")
   public boolean enableMT1 = Constants.tuningMode;
@@ -65,7 +59,7 @@ public class Vision extends SubsystemBase {
     inputs = new VisionIOInputsAutoLogged[io.length];
     connectedDebouncers = new Debouncer[io.length];
     disconnectedAlerts = new Alert[io.length];
-    for (int i = 0; i < inputs.length; i++) {
+    for (int i = 0; i < io.length; i++) {
       this.io[i].initRotationSupplier(() -> poseSupplier.get().getRotation());
       cameraInfo[i] = io[i].getCameraInfo();
       inputs[i] = new VisionIOInputsAutoLogged();
@@ -77,15 +71,6 @@ public class Vision extends SubsystemBase {
     // Initialize save rewind dashboard button
     SmartDashboard.putData(
         "Vision/SaveRewind", Commands.runOnce(() -> saveLimelightRewind()).ignoringDisable(true));
-  }
-
-  /**
-   * Returns the X angle to the best target, which can be used for simple servoing with vision.
-   *
-   * @param cameraIndex The index of the camera to use.
-   */
-  public Rotation2d getTargetX(int cameraIndex) {
-    return inputs[cameraIndex].latestTargetObservation.tx();
   }
 
   public Pose2d getTagPose(int cameraIndex) {
@@ -104,17 +89,6 @@ public class Vision extends SubsystemBase {
       tagPose2d = Pose2d.kZero;
     }
     return tagPose2d;
-  }
-
-  /**
-   * Throttle the number of processed frames. This is used to reduce the tempature of the camera.
-   * Outputs are not zeroed during skipped frames. This is only funtional on the Limelight 4.
-   */
-  public void throttleLimelight(boolean shouldThrottle) {
-    for (int i = 0; i < io.length; i++) {
-      if (cameraInfo[i].name.startsWith("limelight-four"))
-        io[i].setThrottle(shouldThrottle ? 200 : 0);
-    }
   }
 
   /** Save Limelight 4 rewind to disc. This is only functional on the Limelight 4. */
@@ -137,6 +111,7 @@ public class Vision extends SubsystemBase {
 
   @Override
   public void periodic() {
+    LoggedTracer.reset();
     for (int i = 0; i < io.length; i++) {
       io[i].updateInputs(inputs[i]);
       Logger.processInputs(cameraInfo[i].name, inputs[i]);
@@ -156,17 +131,16 @@ public class Vision extends SubsystemBase {
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
       // Update disconnected alert
       disconnectedAlerts[cameraIndex].set(
-          !connectedDebouncers[cameraIndex].calculate(inputs[cameraIndex].connected)
-              && Constants.getMode() != Mode.SIM);
+          !connectedDebouncers[cameraIndex].calculate(inputs[cameraIndex].connected));
 
       // Initialize logging values
       List<Pose3d> tagPoses = new LinkedList<>();
-      List<Pose3d> robotPosesMT1 = new LinkedList<>();
-      List<Pose3d> robotPosesMT2 = new LinkedList<>();
-      List<Pose3d> robotPosesAcceptedMT1 = new LinkedList<>();
-      List<Pose3d> robotPosesRejectedMT1 = new LinkedList<>();
-      List<Pose3d> robotPosesAcceptedMT2 = new LinkedList<>();
-      List<Pose3d> robotPosesRejectedMT2 = new LinkedList<>();
+      List<Pose3d> robotPoseMT1 = new LinkedList<>();
+      List<Pose3d> robotPoseMT2 = new LinkedList<>();
+      List<Pose3d> robotPoseAcceptedMT1 = new LinkedList<>();
+      List<Pose3d> robotPoseAcceptedMT2 = new LinkedList<>();
+      List<Pose3d> robotPoseRejectedMT1 = new LinkedList<>();
+      List<Pose3d> robotPoseRejectedMT2 = new LinkedList<>();
 
       // Add tag poses
       for (int tagId : inputs[cameraIndex].tagIds) {
@@ -175,6 +149,8 @@ public class Vision extends SubsystemBase {
           tagPoses.add(tagPose.get());
         }
       }
+      Logger.recordOutput(
+          "Vision/" + cameraInfo[cameraIndex].name + "/TagPoses", tagPoses.toArray(new Pose3d[0]));
 
       // Loop over pose observations
       for (var observation : inputs[cameraIndex].poseObservations) {
@@ -183,99 +159,113 @@ public class Vision extends SubsystemBase {
           continue;
         }
 
-        // Filter out low quality MT1 poses
-        boolean rejectMT1Pose =
-            observation.type() == PoseObservationType.MEGATAG_1
-                && (!enableMT1
-                    || observation.tagCount() < MT1MinTags
-                    || chassisSpeedSupplier.get().vxMetersPerSecond > MT1MaxLinearVelocity
-                    || chassisSpeedSupplier.get().vyMetersPerSecond > MT1MaxLinearVelocity
-                    || chassisSpeedSupplier.get().omegaRadiansPerSecond > MT1MaxAngularVelocity);
+        if (observation.type() == PoseObservationType.MEGATAG_1 && enableMT1) {
+          boolean rejectPose =
+              // Must see a minimum number of tags
+              observation.tagCount() < MT1MinTags
+                  // Must not be moving too fast
+                  || Math.hypot(
+                          chassisSpeedSupplier.get().vxMetersPerSecond,
+                          chassisSpeedSupplier.get().vyMetersPerSecond)
+                      > MT1MaxLinearVelocity
+                  || chassisSpeedSupplier.get().omegaRadiansPerSecond > MT1MaxAngularVelocity
+                  // Must have realistic Z coordinate
+                  || Math.abs(observation.pose().getZ()) > maxZError
+                  // Must be within the field boundaries
+                  || observation.pose().getX() < 0.0
+                  || observation.pose().getX() > FieldConstants.fieldLength
+                  || observation.pose().getY() < 0.0
+                  || observation.pose().getY() > FieldConstants.fieldWidth;
 
-        boolean rejectPose =
-            rejectMT1Pose
-                // Must have realistic Z coordinate
-                || Math.abs(observation.pose().getZ()) > maxZError
-                // Must be within the field boundaries
-                || observation.pose().getX() < 0.0
-                || observation.pose().getX() > FieldConstants.fieldLength
-                || observation.pose().getY() < 0.0
-                || observation.pose().getY() > FieldConstants.fieldWidth;
-
-        // Add pose to log
-        if (observation.type() == PoseObservationType.MEGATAG_1) {
-          robotPosesMT1.add(observation.pose());
-          if (rejectPose) {
-            robotPosesRejectedMT1.add(observation.pose());
+          robotPoseMT1.add(observation.pose());
+          if (!rejectPose) {
+            robotPoseAcceptedMT1.add(observation.pose());
           } else {
-            robotPosesAcceptedMT1.add(observation.pose());
+            robotPoseRejectedMT1.add(observation.pose());
           }
+
+          // Only apply measurement if pose is not rejected
+          if (!rejectPose) {
+            // Calculate standard deviations
+            final double linearStdDev = Double.POSITIVE_INFINITY;
+            final double angularStdDev =
+                angularStdDevBaseline
+                    * (Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount())
+                    * angularStdDevMegatag1Factor
+                    * cameraInfo[cameraIndex].MTStdDevFactor;
+
+            // Send vision observation
+            consumer.accept(
+                observation.pose().toPose2d(),
+                observation.timestamp(),
+                VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
+          }
+
         } else if (observation.type() == PoseObservationType.MEGATAG_2) {
-          robotPosesMT2.add(observation.pose());
-          if (rejectPose) {
-            robotPosesRejectedMT2.add(observation.pose());
+          boolean rejectPose =
+              // Must have realistic Z coordinate
+              Math.abs(observation.pose().getZ()) > maxZError
+                  // Must be within the field boundaries
+                  || observation.pose().getX() < 0.0
+                  || observation.pose().getX() > FieldConstants.fieldLength
+                  || observation.pose().getY() < 0.0
+                  || observation.pose().getY() > FieldConstants.fieldWidth;
+
+          robotPoseMT2.add(observation.pose());
+          if (!rejectPose) {
+            robotPoseAcceptedMT2.add(observation.pose());
           } else {
-            robotPosesAcceptedMT2.add(observation.pose());
+            robotPoseRejectedMT2.add(observation.pose());
+          }
+
+          // Only apply measurement if pose is not rejected
+          if (!rejectPose) {
+            // Calculate standard deviations
+            final double linearStdDev =
+                linearStdDevBaseline
+                    * (Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount())
+                    * linearStdDevMegatag2Factor
+                    * cameraInfo[cameraIndex].MTStdDevFactor;
+            final double angularStdDev = Double.POSITIVE_INFINITY;
+
+            // Send vision observation
+            consumer.accept(
+                observation.pose().toPose2d(),
+                observation.timestamp(),
+                VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
           }
         }
-
-        // Skip if rejected
-        if (rejectPose) {
-          continue;
-        }
-
-        // Calculate standard deviations
-        double stdDevFactor =
-            Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount();
-        double linearStdDev = linearStdDevBaseline * stdDevFactor;
-        double angularStdDev = angularStdDevBaseline * stdDevFactor;
-        if (observation.type() == PoseObservationType.MEGATAG_1) {
-          linearStdDev *= linearStdDevMegatag1Factor;
-          angularStdDev *= angularStdDevMegatag1Factor;
-        } else if (observation.type() == PoseObservationType.MEGATAG_2) {
-          linearStdDev *= linearStdDevMegatag2Factor;
-          angularStdDev *= angularStdDevMegatag2Factor;
-        }
-
-        linearStdDev *= cameraInfo[cameraIndex].MTStdDevFactor;
-        angularStdDev *= cameraInfo[cameraIndex].MTStdDevFactor;
-
-        // Send vision observation
-        consumer.accept(
-            observation.pose().toPose2d(),
-            observation.timestamp(),
-            VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
       }
 
-      // Log camera metadata
+      if (enableMT1) {
+        Logger.recordOutput(
+            "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag1/RobotPose",
+            robotPoseMT1.toArray(new Pose3d[0]));
+        Logger.recordOutput(
+            "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag1/RobotPoseAccepted",
+            robotPoseAcceptedMT1.toArray(new Pose3d[0]));
+        Logger.recordOutput(
+            "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag1/RobotPoseRejected",
+            robotPoseRejectedMT1.toArray(new Pose3d[0]));
+      }
+
       Logger.recordOutput(
-          "Vision/" + cameraInfo[cameraIndex].name + "/TagPoses", tagPoses.toArray(new Pose3d[0]));
+          "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag2/RobotPose",
+          robotPoseMT2.toArray(new Pose3d[0]));
       Logger.recordOutput(
-          "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag1/RobotPosesAll",
-          robotPosesMT1.toArray(new Pose3d[0]));
+          "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag2/RobotPoseAccepted",
+          robotPoseAcceptedMT2.toArray(new Pose3d[0]));
       Logger.recordOutput(
-          "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag1/RobotPosesAccepted",
-          robotPosesAcceptedMT1.toArray(new Pose3d[0]));
-      Logger.recordOutput(
-          "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag1/RobotPosesRejected",
-          robotPosesRejectedMT1.toArray(new Pose3d[0]));
-      Logger.recordOutput(
-          "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag2/RobotPosesAll",
-          robotPosesMT2.toArray(new Pose3d[0]));
-      Logger.recordOutput(
-          "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag2/RobotPosesAccepted",
-          robotPosesAcceptedMT2.toArray(new Pose3d[0]));
-      Logger.recordOutput(
-          "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag2/RobotPosesRejected",
-          robotPosesRejectedMT2.toArray(new Pose3d[0]));
+          "Vision/" + cameraInfo[cameraIndex].name + "/MegaTag2/RobotPoseRejected",
+          robotPoseRejectedMT2.toArray(new Pose3d[0]));
 
       allTagPoses.addAll(tagPoses);
-      allRobotPoses.addAll(robotPosesMT1);
-      allRobotPoses.addAll(robotPosesMT2);
-      allRobotPosesAccepted.addAll(robotPosesAcceptedMT1);
-      allRobotPosesAccepted.addAll(robotPosesAcceptedMT2);
-      allRobotPosesRejected.addAll(robotPosesRejectedMT1);
-      allRobotPosesRejected.addAll(robotPosesRejectedMT2);
+      allRobotPoses.addAll(robotPoseMT1);
+      allRobotPoses.addAll(robotPoseMT2);
+      allRobotPosesAccepted.addAll(robotPoseAcceptedMT1);
+      allRobotPosesAccepted.addAll(robotPoseAcceptedMT2);
+      allRobotPosesRejected.addAll(robotPoseRejectedMT1);
+      allRobotPosesRejected.addAll(robotPoseRejectedMT2);
     }
 
     // Log summary data
@@ -285,6 +275,7 @@ public class Vision extends SubsystemBase {
         "Vision/Summary/RobotPosesAccepted", allRobotPosesAccepted.toArray(new Pose3d[0]));
     Logger.recordOutput(
         "Vision/Summary/RobotPosesRejected", allRobotPosesRejected.toArray(new Pose3d[0]));
+    LoggedTracer.record("Periodic/Vision");
   }
 
   @FunctionalInterface

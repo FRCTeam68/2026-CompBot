@@ -18,6 +18,7 @@ import frc.robot.Constants;
 import frc.robot.util.ElasticUtil;
 import frc.robot.util.ElasticUtil.Notification;
 import frc.robot.util.ElasticUtil.NotificationLevel;
+import frc.robot.util.LoggedTracer;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
 import java.util.function.Supplier;
@@ -97,6 +98,7 @@ public class Hood extends SubsystemBase {
   }
 
   public void periodic() {
+    LoggedTracer.reset();
     // Update inputs
     io.updateInputs(inputs);
     Logger.processInputs("Shooter/Hood", inputs);
@@ -130,6 +132,7 @@ public class Hood extends SubsystemBase {
               .withMotionMagicAcceleration(Units.degreesToRotations(mmAcceleration.get()))
               .withMotionMagicJerk(Units.degreesToRotations(mmJerk.get())));
     }
+    LoggedTracer.record("Periodic/Hood");
   }
 
   /**

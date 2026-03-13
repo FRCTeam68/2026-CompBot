@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.util.LoggedTracer;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
 import lombok.Getter;
@@ -61,6 +62,7 @@ public class Flywheel extends SubsystemBase {
   }
 
   public void periodic() {
+    LoggedTracer.reset();
     // Update inputs
     io.updateInputs(inputs);
     Logger.processInputs("Shooter/Flywheel", inputs);
@@ -75,6 +77,7 @@ public class Flywheel extends SubsystemBase {
     if (kP.hasChanged(hashCode()) | kD.hasChanged(hashCode()) | kS.hasChanged(hashCode())) {
       io.setPID(new SlotConfigs().withKP(kP.get()).withKD(kD.get()).withKS(kS.get()));
     }
+    LoggedTracer.record("Periodic/Flywheel");
   }
 
   /**

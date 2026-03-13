@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.util.LoggedTracer;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
@@ -67,6 +68,7 @@ public class RollerSystem extends SubsystemBase {
   }
 
   public void periodic() {
+    LoggedTracer.reset();
     // Update inputs
     io.updateInputs(inputs);
     Logger.processInputs(loggerKey, inputs);
@@ -74,6 +76,7 @@ public class RollerSystem extends SubsystemBase {
     // Update alerts
     disconnectedAlert.set(!connectedDebouncer.calculate(inputs.connected));
     tempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
+    LoggedTracer.record("Periodic/Roller");
   }
 
   /**

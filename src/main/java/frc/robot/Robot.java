@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobotBase;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
@@ -54,6 +55,7 @@ public class Robot extends LoggedRobot {
           "Battery voltage is very low, turn off the robot or replace the battery to avoid damage.",
           AlertType.kWarning);
 
+  @SuppressWarnings("unused")
   public Robot() {
     // Record metadata
     Logger.recordMetadata("TuningMode", Boolean.toString(Constants.tuningMode));
@@ -164,6 +166,7 @@ public class Robot extends LoggedRobot {
         .schedule(FollowPathCommand.warmupCommand().withName("PathplannerFollowPathWarmup"));
     // Uncomment the warmup command below if using pathplanner pathfinding
     // CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand().withName("PathplannerPathfindingWarmup"));
+    Threads.setCurrentThreadPriority(true, 1);
   }
 
   /** This function is called periodically during all modes. */

@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.util.LoggedTracer;
 import frc.robot.util.LoggedTunableNumber;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
@@ -44,10 +45,12 @@ public class Lights extends SubsystemBase {
   }
 
   public void periodic() {
+    LoggedTracer.reset();
     io.updateInputs(inputs);
     Logger.processInputs("CANdle", inputs);
     disconnectedAlert.set(
         !connectedDebouncer.calculate(inputs.connected) && Constants.getMode() != Mode.SIM);
+    LoggedTracer.record("Periodic/Lights");
   }
 
   /**

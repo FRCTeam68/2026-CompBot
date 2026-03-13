@@ -19,6 +19,7 @@ import frc.robot.Constants.Mode;
 import frc.robot.util.ElasticUtil;
 import frc.robot.util.ElasticUtil.Notification;
 import frc.robot.util.ElasticUtil.NotificationLevel;
+import frc.robot.util.LoggedTracer;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
 import lombok.Getter;
@@ -91,6 +92,7 @@ public class Turret extends SubsystemBase {
   }
 
   public void periodic() {
+    LoggedTracer.reset();
     // Update inputs
     io.updateInputs(inputs);
     Logger.processInputs("Shooter/Turret", inputs);
@@ -117,6 +119,7 @@ public class Turret extends SubsystemBase {
               .withMotionMagicAcceleration(Units.degreesToRotations(mmAcceleration.get()))
               .withMotionMagicJerk(Units.degreesToRotations(mmJerk.get())));
     }
+    LoggedTracer.record("Periodic/Turret");
   }
 
   /**
