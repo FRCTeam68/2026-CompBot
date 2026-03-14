@@ -87,13 +87,7 @@ public class RobotSystem {
 
         vision =
             new Vision(
-                drive::addVisionMeasurement,
-                drive::getPose,
-                drive::getFieldVelocity,
-                new VisionIOLimelight(CameraInfo.LL_4),
-                new VisionIOLimelight(CameraInfo.LL_3G));
-
-        lights = new Lights(new LightsIOCANdle());
+                new VisionIOLimelight(CameraInfo.LL_4), new VisionIOLimelight(CameraInfo.LL_3G));
 
         flywheel = new Flywheel(new FlywheelIOReal());
         hood = new Hood(new HoodIOReal());
@@ -131,6 +125,8 @@ public class RobotSystem {
                     InvertedValue.CounterClockwise_Positive,
                     NeutralModeValue.Coast,
                     36.0 / 12.0));
+
+        lights = new Lights(new LightsIOCANdle());
         break;
 
       case SIM:
@@ -162,6 +158,8 @@ public class RobotSystem {
         feeder =
             new RollerSystem(
                 "feeder", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 36.0 / 12.0, 0.01));
+
+        lights = new Lights(new LightsIO() {});
         break;
 
       default:
@@ -192,6 +190,8 @@ public class RobotSystem {
 
         spindexer = new RollerSystem("spindexer", new RollerSystemIO() {});
         feeder = new RollerSystem("feeder", new RollerSystemIO() {});
+
+        lights = new Lights(new LightsIO() {});
     }
 
     shooter =

@@ -20,7 +20,6 @@ import frc.robot.commands.ShooterCommands;
 import frc.robot.commands.auton.Auton;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intakePivot.IntakePivot;
-import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants;
@@ -46,7 +45,6 @@ public class RobotContainer {
   private final Shooter shooter = robotSystem.getShooter();
   private final RollerSystem feeder = robotSystem.getFeeder();
   private final RollerSystem spindexer = robotSystem.getSpindexer();
-  private final Lights lights = robotSystem.getLights();
 
   // Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
@@ -62,7 +60,7 @@ public class RobotContainer {
   private final Trigger trenchAlignTrigger =
       new Trigger(() -> drive.nearTrench() && robotSystem.doTrenchAlign.get());
   private final Trigger hubTransitionWarningTrigger =
-      new Trigger(() -> HubShiftUtil.hubToActive(3) || HubShiftUtil.hubToInactive(3));
+      new Trigger(() -> HubShiftUtil.shootingToStart(3) || HubShiftUtil.shootingToStop(3));
 
   /** The container for the robot. */
   public RobotContainer() {
@@ -131,81 +129,6 @@ public class RobotContainer {
           "Drive/Drive SysId (Dynamic Reverse)",
           drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     }
-
-    addLightTest();
-  }
-
-  void addLightTest() {
-    lights.setSolidColor(Constants.LEDColor.BLUE, Constants.LEDSegment.ALL);
-
-    SmartDashboard.putData(
-        "Lights/green",
-        Commands.runOnce(
-                () -> {
-                  lights.setSolidColor(Constants.LEDColor.GREEN, Constants.LEDSegment.ALL);
-                  System.out.println("green light");
-                },
-                lights)
-            .ignoringDisable(true)
-            .withName("LightsGreen"));
-    SmartDashboard.putData(
-        "Lights/orange",
-        Commands.runOnce(
-                () -> {
-                  lights.setSolidColor(Constants.LEDColor.ORANGE, Constants.LEDSegment.ALL);
-                  System.out.println("orange light");
-                },
-                lights)
-            .ignoringDisable(true)
-            .withName("LightsOrange"));
-    SmartDashboard.putData(
-        "Lights/blue",
-        Commands.runOnce(
-                () -> {
-                  lights.setSolidColor(Constants.LEDColor.BLUE, Constants.LEDSegment.ALL);
-                  System.out.println("blue light");
-                },
-                lights)
-            .ignoringDisable(true)
-            .withName("LightsBlue"));
-    SmartDashboard.putData(
-        "Lights/red",
-        Commands.runOnce(
-                () -> {
-                  lights.setSolidColor(Constants.LEDColor.RED, Constants.LEDSegment.ALL);
-                  System.out.println("red light");
-                },
-                lights)
-            .ignoringDisable(true)
-            .withName("LightsRed"));
-    SmartDashboard.putData(
-        "Lights/white",
-        Commands.runOnce(
-                () -> {
-                  lights.setSolidColor(Constants.LEDColor.WHITE, Constants.LEDSegment.ALL);
-                  System.out.println("white light");
-                },
-                lights)
-            .ignoringDisable(true)
-            .withName("LightsWhite"));
-    SmartDashboard.putData(
-        "Lights/off",
-        Commands.runOnce(
-                () -> {
-                  lights.disableLEDs(Constants.LEDSegment.ALL);
-                  System.out.println("Lights off");
-                })
-            .ignoringDisable(true)
-            .withName("LightsOff"));
-    SmartDashboard.putData(
-        "Lights/blueStrobe",
-        Commands.runOnce(
-                () -> {
-                  lights.setStrobeAnimation(Constants.LEDColor.BLUE, Constants.LEDSegment.ALL, 1);
-                  System.out.println("blue strobe light");
-                })
-            .ignoringDisable(true)
-            .withName("LightsBlueStrobe"));
   }
 
   /** Use this method to define button -> command mappings. */

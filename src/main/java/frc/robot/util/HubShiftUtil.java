@@ -20,7 +20,7 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 public class HubShiftUtil {
   // Subsystems
   private static final RobotSystem robotSystem = RobotSystem.getInstance();
-  private static final Shooter shooter = robotSystem.getShooter();
+  private static Shooter shooter = robotSystem.getShooter();
 
   private static Optional<Boolean> blueActiveFirst = Optional.empty();
   private static double teleopStartTime = -1.0;
@@ -214,7 +214,7 @@ public class HubShiftUtil {
    *
    * <p>This will remain true for the specified time before the hub is active.
    */
-  public static boolean hubToActive(double time) {
+  public static boolean shootingToStart(double time) {
     return !isHubActive() && shiftTime.get() < time;
   }
 
@@ -223,7 +223,7 @@ public class HubShiftUtil {
    *
    * <p>This will remain true for the specified time before the hub is inactive.
    */
-  public static boolean hubToInactive(double time) {
+  public static boolean shootingToStop(double time) {
     return isHubActive()
         && nextActiveHub.isPresent()
         && (DriverStation.getAlliance().isPresent()
@@ -242,13 +242,13 @@ public class HubShiftUtil {
       return !shooter.isTargetHub()
           || override.get()
           || isHubActive()
-          || hubToActive(time)
+          || shootingToStart(time)
           || shiftTime.get() - (22.0 + time) > 0.0;
     } else {
       return !shooter.isTargetHub()
           || override.get()
-          || (isHubActive() && !hubToInactive(time - 3.0))
-          || hubToActive(time);
+          || (isHubActive() && !shootingToStop(time - 3.0))
+          || shootingToStart(time);
     }
   }
 

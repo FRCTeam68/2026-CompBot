@@ -3,7 +3,6 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotSystem;
-import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
@@ -22,7 +21,6 @@ public class ShooterCommands {
   private static final Shooter shooter = robotSystem.getShooter();
   private static final RollerSystem spindexer = robotSystem.getSpindexer();
   private static final RollerSystem feeder = robotSystem.getFeeder();
-  private static final Lights lights = robotSystem.getLights();
 
   @AutoLogOutput(key = "Shooter/ManualShoot")
   private static boolean forceManualShoot = false;
