@@ -139,7 +139,7 @@ public class RobotSystem {
 
         hopperSensor =
             new HopperSensor(
-                new CANrangeIOReal(44, CanBusUtil.getCanivoreBus(), HopperSensor.getConfig()));
+                new CANrangeIOReal(44, CanBusUtil.getRioBus(), HopperSensor.getConfig()));
         break;
 
       case SIM:

@@ -21,9 +21,9 @@ public class HopperSensor extends SubsystemBase {
   @Getter private static final CANrangeConfiguration config = new CANrangeConfiguration();
 
   static {
-    config.FovParams.FOVRangeX = 10;
+    config.FovParams.FOVRangeX = 27;
     config.FovParams.FOVRangeY = 27;
-    config.ProximityParams.MinSignalStrengthForValidMeasurement = 2500;
+    config.ProximityParams.MinSignalStrengthForValidMeasurement = 3100;
     config.ProximityParams.ProximityHysteresis = 0.01;
     config.ProximityParams.ProximityThreshold = 0.4;
     config.ToFParams.UpdateMode = UpdateModeValue.ShortRangeUserFreq;
@@ -31,7 +31,7 @@ public class HopperSensor extends SubsystemBase {
   }
 
   private final LoggedTunableNumber risingDebounceTime =
-      new LoggedTunableNumber("HopperSensor/RisingDebounceTime", 1.0);
+      new LoggedTunableNumber("HopperSensor/RisingDebounceTime", 0.62);
   private final LoggedTunableNumber fallingDebounceTime =
       new LoggedTunableNumber("HopperSensor/FallingDebounceTime", 0.5);
 
