@@ -14,11 +14,9 @@ import com.ctre.phoenix6.signals.RGBWColor;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
-import frc.robot.util.HubShiftUtil;
 import org.littletonrobotics.junction.Logger;
 
 public class Lights extends SubsystemBase {
@@ -76,17 +74,6 @@ public class Lights extends SubsystemBase {
     // Update alerts
     disconnectedAlert.set(
         !connectedDebouncer.calculate(inputs.connected) && Constants.getMode() != Mode.SIM);
-
-    // Onboard LEDs
-    if ((DriverStation.isFMSAttached() && DriverStation.isDisabled()) || Constants.tuningMode) {}
-
-    // LED strip
-    if (DriverStation.isDisabled()) {
-      setSolidColor(Color.ORANGE, Segment.All);
-    } else {
-      final double animationSpeed;
-      if (HubShiftUtil.shootingToStart(3) || HubShiftUtil.shootingToStop(3)) {}
-    }
   }
 
   /**

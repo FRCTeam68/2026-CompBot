@@ -7,6 +7,9 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.RobotSystem;
+import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.lights.Lights.Color;
+import frc.robot.subsystems.lights.Lights.Segment;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants;
 import java.util.Optional;
@@ -20,6 +23,7 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 public class HubShiftUtil {
   // Subsystems
   private static final RobotSystem robotSystem = RobotSystem.getInstance();
+  private static final Lights lights = robotSystem.getLights();
   private static Shooter shooter = robotSystem.getShooter();
 
   private static Optional<Boolean> blueActiveFirst = Optional.empty();
@@ -181,6 +185,8 @@ public class HubShiftUtil {
       prevBlueActiveFirst = blueActiveFirst;
     }
 
+    setLEDState();
+
     // Log shift time
     Logger.recordOutput("HubShift/ShiftSec", shiftTime.get(), Seconds);
     Logger.recordOutput("HubShift/Override", override);
@@ -215,7 +221,7 @@ public class HubShiftUtil {
    * <p>This will remain true for the specified time before the hub is active.
    */
   public static boolean shootingToStart(double time) {
-    return !isHubActive() && shiftTime.get() < time;
+    return !shouldShoot() && shiftTime.get() - getShotTime() < time;
   }
 
   /**
@@ -224,11 +230,24 @@ public class HubShiftUtil {
    * <p>This will remain true for the specified time before the hub is inactive.
    */
   public static boolean shootingToStop(double time) {
-    return isHubActive()
-        && nextActiveHub.isPresent()
-        && (DriverStation.getAlliance().isPresent()
-            && DriverStation.getAlliance().get() != nextActiveHub.get())
-        && shiftTime.get() < time;
+    final double shotTime = getShotTime();
+    if (shotTime < 3.0) {
+      if (time - 3 + shotTime < 0) {
+        return shouldShoot() && !isHubActive() && shiftTime.get() > 22 + time + shotTime;
+      } else {
+        return shouldShoot()
+            && nextActiveHub.isPresent()
+            && (DriverStation.getAlliance().isPresent()
+                && DriverStation.getAlliance().get() != nextActiveHub.get())
+            && shiftTime.get() - 3 < time - shotTime;
+      }
+    } else {
+      return shouldShoot()
+          && nextActiveHub.isPresent()
+          && (DriverStation.getAlliance().isPresent()
+              && DriverStation.getAlliance().get() != nextActiveHub.get())
+          && shiftTime.get() + 3 - shotTime < time;
+    }
   }
 
   /**
@@ -237,19 +256,23 @@ public class HubShiftUtil {
    */
   @AutoLogOutput(key = "HubShift/ShouldShoot")
   public static boolean shouldShoot() {
-    double time = shooter.getFlightTime() + ShooterConstants.hubFilterTime;
-    if (time < 3.0) {
+    final double shotTime = getShotTime();
+    if (shotTime < 3.0) {
       return !shooter.isTargetHub()
           || override.get()
           || isHubActive()
-          || shootingToStart(time)
-          || shiftTime.get() - (22.0 + time) > 0.0;
+          || shootingToStart(shotTime)
+          || shiftTime.get() - (22.0 + shotTime) > 0.0;
     } else {
       return !shooter.isTargetHub()
           || override.get()
-          || (isHubActive() && !shootingToStop(time - 3.0))
-          || shootingToStart(time);
+          || (isHubActive() && !shootingToStop(shotTime - 3.0))
+          || shootingToStart(shotTime);
     }
+  }
+
+  public static double getShotTime() {
+    return shooter.getFlightTime() + ShooterConstants.hubFilterTime;
   }
 
   /**
@@ -287,6 +310,22 @@ public class HubShiftUtil {
 
     private Shift(int startTime) {
       this.startTime = startTime;
+    }
+  }
+
+  private static void setLEDState() {
+    if (DriverStation.isDisabled()) {
+      lights.setSolidColor(Color.ORANGE, Segment.All);
+    } else {
+      if (shootingToStart(5) || shootingToStop(5)) {
+        lights.setStrobeAnimation(Color.ORANGE, Segment.All, 400);
+      } else if (shootingToStart(10) || shootingToStop(10)) {
+        lights.setStrobeAnimation(Color.ORANGE, Segment.All, 250);
+      } else if (shootingToStart(15) || shootingToStop(15)) {
+        lights.setStrobeAnimation(Color.ORANGE, Segment.All, 100);
+      } else {
+        lights.setSolidColor(Color.ORANGE, Segment.All);
+      }
     }
   }
 }

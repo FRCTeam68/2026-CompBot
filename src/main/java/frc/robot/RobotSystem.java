@@ -86,12 +86,14 @@ public class RobotSystem {
                 new ModuleIOReal(DriveConstants.moduleConfigs[3]));
 
         vision =
-            new Vision(drive::addVisionMeasurement,
+            new Vision(
+                drive::addVisionMeasurement,
                 drive::getPose,
                 drive::getFieldVelocity,
-                new VisionIOLimelight(CameraInfo.LL_4), new VisionIOLimelight(CameraInfo.LL_3G));
+                new VisionIOLimelight(CameraInfo.LL_4),
+                new VisionIOLimelight(CameraInfo.LL_3G));
 
-                lights = new Lights(new LightsIOCANdle());
+        lights = new Lights(new LightsIOCANdle());
 
         flywheel = new Flywheel(new FlywheelIOReal());
         hood = new Hood(new HoodIOReal());
