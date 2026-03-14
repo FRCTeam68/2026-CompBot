@@ -21,7 +21,7 @@ public class Flywheel extends SubsystemBase {
   private final LoggedTunableNumber[] kP =
       new LoggedTunableNumber[] {
         new LoggedTunableNumber("Shooter/Flywheel/Slot0-Velocity/kP", 3.0),
-        new LoggedTunableNumber("Shooter/Flywheel/Slot1-BangBang/kP", 7)
+        new LoggedTunableNumber("Shooter/Flywheel/Slot1-BangBang/kP", 10)
       };
   private final LoggedTunableNumber[] kD =
       new LoggedTunableNumber[] {
@@ -34,13 +34,13 @@ public class Flywheel extends SubsystemBase {
   private final LoggedTunableNumber setpointBandVelocity =
       new LoggedTunableNumber("Shooter/Flywheel/VelocitySetpointBand", 2.5);
   private final LoggedTunableNumber setpointDebouncerTime =
-      new LoggedTunableNumber("Shooter/Flywheel/SetpointDebouncerTime", 0.2);
+      new LoggedTunableNumber("Shooter/Flywheel/SetpointDebouncerTime", 0.5);
 
   // Bang-Bang tunable numbers
   private final LoggedTunableNumber bangBangVolts =
       new LoggedTunableNumber("Shooter/Flywheel/BangBangVolts", 12);
   private final LoggedTunableNumber bangBangTolerance =
-      new LoggedTunableNumber("Shooter/Flywheel/BangBangTolerance", 2.5);
+      new LoggedTunableNumber("Shooter/Flywheel/BangBangTolerance", 2);
 
   // Alerts
   private final Alert leaderDisconnectedAlert =
