@@ -93,7 +93,7 @@ public class TurretIOReal implements TurretIO {
     tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
 
     // CANcoder
-    cancoderConfig.MagnetSensor.MagnetOffset = -0.9677734375;
+    cancoderConfig.MagnetSensor.MagnetOffset = -0.949951171875;
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
     cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));

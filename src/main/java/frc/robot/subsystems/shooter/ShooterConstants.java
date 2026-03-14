@@ -4,6 +4,7 @@ import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.util.CanBusUtil;
@@ -19,14 +20,42 @@ public class ShooterConstants {
 
   public static final CANBus canBus = CanBusUtil.getCanivoreBus();
 
-  // The amount of time it takes a ball to filter though the hub
-  public static final double hubFilterTime = 2;
+  /**
+   * The amount of time it takes fuel to get from the top of the hub chute to the counting sensor.
+   */
+  public static final double hubFilterTime = 1.5;
+
+  public static class TrenchZone {
+    // The maximum time for the hood to lower to underTrenchMinimum
+    public static final double hoodLowerTime = 0.5;
+
+    // Default box size. xMin should be set big enough to allow ample time for the hood to go down
+    // from 0 velocity.
+    public static final double halfXSize = Units.inchesToMeters(47) / 2.0;
+    public static final double ySize =
+        FieldConstants.LinesHorizontal.rightTrenchOpenStart + Units.inchesToMeters(12);
+  }
+
+  public static class TowerZone {
+    public static final double xSize = Units.inchesToMeters(43.5);
+    public static final double yMin = Units.inchesToMeters(107);
+    public static final double yMax = Units.inchesToMeters(180);
+    public static final double halfYSize = (yMax - yMin) / 2.0;
+  }
+
+  public static class BehindHubZone {
+    // Zone created is an equilateral triangle centered on the hub
+    // Both hubs use the same zone, but it should be optimized for the near hub.
+    public static final double halfBaseWidth = Units.inchesToMeters(60) / 2.0;
+    public static final double halfHeight = Units.inchesToMeters(120) / 2.0;
+    public static final double slope = halfBaseWidth / (halfHeight * 2.0);
+  }
 
   public static class Target {
     public static final Translation2d hub = FieldConstants.Hub.innerCenterPoint.toTranslation2d();
     public static final Translation2d passLeft =
-        new Translation2d(1, FieldConstants.fieldWidth - 1);
-    public static final Translation2d passRight = new Translation2d(1, 1);
+        new Translation2d(1, FieldConstants.fieldWidth - 2);
+    public static final Translation2d passRight = new Translation2d(1, 2);
   }
 
   public static class StaticShot {

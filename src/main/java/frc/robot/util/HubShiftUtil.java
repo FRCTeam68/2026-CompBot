@@ -12,10 +12,10 @@ import frc.robot.subsystems.shooter.ShooterConstants;
 import java.util.Optional;
 import java.util.function.Supplier;
 import lombok.Getter;
-import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 public class HubShiftUtil {
   // Subsystems
@@ -35,6 +35,9 @@ public class HubShiftUtil {
     activeFirstOverride.addDefaultOption("None", Optional.empty());
     activeFirstOverride.addOption("Red", Optional.of(false));
   }
+
+  public static LoggedNetworkBoolean override =
+      new LoggedNetworkBoolean("SmartDashboard/HubShift/Override", false);
 
   /**
    * The remaining time in teleop mode. Before teleop starts, when not connected to FMS, or if not
@@ -63,9 +66,6 @@ public class HubShiftUtil {
    */
   @Getter private static Shift currentShift = Shift.Transition;
 
-  /** If the shouldShoot method should be forced true no matter the shift status. */
-  @Getter @Setter private static boolean override = false;
-
   /**
    * Update Shift conditions.
    *
@@ -85,6 +85,8 @@ public class HubShiftUtil {
               case 'B' -> Optional.of(false);
               default -> Optional.empty();
             };
+      } else {
+        blueActiveFirst = Optional.empty();
       }
     }
 
@@ -229,14 +231,25 @@ public class HubShiftUtil {
         && shiftTime.get() < time;
   }
 
-  /** Returns if the shooter should be allowed to shoot and fuel will score. */
+  /**
+   * Returns if the shooter should be allowed to shoot and fuel will score. If the target is not the
+   * hub this will always return true.
+   */
+  @AutoLogOutput(key = "HubShift/ShouldShoot")
   public static boolean shouldShoot() {
-    // TODO: fix the hub inactive time
-    return !shooter.isTargetHub()
-        || override
-        || isHubActive()
-        || hubToActive(shooter.getFlightTime() + ShooterConstants.hubFilterTime)
-        || hubToInactive(shooter.getFlightTime() + ShooterConstants.hubFilterTime);
+    double time = shooter.getFlightTime() + ShooterConstants.hubFilterTime;
+    if (time < 3.0) {
+      return !shooter.isTargetHub()
+          || override.get()
+          || isHubActive()
+          || hubToActive(time)
+          || shiftTime.get() - (22.0 + time) > 0.0;
+    } else {
+      return !shooter.isTargetHub()
+          || override.get()
+          || (isHubActive() && !hubToInactive(time - 3.0))
+          || hubToActive(time);
+    }
   }
 
   /**

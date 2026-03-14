@@ -334,4 +334,25 @@ public class Drive extends SubsystemBase {
     return AllianceFlipUtil.applyX(getPose().getX())
         < FieldConstants.LinesVertical.allianceZone + Units.inchesToMeters(23.5);
   }
+
+  /** Returns if the robot is near the trench. If true, the robot should center itself. */
+  @AutoLogOutput(key = "Drive/NearTrench")
+  public boolean nearTrench() {
+    double xSize = Units.inchesToMeters(60) + DriveConstants.fullWidth;
+    double ySize = FieldConstants.LinesHorizontal.rightTrenchOpenStart;
+
+    // Check y position
+    return (getPose().getTranslation().getY() < ySize
+            || getPose().getTranslation().getY() > FieldConstants.fieldWidth - ySize)
+        // Check blue alliance x position
+        && ((getPose().getTranslation().getX()
+                    < FieldConstants.LinesVertical.hubCenter + (xSize / 2)
+                && getPose().getTranslation().getX()
+                    > FieldConstants.LinesVertical.hubCenter - (xSize / 2))
+            // Check red alliance x position
+            || (getPose().getTranslation().getX()
+                    < FieldConstants.LinesVertical.oppHubCenter + (xSize / 2)
+                && getPose().getTranslation().getX()
+                    > FieldConstants.LinesVertical.oppHubCenter - (xSize / 2)));
+  }
 }

@@ -26,7 +26,7 @@ public class Flywheel extends SubsystemBase {
 
   // Setpoint band
   private LoggedTunableNumber setpointBandVelocity =
-      new LoggedTunableNumber("Shooter/Flywheel/VelocitySetpointBandPercent", 0.3);
+      new LoggedTunableNumber("Shooter/Flywheel/VelocitySetpointBand", 10);
 
   // Alerts
   private final Alert leaderDisconnectedAlert =
@@ -46,6 +46,9 @@ public class Flywheel extends SubsystemBase {
   protected final FlyWheelIOInputsAutoLogged inputs = new FlyWheelIOInputsAutoLogged();
   @Getter private double setpoint = 0.0;
   @Getter private ControlMode mode = ControlMode.Neutral;
+
+  @AutoLogOutput(key = "Shooter/Flywheel/BumpVelocity", unit = "RotsPerSec")
+  public double bumpVelocity = 0.0;
 
   public Flywheel(FlywheelIO flywheelIO) {
     this.io = flywheelIO;
@@ -93,7 +96,7 @@ public class Flywheel extends SubsystemBase {
    * @param velocity Goal velocity.
    */
   public void runVelocity(double velocity) {
-    setpoint = velocity;
+    setpoint = velocity + bumpVelocity;
     mode = ControlMode.Velocity;
     io.runVelocity(velocity, 0);
     Logger.recordOutput("Shooter/Flywheel/SetpointVelocity", setpoint, RotationsPerSecond);
@@ -137,12 +140,11 @@ public class Flywheel extends SubsystemBase {
   @AutoLogOutput(key = "Shooter/Flywheel/atSetpoint")
   public boolean atSetpoint() {
     return switch (mode) {
-        // TODO: this is bugged when setpoint is zero
-        // TODO: decide if this should actually be based off percent.
-      case Velocity ->
-          (getVelocity() == 0.0)
-              ? false
-              : Math.abs((setpoint / getVelocity()) - 1) < setpointBandVelocity.get();
+      case Velocity -> Math.abs(setpoint - getVelocity()) < setpointBandVelocity.get();
+        // Percent based
+        // (getVelocity() == 0.0)
+        //     ? false
+        //     : Math.abs((setpoint / getVelocity()) - 1) < setpointBandVelocity.get();
       default -> false;
     };
   }

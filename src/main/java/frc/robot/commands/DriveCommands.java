@@ -62,7 +62,8 @@ public class DriveCommands {
 
   private static Translation2d getLinearVelocityFromJoysticks(double x, double y) {
     // Apply deadband
-    double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), DEADBAND);
+    double linearMagnitude =
+        MathUtil.clamp(MathUtil.applyDeadband(Math.hypot(x, y), DEADBAND), 0.0, 1.0);
     Rotation2d linearDirection = new Rotation2d(Math.atan2(y, x));
 
     // Square magnitude for more precise control
@@ -75,7 +76,7 @@ public class DriveCommands {
   }
 
   private static double getAdjustedMaxLinearVelocity() {
-    if (robotSystem.isShooting) {
+    if (robotSystem.isShooting && !shooter.inTrenchBox()) {
       if (shooter.isTargetHub()) {
         return hubShotMaxLinearVelocity.get();
       } else {
@@ -87,7 +88,7 @@ public class DriveCommands {
   }
 
   private static double getAdjustedMaxAngularVelocity() {
-    if (robotSystem.isShooting) {
+    if (robotSystem.isShooting && !shooter.inTrenchBox()) {
       if (shooter.isTargetHub()) {
         return hubShotMaxAngularVelocity.get();
       } else {
@@ -508,6 +509,69 @@ public class DriveCommands {
               }
             })
         .withName("AutopilotDrivetoHubArc");
+  }
+
+  /** Automatically align with the trench opening. */
+  public static Command trenchAlign(DoubleSupplier xSupplier, DoubleSupplier omegaSupplier) {
+    AtomicReference<Double> trenchCenter = new AtomicReference<Double>(0.0);
+
+    // Configure PID controller
+    ProfiledPIDController yController =
+        new ProfiledPIDController(
+            DriveConstants.linearPID.kP,
+            DriveConstants.linearPID.kI,
+            DriveConstants.linearPID.kD,
+            new TrapezoidProfile.Constraints(
+                DriveConstants.maxLinearVelocity, DriveConstants.maxLinearAcceleration));
+
+    return Commands.run(
+            () -> {
+              yController.setConstraints(
+                  new TrapezoidProfile.Constraints(
+                      getAdjustedMaxLinearVelocity(), DriveConstants.maxLinearAcceleration));
+
+              double yVelocity = yController.calculate(drive.getPose().getY(), trenchCenter.get());
+
+              // Get linear velocity from joystick
+              Translation2d linearVelocity =
+                  getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), 0.0);
+
+              // Apply rotation deadband
+              double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
+
+              // Square rotation value for more precise control
+              omega = Math.copySign(omega * omega, omega);
+
+              // Convert to field relative speeds & send command
+              ChassisSpeeds fieldRelativeSpeeds =
+                  new ChassisSpeeds(
+                      linearVelocity.getX() * getAdjustedMaxLinearVelocity(),
+                      yVelocity,
+                      omega * getAdjustedMaxAngularVelocity());
+              if (robotSystem.isShooting && isChassisSpeedsZero(fieldRelativeSpeeds)) {
+                drive.stopWithX();
+              } else {
+                drive.runVelocity(
+                    ChassisSpeeds.fromFieldRelativeSpeeds(
+                        fieldRelativeSpeeds,
+                        AllianceFlipUtil.shouldFlip()
+                            ? drive.getRotation().rotateBy(Rotation2d.kPi)
+                            : drive.getRotation()));
+              }
+            },
+            drive)
+
+        // Before starting reset y controller
+        .beforeStarting(
+            () -> {
+              trenchCenter.set(
+                  (drive.getPose().getY() < FieldConstants.LinesHorizontal.center)
+                      ? Units.inchesToMeters(50.34 / 2)
+                      : FieldConstants.fieldWidth - Units.inchesToMeters(50.34 / 2));
+
+              yController.reset(drive.getPose().getY(), drive.getFieldVelocity().vyMetersPerSecond);
+            })
+        .withName("TrenchAlign");
   }
 
   /**

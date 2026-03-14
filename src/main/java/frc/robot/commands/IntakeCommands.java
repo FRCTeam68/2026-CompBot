@@ -7,6 +7,8 @@ import frc.robot.subsystems.intakePivot.IntakePivot;
 import frc.robot.subsystems.rollers.RollerSystem;
 
 public class IntakeCommands {
+  private static final double intakeSpinVolts = 8;
+
   // Subsystems
   private static final RobotSystem robotSystem = RobotSystem.getInstance();
   private static final IntakePivot intakePivot = robotSystem.getIntakePivot();
@@ -14,7 +16,7 @@ public class IntakeCommands {
 
   public static Command retract() {
     return Commands.sequence(
-            Commands.runOnce(() -> intakeSpin.stop(), intakeSpin),
+            stopSpin(),
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getPackaged(), 1), intakePivot))
         .withName("IntakeRetract");
@@ -23,9 +25,9 @@ public class IntakeCommands {
   public static Command agitate(double... timeout) {
     double waitTime = (timeout.length == 0) ? 0.0 : timeout[0];
     return Commands.sequence(
-            Commands.runOnce(() -> intakeSpin.stop(), intakeSpin),
+            stopSpin(),
             Commands.runOnce(
-                () -> intakePivot.runPosition(IntakePivot.getPackaged(), 1), intakePivot),
+                () -> intakePivot.runPosition(IntakePivot.getAgitate(), 1), intakePivot),
             Commands.either(
                 Commands.idle(intakePivot, intakeSpin),
                 Commands.waitSeconds(waitTime),
@@ -39,7 +41,7 @@ public class IntakeCommands {
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
             Commands.waitUntil(() -> intakePivot.atSetpoint()),
-            Commands.runOnce(() -> intakeSpin.runVolts(10), intakeSpin))
+            Commands.runOnce(() -> intakeSpin.runVolts(intakeSpinVolts), intakeSpin))
         .withName("IntakeOn");
   }
 
@@ -48,7 +50,7 @@ public class IntakeCommands {
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
             Commands.waitUntil(() -> intakePivot.atSetpoint()),
-            Commands.runOnce(() -> intakeSpin.runVolts(10), intakeSpin),
+            Commands.runOnce(() -> intakeSpin.runVolts(intakeSpinVolts), intakeSpin),
             Commands.idle())
         .finallyDo(() -> intakeSpin.stop())
         .withName("IntakeWhile");
@@ -59,13 +61,13 @@ public class IntakeCommands {
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
             Commands.waitUntil(() -> intakePivot.atSetpoint()),
-            Commands.runOnce(() -> intakeSpin.runVolts(-10), intakeSpin),
+            Commands.runOnce(() -> intakeSpin.runVolts(-intakeSpinVolts), intakeSpin),
             Commands.idle())
         .finallyDo(() -> intakeSpin.stop())
         .withName("Outtake");
   }
 
-  public static Command stop() {
+  public static Command stopSpin() {
     return Commands.runOnce(() -> intakeSpin.stop(), intakeSpin).withName("IntakeSpinStop");
   }
 }

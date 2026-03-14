@@ -23,14 +23,15 @@ import org.littletonrobotics.junction.Logger;
 public class IntakePivot extends SubsystemBase {
   // Positions
   @Getter private static final double packaged = 0;
-  @Getter private static final double extended = 0.153076;
+  @Getter private static final double extended = 0.136; // 0.153076;
+  @Getter private static final double agitate = 0.02;
   @Getter private static final double inBumperMaximum = 0.1;
-  @Getter private static final double intakeForwardExtension = Units.inchesToMeters(25.32);
+  @Getter private static final double intakeForwardExtension = Units.inchesToMeters(12);
 
   // PID gains
-  private final LoggedTunableNumber kP0 = new LoggedTunableNumber("IntakePivot/Slot0/kP", 25);
+  private final LoggedTunableNumber kP0 = new LoggedTunableNumber("IntakePivot/Slot0/kP", 22);
   private final LoggedTunableNumber kD0 = new LoggedTunableNumber("IntakePivot/Slot0/kD", 0);
-  private final LoggedTunableNumber kP1 = new LoggedTunableNumber("IntakePivot/Slot1/kP", 35);
+  private final LoggedTunableNumber kP1 = new LoggedTunableNumber("IntakePivot/Slot1/kP", 25);
   private final LoggedTunableNumber kD1 = new LoggedTunableNumber("IntakePivot/Slot1/kD", 0);
   private final LoggedTunableNumber kS = new LoggedTunableNumber("IntakePivot/kS", 0);
 
@@ -42,7 +43,7 @@ public class IntakePivot extends SubsystemBase {
 
   // Setpoint band
   private final LoggedTunableNumber setpointBandPosition =
-      new LoggedTunableNumber("IntakePivot/SetpointBand", 0.07);
+      new LoggedTunableNumber("IntakePivot/SetpointBand", 0.1);
 
   // Alerts
   private final Alert motorDisconnectedAlert =

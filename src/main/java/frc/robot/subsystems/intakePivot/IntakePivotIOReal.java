@@ -57,6 +57,7 @@ public class IntakePivotIOReal implements IntakePivotIO {
   private final StatusSignal<Temperature> tempCelsius;
   private final StatusSignal<MagnetHealthValue> magnetHealth;
   private final StatusSignal<Angle> absolutePosition;
+  private final StatusSignal<Boolean> fusedSensorOutOfSync;
 
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true);
@@ -80,14 +81,14 @@ public class IntakePivotIOReal implements IntakePivotIO {
     talonConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
     // Feedback
     talonConfig.Feedback.FeedbackRemoteSensorID = cancoder.getDeviceID();
-    talonConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+    talonConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.SyncCANcoder;
     talonConfig.Feedback.RotorToSensorRatio = rotorToSensorReduction;
     talonConfig.Feedback.SensorToMechanismRatio = sensorToMechanismReduction;
     tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
 
     // CANcoder
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-    cancoderConfig.MagnetSensor.MagnetOffset = 0.065185546875;
+    cancoderConfig.MagnetSensor.MagnetOffset = -0.0234375; // 0.065185546875;
     cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.75;
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
 
@@ -99,6 +100,7 @@ public class IntakePivotIOReal implements IntakePivotIO {
     tempCelsius = talon.getDeviceTemp();
     magnetHealth = cancoder.getMagnetHealth();
     absolutePosition = cancoder.getAbsolutePosition();
+    fusedSensorOutOfSync = talon.getStickyFault_FusedSensorOutOfSync();
 
     tryUntilOk(
         5,
@@ -111,7 +113,8 @@ public class IntakePivotIOReal implements IntakePivotIO {
                 supplyCurrent,
                 torqueCurrent,
                 magnetHealth,
-                absolutePosition));
+                absolutePosition,
+                fusedSensorOutOfSync));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon, cancoder));
     PhoenixUtil.registerSignals(
         canBus,
@@ -122,7 +125,8 @@ public class IntakePivotIOReal implements IntakePivotIO {
         torqueCurrent,
         tempCelsius,
         magnetHealth,
-        absolutePosition);
+        absolutePosition,
+        fusedSensorOutOfSync);
   }
 
   @Override
@@ -138,6 +142,7 @@ public class IntakePivotIOReal implements IntakePivotIO {
     inputs.tempCelsius = tempCelsius.getValueAsDouble();
     inputs.magnetHealth = magnetHealth.getValue();
     inputs.absolutePosition = absolutePosition.getValueAsDouble();
+    inputs.fusedSensorInSync = !fusedSensorOutOfSync.getValue();
   }
 
   @Override

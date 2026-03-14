@@ -47,11 +47,16 @@ import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.util.CanBusUtil;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 public class RobotSystem {
   private static RobotSystem instance = null;
 
   public boolean isShooting = false;
+  public final LoggedNetworkBoolean doTrenchAlign =
+      new LoggedNetworkBoolean("SmartDashboard/Drive/DoTrenchAlign", false);
+  public final LoggedNetworkBoolean alwaysTargetPass =
+      new LoggedNetworkBoolean("SmartDashboard/Shooter/AlwaysTargetPass", false);
 
   // Subsystems
   @Getter private final Drive drive;
@@ -148,15 +153,15 @@ public class RobotSystem {
         intakePivot = new IntakePivot(new IntakePivotIOSim() {});
         intakeSpin =
             new RollerSystem(
-                "intakeSpin", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 1, 0.74));
+                "intakeSpin", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 1.0, 0.001));
 
         spindexer =
             new RollerSystem(
                 "spindexer",
-                new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4.0 * 5.0 * (64.0 / 16.0), 0.1));
+                new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 3.0 * (64.0 / 16.0), 0.2));
         feeder =
             new RollerSystem(
-                "feeder", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 36.0 / 12.0, 0.1));
+                "feeder", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 36.0 / 12.0, 0.01));
         break;
 
       default:
@@ -191,7 +196,13 @@ public class RobotSystem {
 
     shooter =
         new Shooter(
-            flywheel, hood, turret, drive::getPose, drive::getFieldVelocity, drive::inAllianceZone);
+            flywheel,
+            hood,
+            turret,
+            drive::getPose,
+            drive::getFieldVelocity,
+            drive::inAllianceZone,
+            alwaysTargetPass::get);
 
     hood.initInTrenchBoxSupplier(shooter::inTrenchBox);
   }
@@ -213,7 +224,7 @@ public class RobotSystem {
     Logger.recordOutput(
         "RobotPose/1_Intake",
         new Pose3d(
-            intakePivot.getPosition() / IntakePivot.getExtended() * Units.inchesToMeters(12),
+            (intakePivot.getPosition() / IntakePivot.getExtended()) * Units.inchesToMeters(12),
             0,
             0,
             Rotation3d.kZero));
@@ -238,6 +249,8 @@ public class RobotSystem {
                 new Rotation3d(
                     0.0, 0.0, Units.degreesToRadians(shooter.getTurret().getPosition()))));
 
+    // Red alliance robot color: #F43636
+    // Blue alliance robot color: #3644F4
     field.setRobotPose(drive.getPose());
     SmartDashboard.putData("Field", field);
   }
