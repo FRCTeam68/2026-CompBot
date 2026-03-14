@@ -53,9 +53,9 @@ public class ShooterConstants {
 
   public static class Target {
     public static final Translation2d hub = FieldConstants.Hub.innerCenterPoint.toTranslation2d();
+    public static final Translation2d passRight = new Translation2d(3, 2);
     public static final Translation2d passLeft =
-        new Translation2d(1, FieldConstants.fieldWidth - 2);
-    public static final Translation2d passRight = new Translation2d(1, 2);
+        new Translation2d(passRight.getX(), FieldConstants.fieldWidth - passRight.getY());
   }
 
   public static class StaticShot {
@@ -68,19 +68,11 @@ public class ShooterConstants {
   }
 
   public static class DynamicShot {
-    public static final double adjustMultiplier = 1.0;
+    public static final double angularMultiplier = 1.0;
+    public static final double linearTowardMultiplier = 1.0;
+    public static final double linearAwayMultiplier = 1.0;
 
-    private static final InterpConfig[] hubConfigLow = {
-      InterpConfig.builder().distance(0.92).flywheel(50).hood(72).flightTime(1.1).build(),
-      InterpConfig.builder().distance(1.91).flywheel(50).hood(65).flightTime(1.017).build(),
-      InterpConfig.builder().distance(2.55).flywheel(55).hood(60).flightTime(0.967).build(),
-      InterpConfig.builder().distance(2.95).flywheel(55).hood(54.5).flightTime(1.033).build(),
-      InterpConfig.builder().distance(3.50).flywheel(58).hood(53).flightTime(1.033).build(),
-      InterpConfig.builder().distance(4.03).flywheel(60.5).hood(50).flightTime(1.017).build(),
-      InterpConfig.builder().distance(4.56).flywheel(63).hood(50).flightTime(1.15).build(),
-      InterpConfig.builder().distance(5.02).flywheel(64.5).hood(50).flightTime(1).build(),
-      InterpConfig.builder().distance(5.20).flywheel(67.0).hood(50).flightTime(1).build()
-    };
+    public static final double minHubShotDistance = 0.92;
 
     private static final InterpConfig[] hubConfigHigh = {
       InterpConfig.builder().distance(0.92).flywheel(50).hood(72).flightTime(1.1).build(),
@@ -94,13 +86,25 @@ public class ShooterConstants {
       InterpConfig.builder().distance(5.20).flywheel(67.0).hood(50).flightTime(1).build()
     };
 
-    private static final InterpConfig[] passConfigLow = {
+    private static final InterpConfig[] passConfigHigh = {
       InterpConfig.builder().distance(4.77).flywheel(56).hood(46).flightTime(1.3).build(),
       InterpConfig.builder().distance(5.91).flywheel(61).hood(46).flightTime(1.4).build(),
       InterpConfig.builder().distance(6.79).flywheel(66).hood(46).flightTime(1.45).build()
     };
 
-    private static final InterpConfig[] passConfigHigh = {
+    private static final InterpConfig[] hubConfigLow = {
+      InterpConfig.builder().distance(0.92).flywheel(50).hood(72).flightTime(1.1).build(),
+      InterpConfig.builder().distance(1.91).flywheel(50).hood(65).flightTime(1.017).build(),
+      InterpConfig.builder().distance(2.55).flywheel(55).hood(60).flightTime(0.967).build(),
+      InterpConfig.builder().distance(2.95).flywheel(55).hood(54.5).flightTime(1.033).build(),
+      InterpConfig.builder().distance(3.50).flywheel(58).hood(53).flightTime(1.033).build(),
+      InterpConfig.builder().distance(4.03).flywheel(60.5).hood(50).flightTime(1.017).build(),
+      InterpConfig.builder().distance(4.56).flywheel(63).hood(50).flightTime(1.15).build(),
+      InterpConfig.builder().distance(5.02).flywheel(64.5).hood(50).flightTime(1).build(),
+      InterpConfig.builder().distance(5.20).flywheel(67.0).hood(50).flightTime(1).build()
+    };
+
+    private static final InterpConfig[] passConfigLow = {
       InterpConfig.builder().distance(4.77).flywheel(56).hood(46).flightTime(1.3).build(),
       InterpConfig.builder().distance(5.91).flywheel(61).hood(46).flightTime(1.4).build(),
       InterpConfig.builder().distance(6.79).flywheel(66).hood(46).flightTime(1.45).build()
