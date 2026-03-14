@@ -88,7 +88,7 @@ public class IntakePivotIOReal implements IntakePivotIO {
 
     // CANcoder
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-    cancoderConfig.MagnetSensor.MagnetOffset = -0.0234375; // 0.065185546875;
+    cancoderConfig.MagnetSensor.MagnetOffset = -0.0234375;
     cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.75;
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
 
