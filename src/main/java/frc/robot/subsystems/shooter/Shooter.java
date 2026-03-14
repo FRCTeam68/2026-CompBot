@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -114,14 +115,18 @@ public class Shooter extends SubsystemBase {
       }
     }
 
-    // Log shot visualizer if sim
+    // Log shot visualizer if not running on the real robot
     if (Constants.getMode() != Mode.REAL) {
       ShotVisualizer.visualize();
     }
 
     // Log distance to target to the dashdoard with 3 decimal places
-    SmartDashboard.putString(
-        "Shooter/DistanceToTarget", String.format("%.3f", getDistanceToTarget()));
+    // Only do this in tuning mode since String.format is resource intensive
+    // The distance is still available in the log
+    if (Constants.tuningMode) {
+      SmartDashboard.putString(
+          "Shooter/DistanceToTarget", String.format("%.3f", getDistanceToTarget()));
+    }
   }
 
   /**
@@ -133,7 +138,7 @@ public class Shooter extends SubsystemBase {
    */
   public void runStatic(double flywheelVelocity, double hoodElevation, double turretAngle) {
     staticSetpoint = true;
-    flywheel.runVelocity(flywheelVelocity);
+    flywheel.runBangBang(flywheelVelocity);
     hood.runElvation(hoodElevation);
     turret.runPosition(turretAngle);
   }
@@ -149,30 +154,31 @@ public class Shooter extends SubsystemBase {
 
   /** Run the shooter dynamically. */
   public void runDynamic() {
+    final Rotation2d rotationToTarget = target.minus(getShooterFieldTranslation()).getAngle();
     // vx - toward target
     // vy - CW tangent to target
-    ChassisSpeeds targetRelativeVelocity =
-        ChassisSpeeds.fromFieldRelativeSpeeds(
-            driveVelocitySupplier.get(), target.minus(getShooterFieldTranslation()).getAngle());
-    double targetDistanceAdjusted =
+    final ChassisSpeeds targetRelativeVelocity =
+        ChassisSpeeds.fromFieldRelativeSpeeds(driveVelocitySupplier.get(), rotationToTarget);
+    final double targetDistanceAdjusted =
         getDistanceToTarget()
             - (targetRelativeVelocity.vxMetersPerSecond
-                * flightTime
-                * ShooterConstants.DynamicShot.adjustMultiplier);
+                        * flightTime
+                        * targetRelativeVelocity.vxMetersPerSecond
+                    > 0
+                ? ShooterConstants.DynamicShot.linearTowardMultiplier
+                : ShooterConstants.DynamicShot.linearAwayMultiplier);
 
-    flywheel.runVelocity(
+    flywheel.runBangBang(
         ShooterConstants.DynamicShot.hubShotFlywheelVelocity.get(targetDistanceAdjusted));
     hood.runElvation(ShooterConstants.DynamicShot.hubShotHoodElevation.get(targetDistanceAdjusted));
     turret.runPosition(
-        target
-            .minus(getShooterFieldTranslation())
-            .getAngle()
+        rotationToTarget
             .minus(
                 new Translation2d(
                         getDistanceToTarget(),
                         targetRelativeVelocity.vyMetersPerSecond
                             * flightTime
-                            * ShooterConstants.DynamicShot.adjustMultiplier)
+                            * ShooterConstants.DynamicShot.angularMultiplier)
                     .getAngle())
             .minus(drivePoseSupplier.get().getRotation())
             .getDegrees());
@@ -195,6 +201,47 @@ public class Shooter extends SubsystemBase {
         .plus(ShooterConstants.shooterPosition.toTranslation2d())
         .rotateAround(
             drivePoseSupplier.get().getTranslation(), drivePoseSupplier.get().getRotation());
+  }
+
+  /** Returns the distance in meters to the automatically selected target. */
+  @AutoLogOutput(key = "Shooter/DistanceToTarget", unit = "Meters")
+  public double getDistanceToTarget() {
+    return target.minus(getShooterFieldTranslation()).getNorm();
+  }
+
+  /** Returns true if all shooter subsystems are at their individual setpoints. */
+  @AutoLogOutput(key = "Shooter/atSetpoint")
+  public boolean atSetpoint() {
+    return flywheel.atSetpoint() && hood.atSetpoint() && turret.atSetpoint();
+  }
+
+  /**
+   * Returns if the position of the shooter is in a spot where we can shoot from.
+   *
+   * <p><b>Hub Shot:</b>
+   *
+   * <ul>
+   *   <li>Not too close to the hub
+   *   <li>Not in trench box
+   *   <li>Not behind tower
+   * </ul>
+   *
+   * <p><b>Pass Shot:</b>
+   *
+   * <ul>
+   *   <li>Not in trench box
+   *   <li>Not behind tower
+   *   <li>Not behind hub
+   * </ul>
+   */
+  public boolean inShootableLocation() {
+    if (isTargetHub) {
+      return getDistanceToTarget() > ShooterConstants.DynamicShot.minHubShotDistance
+          || !inTrenchBox()
+          || !inTowerBox();
+    } else {
+      return !inTrenchBox() || !inTowerBox() || !isBehindHub();
+    }
   }
 
   /**
@@ -228,9 +275,7 @@ public class Shooter extends SubsystemBase {
                     > FieldConstants.LinesVertical.oppHubCenter + xOffsetNeg));
   }
 
-  /**
-   * Returns if the shooter is inside the current alliance tower. If so, no shots should be fired.
-   */
+  /** Returns if the shooter is inside any tower. */
   @AutoLogOutput(key = "Shooter/InTowerBox")
   public boolean inTowerBox() {
     Translation2d shooterTranslation = getShooterFieldTranslation();
@@ -253,10 +298,7 @@ public class Shooter extends SubsystemBase {
                 < ShooterConstants.TowerZone.halfYSize);
   }
 
-  /**
-   * Returns if the shooter is in a spot where pass shots would be blocked by the hub. If so, no
-   * shots should be fired.
-   */
+  /** Returns if the shooter is in a spot where pass shots would be blocked by the hub. */
   @AutoLogOutput(key = "Shooter/IsBehindHub")
   public boolean isBehindHub() {
     Translation2d shooterTranslation = getShooterFieldTranslation();
@@ -301,17 +343,5 @@ public class Shooter extends SubsystemBase {
                       < ShooterConstants.BehindHubZone.halfBaseWidth
                           - (ShooterConstants.BehindHubZone.slope * localXOpp));
     }
-  }
-
-  /** Returns the distance in meters to the automatically selected target. */
-  @AutoLogOutput(key = "Shooter/DistanceToTarget", unit = "Meters")
-  public double getDistanceToTarget() {
-    return target.minus(getShooterFieldTranslation()).getNorm();
-  }
-
-  /** Returns true if all shooter subsystems are at their individual setpoints. */
-  @AutoLogOutput(key = "Shooter/atSetpoint")
-  public boolean atSetpoint() {
-    return flywheel.atSetpoint() && hood.atSetpoint() && turret.atSetpoint();
   }
 }

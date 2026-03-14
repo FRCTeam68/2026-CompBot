@@ -52,7 +52,6 @@ public class FlywheelIOReal implements FlywheelIO {
 
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true);
-  // private final VelocityVoltage velocityOut = new VelocityVoltage(0).withEnableFOC(true);
   private final VelocityTorqueCurrentFOC velocityOut = new VelocityTorqueCurrentFOC(0);
   private final NeutralOut neutralOut = new NeutralOut();
 
@@ -65,7 +64,7 @@ public class FlywheelIOReal implements FlywheelIO {
     leaderConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     // Current limits
     leaderConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    leaderConfig.CurrentLimits.SupplyCurrentLimit = 40;
+    leaderConfig.CurrentLimits.SupplyCurrentLimit = 80;
     leaderConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
     leaderConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
     // Feedback

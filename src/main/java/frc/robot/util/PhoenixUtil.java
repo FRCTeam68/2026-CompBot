@@ -49,6 +49,7 @@ public class PhoenixUtil {
     Voltage,
     Velocity,
     Position,
-    Neutral
+    Neutral,
+    BangBang
   }
 }

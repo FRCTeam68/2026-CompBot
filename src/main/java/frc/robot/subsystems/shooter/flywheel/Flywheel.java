@@ -8,8 +8,6 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
@@ -20,13 +18,29 @@ import org.littletonrobotics.junction.Logger;
 
 public class Flywheel extends SubsystemBase {
   // PID gains
-  private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Flywheel/kP", 3.0);
-  private LoggedTunableNumber kD = new LoggedTunableNumber("Shooter/Flywheel/kD", 0);
-  private LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Flywheel/kS", 2.5);
+  private final LoggedTunableNumber[] kP =
+      new LoggedTunableNumber[] {
+        new LoggedTunableNumber("Shooter/Flywheel/Slot0-Velocity/kP", 3.0),
+        new LoggedTunableNumber("Shooter/Flywheel/Slot1-BangBang/kP", 10)
+      };
+  private final LoggedTunableNumber[] kD =
+      new LoggedTunableNumber[] {
+        new LoggedTunableNumber("Shooter/Flywheel/Slot0-Velocity/kD", 0.0),
+        new LoggedTunableNumber("Shooter/Flywheel/Slot1-BangBang/kD", 0.0)
+      };
+  private final LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Flywheel/kS", 2.5);
 
-  // Setpoint band
-  private LoggedTunableNumber setpointBandVelocity =
-      new LoggedTunableNumber("Shooter/Flywheel/VelocitySetpointBand", 10);
+  // Setpoint tunable numbers
+  private final LoggedTunableNumber setpointBandVelocity =
+      new LoggedTunableNumber("Shooter/Flywheel/VelocitySetpointBand", 2.5);
+  private final LoggedTunableNumber setpointDebouncerTime =
+      new LoggedTunableNumber("Shooter/Flywheel/SetpointDebouncerTime", 0.5);
+
+  // Bang-Bang tunable numbers
+  private final LoggedTunableNumber bangBangVolts =
+      new LoggedTunableNumber("Shooter/Flywheel/BangBangVolts", 12);
+  private final LoggedTunableNumber bangBangTolerance =
+      new LoggedTunableNumber("Shooter/Flywheel/BangBangTolerance", 2);
 
   // Alerts
   private final Alert leaderDisconnectedAlert =
@@ -41,6 +55,7 @@ public class Flywheel extends SubsystemBase {
   // Debouncers
   private final Debouncer leaderConnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
   private final Debouncer followerConnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
+  private final Debouncer atSetpointDebouncer = new Debouncer(0.0, DebounceType.kFalling);
 
   private final FlywheelIO io;
   protected final FlyWheelIOInputsAutoLogged inputs = new FlyWheelIOInputsAutoLogged();
@@ -52,12 +67,6 @@ public class Flywheel extends SubsystemBase {
 
   public Flywheel(FlywheelIO flywheelIO) {
     this.io = flywheelIO;
-
-    // Configure dashboard
-    SmartDashboard.putNumber("Flywheel/Voltage", 0.0);
-    SmartDashboard.putData(
-        "Flywheel/RunVoltage",
-        Commands.runOnce(() -> runVolts(SmartDashboard.getNumber("Flywheel/Voltage", 0.0)), this));
   }
 
   public void periodic() {
@@ -71,9 +80,24 @@ public class Flywheel extends SubsystemBase {
     leaderTempAlert.set(inputs.leaderTempCelsius > Constants.warningTempCelsius);
     followerTempAlert.set(inputs.followerTempCelsius > Constants.warningTempCelsius);
 
+    Logger.recordOutput("Shooter/Flywheel/ControlMode", mode.toString());
+
+    if (mode == ControlMode.BangBang) bangBangControl();
+
     // Update PID gains
-    if (kP.hasChanged(hashCode()) | kD.hasChanged(hashCode()) | kS.hasChanged(hashCode())) {
-      io.setPID(new SlotConfigs().withKP(kP.get()).withKD(kD.get()).withKS(kS.get()));
+    if (kP[0].hasChanged(hashCode())
+        | kP[1].hasChanged(hashCode())
+        | kD[0].hasChanged(hashCode())
+        | kD[1].hasChanged(hashCode())
+        | kS.hasChanged(hashCode())) {
+      io.setPID(
+          new SlotConfigs().withKP(kP[0].get()).withKD(kD[0].get()).withKS(kS.get()),
+          new SlotConfigs().withKP(kP[1].get()).withKD(kD[1].get()).withKS(kS.get()));
+    }
+
+    // Update atSetpoint debouncer
+    if (setpointDebouncerTime.hasChanged(hashCode())) {
+      atSetpointDebouncer.setDebounceTime(setpointDebouncerTime.get());
     }
   }
 
@@ -89,7 +113,7 @@ public class Flywheel extends SubsystemBase {
   }
 
   /**
-   * Run system to specified velocity.
+   * Run system to specified velocity with simple PID control.
    *
    * <p><b>Units:</b> Mechanism rotations per second.
    *
@@ -100,6 +124,19 @@ public class Flywheel extends SubsystemBase {
     mode = ControlMode.Velocity;
     io.runVelocity(velocity, 0);
     Logger.recordOutput("Shooter/Flywheel/SetpointVelocity", setpoint, RotationsPerSecond);
+  }
+
+  /**
+   * Run system to specified velocity with a Bang-Bang Controller.
+   *
+   * <p><b>Units:</b> Mechanism rotations per second.
+   *
+   * @param velocity Goal velocity.
+   */
+  public void runBangBang(double velocity) {
+    setpoint = velocity + bumpVelocity;
+    mode = ControlMode.BangBang;
+    Logger.recordOutput("Shooter/Flywheel/BangBangSetpoint", setpoint, RotationsPerSecond);
   }
 
   /** Stop motor with neutral output. */
@@ -140,12 +177,31 @@ public class Flywheel extends SubsystemBase {
   @AutoLogOutput(key = "Shooter/Flywheel/atSetpoint")
   public boolean atSetpoint() {
     return switch (mode) {
-      case Velocity -> Math.abs(setpoint - getVelocity()) < setpointBandVelocity.get();
-        // Percent based
-        // (getVelocity() == 0.0)
-        //     ? false
-        //     : Math.abs((setpoint / getVelocity()) - 1) < setpointBandVelocity.get();
+      case Velocity, BangBang ->
+          atSetpointDebouncer.calculate(
+              Math.abs(setpoint - getVelocity()) < setpointBandVelocity.get());
       default -> false;
     };
+  }
+
+  /**
+   * Controls the Bang-Bang controller. This should be called periodically if using the Bang-Bang
+   * controller.
+   */
+  private void bangBangControl() {
+    final boolean notNearSetpoint = getVelocity() < setpoint - bangBangTolerance.get();
+
+    if (notNearSetpoint) {
+      io.runVolts(bangBangVolts.get());
+    } else {
+      io.runVelocity(setpoint, 1);
+    }
+
+    Logger.recordOutput(
+        "Shooter/Flywheel/SetpointVolts", notNearSetpoint ? bangBangVolts.get() : 0, Volts);
+    Logger.recordOutput(
+        "Shooter/Flywheel/SetpointVelocity", notNearSetpoint ? 0 : setpoint, RotationsPerSecond);
+    Logger.recordOutput(
+        "Shooter/Flywheel/BangBangControlMode", notNearSetpoint ? "Voltage" : "Velocity");
   }
 }

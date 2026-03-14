@@ -32,7 +32,7 @@ public class ShooterCommands {
                 robotSystem.isShooting = true;
 
                 if (!shooter.holdSetpoint) {
-                  if (shooter.atSetpoint() && !shooter.inTowerBox()) {
+                  if (shooter.atSetpoint() && shooter.inShootableLocation()) {
                     feeder.runVolts(feederVolts);
                     spindexer.runVolts(spindexerVolts);
                   } else {
@@ -70,8 +70,7 @@ public class ShooterCommands {
                   } else {
                     if (shooter.atSetpoint()
                         && HubShiftUtil.shouldShoot()
-                        && !shooter.inTowerBox()
-                        && !shooter.isBehindHub()) {
+                        && shooter.inShootableLocation()) {
                       feeder.runVolts(feederVolts);
                       spindexer.runVolts(spindexerVolts);
                     } else {
