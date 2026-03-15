@@ -26,6 +26,10 @@ import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIO;
 import frc.robot.subsystems.rollers.RollerSystemIOSim;
 import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
+import frc.robot.subsystems.sensors.HopperSensor;
+import frc.robot.subsystems.sensors.canrange.CANrangeIO;
+import frc.robot.subsystems.sensors.canrange.CANrangeIOReal;
+import frc.robot.subsystems.sensors.canrange.CANrangeIOSim;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
@@ -67,6 +71,7 @@ public class RobotSystem {
   @Getter private final Shooter shooter;
   @Getter private final RollerSystem spindexer;
   @Getter private final RollerSystem feeder;
+  @Getter private final HopperSensor hopperSensor;
 
   private final Field2d field = new Field2d();
 
@@ -131,6 +136,10 @@ public class RobotSystem {
                     InvertedValue.CounterClockwise_Positive,
                     NeutralModeValue.Coast,
                     36.0 / 12.0));
+
+        hopperSensor =
+            new HopperSensor(
+                new CANrangeIOReal(44, CanBusUtil.getRioBus(), HopperSensor.getConfig()));
         break;
 
       case SIM:
@@ -161,7 +170,9 @@ public class RobotSystem {
                 new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 3.0 * (64.0 / 16.0), 0.2));
         feeder =
             new RollerSystem(
-                "feeder", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 36.0 / 12.0, 0.01));
+                "feeder", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 36.0 / 12.0, 0.1));
+
+        hopperSensor = new HopperSensor(new CANrangeIOSim("Hopper", HopperSensor.getConfig()));
         break;
 
       default:
@@ -192,6 +203,8 @@ public class RobotSystem {
 
         spindexer = new RollerSystem("spindexer", new RollerSystemIO() {});
         feeder = new RollerSystem("feeder", new RollerSystemIO() {});
+
+        hopperSensor = new HopperSensor(new CANrangeIO() {});
     }
 
     shooter =

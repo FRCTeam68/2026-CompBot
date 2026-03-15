@@ -154,12 +154,12 @@ public class Shooter extends SubsystemBase {
 
   /** Run the shooter dynamically. */
   public void runDynamic() {
-    final Rotation2d rotationToTarget = target.minus(getShooterFieldTranslation()).getAngle();
+    Rotation2d rotationToTarget = target.minus(getShooterFieldTranslation()).getAngle();
     // vx - toward target
     // vy - CW tangent to target
-    final ChassisSpeeds targetRelativeVelocity =
+    ChassisSpeeds targetRelativeVelocity =
         ChassisSpeeds.fromFieldRelativeSpeeds(driveVelocitySupplier.get(), rotationToTarget);
-    final double targetDistanceAdjusted =
+    double targetDistanceAdjusted =
         getDistanceToTarget()
             - (targetRelativeVelocity.vxMetersPerSecond
                         * flightTime
