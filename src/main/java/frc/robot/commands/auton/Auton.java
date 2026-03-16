@@ -441,7 +441,7 @@ public class Auton {
    */
   public static void setStartingPose() {
     if (setStartingPose.get() || !vision.isAnyConnected() || Constants.getMode() == Mode.SIM) {
-      if (DriverStation.isFMSAttached()) {
+      if (Constants.getMode() != Mode.SIM) {
         drive.setPose(new Pose2d(getSelectedStartPose().getTranslation(), drive.getRotation()));
       } else {
         drive.setPose(getSelectedStartPose());
