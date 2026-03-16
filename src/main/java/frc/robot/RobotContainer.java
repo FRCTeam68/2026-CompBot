@@ -61,7 +61,7 @@ public class RobotContainer {
   private final Trigger trenchAlignTrigger =
       new Trigger(() -> drive.nearTrench() && robotSystem.doTrenchAlign.get());
   private final Trigger hubTransitionWarningTrigger =
-      new Trigger(() -> HubShiftUtil.hubToActive(3) || HubShiftUtil.hubToInactive(3));
+      new Trigger(() -> HubShiftUtil.shootingToStart(3) || HubShiftUtil.shootingToStop(3));
 
   /** The container for the robot. */
   public RobotContainer() {
