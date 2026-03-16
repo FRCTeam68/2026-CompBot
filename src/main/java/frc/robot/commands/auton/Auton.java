@@ -15,6 +15,7 @@ import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.hood.Hood;
+import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.PathUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
 import java.util.Set;
@@ -25,6 +26,7 @@ public class Auton {
   // Subsystems
   private static final RobotSystem robotSystem = RobotSystem.getInstance();
   private static final Drive drive = robotSystem.getDrive();
+  private static final Vision vision = robotSystem.getVision();
   private static final Shooter shooter = robotSystem.getShooter();
 
   // Dashboard inputs
@@ -43,6 +45,9 @@ public class Auton {
 
   private static final LoggedNetworkBoolean autonOutpost =
       new LoggedNetworkBoolean("SmartDashboard/Auton/Outpost", false);
+
+  private static final LoggedNetworkBoolean setStartingPose =
+      new LoggedNetworkBoolean("SmartDashboard/Auton/SetStartingPose", false);
 
   public static enum StartingPose {
     Left,
@@ -361,10 +366,18 @@ public class Auton {
     return startPose;
   }
 
-  /** load starting pose if simulator is running */
-  public static void loadStartPoseSim() {
-    if (Constants.getMode() == Mode.SIM) {
-      drive.setPose(getSelectedStartPose());
+  /**
+   * Load starting pose if dashboard toggle is enabled, no cameras are connected, of running in sim
+   * mode. If connected to FMS, drive rotation is preserved since we trust the robot was booted
+   * straight.
+   */
+  public static void setStartingPose() {
+    if (setStartingPose.get() || !vision.isAnyConnected() || Constants.getMode() == Mode.SIM) {
+      if (Constants.getMode() != Mode.SIM) {
+        drive.setPose(new Pose2d(getSelectedStartPose().getTranslation(), drive.getRotation()));
+      } else {
+        drive.setPose(getSelectedStartPose());
+      }
     }
   }
 }

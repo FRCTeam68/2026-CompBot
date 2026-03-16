@@ -1,36 +1,26 @@
 package frc.robot.subsystems.vision;
 
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
 public class VisionConstants {
   // Camera information
+  // Limelight 4 name must start with "limelight-four" to work with special functions.
   public static enum CameraInfo {
-    // Limelight 4 name must start with "limelight-four" to work with special functions.
-    LL_3G(
-        "limelight-threeg",
-        new Pose3d(
-            new Translation3d(-0.264950, -0.272987, 0.223248),
-            new Rotation3d(0.0, Units.degreesToRadians(20.0), Units.degreesToRadians(-120.0))),
-        1.0),
-    LL_4(
-        "limelight-four",
-        new Pose3d(
-            // new Translation3d(-0.291079, 0.273426, 0.31586),
-            // new Rotation3d(0.0, Units.degreesToRadians(25.0), Math.PI)),
-            new Translation3d(-0.291079, 0.273426, 0.31586),
-            new Rotation3d(0.0, Units.degreesToRadians(25.0), 174)),
-        1.0);
+    LL_3G("limelight-threeg", 0.7),
+    // ip address: 10.0.68.9
+    // Pose (meters / degrees): x:-0.291079 / y:0.273426 / z:0.31586
+    //                          roll:0 / pitch:25 / yaw:174
+
+    LL_4("limelight-four", 1);
+    // ip address: 10.0.68.8
+    // Pose (meters / degrees): x:-0.264950 / y:-0.272987 / z:0.223248
+    //                          roll:0 / pitch:20 / yaw:-120
 
     String name; // Must match name configured on coprocessor
-    Pose3d pose; // Camera pose relative to the robot wheelbase
     double MTStdDevFactor; // April tag pose standard deviation multiplier
 
-    CameraInfo(String name, Pose3d pose, double MTStdDevFactor) {
+    CameraInfo(String name, double MTStdDevFactor) {
       this.name = name;
-      this.pose = pose;
       this.MTStdDevFactor = MTStdDevFactor;
     }
   }
@@ -40,7 +30,6 @@ public class VisionConstants {
   public static final double MT1MaxLinearVelocity = 0.25; // Meters per second
   public static final double MT1MaxAngularVelocity =
       Units.degreesToRadians(1); // Radians per second
-  public static final double MT1MaxAverageTagDistance = 2.5; // Meters
   public static final double maxZError = 0.25; // Meters
 
   // Higher standard deviations result in less truested data
@@ -51,12 +40,8 @@ public class VisionConstants {
   public static final double angularStdDevBaseline = 0.06; // Radians
 
   // Multipliers to apply for MegaTag 1 observations
-  public static final double linearStdDevMegatag1Factor =
-      Double.POSITIVE_INFINITY; // Do not use linear data
   public static final double angularStdDevMegatag1Factor = 1.0;
 
   // Multipliers to apply for MegaTag 2 observations
   public static final double linearStdDevMegatag2Factor = 0.5; // More stable than full 3D solve
-  public static final double angularStdDevMegatag2Factor =
-      Double.POSITIVE_INFINITY; // No rotation data available
 }

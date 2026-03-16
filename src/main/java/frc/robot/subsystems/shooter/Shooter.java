@@ -74,12 +74,20 @@ public class Shooter extends SubsystemBase {
                   SmartDashboard.getNumber("Shooter/TurretPosition", 0.0));
             },
             this));
+    SmartDashboard.putData(
+        "Shooter/Fountain",
+        Commands.runOnce(
+            () -> {
+              runStatic(ShooterConstants.StaticShot.fountain);
+            },
+            this));
   }
 
   public void periodic() {
     // Calculate target
     if (inAllianceZoneSupplier.get()) {
       isTargetHub = true;
+      holdSetpoint = false;
       target = AllianceFlipUtil.apply(ShooterConstants.Target.hub);
       flightTime = ShooterConstants.DynamicShot.hubShotFlightTime.get(getDistanceToTarget());
       Logger.recordOutput("Shooter/Target", "Hub");

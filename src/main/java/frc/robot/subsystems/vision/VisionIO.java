@@ -15,14 +15,9 @@ public interface VisionIO {
     public double cpuUsage = 0.0;
     public double ramUsage = 0.0;
     public double fps = 0.0;
-    public TargetObservation latestTargetObservation =
-        new TargetObservation(Rotation2d.kZero, Rotation2d.kZero);
     public PoseObservation[] poseObservations = new PoseObservation[0];
     public int[] tagIds = new int[0];
   }
-
-  /** Represents the angle to a simple target, not used for pose estimation. */
-  public static record TargetObservation(Rotation2d tx, Rotation2d ty) {}
 
   /** Represents a robot pose sample used for pose estimation. */
   public static record PoseObservation(
@@ -56,27 +51,6 @@ public interface VisionIO {
   public default CameraInfo getCameraInfo() {
     return CameraInfo.values()[1];
   }
-
-  /**
-   * Set the vision pipeline the camera will use.
-   *
-   * @param pipelineIndex Index of the pipeline
-   */
-  public default void setPipline(int pipelineIndex) {}
-
-  /**
-   * Set the number of frames to skip between processed frames. This is used to reduce the tempature
-   * of the camera. Outputs are not zeroed during skipped frames.
-   *
-   * <p><b>Recommend Values:
-   *
-   * <p>Disabled:</b> 100-200
-   *
-   * <p><b>Enabled:</b> 0
-   *
-   * @param skippedFrames Index of the pipeline
-   */
-  public default void setThrottle(int skippedFrames) {}
 
   /**
    * Triggers a rewind to be saved to disc. This is only functional on the Limelight 4.

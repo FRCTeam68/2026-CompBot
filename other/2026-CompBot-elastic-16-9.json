@@ -50,20 +50,7 @@
             }
           },
           {
-            "title": "Climb",
-            "x": 0.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Toggle Button",
-            "properties": {
-              "topic": "SmartDashboard/Auton/Climb",
-              "period": 0.06,
-              "data_type": "boolean"
-            }
-          },
-          {
-            "title": "StartingPose",
+            "title": "Starting Pose",
             "x": 0.0,
             "y": 0.0,
             "width": 256.0,
@@ -78,7 +65,7 @@
           {
             "title": "Special",
             "x": 0.0,
-            "y": 640.0,
+            "y": 384.0,
             "width": 256.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
@@ -86,23 +73,6 @@
               "topic": "/SmartDashboard/Auton/Special",
               "period": 0.06,
               "sort_options": false
-            }
-          },
-          {
-            "title": "Climb",
-            "x": 128.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "SmartDashboard/Auton/Climb",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
             }
           },
           {
@@ -167,10 +137,10 @@
           },
           {
             "title": "Field",
-            "x": 512.0,
+            "x": 256.0,
             "y": 0.0,
-            "width": 896.0,
-            "height": 384.0,
+            "width": 1152.0,
+            "height": 512.0,
             "type": "Field",
             "properties": {
               "topic": "/SmartDashboard/Field",
@@ -184,6 +154,115 @@
               "robot_color": 4281746676,
               "trajectory_color": 4294967295,
               "show_robot_outside_widget": false
+            }
+          },
+          {
+            "title": "Shift Override",
+            "x": 768.0,
+            "y": 640.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "SmartDashboard/HubShift/Override",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "Always Target Pass",
+            "x": 1152.0,
+            "y": 640.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "SmartDashboard/Shooter/AlwaysTargetPass",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "Disambiguate Turret",
+            "x": 1152.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Shooter/DisambiguateTurret",
+              "period": 0.06,
+              "show_type": false,
+              "maximize_button_space": true
+            }
+          },
+          {
+            "title": "Do Trench Align",
+            "x": 960.0,
+            "y": 640.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "SmartDashboard/Drive/DoTrenchAlign",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "Flywheel Bump Velocity",
+            "x": 960.0,
+            "y": 512.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Shooter/Flywheel/BumpVelocity",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Turret Bump Angle",
+            "x": 768.0,
+            "y": 512.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Shooter/Turret/BumpAngle",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Set Starting Pose",
+            "x": 0.0,
+            "y": 512.0,
+            "width": 160.0,
+            "height": 128.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "SmartDashboard/Auton/SetStartingPose",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "Set Starting Pose",
+            "x": 160.0,
+            "y": 512.0,
+            "width": 160.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "SmartDashboard/Auton/SetStartingPose",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
             }
           }
         ]
@@ -227,9 +306,9 @@
           {
             "title": "Alerts",
             "x": 1248.0,
-            "y": 128.0,
+            "y": 160.0,
             "width": 384.0,
-            "height": 384.0,
+            "height": 352.0,
             "type": "Alerts",
             "properties": {
               "topic": "/AdvantageKit/RealOutputs/Alerts",
@@ -262,7 +341,7 @@
             "x": 1248.0,
             "y": 0.0,
             "width": 384.0,
-            "height": 128.0,
+            "height": 160.0,
             "type": "Single Color View",
             "properties": {
               "topic": "/SmartDashboard/HubShift/HubActiveFirst",
@@ -333,28 +412,62 @@
             }
           },
           {
-            "title": "NoPass",
+            "title": "Hub Active First Override",
             "x": 1632.0,
-            "y": 256.0,
+            "y": 640.0,
             "width": 288.0,
-            "height": 96.0,
-            "type": "Boolean Box",
+            "height": 128.0,
+            "type": "Split Button Chooser",
             "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Shooter/NoPass",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
+              "topic": "/SmartDashboard/HubShift/ActiveFirstOverride",
+              "period": 0.06
             }
           },
           {
-            "title": "ManualShoot",
+            "title": "Always Target Pass",
             "x": 1632.0,
-            "y": 160.0,
+            "y": 544.0,
+            "width": 160.0,
+            "height": 96.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "SmartDashboard/Shooter/AlwaysTargetPass",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "Shift Override",
+            "x": 1632.0,
+            "y": 448.0,
             "width": 288.0,
             "height": 96.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "SmartDashboard/HubShift/Override",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "Do Trench Align",
+            "x": 1792.0,
+            "y": 544.0,
+            "width": 128.0,
+            "height": 96.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "SmartDashboard/Drive/DoTrenchAlign",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "Manual Shoot",
+            "x": 1632.0,
+            "y": 192.0,
+            "width": 160.0,
+            "height": 128.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/AdvantageKit/RealOutputs/Shooter/ManualShoot",
@@ -367,14 +480,14 @@
             }
           },
           {
-            "title": "Shooter Hold",
-            "x": 1632.0,
-            "y": 448.0,
-            "width": 288.0,
-            "height": 96.0,
+            "title": "Static Setpoint",
+            "x": 1792.0,
+            "y": 192.0,
+            "width": 128.0,
+            "height": 128.0,
             "type": "Boolean Box",
             "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Shooter/HoldSetpoint",
+              "topic": "/AdvantageKit/RealOutputs/Shooter/StaticSetpoint",
               "period": 0.06,
               "data_type": "boolean",
               "true_color": 4283215696,
@@ -388,7 +501,7 @@
             "x": 1632.0,
             "y": 0.0,
             "width": 288.0,
-            "height": 160.0,
+            "height": 192.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/AdvantageKit/RealOutputs/Shooter/atSetpoint",
@@ -401,49 +514,29 @@
             }
           },
           {
-            "title": "Shooter Static",
+            "title": "Flywheel Bump Velocity",
             "x": 1632.0,
-            "y": 352.0,
-            "width": 288.0,
-            "height": 96.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Shooter/StaticSetpoint",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Hub Active First Override",
-            "x": 1632.0,
-            "y": 640.0,
-            "width": 288.0,
+            "y": 320.0,
+            "width": 160.0,
             "height": 128.0,
-            "type": "Split Button Chooser",
+            "type": "Large Text Display",
             "properties": {
-              "topic": "/SmartDashboard/HubShift/ActiveFirstOverride",
-              "period": 0.06
+              "topic": "/AdvantageKit/RealOutputs/Shooter/Flywheel/BumpVelocity",
+              "period": 0.06,
+              "data_type": "double"
             }
           },
           {
-            "title": "Hub Shift Override",
-            "x": 1632.0,
-            "y": 544.0,
-            "width": 288.0,
-            "height": 96.0,
-            "type": "Boolean Box",
+            "title": "Turret Bump Angle",
+            "x": 1792.0,
+            "y": 320.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Large Text Display",
             "properties": {
-              "topic": "/AdvantageKit/RealOutputs/HubShift/Override",
+              "topic": "/AdvantageKit/RealOutputs/Shooter/Turret/BumpAngle",
               "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
+              "data_type": "double"
             }
           }
         ]
@@ -487,9 +580,9 @@
           {
             "title": "Alerts",
             "x": 1248.0,
-            "y": 128.0,
+            "y": 160.0,
             "width": 384.0,
-            "height": 384.0,
+            "height": 352.0,
             "type": "Alerts",
             "properties": {
               "topic": "/AdvantageKit/RealOutputs/Alerts",
@@ -501,7 +594,7 @@
             "x": 736.0,
             "y": 0.0,
             "width": 512.0,
-            "height": 1280.0,
+            "height": 1248.0,
             "type": "Field",
             "properties": {
               "topic": "/SmartDashboard/Field",
@@ -522,7 +615,7 @@
             "x": 1248.0,
             "y": 0.0,
             "width": 384.0,
-            "height": 128.0,
+            "height": 160.0,
             "type": "Single Color View",
             "properties": {
               "topic": "/SmartDashboard/HubShift/HubActiveFirst",
@@ -593,28 +686,62 @@
             }
           },
           {
-            "title": "NoPass",
+            "title": "Hub Active First Override",
             "x": 1632.0,
-            "y": 256.0,
+            "y": 640.0,
             "width": 288.0,
-            "height": 96.0,
-            "type": "Boolean Box",
+            "height": 128.0,
+            "type": "Split Button Chooser",
             "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Shooter/NoPass",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
+              "topic": "/SmartDashboard/HubShift/ActiveFirstOverride",
+              "period": 0.06
             }
           },
           {
-            "title": "ManualShoot",
+            "title": "Always Target Pass",
             "x": 1632.0,
-            "y": 160.0,
+            "y": 544.0,
+            "width": 160.0,
+            "height": 96.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "SmartDashboard/Shooter/AlwaysTargetPass",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "Shift Override",
+            "x": 1632.0,
+            "y": 448.0,
             "width": 288.0,
             "height": 96.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "SmartDashboard/HubShift/Override",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "Do Trench Align",
+            "x": 1792.0,
+            "y": 544.0,
+            "width": 128.0,
+            "height": 96.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "SmartDashboard/Drive/DoTrenchAlign",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "Manual Shoot",
+            "x": 1632.0,
+            "y": 192.0,
+            "width": 160.0,
+            "height": 128.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/AdvantageKit/RealOutputs/Shooter/ManualShoot",
@@ -627,14 +754,14 @@
             }
           },
           {
-            "title": "Shooter Hold",
-            "x": 1632.0,
-            "y": 448.0,
-            "width": 288.0,
-            "height": 96.0,
+            "title": "Static Setpoint",
+            "x": 1792.0,
+            "y": 192.0,
+            "width": 128.0,
+            "height": 128.0,
             "type": "Boolean Box",
             "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Shooter/HoldSetpoint",
+              "topic": "/AdvantageKit/RealOutputs/Shooter/StaticSetpoint",
               "period": 0.06,
               "data_type": "boolean",
               "true_color": 4283215696,
@@ -648,7 +775,7 @@
             "x": 1632.0,
             "y": 0.0,
             "width": 288.0,
-            "height": 160.0,
+            "height": 192.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/AdvantageKit/RealOutputs/Shooter/atSetpoint",
@@ -661,49 +788,29 @@
             }
           },
           {
-            "title": "Shooter Static",
+            "title": "Flywheel Bump Velocity",
             "x": 1632.0,
-            "y": 352.0,
-            "width": 288.0,
-            "height": 96.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Shooter/StaticSetpoint",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Hub Active First Override",
-            "x": 1632.0,
-            "y": 640.0,
-            "width": 288.0,
+            "y": 320.0,
+            "width": 160.0,
             "height": 128.0,
-            "type": "Split Button Chooser",
+            "type": "Large Text Display",
             "properties": {
-              "topic": "/SmartDashboard/HubShift/ActiveFirstOverride",
-              "period": 0.06
+              "topic": "/AdvantageKit/RealOutputs/Shooter/Flywheel/BumpVelocity",
+              "period": 0.06,
+              "data_type": "double"
             }
           },
           {
-            "title": "Hub Shift Override",
-            "x": 1632.0,
-            "y": 544.0,
-            "width": 288.0,
-            "height": 96.0,
-            "type": "Boolean Box",
+            "title": "Turret Bump Angle",
+            "x": 1792.0,
+            "y": 320.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Large Text Display",
             "properties": {
-              "topic": "/AdvantageKit/RealOutputs/HubShift/Override",
+              "topic": "/AdvantageKit/RealOutputs/Shooter/Turret/BumpAngle",
               "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
+              "data_type": "double"
             }
           }
         ]
@@ -725,7 +832,7 @@
             },
             "children": [
               {
-                "title": "StartingPose",
+                "title": "Starting Pose",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
@@ -751,19 +858,6 @@
                 }
               },
               {
-                "title": "Climb",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Toggle Switch",
-                "properties": {
-                  "topic": "SmartDashboard/Auton/Climb",
-                  "period": 0.06,
-                  "data_type": "boolean"
-                }
-              },
-              {
                 "title": "Depot",
                 "x": 0.0,
                 "y": 0.0,
@@ -772,19 +866,6 @@
                 "type": "Toggle Switch",
                 "properties": {
                   "topic": "SmartDashboard/Auton/Depot",
-                  "period": 0.06,
-                  "data_type": "boolean"
-                }
-              },
-              {
-                "title": "FullField",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Toggle Switch",
-                "properties": {
-                  "topic": "SmartDashboard/Auton/FullField",
                   "period": 0.06,
                   "data_type": "boolean"
                 }
@@ -801,56 +882,28 @@
                   "period": 0.06,
                   "sort_options": false
                 }
-              }
-            ]
-          },
-          {
-            "title": "Feeder",
-            "x": 512.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "LEFT"
-            },
-            "children": [
+              },
               {
-                "title": "Voltage",
+                "title": "Set Starting Pose",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
-                "type": "Text Display",
+                "type": "Toggle Switch",
                 "properties": {
-                  "topic": "/SmartDashboard/Feeder/Voltage",
+                  "topic": "SmartDashboard/Auton/SetStartingPose",
                   "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "​",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/SmartDashboard/Feeder/RunVoltage",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": true
+                  "data_type": "boolean"
                 }
               }
             ]
           },
           {
-            "title": "IntakePivot",
+            "title": "Intake Pivot",
             "x": 256.0,
             "y": 0.0,
             "width": 256.0,
-            "height": 288.0,
+            "height": 352.0,
             "type": "List Layout",
             "properties": {
               "label_position": "LEFT"
@@ -916,6 +969,398 @@
                   "false_color": 4294198070,
                   "true_icon": "None",
                   "false_icon": "None"
+                }
+              },
+              {
+                "title": "​",
+                "x": 256.0,
+                "y": 256.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/IntakePivot/Zero",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              }
+            ]
+          },
+          {
+            "title": "Spindexer/Feeder",
+            "x": 256.0,
+            "y": 352.0,
+            "width": 256.0,
+            "height": 416.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "Intake Spin Voltage",
+                "x": 352.0,
+                "y": 672.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/IntakeSpin/Voltage",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Intake Spin",
+                "x": 384.0,
+                "y": 672.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/IntakeSpin/RunVoltage",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              },
+              {
+                "title": "Spindexer Voltage",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/Spindexer/Voltage",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Spindexer",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Spindexer/RunVoltage",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              },
+              {
+                "title": "Feeder Voltage",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/Feeder/Voltage",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Feeder",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Feeder/RunVoltage",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              }
+            ]
+          },
+          {
+            "title": "Hub Shift",
+            "x": 1280.0,
+            "y": 320.0,
+            "width": 256.0,
+            "height": 352.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "Shift Time",
+                "x": 608.0,
+                "y": 672.0,
+                "width": 192.0,
+                "height": 192.0,
+                "type": "Match Time",
+                "properties": {
+                  "topic": "/AdvantageKit/RealOutputs/HubShift/ShiftSec",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "time_display_mode": "Seconds Only",
+                  "red_start_time": 8,
+                  "yellow_start_time": 15
+                }
+              },
+              {
+                "title": "Current Shift",
+                "x": 672.0,
+                "y": 672.0,
+                "width": 192.0,
+                "height": 192.0,
+                "type": "Large Text Display",
+                "properties": {
+                  "topic": "/AdvantageKit/RealOutputs/HubShift/CurrentShift",
+                  "period": 0.06,
+                  "data_type": "string"
+                }
+              },
+              {
+                "title": "Hub Active",
+                "x": 672.0,
+                "y": 736.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/RealOutputs/HubShift/HubActive",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "Should Shoot",
+                "x": 1312.0,
+                "y": 416.0,
+                "width": 160.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/RealOutputs/HubShift/ShouldShoot",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "Active First",
+                "x": 1312.0,
+                "y": 480.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Single Color View",
+                "properties": {
+                  "topic": "/SmartDashboard/HubShift/HubActiveFirst",
+                  "period": 0.06,
+                  "data_type": "string"
+                }
+              },
+              {
+                "title": "Override",
+                "x": 1312.0,
+                "y": 576.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Toggle Switch",
+                "properties": {
+                  "topic": "SmartDashboard/HubShift/Override",
+                  "period": 0.06,
+                  "data_type": "boolean"
+                }
+              }
+            ]
+          },
+          {
+            "title": "Shooter Components",
+            "x": 512.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 512.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "Flywheel Bump Velocity",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Large Text Display",
+                "properties": {
+                  "topic": "/AdvantageKit/RealOutputs/Shooter/Flywheel/BumpVelocity",
+                  "period": 0.06,
+                  "data_type": "double"
+                }
+              },
+              {
+                "title": "Flywheel At Setpoint",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/RealOutputs/Shooter/Flywheel/atSetpoint",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "Hood At Setpoint",
+                "x": 288.0,
+                "y": 672.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/RealOutputs/Shooter/Hood/atSetpoint",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "Turret At Setpoint",
+                "x": 256.0,
+                "y": 704.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/RealOutputs/Shooter/Turret/atSetpoint",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "​",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Shooter/DisambiguateTurret",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              },
+              {
+                "title": "​",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Shooter/ZeroHood",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              },
+              {
+                "title": "​",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Shooter/ZeroTurret",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              }
+            ]
+          },
+          {
+            "title": "Drive",
+            "x": 512.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "In Alliance Zone",
+                "x": 1056.0,
+                "y": 832.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/RealOutputs/Drive/inAllianceZone",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "Near Trench",
+                "x": 1088.0,
+                "y": 896.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/RealOutputs/Drive/NearTrench",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "Do Trench Align",
+                "x": 1216.0,
+                "y": 928.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Toggle Switch",
+                "properties": {
+                  "topic": "SmartDashboard/Drive/DoTrenchAlign",
+                  "period": 0.06,
+                  "data_type": "boolean"
                 }
               }
             ]
@@ -989,8 +1434,8 @@
               },
               {
                 "title": "Target",
-                "x": 800.0,
-                "y": 544.0,
+                "x": 0.0,
+                "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Large Text Display",
@@ -1001,9 +1446,22 @@
                 }
               },
               {
-                "title": "Shooter at Setpoint",
-                "x": 640.0,
-                "y": 320.0,
+                "title": "Distance To Target",
+                "x": 768.0,
+                "y": 672.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Large Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/Shooter/DistanceToTarget",
+                  "period": 0.06,
+                  "data_type": "string"
+                }
+              },
+              {
+                "title": "At Setpoint",
+                "x": 0.0,
+                "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Boolean Box",
@@ -1018,54 +1476,16 @@
                 }
               },
               {
-                "title": "Flywheel at Setpoint",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
+                "title": "Always Target Pass",
+                "x": 832.0,
+                "y": 384.0,
+                "width": 160.0,
                 "height": 128.0,
-                "type": "Boolean Box",
+                "type": "Toggle Switch",
                 "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/Shooter/Flywheel/atSetpoint",
+                  "topic": "SmartDashboard/Shooter/AlwaysTargetPass",
                   "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "Hood at Setpoint",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/Shooter/Hood/atSetpoint",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "Turret at Setpoint",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/Shooter/Turret/atSetpoint",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
+                  "data_type": "boolean"
                 }
               },
               {
@@ -1086,14 +1506,31 @@
                 }
               },
               {
-                "title": "No Pass",
-                "x": 800.0,
-                "y": 480.0,
+                "title": "In Tower Box",
+                "x": 0.0,
+                "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Boolean Box",
                 "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/Shooter/NoPass",
+                  "topic": "/AdvantageKit/RealOutputs/Shooter/InTowerBox",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "Is Behind Hub",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/RealOutputs/Shooter/IsBehindHub",
                   "period": 0.06,
                   "data_type": "boolean",
                   "true_color": 4283215696,
@@ -1104,8 +1541,8 @@
               },
               {
                 "title": "Manual Shoot",
-                "x": 832.0,
-                "y": 480.0,
+                "x": 0.0,
+                "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Boolean Box",
@@ -1120,26 +1557,9 @@
                 }
               },
               {
-                "title": "Hold Setpoint",
-                "x": 800.0,
-                "y": 512.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/Shooter/HoldSetpoint",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
                 "title": "Static Setpoint",
-                "x": 800.0,
-                "y": 544.0,
+                "x": 0.0,
+                "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Boolean Box",
@@ -1154,171 +1574,243 @@
                 }
               },
               {
-                "title": "​",
-                "x": 736.0,
-                "y": 544.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/DisambiguateTurret",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": true
-                }
-              }
-            ]
-          },
-          {
-            "title": "Spindexer",
-            "x": 512.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "LEFT"
-            },
-            "children": [
-              {
-                "title": "Voltage",
+                "title": "Hold Setpoint",
                 "x": 0.0,
                 "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Spindexer/Voltage",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "​",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/SmartDashboard/Spindexer/RunVoltage",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": true
-                }
-              }
-            ]
-          },
-          {
-            "title": "Intake Spin",
-            "x": 256.0,
-            "y": 288.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "LEFT"
-            },
-            "children": [
-              {
-                "title": "Voltage",
-                "x": 352.0,
-                "y": 672.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/IntakeSpin/Voltage",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "​",
-                "x": 384.0,
-                "y": 672.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/SmartDashboard/IntakeSpin/RunVoltage",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": true
-                }
-              }
-            ]
-          },
-          {
-            "title": "Hub Shift",
-            "x": 1280.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "LEFT"
-            },
-            "children": [
-              {
-                "title": "Shift Time",
-                "x": 608.0,
-                "y": 672.0,
-                "width": 192.0,
-                "height": 192.0,
-                "type": "Match Time",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/HubShift/ShiftSec",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "time_display_mode": "Seconds Only",
-                  "red_start_time": 8,
-                  "yellow_start_time": 15
-                }
-              },
-              {
-                "title": "Current Shift",
-                "x": 672.0,
-                "y": 672.0,
-                "width": 192.0,
-                "height": 192.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/HubShift/CurrentShift",
-                  "period": 0.06,
-                  "data_type": "string"
-                }
-              },
-              {
-                "title": "Active First",
-                "x": 704.0,
-                "y": 672.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Single Color View",
-                "properties": {
-                  "topic": "/SmartDashboard/HubShift/HubActiveFirst",
-                  "period": 0.06,
-                  "data_type": "string"
-                }
-              },
-              {
-                "title": "Hub Active",
-                "x": 672.0,
-                "y": 736.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Boolean Box",
                 "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/HubShift/HubActive",
+                  "topic": "/AdvantageKit/RealOutputs/Shooter/HoldSetpoint",
                   "period": 0.06,
                   "data_type": "boolean",
                   "true_color": 4283215696,
                   "false_color": 4294198070,
                   "true_icon": "None",
                   "false_icon": "None"
+                }
+              }
+            ]
+          },
+          {
+            "title": "Tuning Commands",
+            "x": 1024.0,
+            "y": 320.0,
+            "width": 256.0,
+            "height": 448.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "​",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Tuning/FunctionTest",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              },
+              {
+                "title": "​",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Tuning/Drive SysId (Dynamic Forward)",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              },
+              {
+                "title": "​",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Tuning/Drive SysId (Dynamic Reverse)",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              },
+              {
+                "title": "​",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Tuning/Drive SysId (Quasistatic Forward)",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              },
+              {
+                "title": "​",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Tuning/Drive SysId (Quasistatic Reverse)",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              },
+              {
+                "title": "​",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Tuning/DriveAngular_CCW",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              },
+              {
+                "title": "​",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Tuning/DriveAngular_CW",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              },
+              {
+                "title": "​",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Tuning/DriveLinear_Left",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              },
+              {
+                "title": "​",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Tuning/DriveLinear_Right",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              },
+              {
+                "title": "​",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Tuning/Drive Simple FF Characterization",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              },
+              {
+                "title": "​",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Tuning/wheelRadiusCharacterization",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              },
+              {
+                "title": "​",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Tuning/Hood_Max",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              },
+              {
+                "title": "​",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Tuning/Hood_Min",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              },
+              {
+                "title": "​",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Tuning/Turret_360",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
+                }
+              },
+              {
+                "title": "​",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Tuning/Turret_1",
+                  "period": 0.06,
+                  "show_type": false,
+                  "maximize_button_space": true
                 }
               }
             ]
@@ -1370,9 +1862,9 @@
           {
             "title": "Match Time",
             "x": 1024.0,
-            "y": 512.0,
+            "y": 0.0,
             "width": 512.0,
-            "height": 256.0,
+            "height": 320.0,
             "type": "Match Time",
             "properties": {
               "topic": "/AdvantageKit/DriverStation/MatchTime",
@@ -1398,43 +1890,9 @@
             }
           },
           {
-            "title": "Full Cycle MS",
-            "x": 1024.0,
-            "y": 0.0,
-            "width": 512.0,
-            "height": 256.0,
-            "type": "Graph",
-            "properties": {
-              "topic": "/AdvantageKit/RealOutputs/LoggedRobot/FullCycleMS",
-              "period": 0.033,
-              "data_type": "double",
-              "time_displayed": 60.0,
-              "min_value": 0.0,
-              "color": 4293754161,
-              "line_width": 2.0
-            }
-          },
-          {
-            "title": "In Alliance Zone",
-            "x": 1024.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Drive/inAllianceZone",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
             "title": "Log Label",
-            "x": 512.0,
-            "y": 512.0,
+            "x": 0.0,
+            "y": 640.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
@@ -1446,684 +1904,15 @@
             }
           },
           {
-            "title": "ShouldShoot",
-            "x": 1024.0,
-            "y": 384.0,
+            "title": "Hub Active First Override",
+            "x": 1280.0,
+            "y": 672.0,
             "width": 256.0,
-            "height": 128.0,
-            "type": "Boolean Box",
+            "height": 96.0,
+            "type": "Split Button Chooser",
             "properties": {
-              "topic": "/AdvantageKit/RealOutputs/HubShift/ShouldShoot",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "Tuning-Half",
-      "grid_layout": {
-        "layouts": [
-          {
-            "title": "Auton",
-            "x": 0.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 512.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "TOP"
-            },
-            "children": [
-              {
-                "title": "StartingPose",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "ComboBox Chooser",
-                "properties": {
-                  "topic": "/SmartDashboard/Auton/StartingPose",
-                  "period": 0.06,
-                  "sort_options": false
-                }
-              },
-              {
-                "title": "Outpost",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Toggle Switch",
-                "properties": {
-                  "topic": "SmartDashboard/Auton/Outpost",
-                  "period": 0.06,
-                  "data_type": "boolean"
-                }
-              },
-              {
-                "title": "Climb",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Toggle Switch",
-                "properties": {
-                  "topic": "SmartDashboard/Auton/Climb",
-                  "period": 0.06,
-                  "data_type": "boolean"
-                }
-              },
-              {
-                "title": "Depot",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Toggle Switch",
-                "properties": {
-                  "topic": "SmartDashboard/Auton/Depot",
-                  "period": 0.06,
-                  "data_type": "boolean"
-                }
-              },
-              {
-                "title": "FullField",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Toggle Switch",
-                "properties": {
-                  "topic": "SmartDashboard/Auton/FullField",
-                  "period": 0.06,
-                  "data_type": "boolean"
-                }
-              },
-              {
-                "title": "Special",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "ComboBox Chooser",
-                "properties": {
-                  "topic": "/SmartDashboard/Auton/Special",
-                  "period": 0.06,
-                  "sort_options": false
-                }
-              }
-            ]
-          },
-          {
-            "title": "IntakePivot",
-            "x": 256.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 288.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "LEFT"
-            },
-            "children": [
-              {
-                "title": "​",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/SmartDashboard/IntakePivot/Extend",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": true
-                }
-              },
-              {
-                "title": "​",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/SmartDashboard/IntakePivot/Retract",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": true
-                }
-              },
-              {
-                "title": "At Setpoint",
-                "x": 224.0,
-                "y": 32.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/IntakePivot/atSetpoint",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "Inside Bumper",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/IntakePivot/InsideBumper",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              }
-            ]
-          },
-          {
-            "title": "Spindexer / Feeder",
-            "x": 256.0,
-            "y": 544.0,
-            "width": 256.0,
-            "height": 288.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "LEFT"
-            },
-            "children": [
-              {
-                "title": "Spindexer Voltage",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Spindexer/Voltage",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "Spindexer",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/SmartDashboard/Spindexer/RunVoltage",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": true
-                }
-              },
-              {
-                "title": "Feeder Voltage",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Feeder/Voltage",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "Feeder​",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/SmartDashboard/Feeder/RunVoltage",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": true
-                }
-              }
-            ]
-          },
-          {
-            "title": "Intake Spin",
-            "x": 256.0,
-            "y": 288.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "LEFT"
-            },
-            "children": [
-              {
-                "title": "Voltage",
-                "x": 352.0,
-                "y": 672.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/IntakeSpin/Voltage",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "​",
-                "x": 384.0,
-                "y": 672.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/SmartDashboard/IntakeSpin/RunVoltage",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": true
-                }
-              }
-            ]
-          },
-          {
-            "title": "Hub Shift",
-            "x": 0.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "LEFT"
-            },
-            "children": [
-              {
-                "title": "Shift Time",
-                "x": 608.0,
-                "y": 672.0,
-                "width": 192.0,
-                "height": 192.0,
-                "type": "Match Time",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/HubShift/ShiftSec",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "time_display_mode": "Seconds Only",
-                  "red_start_time": 8,
-                  "yellow_start_time": 15
-                }
-              },
-              {
-                "title": "Current Shift",
-                "x": 672.0,
-                "y": 672.0,
-                "width": 192.0,
-                "height": 192.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/HubShift/CurrentShift",
-                  "period": 0.06,
-                  "data_type": "string"
-                }
-              },
-              {
-                "title": "Active First",
-                "x": 704.0,
-                "y": 672.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Single Color View",
-                "properties": {
-                  "topic": "/SmartDashboard/HubShift/HubActiveFirst",
-                  "period": 0.06,
-                  "data_type": "string"
-                }
-              },
-              {
-                "title": "Hub Active",
-                "x": 672.0,
-                "y": 736.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/HubShift/HubActive",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              }
-            ]
-          },
-          {
-            "title": "Shooter",
-            "x": 512.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 640.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "LEFT"
-            },
-            "children": [
-              {
-                "title": "Flywheel Velocity",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/FlywheelVelocity",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "Hood Elevation",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/HoodPosition",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "Turret Angle",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/TurretPosition",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": true
-                }
-              },
-              {
-                "title": "​",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/RunStatic",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": true
-                }
-              },
-              {
-                "title": "Target",
-                "x": 800.0,
-                "y": 544.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/Shooter/Target",
-                  "period": 0.06,
-                  "data_type": "string"
-                }
-              },
-              {
-                "title": "Shooter at Setpoint",
-                "x": 640.0,
-                "y": 320.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/Shooter/atSetpoint",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "Flywheel at Setpoint",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/Shooter/Flywheel/atSetpoint",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "Hood at Setpoint",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/Shooter/Hood/atSetpoint",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "Turret at Setpoint",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/Shooter/Turret/atSetpoint",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "In Trench Box",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/Shooter/InTrenchBox",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "​",
-                "x": 512.0,
-                "y": 480.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Command",
-                "properties": {
-                  "topic": "/SmartDashboard/Shooter/DisambiguateTurret",
-                  "period": 0.06,
-                  "show_type": false,
-                  "maximize_button_space": true
-                }
-              }
-            ]
-          }
-        ],
-        "containers": [
-          {
-            "title": "Alerts",
-            "x": 512.0,
-            "y": 640.0,
-            "width": 448.0,
-            "height": 288.0,
-            "type": "Alerts",
-            "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Alerts",
+              "topic": "/SmartDashboard/HubShift/ActiveFirstOverride",
               "period": 0.06
-            }
-          },
-          {
-            "title": "Match Time",
-            "x": 0.0,
-            "y": 768.0,
-            "width": 256.0,
-            "height": 160.0,
-            "type": "Match Time",
-            "properties": {
-              "topic": "/AdvantageKit/DriverStation/MatchTime",
-              "period": 0.06,
-              "data_type": "double",
-              "time_display_mode": "Minutes and Seconds",
-              "red_start_time": 20,
-              "yellow_start_time": 30
-            }
-          },
-          {
-            "title": "Vision",
-            "x": 768.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Command",
-            "properties": {
-              "topic": "/SmartDashboard/Vision/SaveRewind",
-              "period": 0.06,
-              "show_type": false,
-              "maximize_button_space": true
-            }
-          },
-          {
-            "title": "In Alliance Zone",
-            "x": 768.0,
-            "y": 384.0,
-            "width": 192.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Drive/inAllianceZone",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Static Setpoint",
-            "x": 768.0,
-            "y": 288.0,
-            "width": 192.0,
-            "height": 96.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Shooter/StaticSetpoint",
-              "period": 0.06,
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Hold Setpoint",
-            "x": 768.0,
-            "y": 192.0,
-            "width": 192.0,
-            "height": 96.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Shooter/HoldSetpoint",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Manual Shoot",
-            "x": 768.0,
-            "y": 96.0,
-            "width": 192.0,
-            "height": 96.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Shooter/ManualShoot",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "No Pass",
-            "x": 768.0,
-            "y": 0.0,
-            "width": 192.0,
-            "height": 96.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Shooter/NoPass",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
             }
           }
         ]

@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.ShooterCommands;
+import frc.robot.commands.TestCommands;
 import frc.robot.commands.auton.Auton;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intakePivot.IntakePivot;
@@ -60,7 +61,7 @@ public class RobotContainer {
   private final Trigger trenchAlignTrigger =
       new Trigger(() -> drive.nearTrench() && robotSystem.doTrenchAlign.get());
   private final Trigger hubTransitionWarningTrigger =
-      new Trigger(() -> HubShiftUtil.hubToActive(3) || HubShiftUtil.hubToInactive(3));
+      new Trigger(() -> HubShiftUtil.shootingToStart(3) || HubShiftUtil.shootingToStop(3));
 
   /** The container for the robot. */
   public RobotContainer() {
@@ -74,6 +75,7 @@ public class RobotContainer {
     if (Constants.tuningMode) {
       @SuppressWarnings("unused")
       LoggedNetworkString logLabel = new LoggedNetworkString("SmartDashboard/LogLabel", "");
+      configureTestModeCommands();
       // Drive
       SmartDashboard.putData(
           "Tuning/DriveLinear_Right",
@@ -100,7 +102,21 @@ public class RobotContainer {
                   new APTarget(drive.getPose().plus(new Transform2d(0, 2, Rotation2d.kZero)))
                       .withEntryAngle(Rotation2d.kCCW_90deg)));
       SmartDashboard.putData(
-          "Tuning/wheelRadiusCharacterization", DriveCommands.wheelRadiusCharacterization());
+          "Tuning/Drive SysId (Quasistatic Forward)",
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      SmartDashboard.putData(
+          "Tuning/Drive SysId (Quasistatic Reverse)",
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      SmartDashboard.putData(
+          "Tuning/Drive SysId (Dynamic Forward)",
+          drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      SmartDashboard.putData(
+          "Tuning/Drive SysId (Dynamic Reverse)",
+          drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      SmartDashboard.putData(
+          "Tuning/Drive Simple FF Characterization", TestCommands.feedforwardCharacterization());
+      SmartDashboard.putData(
+          "Tuning/wheelRadiusCharacterization", TestCommands.wheelRadiusCharacterization());
       // Turret
       SmartDashboard.putData(
           "Tuning/Turret_1", ShooterCommands.runStatic(0, shooter.getHood().getElevation(), 1));
@@ -113,21 +129,6 @@ public class RobotContainer {
       SmartDashboard.putData(
           "Tuning/Hood_Max",
           ShooterCommands.runStatic(0, Hood.getMaximum() - 3, shooter.getTurret().getPosition()));
-
-      SmartDashboard.putData(
-          "Drive/Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization());
-      SmartDashboard.putData(
-          "Drive/Drive SysId (Quasistatic Forward)",
-          drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-      SmartDashboard.putData(
-          "Drive/Drive SysId (Quasistatic Reverse)",
-          drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-      SmartDashboard.putData(
-          "Drive/Drive SysId (Dynamic Forward)",
-          drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-      SmartDashboard.putData(
-          "Drive/Drive SysId (Dynamic Reverse)",
-          drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     }
   }
 
@@ -161,7 +162,7 @@ public class RobotContainer {
 
     driverController.rightTrigger().whileTrue(ShooterCommands.shoot(false));
 
-    driverController.a().whileTrue(ShooterCommands.dontShoot());
+    driverController.a().whileTrue(ShooterCommands.dontShoot().ignoringDisable(true));
 
     operatorController
         .R1()
@@ -182,9 +183,17 @@ public class RobotContainer {
     operatorController.povUp().onTrue(ShooterCommands.bumpFlywheel(true));
     operatorController.povDown().onTrue(ShooterCommands.bumpFlywheel(false));
 
+    operatorController.povLeft().onTrue(ShooterCommands.bumpTurret(true));
+    operatorController.povRight().onTrue(ShooterCommands.bumpTurret(false));
+
     operatorController.share().onTrue(ShooterCommands.toggleManualShoot());
 
-    operatorController.PS().onTrue(ShooterCommands.toggleAlwaysTargetPass());
+    operatorController
+        .PS()
+        .onTrue(
+            Commands.runOnce(() -> HubShiftUtil.override.set(!HubShiftUtil.override.get()))
+                .ignoringDisable(true)
+                .withName("ShiftToggleOverride"));
 
     // Misc
     driverController
@@ -205,13 +214,6 @@ public class RobotContainer {
             Commands.runOnce(() -> stopSubsystems())
                 .ignoringDisable(true)
                 .withName("StopSubsystems"));
-
-    operatorController
-        .povLeft()
-        .onTrue(
-            Commands.runOnce(() -> HubShiftUtil.override.set(!HubShiftUtil.override.get()))
-                .ignoringDisable(true)
-                .withName("ShiftToggleOverride"));
 
     hubTransitionWarningTrigger.onTrue(
         Commands.runOnce(() -> driverController.setRumble(RumbleType.kBothRumble, 1))
@@ -238,9 +240,19 @@ public class RobotContainer {
     vision.saveLimelightRewind();
   }
 
+  /** Enable MT1 for all Limelights. */
+  public void enableMT1() {
+    vision.enableMT1 = true;
+  }
+
   /** Log component poses for the robot visualization. */
   public void visualizeRobot() {
     robotSystem.visualization();
+  }
+
+  /** Add test mode commands to dashboard. */
+  public void configureTestModeCommands() {
+    SmartDashboard.putData("Tuning/FunctionTest", TestCommands.functionTest());
   }
 
   /**

@@ -64,7 +64,9 @@ public class ShooterConstants {
     public static final shotConfig neutralZone =
         shotConfig.builder().flywheelVelocity(66.0).hoodAngle(46).turretAngle(0.0).build();
     public static final shotConfig oppAllianceZone =
-        shotConfig.builder().flywheelVelocity(66.0).hoodAngle(46).turretAngle(0.0).build();
+        shotConfig.builder().flywheelVelocity(90.0).hoodAngle(46).turretAngle(0.0).build();
+    public static final shotConfig fountain =
+        shotConfig.builder().flywheelVelocity(5).hoodAngle(55).turretAngle(280).build();
   }
 
   public static class DynamicShot {

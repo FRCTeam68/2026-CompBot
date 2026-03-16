@@ -95,6 +95,7 @@ public class RobotSystem {
                 drive::addVisionMeasurement,
                 drive::getPose,
                 drive::getFieldVelocity,
+                drive::getGyroConnected,
                 new VisionIOLimelight(CameraInfo.LL_4),
                 new VisionIOLimelight(CameraInfo.LL_3G));
 
@@ -151,7 +152,12 @@ public class RobotSystem {
                 new ModuleIOSim(),
                 new ModuleIOSim());
 
-        vision = new Vision(drive::addVisionMeasurement, drive::getPose, drive::getFieldVelocity);
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                drive::getPose,
+                drive::getFieldVelocity,
+                drive::getGyroConnected);
 
         lights = new Lights(new LightsIO() {});
 
@@ -189,6 +195,7 @@ public class RobotSystem {
                 drive::addVisionMeasurement,
                 drive::getPose,
                 drive::getFieldVelocity,
+                drive::getGyroConnected,
                 new VisionIO() {},
                 new VisionIO() {});
 

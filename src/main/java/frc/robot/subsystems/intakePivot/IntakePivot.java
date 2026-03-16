@@ -67,6 +67,8 @@ public class IntakePivot extends SubsystemBase {
 
     // Configure dashboard
     SmartDashboard.putData(
+        "IntakePivot/Zero", Commands.runOnce(() -> zero(), this).withName("DashboardIntakeZero"));
+    SmartDashboard.putData(
         "IntakePivot/Extend",
         Commands.runOnce(() -> runPosition(extended, 0), this)
             .withName("DashboardIntakePivotExtend"));

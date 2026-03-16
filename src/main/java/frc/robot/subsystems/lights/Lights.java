@@ -17,24 +17,47 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
-import frc.robot.util.LoggedTunableNumber;
-import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
 public class Lights extends SubsystemBase {
+  // Onboard LEDs
+  // 0 - Auton chassis in correct starting position
+  // 1 - Turret position ambiguous
+  // 2 -
+  // 3 - Hopper Sensor
+  // 4 - Auton subsystems in starting positions
+  // 5 -
+  // 6 - LL4
+  // 7 - LL3G
+
   // Default values
-  @Getter private static final double onboardLEDBrightness = 0.5;
-  private final LoggedTunableNumber defaultAnimationSpeed =
-      new LoggedTunableNumber("CANdle/Default Animation Speed", 200);
+  private static final double onboardLEDBrightness = 0.5;
+  private final double defaultAnimationSpeed = 200;
+
+  public static class Segment {
+    public static final LEDSegment All = new LEDSegment(8, 44, 1);
+    public static final LEDSegment Back = new LEDSegment(8, 15, 1);
+    public static final LEDSegment Side = new LEDSegment(16, 44, 1);
+  }
+
+  public static class Color {
+    // team colors
+    public static final RGBWColor ORANGE = new RGBWColor(255, 142, 36);
+    public static final RGBWColor BLUE = new RGBWColor(0, 0, 255);
+
+    // indicator colors
+    public static final RGBWColor BLACK = new RGBWColor(0, 0, 0);
+    public static final RGBWColor WHITE = new RGBWColor(255, 230, 220);
+    public static final RGBWColor GREEN = new RGBWColor(56, 209, 0);
+    public static final RGBWColor RED = new RGBWColor(255, 0, 0);
+  }
 
   // Alerts
   private final Alert disconnectedAlert =
       new Alert("CANdle disconnected.", Alert.AlertType.kWarning);
 
   // Debouncers
-  private final Debouncer connectedDebouncer = new Debouncer(0.5, DebounceType.kFalling);
-
-  // Sources
+  private final Debouncer connectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
 
   private final LightsIO io;
   protected final LightsIOInputsAutoLogged inputs = new LightsIOInputsAutoLogged();
@@ -44,8 +67,11 @@ public class Lights extends SubsystemBase {
   }
 
   public void periodic() {
+    // Update inputs
     io.updateInputs(inputs);
     Logger.processInputs("CANdle", inputs);
+
+    // Update alerts
     disconnectedAlert.set(
         !connectedDebouncer.calculate(inputs.connected) && Constants.getMode() != Mode.SIM);
   }
@@ -64,12 +90,8 @@ public class Lights extends SubsystemBase {
    *
    * @param segment LED segment to clear animation
    */
-  public void clearAnimation(Segment segment) {
+  public void clearAnimation(LEDSegment segment) {
     io.setControl(new EmptyAnimation(segment.animationSlot));
-
-    for (int i = 0; i < segment.overlappingAnimationSlots.length; i++) {
-      io.setControl(new EmptyAnimation(segment.overlappingAnimationSlots[i]));
-    }
   }
 
   /**
@@ -77,8 +99,8 @@ public class Lights extends SubsystemBase {
    *
    * @param segment LED segment to turn off
    */
-  public void disableLEDs(Segment segment) {
-    // setSolidColor(LEDColor.BLACK, segment);
+  public void disableLEDs(LEDSegment segment) {
+    setSolidColor(Color.BLACK, segment);
   }
 
   /**
@@ -87,7 +109,7 @@ public class Lights extends SubsystemBase {
    * @param color Color of the LED
    * @param segment LED segment to apply color change
    */
-  public void setSolidColor(RGBWColor color, Segment segment) {
+  public void setSolidColor(RGBWColor color, LEDSegment segment) {
     clearAnimation(segment);
     io.setControl(new SolidColor(segment.startIndex, segment.endIndex).withColor(color));
   }
@@ -101,13 +123,13 @@ public class Lights extends SubsystemBase {
    * @param speed How fast should the color travel the strip [0, 1]
    */
   public void setFlowAnimation(
-      RGBWColor color, Segment segment, AnimationDirectionValue direction, double... speed) {
+      RGBWColor color, LEDSegment segment, AnimationDirectionValue direction, double... speed) {
     clearAnimation(segment);
     io.setControl(
         new ColorFlowAnimation(segment.startIndex, segment.endIndex)
             .withColor(color)
             .withDirection(direction)
-            .withFrameRate(speed.length > 0 ? speed[0] : defaultAnimationSpeed.get())
+            .withFrameRate(speed.length > 0 ? speed[0] : defaultAnimationSpeed)
             .withSlot(segment.animationSlot));
   }
 
@@ -118,12 +140,12 @@ public class Lights extends SubsystemBase {
    * @param segment LED segment to apply animation
    * @param speed How fast should the color travel the strip [0, 1]
    */
-  public void setSingleFadeAnimation(RGBWColor color, Segment segment, double... speed) {
+  public void setSingleFadeAnimation(RGBWColor color, LEDSegment segment, double... speed) {
     clearAnimation(segment);
     io.setControl(
         new SingleFadeAnimation(segment.startIndex, segment.endIndex)
             .withColor(color)
-            .withFrameRate(speed.length > 0 ? speed[0] : defaultAnimationSpeed.get())
+            .withFrameRate(speed.length > 0 ? speed[0] : defaultAnimationSpeed)
             .withSlot(segment.animationSlot));
   }
 
@@ -135,8 +157,8 @@ public class Lights extends SubsystemBase {
    * @param color Color of the LED
    * @param segment LED segment to apply animation
    */
-  public void setBandAnimation(RGBWColor color, Segment segment) {
-    setBandAnimation(color, segment, defaultAnimationSpeed.get(), LarsonBounceValue.Front, 4);
+  public void setBandAnimation(RGBWColor color, LEDSegment segment) {
+    setBandAnimation(color, segment, defaultAnimationSpeed, LarsonBounceValue.Front, 4);
   }
 
   /**
@@ -149,7 +171,7 @@ public class Lights extends SubsystemBase {
    * @param size How large the pocket of LEDs are [0, 15]
    */
   public void setBandAnimation(
-      RGBWColor color, Segment segment, double speed, LarsonBounceValue bounceMode, int size) {
+      RGBWColor color, LEDSegment segment, double speed, LarsonBounceValue bounceMode, int size) {
     clearAnimation(segment);
     io.setControl(
         new LarsonAnimation(segment.startIndex, segment.endIndex)
@@ -167,12 +189,12 @@ public class Lights extends SubsystemBase {
    * @param segment LED segment to apply animation
    * @param speed How fast should the color travel the strip [0, 1]
    */
-  public void setStrobeAnimation(RGBWColor color, Segment segment, double... speed) {
+  public void setStrobeAnimation(RGBWColor color, LEDSegment segment, double... speed) {
     clearAnimation(segment);
     io.setControl(
         new StrobeAnimation(segment.startIndex, segment.startIndex)
             .withColor(color)
-            .withFrameRate(speed.length > 0 ? speed[0] : defaultAnimationSpeed.get())
+            .withFrameRate(speed.length > 0 ? speed[0] : defaultAnimationSpeed)
             .withSlot(segment.animationSlot));
   }
 
@@ -186,12 +208,12 @@ public class Lights extends SubsystemBase {
    * @param speed How fast should the color travel the strip [0, 1]
    */
   public void setRainbowAnimation(
-      Segment segment, AnimationDirectionValue direction, double... speed) {
+      LEDSegment segment, AnimationDirectionValue direction, double... speed) {
     clearAnimation(segment);
     io.setControl(
         new RainbowAnimation(segment.startIndex, segment.endIndex)
             .withDirection(direction)
-            .withFrameRate(speed.length > 0 ? speed[0] : defaultAnimationSpeed.get())
+            .withFrameRate(speed.length > 0 ? speed[0] : defaultAnimationSpeed)
             .withSlot(segment.animationSlot));
   }
 
@@ -204,11 +226,10 @@ public class Lights extends SubsystemBase {
     io.setControl(request);
   }
 
-  public static class Segment {
+  public static class LEDSegment {
     public int startIndex;
     public int endIndex;
     public int animationSlot;
-    public int[] overlappingAnimationSlots = {};
 
     /**
      * LED segment.
@@ -218,22 +239,10 @@ public class Lights extends SubsystemBase {
      * @param animationSlot The animation slot to use for the animation, range is [0,
      *     getMaxSimultaneousAnimationCount()] exclusive
      */
-    public Segment(int startIndex, int endIndex, int animationSlot) {
+    public LEDSegment(int startIndex, int endIndex, int animationSlot) {
       this.startIndex = startIndex;
       this.endIndex = endIndex;
       this.animationSlot = animationSlot;
-    }
-
-    /**
-     * Overlapping animation slots to clear with segment.
-     *
-     * @param overlappingAnimationSlots Animation slots of segments which contain overlapping LEDs
-     *     with the current segment. Clears animations of overlapping to avoid multiple animations
-     *     playing simultaneously.
-     */
-    public Segment withOverlappingAnimationSlots(int... overlappingAnimationSlots) {
-      this.overlappingAnimationSlots = overlappingAnimationSlots;
-      return this;
     }
   }
 }

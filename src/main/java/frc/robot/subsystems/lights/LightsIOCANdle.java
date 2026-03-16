@@ -7,7 +7,6 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANdleConfiguration;
 import com.ctre.phoenix6.controls.ControlRequest;
-import com.ctre.phoenix6.controls.EmptyAnimation;
 import com.ctre.phoenix6.hardware.CANdle;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.signals.Enable5VRailValue;
@@ -24,7 +23,7 @@ public class LightsIOCANdle implements LightsIO {
   private final CANBus canBus = CanBusUtil.getRioBus();
 
   // Hardware
-  private final CANdle candle = new CANdle(60, canBus);
+  private final CANdle candle = new CANdle(51, canBus);
 
   // Config
   private final CANdleConfiguration config = new CANdleConfiguration();
@@ -51,10 +50,8 @@ public class LightsIOCANdle implements LightsIO {
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(candle));
     PhoenixUtil.registerSignals(canBus, outputCurrent, tempCelsius);
 
-    // clear animation slots
-    for (int i = 0; i < candle.getMaxSimultaneousAnimationCount().getValue(); i++) {
-      setControl(new EmptyAnimation(i));
-    }
+    // clear all animation slots
+    tryUntilOk(5, () -> candle.clearAllAnimations());
   }
 
   @Override
@@ -65,13 +62,13 @@ public class LightsIOCANdle implements LightsIO {
   }
 
   @Override
-  public void setBrightness(double percent) {
-    config.LED.BrightnessScalar = percent;
-    tryUntilOk(5, () -> candle.getConfigurator().apply(config, 0.25));
+  public void setControl(ControlRequest request) {
+    candle.setControl(request);
   }
 
   @Override
-  public void setControl(ControlRequest request) {
-    candle.setControl(request);
+  public void setBrightness(double percent) {
+    config.LED.BrightnessScalar = percent;
+    tryUntilOk(5, () -> candle.getConfigurator().apply(config, 0.25));
   }
 }

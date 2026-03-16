@@ -14,6 +14,7 @@ public class ShooterCommands {
   private static final double feederVolts = 12;
   private static final double spindexerVolts = 12;
   private static final double flywheelBumpStep = 0.5;
+  private static final double turretBumpStep = 1.0;
 
   // Subsystems
   private static final RobotSystem robotSystem = RobotSystem.getInstance();
@@ -125,6 +126,14 @@ public class ShooterCommands {
             () ->
                 shooter.getFlywheel().bumpVelocity +=
                     (increaseSpeed) ? flywheelBumpStep : -flywheelBumpStep)
+        .ignoringDisable(true)
+        .withName("BumpFlywheel");
+  }
+
+  public static Command bumpTurret(boolean increaseAngle) {
+    return Commands.runOnce(
+            () ->
+                shooter.getTurret().bumpAngle += (increaseAngle) ? turretBumpStep : -turretBumpStep)
         .ignoringDisable(true)
         .withName("BumpFlywheel");
   }
