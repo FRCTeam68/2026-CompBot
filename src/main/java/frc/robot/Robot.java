@@ -54,6 +54,7 @@ public class Robot extends LoggedRobot {
           "Battery voltage is very low, turn off the robot or replace the battery to avoid damage.",
           AlertType.kWarning);
 
+  @SuppressWarnings("unused")
   public Robot() {
     // Record metadata
     Logger.recordMetadata("TuningMode", Boolean.toString(Constants.tuningMode));
@@ -220,9 +221,6 @@ public class Robot extends LoggedRobot {
     if (DriverStation.isFMSAttached()
         && !DriverStation.isAutonomous()
         && DriverStation.getMatchTime() == 0) robotContainer.saveLimelightRewind();
-
-    // Set robot pose for auton if in simulation
-    Auton.loadStartPoseSim();
   }
 
   /** This function is called periodically when disabled. */
@@ -243,6 +241,7 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     autonomousCommand = Auton.SelectedCommand();
     if (autonomousCommand != null) {
+      Auton.setStartingPose();
       CommandScheduler.getInstance().schedule(autonomousCommand);
     }
 
@@ -279,6 +278,8 @@ public class Robot extends LoggedRobot {
   @Override
   public void testInit() {
     robotContainer.configureTestModeCommands();
+
+    robotContainer.enableMT1();
   }
 
   /** This function is called periodically during test mode. */

@@ -298,6 +298,10 @@ public class Drive extends SubsystemBase {
     return gyroInputs.yawPosition;
   }
 
+  public boolean getGyroConnected() {
+    return gyroInputs.connected;
+  }
+
   /** Adds a new timestamped vision measurement. */
   public void addVisionMeasurement(
       Pose2d visionRobotPoseMeters,

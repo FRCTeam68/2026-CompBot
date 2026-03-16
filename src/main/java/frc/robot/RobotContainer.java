@@ -240,11 +240,17 @@ public class RobotContainer {
     vision.saveLimelightRewind();
   }
 
+  /** Enable MT1 for all Limelights. */
+  public void enableMT1() {
+    vision.enableMT1 = true;
+  }
+
   /** Log component poses for the robot visualization. */
   public void visualizeRobot() {
     robotSystem.visualization();
   }
 
+  /** Add test mode commands to dashboard. */
   public void configureTestModeCommands() {
     SmartDashboard.putData("Tuning/FunctionTest", TestCommands.functionTest());
   }

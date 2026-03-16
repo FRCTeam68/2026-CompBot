@@ -6,10 +6,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
-import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
-import edu.wpi.first.networktables.IntegerPublisher;
-import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
@@ -23,15 +20,10 @@ import java.util.function.Supplier;
 public class VisionIOLimelight implements VisionIO {
   private final CameraInfo cameraInfo;
   private final DoubleArrayPublisher orientationPublisher;
-  private final IntegerPublisher throttlePublisher;
-  private final DoublePublisher pipelinePublisher;
-  private final IntegerSubscriber pipelineSubscriber;
   private final DoubleArraySubscriber hardwareSubscriber;
   private final DoubleArrayPublisher rewindPublisher;
   private final DoubleArraySubscriber rewindSubscriber;
   private final DoubleSubscriber latencySubscriber;
-  private final DoubleSubscriber txSubscriber;
-  private final DoubleSubscriber tySubscriber;
   private final DoubleArraySubscriber megatag1Subscriber;
   private final DoubleArraySubscriber megatag2Subscriber;
 
@@ -47,17 +39,12 @@ public class VisionIOLimelight implements VisionIO {
 
     var table = NetworkTableInstance.getDefault().getTable(cameraInfo.name);
     orientationPublisher = table.getDoubleArrayTopic("robot_orientation_set").publish();
-    throttlePublisher = table.getIntegerTopic("throttle_set").publish();
-    pipelinePublisher = table.getDoubleTopic("pipeline").publish();
-    pipelineSubscriber = table.getIntegerTopic("getpipe").subscribe(0);
     hardwareSubscriber =
         table.getDoubleArrayTopic("hw").subscribe(new double[] {0.0, 0.0, 0.0, 0.0});
     rewindPublisher = table.getDoubleArrayTopic("capture_rewind").publish();
     rewindSubscriber =
         table.getDoubleArrayTopic("capture_rewind").subscribe(new double[] {0.0, 0.0});
     latencySubscriber = table.getDoubleTopic("tl").subscribe(0.0);
-    txSubscriber = table.getDoubleTopic("tx").subscribe(0.0);
-    tySubscriber = table.getDoubleTopic("ty").subscribe(0.0);
     megatag1Subscriber = table.getDoubleArrayTopic("botpose_wpiblue").subscribe(new double[] {});
     megatag2Subscriber =
         table.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(new double[] {});
@@ -74,19 +61,11 @@ public class VisionIOLimelight implements VisionIO {
     inputs.connected =
         ((RobotController.getFPGATime() - latencySubscriber.getLastChange()) / 1000) < 250;
 
-    // Update active pipeline
-    inputs.pipelineIndex = (int) pipelineSubscriber.get();
-
     // Update hardware metrics
     inputs.cpuTempCelsius = hardwareSubscriber.get()[0];
     inputs.cpuUsage = hardwareSubscriber.get()[1];
     inputs.ramUsage = hardwareSubscriber.get()[2];
     inputs.fps = hardwareSubscriber.get()[3];
-
-    // Update target observation
-    inputs.latestTargetObservation =
-        new TargetObservation(
-            Rotation2d.fromDegrees(txSubscriber.get()), Rotation2d.fromDegrees(tySubscriber.get()));
 
     // Update orientation for MegaTag 2
     // TODO: should we publish more than just yaw
@@ -170,16 +149,6 @@ public class VisionIOLimelight implements VisionIO {
   @Override
   public CameraInfo getCameraInfo() {
     return cameraInfo;
-  }
-
-  @Override
-  public void setPipline(int pipelineIndex) {
-    pipelinePublisher.accept(pipelineIndex);
-  }
-
-  @Override
-  public void setThrottle(int skippedFrames) {
-    throttlePublisher.accept(skippedFrames);
   }
 
   @Override
