@@ -41,10 +41,6 @@ public class Auton {
   private static final LoggedNetworkBoolean autonDepot =
       new LoggedNetworkBoolean("SmartDashboard/Auton/Depot", false);
 
-  @SuppressWarnings("unused")
-  private static final LoggedNetworkBoolean autonClimb =
-      new LoggedNetworkBoolean("SmartDashboard/Auton/Climb", false);
-
   private static final LoggedNetworkBoolean autonOutpost =
       new LoggedNetworkBoolean("SmartDashboard/Auton/Outpost", false);
 
@@ -56,11 +52,12 @@ public class Auton {
 
   public static enum Special {
     None,
-    Left_LigerBot,
+    TrenchDoubleSweep,
+    TrenchSingleSweepPlus,
+    BumpSingleSweep,
     Left_Tune_PP_3M_slow,
     Left_Tune_PP_3M_fast,
-    Right_Tune_PP_3M_slow,
-    Right_1768
+    Right_Tune_PP_3M_slow
   }
 
   private static final Alert noAutoSelectedAlert =
@@ -82,11 +79,14 @@ public class Auton {
 
     // Configure special
     autonSpecial.addDefaultOption("None", Auton.Special.None);
-    autonSpecial.addOption("Left_LigerBot", Auton.Special.Left_LigerBot);
-    autonSpecial.addOption("Right_1768", Auton.Special.Right_1768);
-    autonSpecial.addOption("Left_Tune_PP_3M_fast", Auton.Special.Left_Tune_PP_3M_fast);
-    autonSpecial.addOption("Left_Tune_PP_3M_slow", Auton.Special.Left_Tune_PP_3M_slow);
-    autonSpecial.addOption("Right_Tune_PP_3M_slow", Auton.Special.Right_Tune_PP_3M_slow);
+    autonSpecial.addOption("TrenchDoubleSweep", Auton.Special.TrenchDoubleSweep);
+    autonSpecial.addOption("TrenchSingleSweepPlus", Auton.Special.TrenchSingleSweepPlus);
+    if (Constants.tuningMode) {
+      autonSpecial.addOption("BumpSingleSweep", Auton.Special.BumpSingleSweep);
+      autonSpecial.addOption("Left_Tune_PP_3M_fast", Auton.Special.Left_Tune_PP_3M_fast);
+      autonSpecial.addOption("Left_Tune_PP_3M_slow", Auton.Special.Left_Tune_PP_3M_slow);
+      autonSpecial.addOption("Right_Tune_PP_3M_slow", Auton.Special.Right_Tune_PP_3M_slow);
+    }
   }
 
   public static void UpdateAlerts() {
@@ -110,7 +110,6 @@ public class Auton {
     if (autonStartingPose.get() == null) {
       return Commands.none();
     }
-
     switch (autonStartingPose.get()) {
       case Left:
         switch (autonSpecial.get()) {
@@ -122,11 +121,16 @@ public class Auton {
             return PathUtil.followPath("Left_Tune_PP_3M_Forward_fast")
                 .andThen(Commands.waitSeconds(3))
                 .andThen(PathUtil.followPath("Left_Tune_PP_3M_Back_fast"));
-          case Left_LigerBot:
-            return Left_LigerBot();
+
+          case TrenchSingleSweepPlus:
+            return Trench(1);
+          case TrenchDoubleSweep:
+            return Trench(2);
+          case BumpSingleSweep:
+            return Bump();
           case None:
           default:
-            return LeftDefault();
+            return Commands.none();
         }
 
       case Center:
@@ -138,11 +142,15 @@ public class Auton {
             return PathUtil.followPath("Right_Tune_PP_3M_Forward_slow")
                 .andThen(Commands.waitSeconds(3))
                 .andThen(PathUtil.followPath("Right_Tune_PP_3M_Back_slow"));
-          case Right_1768:
-            return Right_1768();
+          case TrenchSingleSweepPlus:
+            return Trench(1);
+          case TrenchDoubleSweep:
+            return Trench(2);
+          case BumpSingleSweep:
+            return Bump();
           case None:
           default:
-            return RightDefault();
+            return Commands.none();
         }
 
       default:
@@ -173,166 +181,64 @@ public class Auton {
         .withName("WaitWhileShootThenAgitate");
   }
 
+  // -----------------------------------------------------------------------------------------
   private static Command CenterDefault() {
     return new DeferredCommand(
             () -> {
               Command myCommand1;
-              Command myCommand2 = Commands.none();
 
-              if (autonDepot.get()) {
+              myCommand1 =
+                  Commands.sequence(
+                      Commands.parallel(
+                          PathUtil.followPath("Center_toOutpost"),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))),
+                      IntakeCommands.stopSpin(),
+                      Commands.waitSeconds(3), // wait for fuel to be dumped into hopper
+                      PathUtil.followPath("Outpost_toDepot"),
+                      IntakeCommands.intakeStatic(false),
+                      PathUtil.followPath("Depot_Intake"),
+                      Commands.waitSeconds(1), // wait to shoot fuels intaken from depot
+                      WaitWhileShootThenAgitate());
 
-                myCommand1 =
-                    Commands.sequence(
-                        Commands.parallel(
-                            PathUtil.followPath("Center Depot"),
-                            Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))),
-                        Commands.waitSeconds(3).andThen(IntakeCommands.stopSpin()),
-                        PathUtil.followPath("Depot Tower"));
-
-                if (autonOutpost.get()) {
-                  myCommand2 = Commands.sequence(PathUtil.followPath("Tower Outpost"));
-                }
-              } else {
-                myCommand1 = Commands.sequence(PathUtil.followPath("Center Outpost"));
-              }
-
-              return myCommand1.andThen(myCommand2);
+              return myCommand1;
             },
             Set.of(drive))
         .withName("Auton_CenterDefault");
   }
 
-  private static Command LeftDefault() {
+  private static Command Trench(Integer numSweeps) {
     return new DeferredCommand(
             () -> {
-              Command myCommand1;
-              Command myCommand2;
-              Command neutralPath1Command;
-              Command toDepotCommand;
-
-              neutralPath1Command =
-                  Commands.sequence(
-                      Commands.parallel(
-                          PathUtil.followPath("Left Trench A"),
-                          delayShooterStart(90),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))),
-                      PathUtil.followPath("Left Trench B"),
-                      IntakeCommands.stopSpin());
-
-              toDepotCommand =
-                  Commands.sequence(
-                      Commands.parallel(
-                          PathUtil.followPath("Left Depot1"),
-                          ShooterCommands.dontShoot().withTimeout(2),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))),
-                      PathUtil.followPath("Left Depot2"));
-
-              if (!autonDepot.get()) {
-                // run single pass to nuetral zone
-                myCommand1 = Commands.sequence(neutralPath1Command, WaitWhileShootThenAgitate());
-                myCommand2 = Commands.none();
-
-              } else {
-                myCommand1 = neutralPath1Command;
-                myCommand2 =
-                    Commands.sequence(
-                        toDepotCommand, // drive to depot while shooting
-                        WaitWhileShootThenAgitate());
-              }
-
-              return myCommand1.andThen(myCommand2);
-            },
-            Set.of(drive))
-        .withName("Auton_LeftDefault");
-  }
-
-  private static Command Left_LigerBot() {
-    return new DeferredCommand(
-            () -> {
+              boolean left;
+              boolean mirror;
               Command myCommand1;
               Command myCommand2;
               Command neutralPath1Command;
               Command neutralPath2Command;
-              Command toDepotCommand;
 
+              left = autonStartingPose.get() == StartingPose.Left;
+              mirror = left;
+              myCommand1 = Commands.none();
+              myCommand2 = Commands.none();
+
+              // these 2 paths will be mirrored
               neutralPath1Command =
                   Commands.sequence(
                       Commands.parallel(
-                          PathUtil.followPath("Left Trench A1"),
-                          delayShooterStart(90),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))),
-                      PathUtil.followPath("Left Trench A2"),
-                      PathUtil.followPath("Left Trench B1"),
-                      IntakeCommands.stopSpin());
-
-              neutralPath2Command =
-                  Commands.sequence(
-                      Commands.parallel(
-                          PathUtil.followPath("Left Trench C1"),
-                          delayShooterStart(90),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))),
-                      PathUtil.followPath("Left Trench D1"),
-                      IntakeCommands.stopSpin());
-
-              toDepotCommand =
-                  Commands.sequence(
-                      Commands.parallel(
-                          PathUtil.followPath("Left Depot1"),
-                          ShooterCommands.dontShoot().withTimeout(2),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))),
-                      PathUtil.followPath("Left Depot2"));
-
-              if (!autonDepot.get()) {
-                // run double pass to nuetral zone
-                myCommand1 =
-                    Commands.sequence(
-                        neutralPath1Command, WaitWhileShootThenAgitate(), neutralPath2Command);
-                myCommand2 = Commands.none();
-
-              } else {
-                myCommand1 = neutralPath1Command;
-                myCommand2 =
-                    Commands.sequence(
-                        toDepotCommand, // drive to depot while shooting
-                        WaitWhileShootThenAgitate());
-              }
-              return myCommand1.andThen(myCommand2);
-            },
-            Set.of(drive))
-        .withName("Auton_Left_LigerBot");
-  }
-
-  private static Command Right_1768() {
-    return new DeferredCommand(
-            () -> {
-              Command myCommand1;
-              Command myCommand2;
-              Command neutralPath1Command;
-              Command neutralPath2Command;
-              Command toOutpostCommand;
-
-              neutralPath1Command =
-                  Commands.sequence(
-                      Commands.parallel(
-                          PathUtil.followPath("Right_1768_AB1"),
-                          delayShooterStart(275),
+                          PathUtil.followPath("Right_Trench_Sweep1", mirror),
+                          delayShooterStart(mirror ? 90 : 270),
                           Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))));
 
               neutralPath2Command =
                   Commands.sequence(
                       Commands.parallel(
-                          PathUtil.followPath("Right_1768_CD1"),
-                          delayShooterStart(275),
+                          PathUtil.followPath("Right_Trench_Sweep2", mirror),
+                          delayShooterStart(mirror ? 90 : 270),
                           Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))),
                       IntakeCommands.stopSpin());
 
-              toOutpostCommand =
-                  Commands.sequence(
-                      Commands.parallel(
-                          PathUtil.followPath("Right_1768_Outpost_1"),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))));
               // -----------------------------------------------------
-              if (!autonOutpost.get()) {
+              if (numSweeps == 2) {
                 // run double pass to nuetral zone
                 myCommand1 =
                     Commands.sequence(
@@ -342,91 +248,117 @@ public class Auton {
                         WaitWhileShootThenAgitate());
                 myCommand2 = Commands.none();
               } else {
-                // run single pass to nuetral zone, then to outpost while shooting, wait at outpost
-                // to shoot, then drive back to trench while shooting
+                // -----------------------------------------------------
+                // run single pass to nuetral zone,
                 myCommand1 = neutralPath1Command;
-                myCommand2 =
-                    Commands.sequence(
-                        toOutpostCommand,
-                        Commands.waitSeconds(2), // for hopper dump of fuels to finish
-                        Commands.parallel(
-                            PathUtil.followPath("Right_1768_Outpost_2"),
-                            WaitWhileShootThenAgitate()));
+
+                // ----  now the 'plus' part of the single sweep plus
+                if (!left) {
+                  // right side so run to outpost
+                  // ..while shooting,
+                  // ....wait at outpost to shoot some,
+                  // ......drive back to trench while shooting to be ready to go to neutral zone
+                  myCommand2 =
+                      Commands.sequence(
+                          Commands.parallel(
+                              PathUtil.followPath("Right_Trench_toOutpost"),
+                              Commands.waitSeconds(0.5)
+                                  .andThen(IntakeCommands.intakeStatic(false))),
+                          IntakeCommands.stopSpin(),
+                          Commands.waitSeconds(3), // for hopper dump of fuels to finish
+                          Commands.parallel(
+                              PathUtil.followPath("Right_Trench_fromOutpost"),
+                              WaitWhileShootThenAgitate()));
+                } else if (left) {
+                  // left side so run to depot
+                  // ..then go to depot while NOT shooting,
+                  // ....wait at depot to shoot some,
+                  // ......drive back to trench while shooting to be ready to go to neutral zone
+                  myCommand2 =
+                      Commands.sequence(
+                          Commands.parallel(
+                              PathUtil.followPath("Left_Trench_toDepot"),
+                              ShooterCommands.dontShoot().withTimeout(2),
+                              Commands.waitSeconds(0.5)
+                                  .andThen(IntakeCommands.intakeStatic(false))),
+                          PathUtil.followPath("Depot_Intake"),
+                          WaitWhileShootThenAgitate());
+                } else {
+                  // run double pass to nuetral zone
+                  myCommand2 = Commands.none();
+                }
               }
 
               return myCommand1.andThen(myCommand2);
             },
             Set.of(drive))
-        .withName("Auton_Right_1768");
+        .withName("Auton_Trench_" + numSweeps + "_Sweeps");
   }
 
-  private static Command RightDefault() {
+  private static Command Bump() {
     return new DeferredCommand(
             () -> {
+              boolean left;
+              boolean mirror;
               Command myCommand1;
-              Command myCommand2;
-              Command neutralPath1Command;
-              Command toOutpostCommand;
 
+              Command neutralPath1Command;
+
+              left = autonStartingPose.get() == StartingPose.Left;
+              mirror = left;
+
+              // these 2 paths will be mirrored
               neutralPath1Command =
                   Commands.sequence(
                       Commands.parallel(
-                          PathUtil.followPath("Right Trench A"),
-                          delayShooterStart(90),
+                          PathUtil.followPath("Right_Bump_Slice1A", mirror),
+                          delayShooterStart(mirror ? 90 : 270),
                           Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))),
-                      PathUtil.followPath("Right Trench B"),
-                      IntakeCommands.stopSpin());
+                      IntakeCommands.stopSpin(),
+                      PathUtil.followPath("Right_Bump_Slice1B", mirror));
 
-              toOutpostCommand =
-                  Commands.sequence(
-                      Commands.parallel(
-                          PathUtil.followPath("Right Outpost"),
-                          ShooterCommands.dontShoot().withTimeout(2),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))),
-                      PathUtil.followPath("Outpost Tower"));
+              // -----------------------------------------------------
+              // run double pass to nuetral zone
+              myCommand1 = Commands.sequence(neutralPath1Command, WaitWhileShootThenAgitate());
 
-              if (!autonOutpost.get()) {
-                // run single pass to nuetral zone
-                myCommand1 = Commands.sequence(neutralPath1Command, WaitWhileShootThenAgitate());
-                myCommand2 = Commands.none();
-
-              } else {
-                myCommand1 = neutralPath1Command;
-                myCommand2 =
-                    Commands.sequence(
-                        toOutpostCommand, // drive to outpost while shooting
-                        WaitWhileShootThenAgitate());
-              }
-
-              return myCommand1.andThen(myCommand2);
+              return myCommand1;
             },
             Set.of(drive))
-        .withName("Auton_RightDefault");
-  }
-
-  @SuppressWarnings("unused")
-  private static Command neutralZone() {
-    return Commands.none();
+        .withName("Auton_Bump");
   }
 
   public static Pose2d getSelectedStartPose() {
-    if (autonStartingPose.get() == null) {
-      return AllianceFlipUtil.apply(Pose2d.kZero);
+    Pose2d startPose = AllianceFlipUtil.apply(Pose2d.kZero);
+
+    if (autonStartingPose.get() != null) {
+
+      switch (autonStartingPose.get()) {
+        case Left:
+          if (autonSpecial.get() == Auton.Special.BumpSingleSweep) {
+            startPose =
+                AllianceFlipUtil.apply(PathUtil.getStartingPose("Right_Bump_Slice1A", true));
+          } else {
+            startPose =
+                AllianceFlipUtil.apply(PathUtil.getStartingPose("Right_Trench_Sweep1", true));
+          }
+          break;
+        case Center:
+          startPose = AllianceFlipUtil.apply(PathUtil.getStartingPose("Center Center_toOutpost"));
+          break;
+        case Right:
+          if (autonSpecial.get() == Auton.Special.BumpSingleSweep) {
+            startPose = AllianceFlipUtil.apply(PathUtil.getStartingPose("Right_Bump_Slice1A"));
+          } else {
+            startPose = AllianceFlipUtil.apply(PathUtil.getStartingPose("Right_Trench_Sweep1"));
+          }
+          break;
+        default:
+          // do nothing, will return default pose of (0, 0)
+          break;
+      }
     }
 
-    switch (autonStartingPose.get()) {
-      case Left:
-        return AllianceFlipUtil.apply(PathUtil.getStartingPose("Left Trench A"));
-
-      case Center:
-        return AllianceFlipUtil.apply(PathUtil.getStartingPose("Center Depot"));
-
-      case Right:
-        return AllianceFlipUtil.apply(PathUtil.getStartingPose("Right Trench A"));
-
-      default:
-        return AllianceFlipUtil.apply(Pose2d.kZero);
-    }
+    return startPose;
   }
 
   /** load starting pose if simulator is running */

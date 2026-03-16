@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.599049180327869,
-        "y": 5.975901639344261
+        "x": 0.6861686746987952,
+        "y": 0.669265060240964
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.8370655737704922,
-        "y": 5.975901639344261
+        "x": 2.8570409836065576,
+        "y": 2.546975409836065
       },
       "isLocked": false,
-      "linkedName": "Left Depot approach"
+      "linkedName": "R Outpost"
     },
     {
       "anchor": {
-        "x": 0.7116666666666676,
-        "y": 5.95697619047619
+        "x": 1.599049180327869,
+        "y": 5.975901639344261
       },
       "prevControl": {
-        "x": 1.2795601092896183,
-        "y": 5.949787665886027
+        "x": 2.749213114754099,
+        "y": 4.983885245901639
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Left Depot"
+      "linkedName": "Left Depot approach"
     }
   ],
   "rotationTargets": [],
@@ -34,7 +34,7 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 1.0,
-    "maxAcceleration": 2.0,
+    "maxAcceleration": 1.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 178.2642954110715
+    "rotation": 180.0
   },
   "useDefaultConstraints": false
 }

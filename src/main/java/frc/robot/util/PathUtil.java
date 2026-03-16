@@ -30,6 +30,14 @@ public class PathUtil {
     return getStartingPose(getPath(name));
   }
 
+  public static Pose2d getStartingPose(String name, boolean mirror) {
+    if (mirror) {
+      return getStartingPose(getPath(name).mirrorPath());
+    } else {
+      return getStartingPose(getPath(name));
+    }
+  }
+
   /**
    * Get the starting pose from the first loaded path.
    *
@@ -72,8 +80,21 @@ public class PathUtil {
   }
 
   public static Command followPath(String name) {
+
     return followPath(getPath(name));
   }
+
+  public static Command followPath(String name, boolean mirror) {
+    if (mirror) {
+      return mirrorPath(getPath(name));
+    } else {
+      return followPath(getPath(name));
+    }
+  }
+
+  // public static Command mirrorPath(String name) {
+  //   return mirrorPath(getPath(name));
+  // }
 
   /**
    * Builds a command to follow a path
@@ -88,6 +109,24 @@ public class PathUtil {
       return AutoBuilder.followPath(path);
     } catch (Exception e) {
       System.out.print("Error following path: ");
+      e.printStackTrace();
+      return Commands.none();
+    }
+  }
+
+  /**
+   * Builds a command to follow a mirror of a path
+   *
+   * @param path The path mirror and then to follow
+   * @return A path following command for the mirror of the given path
+   *     <li>If an error occurs, this will return a command that does nothing, finishing
+   *         immediately.
+   */
+  public static Command mirrorPath(PathPlannerPath path) {
+    try {
+      return AutoBuilder.followPath(path.mirrorPath());
+    } catch (Exception e) {
+      System.out.print("Error mirroring path: ");
       e.printStackTrace();
       return Commands.none();
     }
