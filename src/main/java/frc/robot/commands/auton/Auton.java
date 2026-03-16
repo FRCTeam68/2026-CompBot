@@ -50,6 +50,9 @@ public class Auton {
   private static final LoggedNetworkBoolean autonOutpost =
       new LoggedNetworkBoolean("SmartDashboard/Auton/Outpost", false);
 
+  private static final LoggedNetworkBoolean setStartingPose =
+      new LoggedNetworkBoolean("SmartDashboard/Auton/SetStartingPose", false);
+
   public static enum StartingPose {
     Left,
     Right,
@@ -432,11 +435,12 @@ public class Auton {
   }
 
   /**
-   * Load starting pose if running SIM mode or no cameras are connected. If connected to FMS, drive
-   * rotation is preserved since we trust the robot was booted straight.
+   * Load starting pose if dashboard toggle is enabled, no cameras are connected, of running in sim
+   * mode. If connected to FMS, drive rotation is preserved since we trust the robot was booted
+   * straight.
    */
   public static void setStartingPose() {
-    if (Constants.getMode() == Mode.SIM || !vision.isAnyConnected()) {
+    if (setStartingPose.get() || !vision.isAnyConnected() || Constants.getMode() == Mode.SIM) {
       if (DriverStation.isFMSAttached()) {
         drive.setPose(new Pose2d(getSelectedStartPose().getTranslation(), drive.getRotation()));
       } else {

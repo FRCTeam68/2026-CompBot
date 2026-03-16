@@ -158,9 +158,9 @@
           },
           {
             "title": "Shift Override",
-            "x": 992.0,
-            "y": 512.0,
-            "width": 160.0,
+            "x": 768.0,
+            "y": 640.0,
+            "width": 192.0,
             "height": 128.0,
             "type": "Toggle Switch",
             "properties": {
@@ -198,9 +198,9 @@
           },
           {
             "title": "Do Trench Align",
-            "x": 992.0,
+            "x": 960.0,
             "y": 640.0,
-            "width": 160.0,
+            "width": 192.0,
             "height": 128.0,
             "type": "Toggle Switch",
             "properties": {
@@ -211,7 +211,7 @@
           },
           {
             "title": "Flywheel Bump Velocity",
-            "x": 800.0,
+            "x": 960.0,
             "y": 512.0,
             "width": 192.0,
             "height": 128.0,
@@ -224,8 +224,8 @@
           },
           {
             "title": "Turret Bump Angle",
-            "x": 800.0,
-            "y": 640.0,
+            "x": 768.0,
+            "y": 512.0,
             "width": 192.0,
             "height": 128.0,
             "type": "Large Text Display",
@@ -233,6 +233,36 @@
               "topic": "/AdvantageKit/RealOutputs/Shooter/Turret/BumpAngle",
               "period": 0.06,
               "data_type": "double"
+            }
+          },
+          {
+            "title": "Set Starting Pose",
+            "x": 0.0,
+            "y": 512.0,
+            "width": 160.0,
+            "height": 128.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "SmartDashboard/Auton/SetStartingPose",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "Set Starting Pose",
+            "x": 160.0,
+            "y": 512.0,
+            "width": 160.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "SmartDashboard/Auton/SetStartingPose",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
             }
           }
         ]
@@ -802,7 +832,7 @@
             },
             "children": [
               {
-                "title": "StartingPose",
+                "title": "Starting Pose",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
@@ -851,6 +881,19 @@
                   "topic": "/SmartDashboard/Auton/Special",
                   "period": 0.06,
                   "sort_options": false
+                }
+              },
+              {
+                "title": "Set Starting Pose",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Toggle Switch",
+                "properties": {
+                  "topic": "SmartDashboard/Auton/SetStartingPose",
+                  "period": 0.06,
+                  "data_type": "boolean"
                 }
               }
             ]
