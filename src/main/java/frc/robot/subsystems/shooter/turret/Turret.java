@@ -69,6 +69,9 @@ public class Turret extends SubsystemBase {
   @Getter private ControlMode mode = ControlMode.Neutral;
   private static boolean posistionAmbiguous = false;
 
+  @AutoLogOutput(key = "Shooter/Turret/BumpAngle", unit = "Degrees")
+  public double bumpAngle = 0.0;
+
   public Turret(TurretIO io) {
     this.io = io;
 
@@ -141,7 +144,7 @@ public class Turret extends SubsystemBase {
    * @param degrees Goal position.
    */
   public void runPosition(double degrees) {
-    setpoint = MathUtil.inputModulus(degrees, 0.0, 360.0);
+    setpoint = MathUtil.inputModulus(degrees + bumpAngle, 0.0, 360.0);
     mode = ControlMode.Position;
     if (posistionAmbiguous == false) {
       io.runPosition(setpoint, 0);
