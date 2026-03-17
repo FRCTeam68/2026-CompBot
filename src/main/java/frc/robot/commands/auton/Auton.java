@@ -348,7 +348,7 @@ public class Auton {
           }
           break;
         case Center:
-          startPose = AllianceFlipUtil.apply(PathUtil.getStartingPose("Center Center_toOutpost"));
+          startPose = AllianceFlipUtil.apply(PathUtil.getStartingPose("Center_toOutpost"));
           break;
         case Right:
           if (autonSpecial.get() == Auton.Special.BumpSingleSweep) {
