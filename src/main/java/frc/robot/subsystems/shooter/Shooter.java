@@ -15,6 +15,7 @@ import frc.robot.subsystems.shooter.ShooterConstants.shotConfig;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.shooter.turret.Turret;
+import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.geometry.AllianceFlipUtil;
 import java.util.function.Supplier;
 import lombok.Getter;
@@ -43,6 +44,11 @@ public class Shooter extends SubsystemBase {
 
   @AutoLogOutput(key = "Shooter/StaticSetpoint")
   public boolean staticSetpoint = false;
+
+  public static final LoggedTunableNumber linearTowardMultiplier =
+      new LoggedTunableNumber("Shooter/TowardMultiplier", 1.3);
+  public static final LoggedTunableNumber linearAwayMultiplier =
+      new LoggedTunableNumber("Shooter/AwayMultiplier", 1.1);
 
   public Shooter(
       Flywheel flywheel,
@@ -167,14 +173,15 @@ public class Shooter extends SubsystemBase {
     // vy - CW tangent to target
     ChassisSpeeds targetRelativeVelocity =
         ChassisSpeeds.fromFieldRelativeSpeeds(driveVelocitySupplier.get(), rotationToTarget);
+    double linearMultiplier =
+        targetRelativeVelocity.vxMetersPerSecond > 0
+            ? linearTowardMultiplier.get()
+            : linearAwayMultiplier.get();
+    // ? ShooterConstants.DynamicShot.linearTowardMultiplier
+    // : ShooterConstants.DynamicShot.linearAwayMultiplier;
     double targetDistanceAdjusted =
         getDistanceToTarget()
-            - (targetRelativeVelocity.vxMetersPerSecond
-                        * flightTime
-                        * targetRelativeVelocity.vxMetersPerSecond
-                    > 0
-                ? ShooterConstants.DynamicShot.linearTowardMultiplier
-                : ShooterConstants.DynamicShot.linearAwayMultiplier);
+            - (targetRelativeVelocity.vxMetersPerSecond * flightTime * linearMultiplier);
 
     flywheel.runBangBang(
         ShooterConstants.DynamicShot.hubShotFlywheelVelocity.get(targetDistanceAdjusted));
