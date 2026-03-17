@@ -72,7 +72,7 @@ public class ShooterConstants {
   public static class DynamicShot {
     public static final double angularMultiplier = 1.0;
     public static final double linearTowardMultiplier = 1.0;
-    public static final double linearAwayMultiplier = 1.0;
+    public static final double linearAwayMultiplier = 3.0;
 
     public static final double minHubShotDistance = 0.92;
 

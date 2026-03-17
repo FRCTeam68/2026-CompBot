@@ -23,7 +23,7 @@ public class LightsIOCANdle implements LightsIO {
   private final CANBus canBus = CanBusUtil.getRioBus();
 
   // Hardware
-  private final CANdle candle = new CANdle(51, canBus);
+  private final CANdle candle = new CANdle(60, canBus);
 
   // Config
   private final CANdleConfiguration config = new CANdleConfiguration();
