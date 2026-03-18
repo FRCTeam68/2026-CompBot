@@ -1,0 +1,111 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.422564516129032,
+        "y": 0.4435725806451626
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.514516129032258,
+        "y": 0.48745967741935603
+      },
+      "isLocked": false,
+      "linkedName": "Trench Start"
+    },
+    {
+      "anchor": {
+        "x": 7.763257693138764,
+        "y": 1.9241746138706093
+      },
+      "prevControl": {
+        "x": 7.755943177009732,
+        "y": 0.43201332354802835
+      },
+      "nextControl": {
+        "x": 7.768349235129681,
+        "y": 2.9628491800177366
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.798749519484527,
+        "y": 3.3571571025808735
+      },
+      "prevControl": {
+        "x": 7.798749519484527,
+        "y": 3.1071571025808735
+      },
+      "nextControl": {
+        "x": 7.798749519484527,
+        "y": 3.6071571025808735
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.1909519933133,
+        "y": 1.4805267845485468
+      },
+      "prevControl": {
+        "x": 7.746555420292995,
+        "y": 2.4024621414049667
+      },
+      "nextControl": {
+        "x": 6.787232468630224,
+        "y": 0.8106185622722308
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.833389635587788,
+        "y": 0.5355569080925511
+      },
+      "prevControl": {
+        "x": 6.254855073443748,
+        "y": 0.6375959088366256
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Trench Neutral Zone Approach"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 2.0,
+      "rotationDegrees": 90.0
+    },
+    {
+      "waypointRelativePos": 2.3721973094170443,
+      "rotationDegrees": 90.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.9,
+    "maxAcceleration": 22.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 5.03,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": "New Trench",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 90.0
+  },
+  "useDefaultConstraints": true
+}

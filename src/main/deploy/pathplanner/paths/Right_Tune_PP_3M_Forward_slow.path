@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.359442622950819,
-        "y": 0.5126229508196718
+        "x": 4.422564516129032,
+        "y": 0.4435725806451626
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0027622950819675,
-        "y": 0.5296498829039809
+        "x": 3.0658841882601804,
+        "y": 0.46059951272947164
       },
       "isLocked": false,
-      "linkedName": "Right Start"
+      "linkedName": "Trench Start"
     },
     {
       "anchor": {
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": false
 }

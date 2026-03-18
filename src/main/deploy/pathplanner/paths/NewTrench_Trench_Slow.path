@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.8226885245901638,
-        "y": 0.6707704918032777
+        "x": 5.833389635587788,
+        "y": 0.5355569080925511
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.9935608334979262,
-        "y": 2.5484808413983786
+        "x": 4.048834842200386,
+        "y": 0.5784876647138888
       },
       "isLocked": false,
-      "linkedName": "R Outpost"
+      "linkedName": "Trench Neutral Zone Approach"
     },
     {
       "anchor": {
-        "x": 1.599049180327869,
-        "y": 5.975901639344261
+        "x": 3.2595564516129034,
+        "y": 0.5825483870967754
       },
       "prevControl": {
-        "x": 2.749213114754099,
-        "y": 4.983885245901639
+        "x": 4.700682290218884,
+        "y": 0.5358817924669492
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Left Depot approach"
+      "linkedName": "Trench Shoot"
     }
   ],
   "rotationTargets": [],
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.0,
-    "maxAcceleration": 1.0,
+    "maxVelocity": 3.9,
+    "maxAcceleration": 22.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Center",
+  "folder": "New Trench",
   "idealStartingState": {
-    "velocity": 0,
-    "rotation": 180.0
+    "velocity": 0.0,
+    "rotation": 0.0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

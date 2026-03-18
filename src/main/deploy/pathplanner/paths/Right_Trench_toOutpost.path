@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.6405901639344265,
-        "y": 0.5126229508196718
+        "x": 3.2595564516129034,
+        "y": 0.5825483870967754
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.095057377049181,
-        "y": 0.4709972348410022
+        "x": 1.7140236647276579,
+        "y": 0.5409226711181061
       },
       "isLocked": false,
-      "linkedName": "Right shoot"
+      "linkedName": "Trench Shoot"
     },
     {
       "anchor": {
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 179.853671442907
+    "rotation": 0.0
   },
   "useDefaultConstraints": false
 }

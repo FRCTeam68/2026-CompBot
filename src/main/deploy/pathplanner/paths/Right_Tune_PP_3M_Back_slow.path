@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 4.359442622950819,
-        "y": 0.5126229508196718
+        "x": 4.422564516129032,
+        "y": 0.4435725806451626
       },
       "prevControl": {
-        "x": 2.851803278688524,
-        "y": 0.5009672131147526
+        "x": 2.914925171866737,
+        "y": 0.43191684294024335
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Right Start"
+      "linkedName": "Trench Start"
     }
   ],
   "rotationTargets": [],
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": null,
