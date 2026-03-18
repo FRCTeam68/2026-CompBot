@@ -13,6 +13,10 @@ import frc.robot.RobotSystem;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.intakePivot.IntakePivot;
+import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.lights.Lights.Color;
+import frc.robot.subsystems.lights.Lights.LEDSegment;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.vision.Vision;
@@ -26,8 +30,10 @@ public class Auton {
   // Subsystems
   private static final RobotSystem robotSystem = RobotSystem.getInstance();
   private static final Drive drive = robotSystem.getDrive();
+  private static final Lights lights = robotSystem.getLights();
   private static final Vision vision = robotSystem.getVision();
   private static final Shooter shooter = robotSystem.getShooter();
+  private static final IntakePivot intakePivot = robotSystem.getIntakePivot();
 
   // Dashboard inputs
   private static final LoggedDashboardChooser<Auton.StartingPose> autonStartingPose =
@@ -71,10 +77,17 @@ public class Auton {
       new Alert(
           "Current robot pose does not match the starting pose for selected auton. Possible causes include the incorrect auton is selected, the camera is not getting a clear view of an april tag, or the robot is in the wrong location.",
           AlertType.kError);
-  private static final Alert hoodStartingPoseAlert =
+  private static final Alert hoodPoseAlert =
       new Alert(
-          "The hood is not in the correct starting position. Ensure hood is it maximum elevation and then click \"Zero Hood\" in the tuning tab.",
+          "The hood is not in the correct starting position. Ensure hood is at the maximum elevation and then click \"Zero Hood\" in the tuning tab.",
           AlertType.kError);
+  private static final Alert intakePoseAlert =
+      new Alert(
+          "The intake is not in the correct starting position. Ensure intake is fully retracted and then click \"Zero\" in the Intake Pivot list of the tuning tab.",
+          AlertType.kError);
+
+  private static final LEDSegment startingPoseLEDSegment = new LEDSegment(0, 0, 0);
+  private static final LEDSegment componentPoseLEDSegment = new LEDSegment(4, 4, 0);
 
   public static void initDashboardInputs() {
     // Configure starting pose
@@ -102,12 +115,26 @@ public class Auton {
               && (getSelectedStartPose().minus(drive.getPose()).getTranslation().getNorm() > 0.25
                   || getSelectedStartPose().minus(drive.getPose()).getRotation().getDegrees()
                       > 20));
-      hoodStartingPoseAlert.set(
-          Math.abs(shooter.getHood().getElevation() - Hood.getMaximum()) < 2.0);
+      hoodPoseAlert.set(Math.abs(shooter.getHood().getElevation() - Hood.getMaximum()) < 2.0);
+      intakePoseAlert.set(Math.abs(intakePivot.getPosition()) < .03);
     } else {
       noAutoSelectedAlert.set(false);
       startingPoseAlert.set(false);
-      hoodStartingPoseAlert.set(false);
+      hoodPoseAlert.set(false);
+      intakePoseAlert.set(false);
+    }
+
+    if (Constants.tuningMode) {
+      if (startingPoseAlert.get()) {
+        lights.setSolidColor(Color.Dim.RED, startingPoseLEDSegment);
+      } else {
+        lights.setSolidColor(Color.Dim.GREEN, startingPoseLEDSegment);
+      }
+      if (hoodPoseAlert.get() || intakePoseAlert.get()) {
+        lights.setSolidColor(Color.Dim.RED, componentPoseLEDSegment);
+      } else {
+        lights.setSolidColor(Color.Dim.GREEN, componentPoseLEDSegment);
+      }
     }
   }
 

@@ -6,22 +6,24 @@ public class VisionConstants {
   // Camera information
   // Limelight 4 name must start with "limelight-four" to work with special functions.
   public static enum CameraInfo {
-    LL_3G("limelight-threeg", 0.7),
+    LL_3G("limelight-threeg", 0.7, 7),
     // ip address: 10.0.68.9
     // Pose (meters / degrees): x:-0.291079 / y:0.273426 / z:0.31586
     //                          roll:0 / pitch:25 / yaw:174
 
-    LL_4("limelight-four", 1);
+    LL_4("limelight-four", 1, 6);
     // ip address: 10.0.68.8
     // Pose (meters / degrees): x:-0.264950 / y:-0.272987 / z:0.223248
     //                          roll:0 / pitch:20 / yaw:-120
 
     String name; // Must match name configured on coprocessor
     double MTStdDevFactor; // April tag pose standard deviation multiplier
+    int indicatorIndex;
 
-    CameraInfo(String name, double MTStdDevFactor) {
+    CameraInfo(String name, double MTStdDevFactor, int indicatorIndex) {
       this.name = name;
       this.MTStdDevFactor = MTStdDevFactor;
+      this.indicatorIndex = indicatorIndex;
     }
   }
 

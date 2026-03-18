@@ -8,7 +8,12 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.lights.Lights.Color;
+import frc.robot.subsystems.lights.Lights.LEDSegment;
 import frc.robot.subsystems.sensors.canrange.CANrangeIO;
 import frc.robot.subsystems.sensors.canrange.CANrangeIOInputsAutoLogged;
 import frc.robot.util.LoggedTunableNumber;
@@ -46,8 +51,11 @@ public class HopperSensor extends SubsystemBase {
 
   private final CANrangeIO io;
   protected final CANrangeIOInputsAutoLogged inputs = new CANrangeIOInputsAutoLogged();
+  private final Lights lights;
+  private final LEDSegment ledSegment = new LEDSegment(3, 3, 0);
 
-  public HopperSensor(CANrangeIO io) {
+  public HopperSensor(Lights lights, CANrangeIO io) {
+    this.lights = lights;
     this.io = io;
 
     Logger.recordOutput(
@@ -65,6 +73,16 @@ public class HopperSensor extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs("HopperCANrange", inputs);
     disconnectedAlert.set(!connectedDebouncer.calculate(inputs.connected));
+
+    if (DriverStation.isDisabled() || Constants.tuningMode) {
+      if (!inputs.connected) {
+        lights.setSolidColor(Color.Dim.RED, ledSegment);
+      } else if (inputs.detected) {
+        lights.setSolidColor(Color.Dim.BLUE, ledSegment);
+      } else {
+        lights.setSolidColor(Color.Dim.GREEN, ledSegment);
+      }
+    }
 
     // Update alerts
     if (risingDebounceTime.hasChanged(hashCode()) | fallingDebounceTime.hasChanged(hashCode())) {

@@ -31,7 +31,7 @@ public class Lights extends SubsystemBase {
   // 7 - LL3G
 
   // Default values
-  private static final double onboardLEDBrightness = 0.5;
+  private static final double onboardLEDBrightnessScale = 0.5;
   private final double defaultAnimationSpeed = 200;
 
   public static class Segment {
@@ -41,15 +41,34 @@ public class Lights extends SubsystemBase {
   }
 
   public static class Color {
-    // team colors
-    public static final RGBWColor ORANGE = new RGBWColor(255, 142, 36);
-    public static final RGBWColor BLUE = new RGBWColor(0, 0, 255);
+    public static class Bright {
+      // team colors
+      public static final RGBWColor ORANGE = new RGBWColor(255, 142, 36);
+      public static final RGBWColor BLUE = new RGBWColor(0, 0, 255);
 
-    // indicator colors
-    public static final RGBWColor BLACK = new RGBWColor(0, 0, 0);
-    public static final RGBWColor WHITE = new RGBWColor(255, 230, 220);
-    public static final RGBWColor GREEN = new RGBWColor(56, 209, 0);
-    public static final RGBWColor RED = new RGBWColor(255, 0, 0);
+      // indicator colors
+      public static final RGBWColor BLACK = new RGBWColor(0, 0, 0);
+      public static final RGBWColor WHITE = new RGBWColor(255, 230, 220);
+      public static final RGBWColor GREEN = new RGBWColor(56, 209, 0);
+      public static final RGBWColor RED = new RGBWColor(255, 0, 0);
+    }
+
+    public static class Dim {
+      // team colors
+      public static final RGBWColor ORANGE =
+          new RGBWColor(255, 142, 36).scaleBrightness(onboardLEDBrightnessScale);
+      public static final RGBWColor BLUE =
+          new RGBWColor(0, 0, 255).scaleBrightness(onboardLEDBrightnessScale);
+
+      // indicator colors
+      public static final RGBWColor BLACK = new RGBWColor(0, 0, 0);
+      public static final RGBWColor WHITE =
+          new RGBWColor(255, 230, 220).scaleBrightness(onboardLEDBrightnessScale);
+      public static final RGBWColor GREEN =
+          new RGBWColor(56, 209, 0).scaleBrightness(onboardLEDBrightnessScale);
+      public static final RGBWColor RED =
+          new RGBWColor(255, 0, 0).scaleBrightness(onboardLEDBrightnessScale);
+    }
   }
 
   // Alerts
@@ -100,7 +119,7 @@ public class Lights extends SubsystemBase {
    * @param segment LED segment to turn off
    */
   public void disableLEDs(LEDSegment segment) {
-    setSolidColor(Color.BLACK, segment);
+    setSolidColor(Color.Bright.BLACK, segment);
   }
 
   /**

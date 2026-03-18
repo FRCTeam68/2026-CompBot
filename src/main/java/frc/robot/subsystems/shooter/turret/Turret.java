@@ -11,11 +11,15 @@ import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.lights.Lights.Color;
+import frc.robot.subsystems.lights.Lights.LEDSegment;
 import frc.robot.util.ElasticUtil;
 import frc.robot.util.ElasticUtil.Notification;
 import frc.robot.util.ElasticUtil.NotificationLevel;
@@ -65,6 +69,8 @@ public class Turret extends SubsystemBase {
 
   private final TurretIO io;
   protected final TurretIOInputsAutoLogged inputs = new TurretIOInputsAutoLogged();
+  private final Lights lights;
+  private final LEDSegment ledSegment = new LEDSegment(1, 1, 0);
   @Getter private double setpoint = 0.0;
   @Getter private ControlMode mode = ControlMode.Neutral;
   private static boolean posistionAmbiguous = false;
@@ -72,7 +78,8 @@ public class Turret extends SubsystemBase {
   @AutoLogOutput(key = "Shooter/Turret/BumpAngle", unit = "Degrees")
   public double bumpAngle = 0.0;
 
-  public Turret(TurretIO io) {
+  public Turret(Lights lights, TurretIO io) {
+    this.lights = lights;
     this.io = io;
 
     // Check if turret position could be ambiguous
@@ -104,6 +111,14 @@ public class Turret extends SubsystemBase {
         !cancoderConnectedDebouncer.calculate(inputs.cancoderConnected));
     motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
     posistionAmbiguousAlert.set(posistionAmbiguous);
+
+    if (DriverStation.isDisabled() || Constants.tuningMode) {
+      if (posistionAmbiguous) {
+        lights.setSolidColor(Color.Dim.RED, ledSegment);
+      } else {
+        lights.setSolidColor(Color.Dim.GREEN, ledSegment);
+      }
+    }
 
     // Update PID gains
     if (kP.hasChanged(hashCode()) | kD.hasChanged(hashCode()) | kS.hasChanged(hashCode())) {
