@@ -241,7 +241,7 @@ public class Auton {
                           PathUtil.followPath("NewTrench_Trench_Fast", mirror),
                           () ->
                               drive.getPose().minus(trenchApproach).getTranslation().getNorm()
-                                  > 0.1));
+                                  > 0.5));
 
               Command neutralPath2Command =
                   Commands.sequence(
@@ -255,7 +255,7 @@ public class Auton {
                           .onlyIf(
                               () ->
                                   drive.getPose().minus(trenchApproach).getTranslation().getNorm()
-                                      > 0.1),
+                                      > 0.5),
                       PathUtil.followPath("NewTrench_Trench_Slow", mirror));
 
               // -----------------------------------------------------
