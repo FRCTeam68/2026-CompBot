@@ -256,7 +256,7 @@ public class Lights extends SubsystemBase {
      * @param startIndex Where to start the LED segment
      * @param endSize Where to end the LED segment (inclusive)
      * @param animationSlot The animation slot to use for the animation, range is [0,
-     *     getMaxSimultaneousAnimationCount()] exclusive
+     *     getMaxSimultaneousAnimationCount())
      */
     public LEDSegment(int startIndex, int endIndex, int animationSlot) {
       this.startIndex = startIndex;
