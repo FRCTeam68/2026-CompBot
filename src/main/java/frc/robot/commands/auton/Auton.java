@@ -13,6 +13,8 @@ import frc.robot.RobotSystem;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.intakePivot.IntakePivot;
+import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.vision.Vision;
@@ -27,7 +29,11 @@ public class Auton {
   private static final RobotSystem robotSystem = RobotSystem.getInstance();
   private static final Drive drive = robotSystem.getDrive();
   private static final Vision vision = robotSystem.getVision();
+  private static final IntakePivot intakePivot = robotSystem.getIntakePivot();
+  private static final RollerSystem intakeSpin = robotSystem.getIntakeSpin();
   private static final Shooter shooter = robotSystem.getShooter();
+  private static final RollerSystem spindexer = robotSystem.getSpindexer();
+  private static final RollerSystem feeder = robotSystem.getFeeder();
 
   // Dashboard inputs
   private static final LoggedDashboardChooser<Auton.StartingPose> autonStartingPose =
@@ -166,24 +172,25 @@ public class Auton {
   // -----------------------------------------------------------------------------------------
   private static Command delayShooterStart(double turretPosition) {
     return Commands.sequence(
-            // Make sure flywheels don't start
+            // Ensure flywheels don't start
             ShooterCommands.runStatic(
                 0, shooter.getHood().getElevation(), shooter.getTurret().getPosition()),
             Commands.waitSeconds(1),
-            // Move to the setpoints that will be called when the robot enters the
-            // alliance zone again
-            // ShooterCommands.runStatic(57, 63, 275),
+            // Move to the setpoints for when the robot enters the alliance zone again
             ShooterCommands.runStatic(57, 63, turretPosition),
             // enable automatic control
-            // The shooter will remain at the previous setpoint until it enters
-            // the alliance zone
+            // The shooter will remain at the previous setpoint until it enters the alliance zone
             ShooterCommands.clearStaticSetpoint())
         .withName("DelayShooterStart");
   }
 
-  private static Command WaitWhileShootThenAgitate() {
-    return Commands.sequence(Commands.waitSeconds(3), IntakeCommands.agitate().withTimeout(1))
-        .withName("WaitWhileShootThenAgitate");
+  private static Command shootWithAgitation(double shootSeconds, double agitateDelay) {
+    return Commands.deadline(
+            Commands.waitSeconds(shootSeconds),
+            ShooterCommands.shoot(false),
+            Commands.waitSeconds(agitateDelay).andThen(IntakeCommands.agitate()))
+        .finallyDo(() -> IntakeCommands.deploy(0))
+        .withName("Auton_ShootWithAgitation");
   }
 
   // -----------------------------------------------------------------------------------------
@@ -196,18 +203,17 @@ public class Auton {
                   Commands.sequence(
                       Commands.parallel(
                           PathUtil.followPath("Center_toOutpost"),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))),
-                      IntakeCommands.stopSpin(),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.deploy(0))),
                       Commands.waitSeconds(3), // wait for fuel to be dumped into hopper
                       PathUtil.followPath("Outpost_toDepot"),
-                      IntakeCommands.intakeStatic(false),
-                      PathUtil.followPath("Depot_Intake"),
-                      Commands.waitSeconds(1), // wait to shoot fuels intaken from depot
-                      WaitWhileShootThenAgitate());
+                      Commands.deadline(
+                          PathUtil.followPath("Depot_Intake").andThen(Commands.waitSeconds(1)),
+                          IntakeCommands.intakeAutomatic()),
+                      shootWithAgitation(99, 3));
 
               return myCommand1;
             },
-            Set.of(drive))
+            Set.of(drive, intakePivot, intakeSpin, shooter, spindexer, feeder))
         .withName("Auton_CenterDefault");
   }
 
@@ -229,17 +235,16 @@ public class Auton {
               // these 2 paths will be mirrored
               neutralPath1Command =
                   Commands.sequence(
-                      Commands.parallel(
+                      Commands.deadline(
                           PathUtil.followPath("Right_Trench_Sweep1", mirror),
                           delayShooterStart(mirror ? 90 : 270),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))));
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeAutomatic())));
 
               neutralPath2Command =
                   Commands.sequence(
-                      Commands.parallel(
+                      Commands.deadline(
                           PathUtil.followPath("Right_Trench_Sweep2", mirror),
-                          delayShooterStart(mirror ? 90 : 270),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeAutomatic())),
                       IntakeCommands.stopSpin());
 
               // -----------------------------------------------------
@@ -248,9 +253,9 @@ public class Auton {
                 myCommand1 =
                     Commands.sequence(
                         neutralPath1Command,
-                        WaitWhileShootThenAgitate(),
+                        shootWithAgitation(4, 3),
                         neutralPath2Command,
-                        WaitWhileShootThenAgitate());
+                        shootWithAgitation(99, 3));
                 myCommand2 = Commands.none();
               } else {
                 // -----------------------------------------------------
@@ -264,16 +269,19 @@ public class Auton {
                   // ....wait at outpost to shoot some,
                   // ......drive back to trench while shooting to be ready to go to neutral zone
                   myCommand2 =
-                      Commands.sequence(
-                          Commands.parallel(
-                              PathUtil.followPath("Right_Trench_toOutpost"),
-                              Commands.waitSeconds(0.5)
-                                  .andThen(IntakeCommands.intakeStatic(false))),
-                          IntakeCommands.stopSpin(),
-                          Commands.waitSeconds(3), // for hopper dump of fuels to finish
-                          Commands.parallel(
-                              PathUtil.followPath("Right_Trench_fromOutpost"),
-                              WaitWhileShootThenAgitate()));
+                      Commands.parallel(
+                          ShooterCommands.shoot(false),
+                          Commands.sequence(
+                              Commands.deadline(
+                                  PathUtil.followPath("Right_Trench_toOutpost")
+                                      .andThen(Commands.waitSeconds(0.2)),
+                                  Commands.waitSeconds(0.5)
+                                      .andThen(IntakeCommands.intakeAutomatic())),
+                              IntakeCommands.stopSpin(),
+                              Commands.waitSeconds(3), // for hopper dump of fuels to finish
+                              Commands.parallel(
+                                  PathUtil.followPath("Right_Trench_fromOutpost"),
+                                  Commands.waitSeconds(2).andThen(IntakeCommands.agitate()))));
                 } else if (left) {
                   // left side so run to depot
                   // ..then go to depot while NOT shooting,
@@ -281,13 +289,12 @@ public class Auton {
                   // ......drive back to trench while shooting to be ready to go to neutral zone
                   myCommand2 =
                       Commands.sequence(
-                          Commands.parallel(
+                          Commands.deadline(
                               PathUtil.followPath("Left_Trench_toDepot"),
-                              ShooterCommands.dontShoot().withTimeout(2),
-                              Commands.waitSeconds(0.5)
-                                  .andThen(IntakeCommands.intakeStatic(false))),
+                              Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeAutomatic())),
                           PathUtil.followPath("Depot_Intake"),
-                          WaitWhileShootThenAgitate());
+                          IntakeCommands.stopSpin(),
+                          shootWithAgitation(99, 99));
                 } else {
                   // run double pass to nuetral zone
                   myCommand2 = Commands.none();
@@ -296,7 +303,7 @@ public class Auton {
 
               return myCommand1.andThen(myCommand2);
             },
-            Set.of(drive))
+            Set.of(drive, intakePivot, intakeSpin, shooter, spindexer, feeder))
         .withName("Auton_Trench_" + numSweeps + "_Sweeps");
   }
 
@@ -318,17 +325,17 @@ public class Auton {
                       Commands.parallel(
                           PathUtil.followPath("Right_Bump_Slice1A", mirror),
                           delayShooterStart(mirror ? 90 : 270),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeStatic(false))),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeAutomatic())),
                       IntakeCommands.stopSpin(),
                       PathUtil.followPath("Right_Bump_Slice1B", mirror));
 
               // -----------------------------------------------------
               // run double pass to nuetral zone
-              myCommand1 = Commands.sequence(neutralPath1Command, WaitWhileShootThenAgitate());
+              myCommand1 = Commands.sequence(neutralPath1Command, shootWithAgitation(4, 3));
 
               return myCommand1;
             },
-            Set.of(drive))
+            Set.of(drive, intakePivot, intakeSpin, shooter, spindexer, feeder))
         .withName("Auton_Bump");
   }
 

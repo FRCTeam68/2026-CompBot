@@ -23,6 +23,14 @@ public class IntakeCommands {
   private static final RollerSystem intakeSpin = robotSystem.getIntakeSpin();
   private static final HopperSensor hopperSensor = robotSystem.getHopperSensor();
 
+  public static Command deploy(int slot) {
+    return Commands.sequence(
+            stopSpin(),
+            Commands.runOnce(
+                () -> intakePivot.runPosition(IntakePivot.getExtended(), slot), intakePivot))
+        .withName("IntakeDeploy");
+  }
+
   public static Command retract() {
     return Commands.sequence(
             stopSpin(),
