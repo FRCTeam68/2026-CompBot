@@ -18,7 +18,6 @@ public interface IntakePivotIO {
     public double tempCelsius = 0.0;
     public MagnetHealthValue magnetHealth = MagnetHealthValue.Magnet_Invalid;
     public double absolutePosition = 0.0;
-    public boolean fusedSensorInSync = false;
   }
 
   default void updateInputs(IntakePivotIOInputs inputs) {}
