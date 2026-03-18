@@ -54,7 +54,6 @@ public class Robot extends LoggedRobot {
           "Battery voltage is very low, turn off the robot or replace the battery to avoid damage.",
           AlertType.kWarning);
 
-  @SuppressWarnings("unused")
   public Robot() {
     // Record metadata
     Logger.recordMetadata("TuningMode", Boolean.toString(Constants.tuningMode));
@@ -98,11 +97,12 @@ public class Robot extends LoggedRobot {
     setUseTiming(Constants.getMode() != frc.robot.Constants.Mode.REPLAY);
 
     // CTRE Hoot logging
-    if (Constants.hootLogging && Constants.getMode() == Mode.REAL) {
-      SignalLogger.setPath("//media/sda1/logs");
-      SignalLogger.start();
-    } else {
-      SignalLogger.enableAutoLogging(false);
+    SignalLogger.enableAutoLogging(false);
+    if (Constants.hootLogging) {
+      if (Constants.getMode() == Mode.REAL) {
+        SignalLogger.setPath("//media/sda1/logs");
+        SignalLogger.start();
+      }
     }
 
     // Start AdvantageKit logger

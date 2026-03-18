@@ -106,6 +106,7 @@ public class TestCommands {
    * Similar to joystickDriveAtAngle but without the need to precalculate angle when pointing at a
    * single point.
    */
+  @SuppressWarnings("unused")
   public static Command driveTuning(Pose2d targetPose) {
     // Configure tunable numbers
     LoggedTunableNumber linearKP = new LoggedTunableNumber("Drive/Tuning/LinearKP", 0);
