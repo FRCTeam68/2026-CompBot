@@ -7,25 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "NewTrench_Sweep1_Safe"
+            "pathName": "Trench_Sweep1_Loop"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "NewTrench_Trench_Fast"
+            "pathName": "Trench_Trench_Fast"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "NewTrench_Sweep2"
+            "pathName": "Trench_Sweep2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "NewTrench_Trench_Slow"
+            "pathName": "Trench_Trench_Slow"
           }
         }
       ]

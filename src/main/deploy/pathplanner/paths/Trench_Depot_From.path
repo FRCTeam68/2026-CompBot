@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5710843373493972,
-        "y": 2.5706867469879513
+        "x": 0.5914204545454544,
+        "y": 5.972681818181818
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0028433734939757,
-        "y": 1.9150240963855412
+        "x": 1.8142980038051946,
+        "y": 5.942044229895184
       },
       "isLocked": false,
-      "linkedName": "Center Start"
+      "linkedName": "Left Depot"
     },
     {
       "anchor": {
-        "x": 0.8226885245901638,
-        "y": 0.6707704918032777
+        "x": 3.178431818181818,
+        "y": 5.890227272727272
       },
       "prevControl": {
-        "x": 3.4608149318585815,
-        "y": 0.8232349397590337
+        "x": 1.9875959622737167,
+        "y": 5.885208367319624
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "R Outpost"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.9,
-    "maxAcceleration": 22.0,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 150.0
   },
   "reversed": false,
-  "folder": "Center",
+  "folder": "Trench",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 178.56790381583528
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

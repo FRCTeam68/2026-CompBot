@@ -290,7 +290,8 @@ public class DriveCommands {
    *       </ul>
    * </ul>
    */
-  public static Command autopilotDriveToPose(Supplier<APTarget> targetSupplier) {
+  public static Command autopilotDriveToPose(
+      Supplier<APTarget> targetSupplier, boolean staticConfig) {
     // Configure Autopilot controller
     AtomicReference<Autopilot> autopilot =
         new AtomicReference<>(new Autopilot(DriveConstants.apConfigStatic));
@@ -317,7 +318,7 @@ public class DriveCommands {
                   "Autopilot/Target", new Pose2d[] {targetSupplier.get().getReference()});
 
               // Update constraints
-              if (targetSupplier.get().getVelocity() == 0.0) {
+              if (staticConfig) {
                 autopilot.set(
                     new Autopilot(
                         DriveConstants.apConfigStatic.withConstraints(
