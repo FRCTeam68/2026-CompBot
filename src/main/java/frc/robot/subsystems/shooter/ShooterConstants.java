@@ -70,14 +70,19 @@ public class ShooterConstants {
   }
 
   public static class DynamicShot {
-    public static final double angularMultiplier = 1.0;
-    public static final double linearTowardMultiplier = 1.0;
-    public static final double linearAwayMultiplier = 3.0;
-
     public static final double minHubShotDistance = 0.92;
 
     private static final InterpConfig[] hubConfigHigh = {
-      // InterpConfig.builder().distance().flywheel().hood().flightTime().build(),
+      InterpConfig.builder().distance(0.92).flywheel(50).hood(72).flightTime(1.1).build(),
+      InterpConfig.builder().distance(1.50).flywheel(50).hood(69).flightTime(1.083).build(),
+      InterpConfig.builder().distance(1.98).flywheel(51).hood(65).flightTime(1.017).build(),
+      InterpConfig.builder().distance(2.48).flywheel(51).hood(60).flightTime(1.033).build(),
+      InterpConfig.builder().distance(2.95).flywheel(52).hood(58).flightTime(1.033).build(),
+      InterpConfig.builder().distance(3.53).flywheel(55).hood(55).flightTime(1.083).build(),
+      InterpConfig.builder().distance(3.60).flywheel(55).hood(58).flightTime(1.12).build(),
+      InterpConfig.builder().distance(3.99).flywheel(57).hood(58).flightTime(1.16).build(),
+      InterpConfig.builder().distance(4.47).flywheel(58).hood(53).flightTime(1.15).build(),
+      InterpConfig.builder().distance(5.32).flywheel(63).hood(51).flightTime(1.28).build()
     };
 
     private static final InterpConfig[] passConfigHigh = {

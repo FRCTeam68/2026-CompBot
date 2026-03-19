@@ -45,10 +45,12 @@ public class Shooter extends SubsystemBase {
   @AutoLogOutput(key = "Shooter/StaticSetpoint")
   public boolean staticSetpoint = false;
 
-  public static final LoggedTunableNumber linearTowardMultiplier =
-      new LoggedTunableNumber("Shooter/TowardMultiplier", 1.3);
-  public static final LoggedTunableNumber linearAwayMultiplier =
-      new LoggedTunableNumber("Shooter/AwayMultiplier", 1.1);
+  public static final LoggedTunableNumber towardMultiplier =
+      new LoggedTunableNumber("Shooter/TowardMultiplier", 1.1);
+  public static final LoggedTunableNumber awayMultiplier =
+      new LoggedTunableNumber("Shooter/AwayMultiplier", 1.2);
+  public static final LoggedTunableNumber angleMultiplier =
+      new LoggedTunableNumber("Shooter/AngleMultiplier", 1.05);
 
   public Shooter(
       Flywheel flywheel,
@@ -175,8 +177,8 @@ public class Shooter extends SubsystemBase {
         ChassisSpeeds.fromFieldRelativeSpeeds(driveVelocitySupplier.get(), rotationToTarget);
     double linearMultiplier =
         targetRelativeVelocity.vxMetersPerSecond > 0
-            ? linearTowardMultiplier.get()
-            : linearAwayMultiplier.get();
+            ? towardMultiplier.get()
+            : awayMultiplier.get();
     // ? ShooterConstants.DynamicShot.linearTowardMultiplier
     // : ShooterConstants.DynamicShot.linearAwayMultiplier;
     double targetDistanceAdjusted =
@@ -193,7 +195,7 @@ public class Shooter extends SubsystemBase {
                         getDistanceToTarget(),
                         targetRelativeVelocity.vyMetersPerSecond
                             * flightTime
-                            * ShooterConstants.DynamicShot.angularMultiplier)
+                            * angleMultiplier.get())
                     .getAngle())
             .minus(drivePoseSupplier.get().getRotation())
             .getDegrees());
