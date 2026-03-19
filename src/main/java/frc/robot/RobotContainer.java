@@ -208,6 +208,17 @@ public class RobotContainer {
                 .ignoringDisable(true)
                 .withName("ResetRobotRotation"));
 
+    // turn on megatag1 again to resync with april tags
+    driverController
+        .back()
+        .and(driverController.y())
+        .onTrue(
+            Commands.runOnce(() -> vision.enableMegaTag1())
+                // .andThen(() -> LED.setBandAnimation(LEDColor.ORANGE, LEDSegment.ALL))
+                // .andThen(Commands.waitSeconds(2))
+                // .andThen(() -> LED.disableLEDs(LEDSegment.ALL))
+                .ignoringDisable(true));
+
     driverController
         .start()
         .onTrue(

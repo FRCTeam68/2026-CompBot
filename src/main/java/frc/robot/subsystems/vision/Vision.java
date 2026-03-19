@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
+import frc.robot.subsystems.vision.VisionIO.PoseObservation;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import frc.robot.util.ElasticUtil;
 import frc.robot.util.ElasticUtil.Notification;
@@ -38,6 +39,8 @@ public class Vision extends SubsystemBase {
   private final VisionIOInputsAutoLogged[] inputs;
   private final Debouncer[] connectedDebouncers;
   private final Alert[] disconnectedAlerts;
+  private final double maxRotationError = 3; // Acceptable error in degrees
+  private Double[] rotationSamples = new Double[25]; // Amount of rotation samples to use
 
   @AutoLogOutput(key = "Vision/EnableMT1")
   public boolean enableMT1 = Constants.tuningMode;
@@ -59,7 +62,10 @@ public class Vision extends SubsystemBase {
     connectedDebouncers = new Debouncer[io.length];
     disconnectedAlerts = new Alert[io.length];
     for (int i = 0; i < io.length; i++) {
+      // this ties camera to yaw to pigeon2 yaw, which is 0 at boot, then updated periodically by
+      // gyro subsystem
       this.io[i].initRotationSupplier(() -> poseSupplier.get().getRotation());
+
       cameraInfo[i] = io[i].getCameraInfo();
       inputs[i] = new VisionIOInputsAutoLogged();
       connectedDebouncers[i] = new Debouncer(0.5, DebounceType.kRising);
@@ -108,6 +114,50 @@ public class Vision extends SubsystemBase {
     return false;
   }
 
+  public void enableMegaTag1() {
+    // clear any previous samples.
+    for (int sampleIndex = 0; sampleIndex < rotationSamples.length; sampleIndex++) {
+      rotationSamples[sampleIndex] = null;
+    }
+    enableMT1 = true;
+    // LED.setSolidColor(LEDColor.RED, rotationInitalizedIndicator);
+    // rotationNotInitalizedAlert.set(true);
+  }
+
+  public void disableMegaTag1() {
+    enableMT1 = false;
+    //// LED.setSolidColor(LEDColor.GREEN, rotationInitalizedIndicator);
+    // rotationNotInitalizedAlert.set(false);
+  }
+
+  /**
+   * Evaluates the samples for MegaTag 1 are within same tolerance of yaw of each other and disables
+   * MegaTag 1 if they are. This is to prevent using MegaTag 1 for observations and to use only MT2
+   * after yaw is established in cameras.
+   */
+  private void evaluateMT1samples(PoseObservation observation) {
+    // Disable Megatag 1
+    if (observation.type() == PoseObservationType.MEGATAG_1) {
+      for (int sampleIndex = rotationSamples.length - 1; sampleIndex > 0; sampleIndex--) {
+        rotationSamples[sampleIndex] = rotationSamples[sampleIndex - 1];
+      }
+      rotationSamples[0] = Math.toDegrees(observation.pose().getRotation().getAngle());
+      // testing logged value
+      SmartDashboard.putNumber("Testing/MT1 rotation", rotationSamples[0]);
+      if (rotationSamples[rotationSamples.length - 1] != null) {
+        double max = rotationSamples[0];
+        double min = rotationSamples[0];
+        for (int sampleIndex = rotationSamples.length - 1; sampleIndex > 0; sampleIndex--) {
+          max = (rotationSamples[sampleIndex] > max) ? rotationSamples[sampleIndex] : max;
+          min = (rotationSamples[sampleIndex] < min) ? rotationSamples[sampleIndex] : min;
+        }
+        if (max - min < maxRotationError) {
+          disableMegaTag1();
+        }
+      }
+    }
+  }
+
   @Override
   public void periodic() {
     for (int i = 0; i < io.length; i++) {
@@ -124,6 +174,7 @@ public class Vision extends SubsystemBase {
     List<Pose3d> allRobotPoses = new LinkedList<>();
     List<Pose3d> allRobotPosesAccepted = new LinkedList<>();
     List<Pose3d> allRobotPosesRejected = new LinkedList<>();
+    PoseObservation firstCamaraMT2vPoseObservation = null;
 
     // Loop over cameras
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
@@ -197,6 +248,8 @@ public class Vision extends SubsystemBase {
                 observation.pose().toPose2d(),
                 observation.timestamp(),
                 VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
+
+            evaluateMT1samples(observation);
           }
 
         } else if (observation.type() == PoseObservationType.MEGATAG_2) {
@@ -208,6 +261,22 @@ public class Vision extends SubsystemBase {
                   || observation.pose().getX() > FieldConstants.fieldLength
                   || observation.pose().getY() < 0.0
                   || observation.pose().getY() > FieldConstants.fieldWidth;
+
+          if (!rejectPose) {
+            if (cameraIndex == 0) {
+              // first camera has valid observation, remember it to compare to second camera
+              firstCamaraMT2vPoseObservation = observation;
+            } else {
+              // second camera
+              if (firstCamaraMT2vPoseObservation != null) {
+                if (firstCamaraMT2vPoseObservation.averageTagDistance()
+                    < observation.averageTagDistance()) {
+                  // override the valid MT2 tag on second camera will first camera
+                  observation = firstCamaraMT2vPoseObservation;
+                }
+              }
+            }
+          }
 
           robotPoseMT2.add(observation.pose());
           if (!rejectPose) {
