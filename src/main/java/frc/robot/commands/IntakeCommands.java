@@ -57,7 +57,6 @@ public class IntakeCommands {
     return Commands.sequence(
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
-            Commands.waitUntil(() -> intakePivot.atSetpoint()),
             Commands.runOnce(
                 () ->
                     intakeSpin.runVolts(
@@ -70,7 +69,6 @@ public class IntakeCommands {
     return Commands.sequence(
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
-            Commands.waitUntil(() -> intakePivot.atSetpoint()),
             Commands.run(
                 () -> {
                   double volts;

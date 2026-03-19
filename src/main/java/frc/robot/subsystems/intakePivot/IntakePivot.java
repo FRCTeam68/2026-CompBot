@@ -3,7 +3,6 @@ package frc.robot.subsystems.intakePivot;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
@@ -29,17 +28,18 @@ public class IntakePivot extends SubsystemBase {
   @Getter private static final double intakeForwardExtension = Units.inchesToMeters(12);
 
   // PID gains
-  private final LoggedTunableNumber kP0 = new LoggedTunableNumber("IntakePivot/Slot0/kP", 22);
-  private final LoggedTunableNumber kD0 = new LoggedTunableNumber("IntakePivot/Slot0/kD", 0);
-  private final LoggedTunableNumber kP1 = new LoggedTunableNumber("IntakePivot/Slot1/kP", 25);
-  private final LoggedTunableNumber kD1 = new LoggedTunableNumber("IntakePivot/Slot1/kD", 0);
+  private final LoggedTunableNumber kP0 =
+      new LoggedTunableNumber("IntakePivot/Slot0-Deploy/kP", 22);
+  private final LoggedTunableNumber kD0 = new LoggedTunableNumber("IntakePivot/Slot0-Deploy/kD", 0);
+  private final LoggedTunableNumber kP1 =
+      new LoggedTunableNumber("IntakePivot/Slot1-Retract/kP", 25);
+  private final LoggedTunableNumber kD1 =
+      new LoggedTunableNumber("IntakePivot/Slot1-Retract/kD", 0);
+  private final LoggedTunableNumber kP2 =
+      new LoggedTunableNumber("IntakePivot/Slot2-Agitate/kP", 25);
+  private final LoggedTunableNumber kD2 =
+      new LoggedTunableNumber("IntakePivot/Slot2-Agitiate/kD", 0);
   private final LoggedTunableNumber kS = new LoggedTunableNumber("IntakePivot/kS", 0);
-
-  // Motion magic gains
-  private final LoggedTunableNumber mmVelocity = new LoggedTunableNumber("IntakePivot/Velocity", 0);
-  private final LoggedTunableNumber mmAcceleration =
-      new LoggedTunableNumber("IntakePivot/Acceleration", 0);
-  private final LoggedTunableNumber mmJerk = new LoggedTunableNumber("IntakePivot/Jerk", 0);
 
   // Setpoint band
   private final LoggedTunableNumber setpointBandPosition =
@@ -94,20 +94,13 @@ public class IntakePivot extends SubsystemBase {
         | kD0.hasChanged(hashCode())
         | kS.hasChanged(hashCode())
         | kP1.hasChanged(hashCode())
-        | kD1.hasChanged(hashCode())) {
+        | kD1.hasChanged(hashCode())
+        | kP2.hasChanged(hashCode())
+        | kD2.hasChanged(hashCode())) {
       io.setPID(
           new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS.get()),
-          new SlotConfigs().withKP(kP1.get()).withKD(kD1.get()).withKS(kS.get()));
-    }
-
-    // Update motion magic gains
-    if (mmVelocity.hasChanged(hashCode())
-        | mmAcceleration.hasChanged(hashCode())
-        | mmJerk.hasChanged(hashCode())) {
-      io.setMotionMagic(
-          new MotionMagicConfigs()
-              .withMotionMagicAcceleration(mmAcceleration.get())
-              .withMotionMagicJerk(mmJerk.get()));
+          new SlotConfigs().withKP(kP1.get()).withKD(kD1.get()).withKS(kS.get()),
+          new SlotConfigs().withKP(kP2.get()).withKD(kD2.get()).withKS(kS.get()));
     }
   }
 
