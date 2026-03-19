@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.422564516129032,
-        "y": 0.4435725806451626
+        "x": 4.4152499999999995,
+        "y": 0.6543636363636369
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.292059084566718,
-        "y": 0.4810206351582963
+        "x": 7.284744568437685,
+        "y": 0.6918116908767706
       },
       "isLocked": false,
       "linkedName": "Trench Start"
@@ -96,16 +96,16 @@
     },
     {
       "anchor": {
-        "x": 3.2595564516129034,
-        "y": 0.5825483870967754
+        "x": 5.833389635587788,
+        "y": 0.5355569080925511
       },
       "prevControl": {
-        "x": 3.610653225806451,
-        "y": 0.6597883395003001
+        "x": 6.184486409781336,
+        "y": 0.6127968604960758
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Trench Shoot"
+      "linkedName": "Trench Neutral Zone Approach"
     }
   ],
   "rotationTargets": [
@@ -122,12 +122,8 @@
       "rotationDegrees": -120.44700958462543
     },
     {
-      "waypointRelativePos": 4.106550218340601,
-      "rotationDegrees": -116.52439795921788
-    },
-    {
-      "waypointRelativePos": 5.13,
-      "rotationDegrees": -150.0
+      "waypointRelativePos": 4.11,
+      "rotationDegrees": -90.0
     }
   ],
   "constraintZones": [],
@@ -142,14 +138,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
+    "velocity": 3.9,
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Trench",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": false
 }

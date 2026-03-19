@@ -1,0 +1,37 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Trench_Sweep1_Straight_Safe"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Trench_Trench_Fast"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Trench_Outpost_To"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Trench_Outpost_From"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

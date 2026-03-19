@@ -82,25 +82,29 @@ public class RobotContainer {
           DriveCommands.autopilotDriveToPose(
               () ->
                   new APTarget(drive.getPose().plus(new Transform2d(0, -2, Rotation2d.kZero)))
-                      .withEntryAngle(Rotation2d.kCW_90deg)));
+                      .withEntryAngle(Rotation2d.kCW_90deg),
+              true));
       SmartDashboard.putData(
           "Tuning/DriveLinear_Left",
           DriveCommands.autopilotDriveToPose(
               () ->
                   new APTarget(drive.getPose().plus(new Transform2d(0, 2, Rotation2d.kZero)))
-                      .withEntryAngle(Rotation2d.kCCW_90deg)));
+                      .withEntryAngle(Rotation2d.kCCW_90deg),
+              true));
       SmartDashboard.putData(
           "Tuning/DriveAngular_CW",
           DriveCommands.autopilotDriveToPose(
               () ->
                   new APTarget(drive.getPose().plus(new Transform2d(0, 2, Rotation2d.kZero)))
-                      .withEntryAngle(Rotation2d.kCCW_90deg)));
+                      .withEntryAngle(Rotation2d.kCCW_90deg),
+              true));
       SmartDashboard.putData(
           "Tuning/DriveAngular_CCW",
           DriveCommands.autopilotDriveToPose(
               () ->
                   new APTarget(drive.getPose().plus(new Transform2d(0, 2, Rotation2d.kZero)))
-                      .withEntryAngle(Rotation2d.kCCW_90deg)));
+                      .withEntryAngle(Rotation2d.kCCW_90deg),
+              true));
       SmartDashboard.putData(
           "Tuning/Drive SysId (Quasistatic Forward)",
           drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));

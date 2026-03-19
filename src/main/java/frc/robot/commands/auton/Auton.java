@@ -2,7 +2,6 @@ package frc.robot.commands.auton;
 
 import com.therekrab.autopilot.APTarget;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -11,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
-import frc.robot.FieldConstants;
 import frc.robot.RobotSystem;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.IntakeCommands;
@@ -42,10 +40,6 @@ public class Auton {
   // Dashboard inputs
   private static final LoggedDashboardChooser<Auton.StartingPose> autonStartingPose =
       new LoggedDashboardChooser<>("Auton/StartingPose");
-
-  @SuppressWarnings("unused")
-  private static final LoggedNetworkBoolean autonFullField =
-      new LoggedNetworkBoolean("SmartDashboard/Auton/FullField", false);
 
   private static final LoggedDashboardChooser<Auton.Special> autonSpecial =
       new LoggedDashboardChooser<>("Auton/Special");
@@ -169,7 +163,7 @@ public class Auton {
             // Ensure flywheels don't start
             ShooterCommands.runStatic(
                 0, shooter.getHood().getElevation(), shooter.getTurret().getPosition()),
-            Commands.waitSeconds(1),
+            Commands.waitSeconds(2),
             // Move to the setpoints for when the robot enters the alliance zone again
             ShooterCommands.runStatic(57, 63, turretPosition),
             // enable automatic control
@@ -196,14 +190,20 @@ public class Auton {
               myCommand1 =
                   Commands.sequence(
                       Commands.parallel(
-                          PathUtil.followPath("Center_toOutpost"),
+                          PathUtil.followPath("Center_Outpost_To"),
+                          ShooterCommands.runStatic(
+                              0,
+                              shooter.getHood().getElevation(),
+                              shooter.getTurret().getPosition()),
                           Commands.waitSeconds(0.5).andThen(IntakeCommands.deploy(0))),
                       Commands.waitSeconds(3), // wait for fuel to be dumped into hopper
-                      PathUtil.followPath("Outpost_toDepot"),
                       Commands.deadline(
-                          PathUtil.followPath("Depot_Intake").andThen(Commands.waitSeconds(1)),
-                          IntakeCommands.intakeAutomatic()),
-                      shootWithAgitation(99, 3));
+                          PathUtil.followPath("Center_Depot_To").andThen(Commands.waitSeconds(0.2)),
+                          Commands.waitSeconds(1.5)
+                              .andThen(ShooterCommands.clearStaticSetpoint())
+                              .andThen(IntakeCommands.intakeStatic(false))),
+                      PathUtil.followPath("Center_Depot_From"),
+                      shootWithAgitation(99, 5));
 
               return myCommand1;
             },
@@ -218,11 +218,9 @@ public class Auton {
               boolean left = autonStartingPose.get() == StartingPose.Left;
               boolean mirror = left;
               Pose2d trenchApproach =
-                  AllianceFlipUtil.apply(
-                      new Pose2d(
-                          5.833,
-                          mirror ? FieldConstants.fieldWidth - 0.536 : 0.536,
-                          Rotation2d.kZero));
+                  AllianceFlipUtil.apply(PathUtil.getStartingPose("Trench_Trench_Slow", mirror));
+              Pose2d shot =
+                  AllianceFlipUtil.apply(PathUtil.getEndPose("Trench_Trench_Slow", mirror));
               Command myCommand1 = Commands.none();
               Command myCommand2 = Commands.none();
 
@@ -230,48 +228,55 @@ public class Auton {
               Command neutralPath1Command =
                   Commands.sequence(
                       Commands.deadline(
-                          PathUtil.followPath("NewTrench_Sweep1_Safe", mirror),
-                          delayShooterStart(mirror ? 90 : 270),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeAutomatic())),
+                          PathUtil.followPath(
+                              safe.get()
+                                  ? "Trench_Sweep1_Straight_Safe"
+                                  : "Trench_Sweep1_Straight_Agressive",
+                              // "Trench_Sweep1_Loop",
+                              mirror),
+                          delayShooterStart(mirror ? 270 : 90),
+                          Commands.waitSeconds(0.75).andThen(IntakeCommands.intakeStatic(false))),
                       Commands.either(
                           DriveCommands.autopilotDriveToPose(
-                                  () -> new APTarget(trenchApproach).withoutEntryAngle())
+                                  () -> new APTarget(trenchApproach).withoutEntryAngle(), false)
                               .withTimeout(7)
-                              .andThen(PathUtil.followPath("NewTrench_Trench_Slow", mirror)),
-                          PathUtil.followPath("NewTrench_Trench_Fast", mirror),
+                              .andThen(PathUtil.followPath("Trench_Trench_Slow", mirror)),
+                          PathUtil.followPath("Trench_Trench_Fast", mirror),
                           () ->
                               drive.getPose().minus(trenchApproach).getTranslation().getNorm()
-                                  > 0.5));
+                                  > 0.5),
+                      DriveCommands.autopilotDriveToPose(
+                              () -> new APTarget(shot).withoutEntryAngle(), false)
+                          .withTimeout(5)
+                          .onlyIf(
+                              () -> drive.getPose().minus(shot).getTranslation().getNorm() > 0.5));
 
               Command neutralPath2Command =
                   Commands.sequence(
                       Commands.deadline(
-                          PathUtil.followPath("NewTrench_Sweep2", mirror),
-                          Commands.waitSeconds(0.25).andThen(IntakeCommands.intakeAutomatic())),
+                          PathUtil.followPath("Trench_Sweep2", mirror),
+                          Commands.waitSeconds(0.25).andThen(IntakeCommands.intakeStatic(false))),
                       IntakeCommands.stopSpin(),
                       DriveCommands.autopilotDriveToPose(
-                              () -> new APTarget(trenchApproach).withoutEntryAngle())
+                              () -> new APTarget(trenchApproach).withoutEntryAngle(), false)
                           .withTimeout(7)
                           .onlyIf(
                               () ->
                                   drive.getPose().minus(trenchApproach).getTranslation().getNorm()
                                       > 0.5),
-                      PathUtil.followPath("NewTrench_Trench_Slow", mirror));
+                      PathUtil.followPath("Trench_Trench_Slow", mirror),
+                      DriveCommands.autopilotDriveToPose(
+                              () -> new APTarget(shot).withoutEntryAngle(), false)
+                          .withTimeout(5)
+                          .onlyIf(
+                              () -> drive.getPose().minus(shot).getTranslation().getNorm() > 0.5));
 
+              myCommand1 = Commands.sequence(neutralPath1Command, shootWithAgitation(4, 3));
               // -----------------------------------------------------
               if ((!left && !autonOutpost.get()) || (left && !autonDepot.get())) {
                 // run double pass to nuetral zone
-                myCommand1 =
-                    Commands.sequence(
-                        neutralPath1Command,
-                        shootWithAgitation(4, 3),
-                        neutralPath2Command,
-                        shootWithAgitation(99, 3));
+                myCommand2 = Commands.sequence(neutralPath2Command, shootWithAgitation(99, 3));
               } else {
-                // -----------------------------------------------------
-                // run single pass to nuetral zone,
-                myCommand1 = neutralPath1Command;
-
                 // ----  now the 'plus' part of the single sweep plus
                 if (!left) {
                   // right side so run to outpost
@@ -280,18 +285,14 @@ public class Auton {
                   // ......drive back to trench while shooting to be ready to go to neutral zone
                   myCommand2 =
                       Commands.parallel(
-                          ShooterCommands.shoot(false),
                           Commands.sequence(
                               Commands.deadline(
-                                  PathUtil.followPath("Right_Trench_toOutpost")
-                                      .andThen(Commands.waitSeconds(0.2)),
+                                  PathUtil.followPath("Trench_Outpost_To"),
                                   Commands.waitSeconds(0.5)
                                       .andThen(IntakeCommands.intakeAutomatic())),
-                              IntakeCommands.stopSpin(),
                               Commands.waitSeconds(3), // for hopper dump of fuels to finish
-                              Commands.parallel(
-                                  PathUtil.followPath("Right_Trench_fromOutpost"),
-                                  Commands.waitSeconds(2).andThen(IntakeCommands.agitate()))));
+                              PathUtil.followPath("Trench_Outpost_From"),
+                              shootWithAgitation(99, 3)));
                 } else {
                   // left side so run to depot
                   // ..then go to depot while NOT shooting,
@@ -300,10 +301,10 @@ public class Auton {
                   myCommand2 =
                       Commands.sequence(
                           Commands.deadline(
-                              PathUtil.followPath("Left_Trench_toDepot"),
+                              PathUtil.followPath("Trench_Depot_To")
+                                  .andThen(Commands.waitSeconds(0.2)),
                               Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeAutomatic())),
-                          PathUtil.followPath("Depot_Intake"),
-                          IntakeCommands.stopSpin(),
+                          PathUtil.followPath("Trench_Depot_From"),
                           shootWithAgitation(99, 99));
                 }
               }
@@ -358,17 +359,19 @@ public class Auton {
                 AllianceFlipUtil.apply(PathUtil.getStartingPose("Right_Bump_Slice1A", true));
           } else {
             startPose =
-                AllianceFlipUtil.apply(PathUtil.getStartingPose("Right_Trench_Sweep1", true));
+                AllianceFlipUtil.apply(
+                    PathUtil.getStartingPose("Trench_Sweep1_Straight_Safe", true));
           }
           break;
         case Center:
-          startPose = AllianceFlipUtil.apply(PathUtil.getStartingPose("Center_toOutpost"));
+          startPose = AllianceFlipUtil.apply(PathUtil.getStartingPose("Center_Outpost_To"));
           break;
         case Right:
           if (autonSpecial.get() == Auton.Special.BumpSingleSweep) {
             startPose = AllianceFlipUtil.apply(PathUtil.getStartingPose("Right_Bump_Slice1A"));
           } else {
-            startPose = AllianceFlipUtil.apply(PathUtil.getStartingPose("Right_Trench_Sweep1"));
+            startPose =
+                AllianceFlipUtil.apply(PathUtil.getStartingPose("Trench_Sweep1_Straight_Safe"));
           }
           break;
         default:

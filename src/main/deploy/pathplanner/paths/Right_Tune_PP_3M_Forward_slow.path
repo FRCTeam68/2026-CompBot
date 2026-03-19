@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.422564516129032,
-        "y": 0.4435725806451626
+        "x": 4.4152499999999995,
+        "y": 0.6543636363636369
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0658841882601804,
-        "y": 0.46059951272947164
+        "x": 3.0585696721311475,
+        "y": 0.671390568447946
       },
       "isLocked": false,
       "linkedName": "Trench Start"
@@ -45,10 +45,10 @@
     "rotation": -0.6365935759634644
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Tune",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": false
 }
