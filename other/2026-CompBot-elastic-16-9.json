@@ -65,7 +65,7 @@
           {
             "title": "Special",
             "x": 0.0,
-            "y": 384.0,
+            "y": 512.0,
             "width": 256.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
@@ -238,7 +238,7 @@
           {
             "title": "Set Starting Pose",
             "x": 0.0,
-            "y": 512.0,
+            "y": 640.0,
             "width": 160.0,
             "height": 128.0,
             "type": "Toggle Switch",
@@ -251,12 +251,42 @@
           {
             "title": "Set Starting Pose",
             "x": 160.0,
-            "y": 512.0,
+            "y": 640.0,
             "width": 160.0,
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "SmartDashboard/Auton/SetStartingPose",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Safe",
+            "x": 0.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "SmartDashboard/Auton/Safe",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "Safe",
+            "x": 128.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "SmartDashboard/Auton/Safe",
               "period": 0.06,
               "data_type": "boolean",
               "true_color": 4283215696,
@@ -866,6 +896,19 @@
                 "type": "Toggle Switch",
                 "properties": {
                   "topic": "SmartDashboard/Auton/Depot",
+                  "period": 0.06,
+                  "data_type": "boolean"
+                }
+              },
+              {
+                "title": "Safe",
+                "x": 32.0,
+                "y": 384.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Toggle Switch",
+                "properties": {
+                  "topic": "SmartDashboard/Auton/Safe",
                   "period": 0.06,
                   "data_type": "boolean"
                 }
