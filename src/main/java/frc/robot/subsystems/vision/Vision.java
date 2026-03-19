@@ -13,11 +13,15 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
+import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.lights.Lights.Color;
+import frc.robot.subsystems.lights.Lights.LEDSegment;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import frc.robot.util.ElasticUtil;
@@ -33,11 +37,13 @@ public class Vision extends SubsystemBase {
   private final VisionConsumer consumer;
   private final Supplier<ChassisSpeeds> chassisSpeedSupplier;
   private final Supplier<Boolean> gyroConnectedSupplier;
+  private final Lights lights;
   private final VisionIO[] io;
   private final CameraInfo[] cameraInfo;
   private final VisionIOInputsAutoLogged[] inputs;
   private final Debouncer[] connectedDebouncers;
   private final Alert[] disconnectedAlerts;
+  private final LEDSegment[] ledSegments;
 
   @AutoLogOutput(key = "Vision/EnableMT1")
   public boolean enableMT1 = Constants.tuningMode;
@@ -47,10 +53,12 @@ public class Vision extends SubsystemBase {
       Supplier<Pose2d> poseSupplier,
       Supplier<ChassisSpeeds> chassisSpeedSupplier,
       Supplier<Boolean> gyroConnectedSupplier,
+      Lights lights,
       VisionIO... io) {
     this.consumer = consumer;
     this.chassisSpeedSupplier = chassisSpeedSupplier;
     this.gyroConnectedSupplier = gyroConnectedSupplier;
+    this.lights = lights;
     this.io = io;
 
     // Initialize camera specific information
@@ -58,6 +66,7 @@ public class Vision extends SubsystemBase {
     inputs = new VisionIOInputsAutoLogged[io.length];
     connectedDebouncers = new Debouncer[io.length];
     disconnectedAlerts = new Alert[io.length];
+    ledSegments = new LEDSegment[io.length];
     for (int i = 0; i < io.length; i++) {
       this.io[i].initRotationSupplier(() -> poseSupplier.get().getRotation());
       cameraInfo[i] = io[i].getCameraInfo();
@@ -65,6 +74,8 @@ public class Vision extends SubsystemBase {
       connectedDebouncers[i] = new Debouncer(0.5, DebounceType.kRising);
       disconnectedAlerts[i] =
           new Alert("Camera" + cameraInfo[i].name + " is disconnected.", AlertType.kError);
+      ledSegments[i] =
+          new LEDSegment(cameraInfo[i].indicatorIndex, cameraInfo[i].indicatorIndex, 0);
     }
 
     // Initialize save rewind dashboard button
@@ -113,6 +124,18 @@ public class Vision extends SubsystemBase {
     for (int i = 0; i < io.length; i++) {
       io[i].updateInputs(inputs[i]);
       Logger.processInputs(cameraInfo[i].name, inputs[i]);
+    }
+
+    if (DriverStation.isDisabled() || Constants.tuningMode) {
+      for (int i = 0; i < io.length; i++) {
+        if (!inputs[i].connected) {
+          lights.setSolidColor(Color.Dim.RED, ledSegments[i]);
+        } else if (inputs[i].poseObservations.length > 0) {
+          lights.setSolidColor(Color.Dim.BLUE, ledSegments[i]);
+        } else {
+          lights.setSolidColor(Color.Dim.GREEN, ledSegments[i]);
+        }
+      }
     }
 
     if (!gyroConnectedSupplier.get() && !enableMT1) {

@@ -64,8 +64,8 @@ public class RobotSystem {
 
   // Subsystems
   @Getter private final Drive drive;
-  @Getter private final Vision vision;
   @Getter private final Lights lights;
+  @Getter private final Vision vision;
   @Getter private final IntakePivot intakePivot;
   @Getter private final RollerSystem intakeSpin;
   @Getter private final Shooter shooter;
@@ -90,20 +90,21 @@ public class RobotSystem {
                 new ModuleIOReal(DriveConstants.moduleConfigs[2]),
                 new ModuleIOReal(DriveConstants.moduleConfigs[3]));
 
+        lights = new Lights(new LightsIOCANdle());
+
         vision =
             new Vision(
                 drive::addVisionMeasurement,
                 drive::getPose,
                 drive::getFieldVelocity,
                 drive::getGyroConnected,
+                lights,
                 new VisionIOLimelight(CameraInfo.LL_4),
                 new VisionIOLimelight(CameraInfo.LL_3G));
 
-        lights = new Lights(new LightsIOCANdle());
-
         flywheel = new Flywheel(new FlywheelIOReal());
         hood = new Hood(new HoodIOReal());
-        turret = new Turret(new TurretIOReal());
+        turret = new Turret(lights, new TurretIOReal());
 
         intakePivot = new IntakePivot(new IntakePivotIOReal());
         intakeSpin =
@@ -140,7 +141,7 @@ public class RobotSystem {
 
         hopperSensor =
             new HopperSensor(
-                new CANrangeIOReal(44, CanBusUtil.getRioBus(), HopperSensor.getConfig()));
+                lights, new CANrangeIOReal(44, CanBusUtil.getRioBus(), HopperSensor.getConfig()));
         break;
 
       case SIM:
@@ -152,18 +153,19 @@ public class RobotSystem {
                 new ModuleIOSim(),
                 new ModuleIOSim());
 
+        lights = new Lights(new LightsIO() {});
+
         vision =
             new Vision(
                 drive::addVisionMeasurement,
                 drive::getPose,
                 drive::getFieldVelocity,
-                drive::getGyroConnected);
-
-        lights = new Lights(new LightsIO() {});
+                drive::getGyroConnected,
+                lights);
 
         flywheel = new Flywheel(new FlywheelIOSim());
         hood = new Hood(new HoodIOSim());
-        turret = new Turret(new TurretIOSim());
+        turret = new Turret(lights, new TurretIOSim());
 
         intakePivot = new IntakePivot(new IntakePivotIOSim() {});
         intakeSpin =
@@ -178,7 +180,8 @@ public class RobotSystem {
             new RollerSystem(
                 "feeder", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 36.0 / 12.0, 0.1));
 
-        hopperSensor = new HopperSensor(new CANrangeIOSim("Hopper", HopperSensor.getConfig()));
+        hopperSensor =
+            new HopperSensor(lights, new CANrangeIOSim("Hopper", HopperSensor.getConfig()));
         break;
 
       default:
@@ -190,20 +193,21 @@ public class RobotSystem {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
+        lights = new Lights(new LightsIO() {});
+
         vision =
             new Vision(
                 drive::addVisionMeasurement,
                 drive::getPose,
                 drive::getFieldVelocity,
                 drive::getGyroConnected,
+                lights,
                 new VisionIO() {},
                 new VisionIO() {});
 
-        lights = new Lights(new LightsIO() {});
-
         flywheel = new Flywheel(new FlywheelIO() {});
         hood = new Hood(new HoodIO() {});
-        turret = new Turret(new TurretIO() {});
+        turret = new Turret(lights, new TurretIO() {});
 
         intakePivot = new IntakePivot(new IntakePivotIO() {});
         intakeSpin = new RollerSystem("intakeSpin", (new RollerSystemIO() {}));
@@ -211,7 +215,7 @@ public class RobotSystem {
         spindexer = new RollerSystem("spindexer", new RollerSystemIO() {});
         feeder = new RollerSystem("feeder", new RollerSystemIO() {});
 
-        hopperSensor = new HopperSensor(new CANrangeIO() {});
+        hopperSensor = new HopperSensor(lights, new CANrangeIO() {});
     }
 
     shooter =
