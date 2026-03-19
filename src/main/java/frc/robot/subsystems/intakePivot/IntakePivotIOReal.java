@@ -34,8 +34,11 @@ import lombok.Getter;
 
 public class IntakePivotIOReal implements IntakePivotIO {
   private static final CANBus canBus = CanBusUtil.getRioBus();
-  @Getter private static final double rotorToSensorReduction = (40.0 / 8.0) * (60.0 / 20.0);
-  @Getter private static final double sensorToMechanismReduction = (32.0 / 16.0);
+
+  @Getter
+  private static final double rotorToSensorReduction = (40.0 / 8.0) * (60.0 / 20.0) * (16.0 / 18.0);
+
+  @Getter private static final double sensorToMechanismReduction = (18.0 / 16.0);
 
   @Getter
   private static final double reduction = rotorToSensorReduction * sensorToMechanismReduction;
@@ -81,15 +84,15 @@ public class IntakePivotIOReal implements IntakePivotIO {
     talonConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
     // Feedback
     talonConfig.Feedback.FeedbackRemoteSensorID = cancoder.getDeviceID();
-    talonConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.SyncCANcoder;
+    talonConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     talonConfig.Feedback.RotorToSensorRatio = rotorToSensorReduction;
     talonConfig.Feedback.SensorToMechanismRatio = sensorToMechanismReduction;
     tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
 
     // CANcoder
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-    cancoderConfig.MagnetSensor.MagnetOffset = -0.0234375;
-    cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.75;
+    cancoderConfig.MagnetSensor.MagnetOffset = 0.411865234375;
+    cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
 
     position = talon.getPosition();
