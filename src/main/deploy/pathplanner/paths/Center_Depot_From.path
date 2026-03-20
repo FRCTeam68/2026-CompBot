@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.5914204545454544,
-        "y": 5.972681818181818
+        "x": 0.8302710413694718,
+        "y": 5.956390870185448
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.8142980038051946,
-        "y": 5.942044229895184
+        "x": 1.6065905848787443,
+        "y": 5.21888730385164
       },
       "isLocked": false,
-      "linkedName": "Left Depot"
+      "linkedName": "Left Depot from Center"
     },
     {
       "anchor": {
-        "x": 2.2508181818181816,
-        "y": 4.426659090909091
+        "x": 2.4217261055634807,
+        "y": 4.830727532097005
       },
       "prevControl": {
-        "x": 1.9828409090909087,
-        "y": 5.2305909090909095
+        "x": 1.4513266761768897,
+        "y": 5.309457917261056
       },
       "nextControl": null,
       "isLocked": false,
@@ -48,7 +48,7 @@
   "folder": "Center",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 175.91438322002492
   },
   "useDefaultConstraints": true
 }

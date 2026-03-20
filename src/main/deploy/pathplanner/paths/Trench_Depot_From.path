@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.5914204545454544,
-        "y": 5.972681818181818
+        "x": 0.5456205420827387,
+        "y": 5.542353780313838
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.8142980038051946,
-        "y": 5.942044229895184
+        "x": 1.7684980913424788,
+        "y": 5.511716192027204
       },
       "isLocked": false,
       "linkedName": "Left Depot"
@@ -20,8 +20,8 @@
         "y": 5.890227272727272
       },
       "prevControl": {
-        "x": 1.9875959622737167,
-        "y": 5.885208367319624
+        "x": 1.9429957203994292,
+        "y": 5.723495007132667
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 150.0
+    "rotation": -142.9003319467208
   },
   "reversed": false,
   "folder": "Trench",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -89.20721232107876
   },
   "useDefaultConstraints": true
 }

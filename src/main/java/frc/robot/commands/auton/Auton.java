@@ -260,7 +260,7 @@ public class Auton {
                               // "Trench_Sweep1_Loop",
                               mirror),
                           delayShooterStart(mirror ? 270 : 90),
-                          Commands.waitSeconds(0.75).andThen(IntakeCommands.intakeStatic(false))),
+                          Commands.waitSeconds(0.75).andThen(IntakeCommands.intakeAutomatic())),
                       Commands.either(
                           DriveCommands.autopilotDriveToPose(
                                   () -> new APTarget(trenchApproach).withoutEntryAngle(), false)
@@ -330,7 +330,7 @@ public class Auton {
                                   .andThen(Commands.waitSeconds(0.2)),
                               Commands.waitSeconds(0.5).andThen(IntakeCommands.intakeAutomatic())),
                           PathUtil.followPath("Trench_Depot_From"),
-                          shootWithAgitation(99, 99));
+                          shootWithAgitation(5, 3));
                 }
               }
 

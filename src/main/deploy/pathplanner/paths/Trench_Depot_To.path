@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.539409090909091,
-        "y": 6.756
+        "x": 2.072382310984308,
+        "y": 7.392582025677603
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.5914204545454544,
-        "y": 5.972681818181818
+        "x": 0.5456205420827387,
+        "y": 5.542353780313838
       },
       "prevControl": {
-        "x": 2.68714015151515,
-        "y": 5.936853354978355
+        "x": 0.739700427960057,
+        "y": 7.276134094151213
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,8 +30,8 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.8537735849056598,
-      "rotationDegrees": 180.0
+      "waypointRelativePos": 0.7249466950959518,
+      "rotationDegrees": -137.77435847353703
     }
   ],
   "constraintZones": [
@@ -52,7 +52,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
+    "maxVelocity": 1.5,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -61,7 +61,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -89.20721232107876
   },
   "reversed": false,
   "folder": "Trench",
@@ -69,5 +69,5 @@
     "velocity": 0,
     "rotation": 0.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

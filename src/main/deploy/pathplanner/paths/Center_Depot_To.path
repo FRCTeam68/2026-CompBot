@@ -8,43 +8,48 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.5291022727272727,
-        "y": 2.0870113636363636
+        "x": 2.693437945791726,
+        "y": 3.329843081312412
       },
       "isLocked": false,
       "linkedName": "R Outpost"
     },
     {
       "anchor": {
-        "x": 1.9106931818181816,
-        "y": 5.62225
+        "x": 1.9688730385164046,
+        "y": 4.895420827389444
       },
       "prevControl": {
-        "x": 2.0198751215557156,
-        "y": 4.89437040174977
+        "x": 2.2794008559201138,
+        "y": 4.170855920114122
       },
       "nextControl": {
-        "x": 1.8488522727272727,
-        "y": 6.034522727272727
+        "x": 1.8046539933983199,
+        "y": 5.278598599331642
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.5914204545454544,
-        "y": 5.972681818181818
+        "x": 0.8302710413694718,
+        "y": 5.956390870185448
       },
       "prevControl": {
-        "x": 1.192651515151514,
-        "y": 5.9883874458874455
+        "x": 1.645406562054208,
+        "y": 5.477660485021398
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Left Depot"
+      "linkedName": "Left Depot from Center"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.3347547974413405,
+      "rotationDegrees": 161.44065915950583
+    }
+  ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
@@ -72,7 +77,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 175.91438322002492
   },
   "reversed": false,
   "folder": "Center",
