@@ -41,9 +41,9 @@ public class Turret extends SubsystemBase {
 
   // Motion magic gains
   private LoggedTunableNumber mmVelocity =
-      new LoggedTunableNumber("Shooter/Turret/MotionMagic/Velocity", 600);
+      new LoggedTunableNumber("Shooter/Turret/MotionMagic/Velocity", 700);
   private LoggedTunableNumber mmAcceleration =
-      new LoggedTunableNumber("Shooter/Turret/MotionMagic/Acceleration", 500);
+      new LoggedTunableNumber("Shooter/Turret/MotionMagic/Acceleration", 1000);
   private LoggedTunableNumber mmJerk =
       new LoggedTunableNumber("Shooter/Turret/MotionMagic/Jerk", 0);
 
