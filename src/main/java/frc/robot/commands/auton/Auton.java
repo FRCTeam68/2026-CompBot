@@ -299,11 +299,11 @@ public class Auton {
                           .onlyIf(
                               () -> drive.getPose().minus(shot).getTranslation().getNorm() > 0.5));
 
-              myCommand1 = Commands.sequence(neutralPath1Command, shootWithAgitation(4, 3));
+              myCommand1 = Commands.sequence(neutralPath1Command, shootWithAgitation(4, 2.5));
               // -----------------------------------------------------
               if ((!left && !autonOutpost.get()) || (left && !autonDepot.get())) {
                 // run double pass to nuetral zone
-                myCommand2 = Commands.sequence(neutralPath2Command, shootWithAgitation(99, 3));
+                myCommand2 = Commands.sequence(neutralPath2Command, shootWithAgitation(99, 1.5));
               } else {
                 // ----  now the 'plus' part of the single sweep plus
                 if (!left) {
