@@ -31,7 +31,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class Turret extends SubsystemBase {
   // Positions
-  @Getter private static final double minimum = 30;
+  @Getter private static final double minimum = 0;
   @Getter private static final double maximum = 360;
 
   // PID gains
