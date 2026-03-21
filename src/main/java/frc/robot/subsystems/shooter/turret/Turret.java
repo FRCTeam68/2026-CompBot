@@ -31,13 +31,13 @@ import org.littletonrobotics.junction.Logger;
 
 public class Turret extends SubsystemBase {
   // Positions
-  @Getter private static final double minimum = 0;
+  @Getter private static final double minimum = 30;
   @Getter private static final double maximum = 360;
 
   // PID gains
-  private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Turret/kP", 75);
+  private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Turret/kP", 70);
   private LoggedTunableNumber kD = new LoggedTunableNumber("Shooter/Turret/kD", 0);
-  private LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Turret/kS", 1);
+  private LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Turret/kS", .3);
 
   // Motion magic gains
   private LoggedTunableNumber mmVelocity =
