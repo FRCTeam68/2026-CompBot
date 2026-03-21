@@ -82,8 +82,8 @@ public class IntakePivotIOReal implements IntakePivotIO {
     talonConfig.CurrentLimits.SupplyCurrentLimit = 45;
     talonConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
     talonConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
-    talonConfig.CurrentLimits.StatorCurrentLimit = 80;
-    talonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    // talonConfig.CurrentLimits.StatorCurrentLimit = 120;
+    // talonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     talonConfig.TorqueCurrent.PeakForwardTorqueCurrent = 120;
     talonConfig.TorqueCurrent.PeakReverseTorqueCurrent = -40;
     // Feedback

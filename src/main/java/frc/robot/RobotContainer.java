@@ -160,6 +160,7 @@ public class RobotContainer {
     operatorController.L1().whileTrue(IntakeCommands.agitate());
 
     driverController.povUp().onTrue(IntakeCommands.retract());
+    driverController.povLeft().onTrue(IntakeCommands.deploy(2));
 
     // Shooter
     feeder.setDefaultCommand(ShooterCommands.shootDefault());
