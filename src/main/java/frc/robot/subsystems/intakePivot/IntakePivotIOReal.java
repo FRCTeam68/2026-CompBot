@@ -79,9 +79,11 @@ public class IntakePivotIOReal implements IntakePivotIO {
     talonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     // Current limits
     talonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    talonConfig.CurrentLimits.SupplyCurrentLimit = 80;
+    talonConfig.CurrentLimits.SupplyCurrentLimit = 45;
     talonConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
     talonConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
+    talonConfig.CurrentLimits.StatorCurrentLimit = 80;
+    talonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     // Feedback
     talonConfig.Feedback.FeedbackRemoteSensorID = cancoder.getDeviceID();
     talonConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
