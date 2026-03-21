@@ -35,7 +35,7 @@ public class Turret extends SubsystemBase {
   @Getter private static final double maximum = 360;
 
   // PID gains
-  private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Turret/kP", 70);
+  private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Turret/kP", 75);
   private LoggedTunableNumber kD = new LoggedTunableNumber("Shooter/Turret/kD", 0);
   private LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Turret/kS", 0.3);
 
