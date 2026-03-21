@@ -88,6 +88,7 @@ public class HoodIOReal implements HoodIO {
     talonConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     talonConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
         Units.degreesToRotations(Hood.getMinimum() - Hood.getMaximum());
+        tryUntilOk(5, () -> cancoder.getConfigurator().apply(new CANcoderConfiguration(), 0.25));
     tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
 
     // CANcoder
