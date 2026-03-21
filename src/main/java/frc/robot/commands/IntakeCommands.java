@@ -50,7 +50,11 @@ public class IntakeCommands {
                 Commands.idle(intakePivot, intakeSpin),
                 Commands.waitSeconds(waitTime),
                 () -> timeout.length == 0))
-        .finallyDo(() -> intakePivot.runPosition(IntakePivot.getExtended(), 0))
+        .finallyDo(
+            () -> {
+              intakePivot.runPosition(IntakePivot.getExtended(), 0);
+              intakeSpin.stop();
+            })
         .withName("IntakeAgitate");
   }
 
