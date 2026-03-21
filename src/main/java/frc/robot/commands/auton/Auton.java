@@ -260,7 +260,7 @@ public class Auton {
                               // "Trench_Sweep1_Loop",
                               mirror),
                           delayShooterStart(mirror ? 270 : 90),
-                          Commands.waitSeconds(0.5)
+                          Commands.waitSeconds(1)
                               .andThen(IntakeCommands.deploy(2))
                               .andThen(Commands.waitSeconds(0.25))
                               .andThen(IntakeCommands.intakeAutomatic())),

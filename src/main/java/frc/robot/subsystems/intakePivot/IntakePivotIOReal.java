@@ -91,13 +91,13 @@ public class IntakePivotIOReal implements IntakePivotIO {
     talonConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     talonConfig.Feedback.RotorToSensorRatio = rotorToSensorReduction;
     talonConfig.Feedback.SensorToMechanismRatio = sensorToMechanismReduction;
-    tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
 
     // CANcoder
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     cancoderConfig.MagnetSensor.MagnetOffset = 0.411865234375;
     cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
+    tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
 
     position = talon.getPosition();
     velocity = talon.getVelocity();
