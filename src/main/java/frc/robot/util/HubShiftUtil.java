@@ -221,7 +221,7 @@ public class HubShiftUtil {
    * <p>This will remain true for the specified time before the hub is active.
    */
   public static boolean shootingToStart(double time) {
-    return !isHubActive() && (shiftTime.get() - getShotTime() < time);
+    return !isHubActive() && (shiftTime.get() - getShotTime()) < time;
   }
 
   /**
@@ -232,8 +232,8 @@ public class HubShiftUtil {
   public static boolean shootingToStop(double time) {
     final double shotTime = getShotTime();
     if (shotTime < 3.0) {
-      if (time - 3 + shotTime < 0) {
-        return shouldShoot() && !isHubActive() && shiftTime.get() > 22 + time + shotTime;
+      if (time + shotTime - 3 < 0) {
+        return !isHubActive() && shiftTime.get() - 22 - time - shotTime > 0;
       } else {
         return shouldShoot()
             && nextActiveHub.isPresent()
@@ -256,18 +256,16 @@ public class HubShiftUtil {
    */
   @AutoLogOutput(key = "HubShift/ShouldShoot")
   public static boolean shouldShoot() {
-    final double shotTime = getShotTime();
+    double shotTime = getShotTime();
+    double shiftTime = getShiftTime().get();
     if (shotTime < 3.0) {
       return !shooter.isTargetHub()
           || override.get()
           || isHubActive()
-          || shootingToStart(shotTime)
-          || shiftTime.get() - (22.0 + shotTime) > 0.0;
+          || shiftTime - shotTime < 0
+          || (shiftTime - 22.0 - shotTime) > 0.0;
     } else {
-      return !shooter.isTargetHub()
-          || override.get()
-          || (isHubActive() && !shootingToStop(shotTime - 3.0))
-          || shootingToStart(shotTime);
+      return !shooter.isTargetHub() || override.get() || isHubActive() || shiftTime - shotTime < 0;
     }
   }
 

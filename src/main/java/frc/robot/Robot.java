@@ -21,7 +21,6 @@ import frc.robot.util.ElasticUtil;
 import frc.robot.util.HubShiftUtil;
 import frc.robot.util.LoggedTracer;
 import frc.robot.util.PhoenixUtil;
-import frc.robot.util.geometry.AllianceFlipUtil;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
@@ -246,11 +245,7 @@ public class Robot extends LoggedRobot {
     }
 
     if (DriverStation.isFMSAttached()) {
-      if (AllianceFlipUtil.shouldFlip()) {
-        ElasticUtil.selectTab("Teleop-Red");
-      } else {
-        ElasticUtil.selectTab("Teleop-Blue");
-      }
+      ElasticUtil.selectTab("Teleop");
     }
   }
 
