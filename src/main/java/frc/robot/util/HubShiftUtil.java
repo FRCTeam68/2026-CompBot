@@ -221,7 +221,7 @@ public class HubShiftUtil {
    * <p>This will remain true for the specified time before the hub is active.
    */
   public static boolean shootingToStart(double time) {
-    return !shouldShoot() && (shiftTime.get() - getShotTime() < time);
+    return !isHubActive() && (shiftTime.get() - getShotTime() < time);
   }
 
   /**
