@@ -88,14 +88,13 @@ public class HoodIOReal implements HoodIO {
     talonConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     talonConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
         Units.degreesToRotations(Hood.getMinimum() - Hood.getMaximum());
-        tryUntilOk(5, () -> cancoder.getConfigurator().apply(new CANcoderConfiguration(), 0.25));
-    tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
 
     // CANcoder
-    cancoderConfig.MagnetSensor.MagnetOffset = 0.06689453125; // Minimum elevation
+    cancoderConfig.MagnetSensor.MagnetOffset = 0.35791015625; // Minimum elevation
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.1;
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
+    tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
 
     position = talon.getPosition();
     velocity = talon.getVelocity();
