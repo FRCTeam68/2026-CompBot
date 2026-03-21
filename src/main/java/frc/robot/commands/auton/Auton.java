@@ -220,7 +220,7 @@ public class Auton {
                               0,
                               shooter.getHood().getElevation(),
                               shooter.getTurret().getPosition()),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.deploy(0))),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.deploy(2))),
                       Commands.waitSeconds(3), // wait for fuel to be dumped into hopper
                       Commands.deadline(
                           PathUtil.followPath("Center_Depot_To").andThen(Commands.waitSeconds(0.2)),
@@ -260,6 +260,7 @@ public class Auton {
                               // "Trench_Sweep1_Loop",
                               mirror),
                           delayShooterStart(mirror ? 270 : 90),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.deploy(2)),
                           Commands.waitSeconds(0.75).andThen(IntakeCommands.intakeAutomatic())),
                       Commands.either(
                           DriveCommands.autopilotDriveToPose(
