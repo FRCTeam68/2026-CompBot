@@ -91,7 +91,7 @@ public class HoodIOReal implements HoodIO {
     tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
 
     // CANcoder
-    cancoderConfig.MagnetSensor.MagnetOffset = 0.37255859375; // Minimum elevation
+    cancoderConfig.MagnetSensor.MagnetOffset = 0.871337890625; // Minimum elevation
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.1;
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
