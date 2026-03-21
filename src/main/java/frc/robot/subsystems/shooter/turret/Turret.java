@@ -37,7 +37,7 @@ public class Turret extends SubsystemBase {
   // PID gains
   private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Turret/kP", 75);
   private LoggedTunableNumber kD = new LoggedTunableNumber("Shooter/Turret/kD", 0);
-  private LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Turret/kS", 0.3);
+  private LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Turret/kS", 0.5);
 
   // Motion magic gains
   private LoggedTunableNumber mmVelocity =
