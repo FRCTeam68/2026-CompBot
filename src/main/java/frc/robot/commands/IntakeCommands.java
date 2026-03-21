@@ -42,14 +42,21 @@ public class IntakeCommands {
   public static Command agitate(double... timeout) {
     double waitTime = (timeout.length == 0) ? 0.0 : timeout[0];
     return Commands.sequence(
-            stopSpin(),
+            Commands.runOnce(() -> intakeSpin.runVolts(intakeSpinVoltsSlow.get()), intakeSpin),
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getAgitate(), 1), intakePivot),
             Commands.either(
-                Commands.idle(intakePivot, intakeSpin),
-                Commands.waitSeconds(waitTime),
-                () -> timeout.length == 0))
-        .finallyDo(() -> intakePivot.runPosition(IntakePivot.getExtended(), 0))
+                    Commands.idle(intakePivot, intakeSpin),
+                    Commands.waitSeconds(waitTime),
+                    () -> timeout.length == 0)
+                .onlyWhile( // only wait at either of these if we are not stuck on hopper when
+                    // retracting or agitating
+                    () -> intakePivot.getTorqueCurrent() < -50))
+        .finallyDo(
+            () -> {
+              intakePivot.runPosition(IntakePivot.getExtended(), 0);
+              intakeSpin.stop();
+            })
         .withName("IntakeAgitate");
   }
 
