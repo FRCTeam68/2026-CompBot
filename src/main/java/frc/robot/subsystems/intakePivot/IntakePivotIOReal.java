@@ -13,7 +13,7 @@ import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.NeutralOut;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
@@ -64,9 +64,9 @@ public class IntakePivotIOReal implements IntakePivotIO {
 
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true);
-  private final PositionVoltage positionOut = new PositionVoltage(0).withEnableFOC(true);
+  // private final PositionVoltage positionOut = new PositionVoltage(0).withEnableFOC(true);
   //   private final MotionMagicVoltage positionOut = new MotionMagicVoltage(0).withEnableFOC(true);
-  //   private final TorqueCurrentFOC positionOut = new TorqueCurrentFOC(0);
+  private final PositionTorqueCurrentFOC positionOut = new PositionTorqueCurrentFOC(0);
   //   private final MotionMagicTorqueCurrentFOC positionOut = new MotionMagicTorqueCurrentFOC(0);
   private final NeutralOut neutralOut = new NeutralOut();
 
@@ -84,6 +84,8 @@ public class IntakePivotIOReal implements IntakePivotIO {
     talonConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
     talonConfig.CurrentLimits.StatorCurrentLimit = 80;
     talonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    talonConfig.TorqueCurrent.PeakForwardTorqueCurrent = 120;
+    talonConfig.TorqueCurrent.PeakReverseTorqueCurrent = -40;
     // Feedback
     talonConfig.Feedback.FeedbackRemoteSensorID = cancoder.getDeviceID();
     talonConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
