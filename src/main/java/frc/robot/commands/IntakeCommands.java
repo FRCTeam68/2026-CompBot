@@ -23,11 +23,11 @@ public class IntakeCommands {
   private static final RollerSystem intakeSpin = robotSystem.getIntakeSpin();
   private static final HopperSensor hopperSensor = robotSystem.getHopperSensor();
 
-  public static Command deploy(int slot) {
+  public static Command deploy() {
     return Commands.sequence(
             stopSpin(),
             Commands.runOnce(
-                () -> intakePivot.runPosition(IntakePivot.getExtended(), slot), intakePivot))
+                () -> intakePivot.runBangBang(IntakePivot.getExtended(), 0), intakePivot))
         .withName("IntakeDeploy");
   }
 
@@ -42,21 +42,20 @@ public class IntakeCommands {
   public static Command agitate(double... timeout) {
     double waitTime = (timeout.length == 0) ? 0.0 : timeout[0];
     return Commands.sequence(
-            stopSpin(),
+            Commands.runOnce(() -> intakeSpin.runVolts(4.0), intakeSpin),
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getAgitate(), 1), intakePivot),
             Commands.either(
                 Commands.idle(intakePivot, intakeSpin),
                 Commands.waitSeconds(waitTime),
                 () -> timeout.length == 0))
-        .finallyDo(() -> intakePivot.runPosition(IntakePivot.getExtended(), 0))
+        .finallyDo(() -> deploy())
         .withName("IntakeAgitate");
   }
 
   public static Command intakeStatic(boolean slowMode) {
     return Commands.sequence(
-            Commands.runOnce(
-                () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
+            deploy(),
             Commands.runOnce(
                 () ->
                     intakeSpin.runVolts(
@@ -67,8 +66,7 @@ public class IntakeCommands {
 
   public static Command intakeAutomatic() {
     return Commands.sequence(
-            Commands.runOnce(
-                () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
+            deploy(),
             Commands.run(
                 () -> {
                   double volts;
@@ -91,8 +89,7 @@ public class IntakeCommands {
 
   public static Command outtake() {
     return Commands.sequence(
-            Commands.runOnce(
-                () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
+            deploy(),
             Commands.waitUntil(() -> intakePivot.atSetpoint()),
             Commands.runOnce(() -> intakeSpin.runVolts(intakeSpinVoltsOuttake.get()), intakeSpin),
             Commands.idle())

@@ -202,7 +202,7 @@ public class Auton {
             Commands.waitSeconds(shootSeconds),
             ShooterCommands.shoot(false),
             Commands.waitSeconds(agitateDelay).andThen(IntakeCommands.agitate()))
-        .finallyDo(() -> IntakeCommands.deploy(0))
+        .finallyDo(() -> IntakeCommands.deploy())
         .withName("Auton_ShootWithAgitation");
   }
 
@@ -220,7 +220,7 @@ public class Auton {
                               0,
                               shooter.getHood().getElevation(),
                               shooter.getTurret().getPosition()),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.deploy(0))),
+                          Commands.waitSeconds(0.5).andThen(IntakeCommands.deploy())),
                       Commands.waitSeconds(3), // wait for fuel to be dumped into hopper
                       Commands.deadline(
                           PathUtil.followPath("Center_Depot_To").andThen(Commands.waitSeconds(0.2)),

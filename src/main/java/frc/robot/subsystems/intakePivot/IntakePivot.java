@@ -41,6 +41,10 @@ public class IntakePivot extends SubsystemBase {
       new LoggedTunableNumber("IntakePivot/Slot2-Agitiate/kD", 0);
   private final LoggedTunableNumber kS = new LoggedTunableNumber("IntakePivot/kS", 0);
 
+  // Bang-Bang tunable numbers
+  private final LoggedTunableNumber bangBangTolerance =
+      new LoggedTunableNumber("IntakePivot/BangBangTolerance", 0.05);
+
   // Setpoint band
   private final LoggedTunableNumber setpointBandPosition =
       new LoggedTunableNumber("IntakePivot/SetpointBand", 0.1);
@@ -61,6 +65,7 @@ public class IntakePivot extends SubsystemBase {
   protected final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
   @Getter private double setpoint = 0.0;
   @Getter private ControlMode mode = ControlMode.Neutral;
+  private int bangBangSlot = 0;
 
   public IntakePivot(IntakePivotIO io) {
     this.io = io;
@@ -88,6 +93,9 @@ public class IntakePivot extends SubsystemBase {
     cancoderDisconnectedAlert.set(
         !cancoderDisconnectedDebouncer.calculate(inputs.cancoderConnected));
     motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
+
+    Logger.recordOutput("Shooter/Flywheel/ControlMode", mode.toString());
+    if (mode == ControlMode.BangBang) bangBangControl();
 
     // Update PID gains
     if (kP0.hasChanged(hashCode())
@@ -127,6 +135,20 @@ public class IntakePivot extends SubsystemBase {
     setpoint = rotations;
     mode = ControlMode.Position;
     io.runPosition(rotations, slot);
+    Logger.recordOutput("IntakePivot/SetpointPosition", setpoint, Rotations);
+  }
+
+  /**
+   * Run system to specified position with a Bang-Bang Controller.
+   *
+   * <p><b>Units:</b> Mechanism rotations.
+   *
+   * @param rotations Goal position.
+   * @param slot PID gain slot to use during motion.
+   */
+  public void runBangBang(double rotations, int slot) {
+    setpoint = rotations;
+    mode = ControlMode.BangBang;
     Logger.recordOutput("IntakePivot/SetpointPosition", setpoint, Rotations);
   }
 
@@ -190,5 +212,21 @@ public class IntakePivot extends SubsystemBase {
   @AutoLogOutput(key = "IntakePivot/InsideBumper")
   public boolean insideBumper() {
     return getPosition() < getInBumperMaximum();
+  }
+
+  /**
+   * Controls the Bang-Bang controller. This should be called periodically if using the Bang-Bang
+   * controller.
+   */
+  private void bangBangControl() {
+    final boolean notNearSetpoint = getVelocity() < setpoint - bangBangTolerance.get();
+
+    if (notNearSetpoint) {
+      io.runPosition(setpoint, bangBangSlot);
+      Logger.recordOutput("IntakePivot/BangBangMode", "Postion");
+    } else {
+      io.stop();
+      Logger.recordOutput("IntakePivot/BangBangMode", "Neutral");
+    }
   }
 }
