@@ -90,7 +90,7 @@ public class HoodIOReal implements HoodIO {
         Units.degreesToRotations(Hood.getMinimum() - Hood.getMaximum());
 
     // CANcoder
-    cancoderConfig.MagnetSensor.MagnetOffset = 0.35791015625; // Minimum elevation
+    cancoderConfig.MagnetSensor.MagnetOffset = 0.080322265625; // Minimum elevation
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.1;
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
