@@ -29,10 +29,10 @@ public class IntakePivot extends SubsystemBase {
 
   // PID gains
   private final LoggedTunableNumber kP0 =
-      new LoggedTunableNumber("IntakePivot/Slot0-Deploy/kP", 100);
+      new LoggedTunableNumber("IntakePivot/Slot0-Deploy/kP", 200);
   private final LoggedTunableNumber kD0 = new LoggedTunableNumber("IntakePivot/Slot0-Deploy/kD", 0);
   private final LoggedTunableNumber kP1 =
-      new LoggedTunableNumber("IntakePivot/Slot1-Retract/kP", 500);
+      new LoggedTunableNumber("IntakePivot/Slot1-Retract/kP", 650);
   private final LoggedTunableNumber kD1 =
       new LoggedTunableNumber("IntakePivot/Slot1-Retract/kD", 0);
   private final LoggedTunableNumber kP2 =
