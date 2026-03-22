@@ -29,7 +29,9 @@ public class ShooterCommands {
   public static Command shootDefault() {
     return Commands.run(
             () -> {
-              if (drive.inAllianceZone() && HubShiftUtil.shouldShoot() && !shooter.staticSetpoint) {
+              if (((drive.inAllianceZone() && HubShiftUtil.shouldShoot())
+                      || (!drive.inAllianceZone() && robotSystem.autoshootPass.get()))
+                  && !shooter.staticSetpoint) {
                 robotSystem.isShooting = true;
 
                 if (!shooter.holdSetpoint) {

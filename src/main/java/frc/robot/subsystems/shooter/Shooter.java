@@ -33,6 +33,7 @@ public class Shooter extends SubsystemBase {
   private final Supplier<ChassisSpeeds> driveVelocitySupplier;
   private final Supplier<Boolean> inAllianceZoneSupplier;
   private final Supplier<Boolean> alwaysTargetPass;
+  private final Supplier<Boolean> autoshootPass;
 
   private Translation2d target = Translation2d.kZero;
   @Getter private boolean isTargetHub = true;
@@ -59,7 +60,8 @@ public class Shooter extends SubsystemBase {
       Supplier<Pose2d> poseSupplier,
       Supplier<ChassisSpeeds> driveVelocitySupplier,
       Supplier<Boolean> inAllianceZoneSupplier,
-      Supplier<Boolean> alwaysTargetPass) {
+      Supplier<Boolean> alwaysTargetPass,
+      Supplier<Boolean> autoshootPass) {
     this.flywheel = flywheel;
     this.hood = hood;
     this.turret = turret;
@@ -67,6 +69,7 @@ public class Shooter extends SubsystemBase {
     this.driveVelocitySupplier = driveVelocitySupplier;
     this.inAllianceZoneSupplier = inAllianceZoneSupplier;
     this.alwaysTargetPass = alwaysTargetPass;
+    this.autoshootPass = autoshootPass;
 
     // Configure dashboard
     SmartDashboard.putNumber("Shooter/FlywheelVelocity", 0.0);
@@ -122,6 +125,7 @@ public class Shooter extends SubsystemBase {
     // Run shooter to target dynamically
     if (!staticSetpoint && !holdSetpoint) {
       if (inAllianceZoneSupplier.get()
+          || autoshootPass.get()
           || (!DriverStation.isAutonomous() && (shouldTargetPass || alwaysTargetPass.get()))) {
         runDynamic();
       } else {
