@@ -46,7 +46,14 @@ public class CANrangeIOReal implements CANrangeIO {
                 signalStrength,
                 measurementHealth));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(canrange));
-    PhoenixUtil.registerSignals(canBus, detected, distanceMeters, ambientSignal, stdDevMeters, signalStrength, measurementHealth);
+    PhoenixUtil.registerSignals(
+        canBus,
+        detected,
+        distanceMeters,
+        ambientSignal,
+        stdDevMeters,
+        signalStrength,
+        measurementHealth);
   }
 
   @Override

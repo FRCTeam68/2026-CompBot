@@ -254,10 +254,10 @@ public class Shooter extends SubsystemBase {
   public boolean inShootableLocation() {
     if (isTargetHub) {
       return getDistanceToTarget() > ShooterConstants.DynamicShot.minHubShotDistance
-          || !inTrenchBox()
-          || !inTowerBox();
+          && !inTrenchBox()
+          && !inTowerBox();
     } else {
-      return !inTrenchBox() || !inTowerBox() || !isBehindHub();
+      return !inTrenchBox() && !inTowerBox() && !isBehindHub();
     }
   }
 
