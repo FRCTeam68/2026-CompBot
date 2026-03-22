@@ -36,7 +36,7 @@ public class IntakePivot extends SubsystemBase {
   private final LoggedTunableNumber kD1 =
       new LoggedTunableNumber("IntakePivot/Slot1-Retract/kD", 0);
   private final LoggedTunableNumber kP2 =
-      new LoggedTunableNumber("IntakePivot/Slot2-Agitate/kP", 500);
+      new LoggedTunableNumber("IntakePivot/Slot2-Agitate/kP", 650);
   private final LoggedTunableNumber kD2 =
       new LoggedTunableNumber("IntakePivot/Slot2-Agitiate/kD", 0);
   private final LoggedTunableNumber kS = new LoggedTunableNumber("IntakePivot/kS", 45);
