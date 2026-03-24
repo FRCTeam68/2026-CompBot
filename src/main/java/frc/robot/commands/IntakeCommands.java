@@ -40,7 +40,7 @@ public class IntakeCommands {
   }
 
   public static Command agitate(double... timeout) {
-    double waitTime = (timeout.length == 0) ? 0.0 : timeout[0];
+    final double waitTime = (timeout.length == 0) ? 0.0 : timeout[0];
     return Commands.sequence(
             stopSpin(),
             Commands.runOnce(

@@ -46,6 +46,9 @@ public class Shooter extends SubsystemBase {
   @AutoLogOutput(key = "Shooter/StaticSetpoint")
   public boolean staticSetpoint = false;
 
+  @AutoLogOutput(key = "Shooter/ManualShoot")
+  public boolean forceManualShoot = false;
+
   public static final LoggedTunableNumber towardMultiplier =
       new LoggedTunableNumber("Shooter/TowardMultiplier", 1.1);
   public static final LoggedTunableNumber awayMultiplier =
@@ -83,13 +86,6 @@ public class Shooter extends SubsystemBase {
                   SmartDashboard.getNumber("Shooter/FlywheelVelocity", 0.0),
                   SmartDashboard.getNumber("Shooter/HoodPosition", 0.0),
                   SmartDashboard.getNumber("Shooter/TurretPosition", 0.0));
-            },
-            this));
-    SmartDashboard.putData(
-        "Shooter/Fountain",
-        Commands.runOnce(
-            () -> {
-              runStatic(ShooterConstants.StaticShot.fountain);
             },
             this));
   }
@@ -174,18 +170,16 @@ public class Shooter extends SubsystemBase {
 
   /** Run the shooter dynamically. */
   public void runDynamic() {
-    Rotation2d rotationToTarget = target.minus(getShooterFieldTranslation()).getAngle();
+    final Rotation2d rotationToTarget = target.minus(getShooterFieldTranslation()).getAngle();
     // vx - toward target
     // vy - CW tangent to target
-    ChassisSpeeds targetRelativeVelocity =
+    final ChassisSpeeds targetRelativeVelocity =
         ChassisSpeeds.fromFieldRelativeSpeeds(driveVelocitySupplier.get(), rotationToTarget);
-    double linearMultiplier =
+    final double linearMultiplier =
         targetRelativeVelocity.vxMetersPerSecond > 0
             ? towardMultiplier.get()
             : awayMultiplier.get();
-    // ? ShooterConstants.DynamicShot.linearTowardMultiplier
-    // : ShooterConstants.DynamicShot.linearAwayMultiplier;
-    double targetDistanceAdjusted =
+    final double targetDistanceAdjusted =
         getDistanceToTarget()
             - (targetRelativeVelocity.vxMetersPerSecond * flightTime * linearMultiplier);
 
@@ -271,14 +265,14 @@ public class Shooter extends SubsystemBase {
    */
   @AutoLogOutput(key = "Shooter/InTrenchBox")
   public boolean inTrenchBox() {
-    Translation2d shooterTranslation = getShooterFieldTranslation();
+    final Translation2d shooterTranslation = getShooterFieldTranslation();
 
     // Adjust x limits based on velocity
-    double xOffestPos =
+    final double xOffestPos =
         (ShooterConstants.TrenchZone.halfXSize)
             + (-Math.min(0, driveVelocitySupplier.get().vxMetersPerSecond)
                 * ShooterConstants.TrenchZone.hoodLowerTime);
-    double xOffsetNeg =
+    final double xOffsetNeg =
         (-ShooterConstants.TrenchZone.halfXSize)
             - (Math.max(0, driveVelocitySupplier.get().vxMetersPerSecond)
                 * ShooterConstants.TrenchZone.hoodLowerTime);
@@ -299,7 +293,7 @@ public class Shooter extends SubsystemBase {
   /** Returns if the shooter is inside any tower. */
   @AutoLogOutput(key = "Shooter/InTowerBox")
   public boolean inTowerBox() {
-    Translation2d shooterTranslation = getShooterFieldTranslation();
+    final Translation2d shooterTranslation = getShooterFieldTranslation();
 
     // Check blue alliance
     return (shooterTranslation.getX() < ShooterConstants.TowerZone.xSize
@@ -322,12 +316,13 @@ public class Shooter extends SubsystemBase {
   /** Returns if the shooter is in a spot where pass shots would be blocked by the hub. */
   @AutoLogOutput(key = "Shooter/IsBehindHub")
   public boolean isBehindHub() {
-    Translation2d shooterTranslation = getShooterFieldTranslation();
-    double absLocalY = Math.abs(shooterTranslation.getY() - FieldConstants.LinesHorizontal.center);
-    double localXNeutral =
+    final Translation2d shooterTranslation = getShooterFieldTranslation();
+    final double absLocalY =
+        Math.abs(shooterTranslation.getY() - FieldConstants.LinesHorizontal.center);
+    final double localXNeutral =
         shooterTranslation.getX()
             - AllianceFlipUtil.applyX(FieldConstants.LinesVertical.neutralZoneNear);
-    double localXOpp =
+    final double localXOpp =
         shooterTranslation.getX()
             - AllianceFlipUtil.applyX(FieldConstants.LinesVertical.oppAllianceZone);
 

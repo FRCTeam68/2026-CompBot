@@ -23,6 +23,7 @@ import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.util.LoggedTracerStatic;
 import frc.robot.util.PathUtil;
 import frc.robot.util.geometry.AllianceFlipUtil;
 import java.util.Set;
@@ -240,6 +241,7 @@ public class Auton {
   private static Command Trench() {
     return new DeferredCommand(
             () -> {
+              LoggedTracerStatic.record("CommandInit");
               boolean left = autonStartingPose.get() == StartingPose.Left;
               boolean mirror = left;
               Pose2d trenchApproach =

@@ -8,7 +8,6 @@ import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants.shotConfig;
 import frc.robot.util.HubShiftUtil;
-import org.littletonrobotics.junction.AutoLogOutput;
 
 public class ShooterCommands {
   private static final double feederVolts = 12;
@@ -22,9 +21,6 @@ public class ShooterCommands {
   private static final Shooter shooter = robotSystem.getShooter();
   private static final RollerSystem spindexer = robotSystem.getSpindexer();
   private static final RollerSystem feeder = robotSystem.getFeeder();
-
-  @AutoLogOutput(key = "Shooter/ManualShoot")
-  private static boolean forceManualShoot = false;
 
   public static Command shootDefault() {
     return Commands.run(
@@ -67,7 +63,7 @@ public class ShooterCommands {
             () -> {
               if (!shooter.holdSetpoint) {
                 if (drive.inAllianceZone() || !shooter.isTargetHub()) {
-                  if (manualMode || forceManualShoot) {
+                  if (manualMode || shooter.forceManualShoot) {
                     feeder.runVolts(feederVolts);
                     spindexer.runVolts(spindexerVolts);
                   } else {
@@ -163,8 +159,8 @@ public class ShooterCommands {
 
   /** Toggle the state of forceManualShoot. Optionally specify the value to set. */
   public static Command toggleManualShoot(boolean... value) {
-    return Commands.runOnce(() -> forceManualShoot = !forceManualShoot)
-        .onlyIf(() -> value.length == 0 || forceManualShoot != value[0])
+    return Commands.runOnce(() -> shooter.forceManualShoot = !shooter.forceManualShoot)
+        .onlyIf(() -> value.length == 0 || shooter.forceManualShoot != value[0])
         .ignoringDisable(true)
         .withName("ShooterToggleManualShoot");
   }

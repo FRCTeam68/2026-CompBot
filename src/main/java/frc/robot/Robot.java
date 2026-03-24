@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobotBase;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,6 +19,7 @@ import frc.robot.util.CanBusUtil;
 import frc.robot.util.ElasticUtil;
 import frc.robot.util.HubShiftUtil;
 import frc.robot.util.LoggedTracer;
+import frc.robot.util.LoggedTracerStatic;
 import frc.robot.util.PhoenixUtil;
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -40,17 +40,13 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  * project.
  */
 public class Robot extends LoggedRobot {
-  private static final double lowBatteryDisabledVoltage = 11.0;
-  private static final double lowBatteryEnabledVoltage = 9.0;
-  private static final double lowBatteryDisabledTime = 2.0;
-
   private Command autonomousCommand;
-  private RobotContainer robotContainer;
-  private final Timer disabledTimer = new Timer();
+  private final RobotContainer robotContainer;
 
+  private static final double lowBatteryVoltage = 7.0;
   private final Alert lowBatteryAlert =
       new Alert(
-          "Battery voltage is very low, turn off the robot or replace the battery to avoid damage.",
+          "Battery voltage is very low, turn off the robot and replace the battery to avoid damage.",
           AlertType.kWarning);
 
   public Robot() {
@@ -140,21 +136,17 @@ public class Robot extends LoggedRobot {
         .onCommandInterrupt((Command command) -> logCommandFunction.accept(command, false));
 
     // Configure DriverStation for sim
-    if (Constants.getMode() == frc.robot.Constants.Mode.SIM) {
+    if (Constants.getMode() == Mode.SIM) {
       DriverStationSim.setAllianceStationId(AllianceStationID.Blue1);
       DriverStationSim.notifyNewData();
     }
 
     // Configure brownout voltage
-    // This only does anything on the roboRIO 2. On the roboRIO 1 it is a no-op.
+    // On the roboRIO 1 it is a no-op.
     RobotController.setBrownoutVoltage(6.0);
-
-    // Reset alert timers
-    disabledTimer.restart();
 
     // Set up auto logging
     AutoLogOutputManager.addObject(new HubShiftUtil());
-    AutoLogOutputManager.addObject(new ShooterCommands());
 
     // Instantiate our RobotContainer
     robotContainer = new RobotContainer();
@@ -173,10 +165,11 @@ public class Robot extends LoggedRobot {
     // Threads.setCurrentThreadPriority(true, 99);
 
     // Update shift conditions
+    LoggedTracer.reset();
     HubShiftUtil.update();
+    LoggedTracer.record("HubShiftUtil");
 
     // Refresh all Phoenix signals
-    LoggedTracer.reset();
     PhoenixUtil.refreshAll();
     LoggedTracer.record("PhoenixRefresh");
 
@@ -186,15 +179,9 @@ public class Robot extends LoggedRobot {
     // Return to non-RT thread priority
     // Threads.setCurrentThreadPriority(false, 10);
 
-    // Low battery alert
-    if (DriverStation.isEnabled()) {
-      disabledTimer.reset();
-    }
-    if ((RobotController.getBatteryVoltage() > 0.0
-                && (RobotController.getBatteryVoltage() <= lowBatteryEnabledVoltage)
-            || (RobotController.getBatteryVoltage() <= lowBatteryDisabledVoltage
-                && disabledTimer.hasElapsed(lowBatteryDisabledTime)))
-        || lowBatteryAlert.get() == true) {
+    if (!DriverStation.isFMSAttached()
+        && RobotController.getBatteryVoltage() < lowBatteryVoltage
+        && lowBatteryAlert.get() == false) {
       lowBatteryAlert.set(true);
     }
 
@@ -231,6 +218,7 @@ public class Robot extends LoggedRobot {
   /** This function is called once when the robot is enabled in any mode. */
   @Override
   public void disabledExit() {
+    LoggedTracerStatic.reset();
     // This must be done here to reset time for repeated practice matches
     HubShiftUtil.seedMatchTime();
   }

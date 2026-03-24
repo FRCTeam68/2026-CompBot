@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.drive.Drive;
@@ -78,9 +79,9 @@ public class RobotSystem {
   private final Field2d field = new Field2d();
 
   public RobotSystem() {
-    Flywheel flywheel;
-    Hood hood;
-    Turret turret;
+    final Flywheel flywheel;
+    final Hood hood;
+    final Turret turret;
 
     switch (Constants.getMode()) {
       case REAL:
@@ -276,9 +277,11 @@ public class RobotSystem {
                 new Rotation3d(
                     0.0, 0.0, Units.degreesToRadians(shooter.getTurret().getPosition()))));
 
-    // Red alliance robot color: #F43636
-    // Blue alliance robot color: #3644F4
-    field.setRobotPose(drive.getPose());
-    SmartDashboard.putData("Field", field);
+    if (DriverStation.isDisabled() || !DriverStation.isFMSAttached()) {
+      // Red alliance robot color: #F43636
+      // Blue alliance robot color: #3644F4
+      field.setRobotPose(drive.getPose());
+      SmartDashboard.putData("Field", field);
+    }
   }
 }
