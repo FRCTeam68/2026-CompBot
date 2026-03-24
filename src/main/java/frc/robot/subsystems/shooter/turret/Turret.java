@@ -1,8 +1,8 @@
 package frc.robot.subsystems.shooter.turret;
 
-import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Watts;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
@@ -84,7 +84,8 @@ public class Turret extends SubsystemBase {
     this.lights = lights;
     this.io = io;
 
-    VirtualPD.registerMotor(() -> Amps.of(inputs.supplyCurrentAmps), "Turret");
+    VirtualPD.registerMotor(
+        () -> Watts.of(Math.abs(inputs.supplyCurrentAmps * inputs.appliedVoltage)), "Turret");
 
     // Check if turret position could be ambiguous
     if (Constants.getMode() != Mode.SIM) {

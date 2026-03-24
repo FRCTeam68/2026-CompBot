@@ -1,8 +1,8 @@
 package frc.robot.subsystems.intakePivot;
 
-import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Watts;
 
 import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.filter.Debouncer;
@@ -67,7 +67,8 @@ public class IntakePivot extends SubsystemBase {
   public IntakePivot(IntakePivotIO io) {
     this.io = io;
 
-    VirtualPD.registerMotor(() -> Amps.of(inputs.supplyCurrentAmps), "IntakePivot");
+    VirtualPD.registerMotor(
+        () -> Watts.of(Math.abs(inputs.supplyCurrentAmps * inputs.appliedVoltage)), "IntakePivot");
 
     // Configure dashboard
     SmartDashboard.putData(

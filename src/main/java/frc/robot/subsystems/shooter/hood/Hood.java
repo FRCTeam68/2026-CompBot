@@ -1,8 +1,8 @@
 package frc.robot.subsystems.shooter.hood;
 
-import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Watts;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
@@ -88,7 +88,8 @@ public class Hood extends SubsystemBase {
   public Hood(HoodIO hoodIO) {
     this.io = hoodIO;
 
-    VirtualPD.registerMotor(() -> Amps.of(inputs.supplyCurrentAmps), "Hood");
+    VirtualPD.registerMotor(
+        () -> Watts.of(Math.abs(inputs.supplyCurrentAmps * inputs.appliedVoltage)), "Hood");
 
     // Configure dashboard
     SmartDashboard.putData(

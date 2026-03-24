@@ -1,6 +1,6 @@
 package frc.robot.subsystems.drive;
 
-import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Watts;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
 import edu.wpi.first.math.filter.Debouncer;
@@ -73,8 +73,11 @@ public class Module {
   public Module(ModuleIO io, int index) {
     this.io = io;
 
-    VirtualPD.registerMotor(() -> Amps.of(inputs.turnSupplyCurrentAmps), "Drive");
-    VirtualPD.registerMotor(() -> Amps.of(inputs.driveSupplyCurrentAmps), "Drive");
+    VirtualPD.registerMotor(
+        () -> Watts.of(Math.abs(inputs.turnSupplyCurrentAmps * inputs.driveAppliedVolts)), "Drive");
+    VirtualPD.registerMotor(
+        () -> Watts.of(Math.abs(inputs.driveSupplyCurrentAmps * inputs.driveAppliedVolts)),
+        "Drive");
 
     driveDisconnectedAlert =
         new Alert(

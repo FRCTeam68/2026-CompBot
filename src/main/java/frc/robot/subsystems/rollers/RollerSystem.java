@@ -1,7 +1,7 @@
 package frc.robot.subsystems.rollers;
 
-import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Watts;
 
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
@@ -49,7 +49,8 @@ public class RollerSystem extends SubsystemBase {
   public RollerSystem(String name, RollerSystemIO io) {
     this.io = io;
 
-    VirtualPD.registerMotor(() -> Amps.of(inputs.supplyCurrentAmps), name);
+    VirtualPD.registerMotor(
+        () -> Watts.of(Math.abs(inputs.supplyCurrentAmps * inputs.appliedVoltage)), name);
 
     // Create alert text
     disconnectedAlert = new Alert(name + " motor disconnected!", AlertType.kError);

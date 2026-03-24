@@ -1,8 +1,8 @@
 package frc.robot.subsystems.shooter.flywheel;
 
-import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Watts;
 
 import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.filter.Debouncer;
@@ -70,8 +70,12 @@ public class Flywheel extends SubsystemBase {
   public Flywheel(FlywheelIO flywheelIO) {
     this.io = flywheelIO;
 
-    VirtualPD.registerMotor(() -> Amps.of(inputs.leaderSupplyCurrentAmps), "Flywheel");
-    VirtualPD.registerMotor(() -> Amps.of(inputs.followerSupplyCurrentAmps), "Flywheel");
+    VirtualPD.registerMotor(
+        () -> Watts.of(Math.abs(inputs.leaderSupplyCurrentAmps * inputs.leaderAppliedVoltage)),
+        "Flywheel");
+    VirtualPD.registerMotor(
+        () -> Watts.of(Math.abs(inputs.followerSupplyCurrentAmps * inputs.followerAppliedVoltage)),
+        "Flywheel");
   }
 
   public void periodic() {
