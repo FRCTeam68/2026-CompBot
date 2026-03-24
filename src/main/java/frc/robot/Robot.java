@@ -50,6 +50,7 @@ public class Robot extends LoggedRobot {
           AlertType.kWarning);
 
   public Robot() {
+    LoggedTracerStatic.reset();
     // Record metadata
     Logger.recordMetadata("TuningMode", Boolean.toString(Constants.tuningMode));
     Logger.recordMetadata("LowCeiling", Boolean.toString(Constants.lowCeiling));
@@ -149,13 +150,16 @@ public class Robot extends LoggedRobot {
     AutoLogOutputManager.addObject(new HubShiftUtil());
 
     // Instantiate our RobotContainer
+    LoggedTracerStatic.record("UpToRobotContainer");
     robotContainer = new RobotContainer();
+    LoggedTracerStatic.record("FinishedRobotContainer");
 
     // Warmup pathplanner libraries
     CommandScheduler.getInstance()
         .schedule(FollowPathCommand.warmupCommand().withName("PathplannerFollowPathWarmup"));
     // Uncomment the warmup command below if using pathplanner pathfinding
     // CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand().withName("PathplannerPathfindingWarmup"));
+    LoggedTracerStatic.record("FinishedStartup");
   }
 
   /** This function is called periodically during all modes. */
