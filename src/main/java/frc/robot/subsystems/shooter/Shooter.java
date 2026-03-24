@@ -218,10 +218,13 @@ public class Shooter extends SubsystemBase {
             drivePoseSupplier.get().getTranslation(), drivePoseSupplier.get().getRotation());
   }
 
-  /** Returns the distance in meters to the automatically selected target. */
+  /** Returns the distance in meters to the selected target. */
   @AutoLogOutput(key = "Shooter/DistanceToTarget", unit = "Meters")
   public double getDistanceToTarget() {
-    return target.minus(getShooterFieldTranslation()).getNorm();
+    final Translation2d shooterFieldTranslation = getShooterFieldTranslation();
+    return Math.hypot(
+        target.getX() - shooterFieldTranslation.getX(),
+        target.getY() - shooterFieldTranslation.getY());
   }
 
   /** Returns true if all shooter subsystems are at their individual setpoints. */

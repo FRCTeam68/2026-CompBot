@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.Mode;
-import frc.robot.commands.ShooterCommands;
 import frc.robot.commands.auton.Auton;
 import frc.robot.util.CanBusUtil;
 import frc.robot.util.ElasticUtil;
@@ -207,6 +206,12 @@ public class Robot extends LoggedRobot {
   public void disabledInit() {
     robotContainer.stopSubsystems();
 
+    // This makes sure that the autonomous stops running when
+    // teleop starts running.
+    if (autonomousCommand != null) {
+      autonomousCommand.cancel();
+    }
+
     // Save Limelight 4 rewind when the robot disables at the end of a real match.
     if (DriverStation.isFMSAttached()
         && !DriverStation.isAutonomous()
@@ -247,15 +252,7 @@ public class Robot extends LoggedRobot {
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {
-    // This makes sure that the autonomous stops running when
-    // teleop starts running.
-    if (autonomousCommand != null) {
-      autonomousCommand.cancel();
-    }
-
-    ShooterCommands.clearStaticSetpoint();
-  }
+  public void teleopInit() {}
 
   /** This function is called periodically during operator control. */
   @Override
