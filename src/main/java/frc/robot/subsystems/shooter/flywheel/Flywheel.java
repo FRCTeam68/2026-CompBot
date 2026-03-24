@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shooter.flywheel;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -12,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
+import frc.robot.util.VirtualPD;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -67,6 +69,9 @@ public class Flywheel extends SubsystemBase {
 
   public Flywheel(FlywheelIO flywheelIO) {
     this.io = flywheelIO;
+
+    VirtualPD.registerMotor(() -> Amps.of(inputs.leaderSupplyCurrentAmps), "Flywheel");
+    VirtualPD.registerMotor(() -> Amps.of(inputs.followerSupplyCurrentAmps), "Flywheel");
   }
 
   public void periodic() {

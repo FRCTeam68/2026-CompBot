@@ -1,5 +1,6 @@
 package frc.robot.subsystems.intakePivot;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -15,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
+import frc.robot.util.VirtualPD;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -64,6 +66,8 @@ public class IntakePivot extends SubsystemBase {
 
   public IntakePivot(IntakePivotIO io) {
     this.io = io;
+
+    VirtualPD.registerMotor(() -> Amps.of(inputs.supplyCurrentAmps), "IntakePivot");
 
     // Configure dashboard
     SmartDashboard.putData(

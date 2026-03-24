@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shooter.turret;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -25,6 +26,7 @@ import frc.robot.util.ElasticUtil.Notification;
 import frc.robot.util.ElasticUtil.NotificationLevel;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
+import frc.robot.util.VirtualPD;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -81,6 +83,8 @@ public class Turret extends SubsystemBase {
   public Turret(Lights lights, TurretIO io) {
     this.lights = lights;
     this.io = io;
+
+    VirtualPD.registerMotor(() -> Amps.of(inputs.supplyCurrentAmps), "Turret");
 
     // Check if turret position could be ambiguous
     if (Constants.getMode() != Mode.SIM) {
