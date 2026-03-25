@@ -49,11 +49,11 @@ public class Shooter extends SubsystemBase {
   @AutoLogOutput(key = "Shooter/ManualShoot")
   public boolean forceManualShoot = false;
 
-  public static final LoggedTunableNumber towardMultiplier =
+  private static final LoggedTunableNumber towardMultiplier =
       new LoggedTunableNumber("Shooter/TowardMultiplier", 1.1);
-  public static final LoggedTunableNumber awayMultiplier =
+  private static final LoggedTunableNumber awayMultiplier =
       new LoggedTunableNumber("Shooter/AwayMultiplier", 1.2);
-  public static final LoggedTunableNumber angleMultiplier =
+  private static final LoggedTunableNumber angleMultiplier =
       new LoggedTunableNumber("Shooter/AngleMultiplier", 1.05);
 
   public Shooter(
@@ -73,21 +73,6 @@ public class Shooter extends SubsystemBase {
     this.inAllianceZoneSupplier = inAllianceZoneSupplier;
     this.alwaysTargetPass = alwaysTargetPass;
     this.autoshootPass = autoshootPass;
-
-    // Configure dashboard
-    SmartDashboard.putNumber("Shooter/FlywheelVelocity", 0.0);
-    SmartDashboard.putNumber("Shooter/HoodPosition", 0.0);
-    SmartDashboard.putNumber("Shooter/TurretPosition", 0.0);
-    SmartDashboard.putData(
-        "Shooter/RunStatic",
-        Commands.runOnce(
-            () -> {
-              runStatic(
-                  SmartDashboard.getNumber("Shooter/FlywheelVelocity", 0.0),
-                  SmartDashboard.getNumber("Shooter/HoodPosition", 0.0),
-                  SmartDashboard.getNumber("Shooter/TurretPosition", 0.0));
-            },
-            this));
   }
 
   public void periodic() {
@@ -103,14 +88,14 @@ public class Shooter extends SubsystemBase {
       if (drivePoseSupplier.get().getY() < FieldConstants.LinesHorizontal.center) {
         target =
             AllianceFlipUtil.apply(
-                (AllianceFlipUtil.shouldFlip())
+                (AllianceFlipUtil.isRedAlliance())
                     ? ShooterConstants.Target.passLeft
                     : ShooterConstants.Target.passRight);
         Logger.recordOutput("Shooter/Target", "Pass Right");
       } else {
         target =
             AllianceFlipUtil.apply(
-                (AllianceFlipUtil.shouldFlip())
+                (AllianceFlipUtil.isRedAlliance())
                     ? ShooterConstants.Target.passRight
                     : ShooterConstants.Target.passLeft);
         Logger.recordOutput("Shooter/Target", "Pass Left");
@@ -329,7 +314,7 @@ public class Shooter extends SubsystemBase {
         shooterTranslation.getX()
             - AllianceFlipUtil.applyX(FieldConstants.LinesVertical.oppAllianceZone);
 
-    if (AllianceFlipUtil.shouldFlip()) {
+    if (AllianceFlipUtil.isRedAlliance()) {
       // Red alliance
       // Check general y position
       return absLocalY < ShooterConstants.BehindHubZone.halfBaseWidth
@@ -362,5 +347,22 @@ public class Shooter extends SubsystemBase {
                       < ShooterConstants.BehindHubZone.halfBaseWidth
                           - (ShooterConstants.BehindHubZone.slope * localXOpp));
     }
+  }
+
+  /** Configure dashboard tuning controls for manual control. */
+  public void configureDashboardControls() {
+    SmartDashboard.putNumber("Shooter/FlywheelVelocity", 0.0);
+    SmartDashboard.putNumber("Shooter/HoodPosition", 0.0);
+    SmartDashboard.putNumber("Shooter/TurretPosition", 0.0);
+    SmartDashboard.putData(
+        "Shooter/RunStatic",
+        Commands.runOnce(
+            () -> {
+              runStatic(
+                  SmartDashboard.getNumber("Shooter/FlywheelVelocity", 0.0),
+                  SmartDashboard.getNumber("Shooter/HoodPosition", 0.0),
+                  SmartDashboard.getNumber("Shooter/TurretPosition", 0.0));
+            },
+            this));
   }
 }

@@ -115,6 +115,8 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().setPeriod(Constants.loopOverrunWarningSecs);
 
     // Rely on our custom alerts for disconnected controllers
+    // This setting is ignored when the FMS is connected -- warnings will always be on in that
+    // scenario.
     DriverStation.silenceJoystickConnectionWarning(true);
 
     // Log active commands
@@ -236,6 +238,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     autonomousCommand = Auton.SelectedCommand();
+
     if (autonomousCommand != null) {
       Auton.setStartingPose();
       CommandScheduler.getInstance().schedule(autonomousCommand);
@@ -261,7 +264,7 @@ public class Robot extends LoggedRobot {
   /** This function is called once when test mode is enabled. */
   @Override
   public void testInit() {
-    robotContainer.configureTestModeCommands();
+    robotContainer.configureTuningControls();
 
     robotContainer.enableMT1();
   }

@@ -339,7 +339,9 @@ public class Auton {
                 }
               }
 
-              return myCommand1.andThen(myCommand2);
+              return Commands.runOnce(() -> LoggedTracerStatic.record("CommandRun"))
+                  .andThen(myCommand1)
+                  .andThen(myCommand2);
             },
             Set.of(drive, intakePivot, intakeSpin, shooter, spindexer, feeder))
         .withName("Auton_Trench");

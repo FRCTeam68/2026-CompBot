@@ -57,13 +57,6 @@ public class RollerSystem extends SubsystemBase {
       loggerKey =
           loggerKey.concat(nameSplit.substring(0, 1).toUpperCase().concat(nameSplit.substring(1)));
     }
-
-    // Configure dashboard
-    SmartDashboard.putNumber(loggerKey + "/Voltage", 0.0);
-    SmartDashboard.putData(
-        loggerKey + "/RunVoltage",
-        Commands.runOnce(
-            () -> runVolts(SmartDashboard.getNumber(loggerKey + "/Voltage", 0.0)), this));
   }
 
   public void periodic() {
@@ -114,5 +107,15 @@ public class RollerSystem extends SubsystemBase {
    */
   public double getTorqueCurrent() {
     return inputs.torqueCurrentAmps;
+  }
+
+  /** Configure dashboard tuning controls for manual control. */
+  public void configureDashboardControls() {
+    SmartDashboard.putNumber(loggerKey + "/Voltage", 0.0);
+    SmartDashboard.putData(
+        loggerKey + "/RunVoltage",
+        Commands.runOnce(
+                () -> runVolts(SmartDashboard.getNumber(loggerKey + "/Voltage", 0.0)), this)
+            .withName("Dashboard" + loggerKey + "RunVolts"));
   }
 }

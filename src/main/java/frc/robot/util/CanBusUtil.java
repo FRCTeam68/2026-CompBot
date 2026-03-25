@@ -24,11 +24,10 @@ public class CanBusUtil {
   private static final CanBusReader rioReader = new CanBusReader(rioBus);
   private static final CanBusReader canivoreReader = new CanBusReader(canivoreBus);
 
-  /** Log the status of all CAN buses on the robot. Update CAN bus alerts. */
   public static void logStatus() {
     if (Constants.getMode() == Mode.REAL) {
       // rioBus status
-      var rioStatus = rioReader.getStatus();
+      final var rioStatus = rioReader.getStatus();
       if (rioStatus.isPresent()) {
         Logger.recordOutput("CANBusStatus/Rio/Status", rioStatus.get().Status.getName());
         Logger.recordOutput("CANBusStatus/Rio/Utilization", rioStatus.get().BusUtilization);
@@ -45,7 +44,7 @@ public class CanBusUtil {
               && canInitialErrorTimer.hasElapsed(canErrorTimeThreshold));
 
       // CANivoreBus status
-      var canivoreStatus = canivoreReader.getStatus();
+      final var canivoreStatus = canivoreReader.getStatus();
       if (canivoreStatus.isPresent()) {
         Logger.recordOutput("CANBusStatus/CANivore/Status", canivoreStatus.get().Status.getName());
         Logger.recordOutput(
