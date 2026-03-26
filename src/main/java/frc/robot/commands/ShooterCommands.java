@@ -8,10 +8,16 @@ import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants.shotConfig;
 import frc.robot.util.HubShiftUtil;
+import frc.robot.util.LoggedTunableNumber;
 
 public class ShooterCommands {
-  private static final double feederVolts = 12;
-  private static final double spindexerVolts = 12;
+  private static final LoggedTunableNumber feederVolts =
+      new LoggedTunableNumber("Shooter/feederVolts", 12);
+
+  private static final LoggedTunableNumber spindexerVolts =
+      new LoggedTunableNumber("Shooter/spindexerVolts", 12);
+  // private static final double feederVolts = 12;
+  // private static final double spindexerVolts = 12;
   private static final double flywheelBumpStep = 0.5;
   private static final double turretBumpStep = 1.0;
 
@@ -32,8 +38,8 @@ public class ShooterCommands {
 
                 if (!shooter.holdSetpoint) {
                   if (shooter.atSetpoint() && shooter.inShootableLocation()) {
-                    feeder.runVolts(feederVolts);
-                    spindexer.runVolts(spindexerVolts);
+                    feeder.runVolts(feederVolts.getAsDouble());
+                    spindexer.runVolts(spindexerVolts.getAsDouble());
                   } else {
                     feeder.stop();
                     spindexer.stop();
@@ -64,14 +70,14 @@ public class ShooterCommands {
               if (!shooter.holdSetpoint) {
                 if (drive.inAllianceZone() || !shooter.isTargetHub()) {
                   if (manualMode || shooter.forceManualShoot) {
-                    feeder.runVolts(feederVolts);
-                    spindexer.runVolts(spindexerVolts);
+                    feeder.runVolts(feederVolts.getAsDouble());
+                    spindexer.runVolts(spindexerVolts.getAsDouble());
                   } else {
                     if (shooter.atSetpoint()
                         && HubShiftUtil.shouldShoot()
                         && shooter.inShootableLocation()) {
-                      feeder.runVolts(feederVolts);
-                      spindexer.runVolts(spindexerVolts);
+                      feeder.runVolts(feederVolts.getAsDouble());
+                      spindexer.runVolts(spindexerVolts.getAsDouble());
                     } else {
                       feeder.stop();
                       spindexer.stop();
