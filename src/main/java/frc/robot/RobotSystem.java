@@ -119,6 +119,7 @@ public class RobotSystem {
                     InvertedValue.CounterClockwise_Positive,
                     NeutralModeValue.Coast,
                     24.0 / 18.0));
+        intakeSpin.setPID(Constants.RollerSystem_Slot0Configs.INTAKE);
 
         spindexer =
             new RollerSystem(
@@ -129,7 +130,9 @@ public class RobotSystem {
                     40,
                     InvertedValue.Clockwise_Positive,
                     NeutralModeValue.Coast,
-                    4.0 * 5.0 * (64.0 / 16.0)));
+                    (64.0 / 16.0)));
+        spindexer.setPID(Constants.RollerSystem_Slot0Configs.SPINDEXER);
+
         feeder =
             new RollerSystem(
                 "feeder",
@@ -140,6 +143,7 @@ public class RobotSystem {
                     InvertedValue.CounterClockwise_Positive,
                     NeutralModeValue.Coast,
                     36.0 / 12.0));
+        feeder.setPID(Constants.RollerSystem_Slot0Configs.FEEDER);
 
         hopperSensor =
             new HopperSensor(

@@ -5,8 +5,11 @@ import static frc.robot.util.PhoenixUtil.tryUntilOk;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -37,6 +40,8 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
 
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
+  private final VelocityTorqueCurrentFOC velocityTorqueOut = new VelocityTorqueCurrentFOC(0);
+  private final VelocityVoltage velocityVoltage = new VelocityVoltage(0).withEnableFOC(true);
   private final NeutralOut neutralOut = new NeutralOut();
 
   /**
@@ -106,7 +111,25 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   }
 
   @Override
+  public void runVelocity(double velocity) {
+    talon.setControl(velocityVoltage.withVelocity(velocity));
+  }
+
+  @Override
   public void stop() {
     talon.setControl(neutralOut);
+  }
+
+  @Override
+  public void setPID(Slot0Configs config0) {
+    // slot0
+    config.Slot0.kP = config0.kP;
+    config.Slot0.kI = config0.kI;
+    config.Slot0.kD = config0.kD;
+    config.Slot0.kS = config0.kS;
+    config.Slot0.kV = config0.kV;
+    config.Slot0.kA = config0.kA;
+
+    tryUntilOk(5, () -> talon.getConfigurator().apply(config, 0.25));
   }
 }
