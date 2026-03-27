@@ -176,7 +176,9 @@ public class Robot extends LoggedRobot {
     // Update shift conditions
     HubShiftUtil.update();
 
-    VirtualPD.logTotalCurrent();
+    if (Constants.tuningMode || Constants.getMode() == Constants.Mode.REPLAY) {
+      VirtualPD.logTotalCurrent();
+    }
 
     // Refresh all Phoenix signals
     LoggedTracer.reset();
