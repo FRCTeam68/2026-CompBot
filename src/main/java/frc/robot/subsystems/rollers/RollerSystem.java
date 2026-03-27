@@ -3,6 +3,7 @@ package frc.robot.subsystems.rollers;
 import static edu.wpi.first.units.Units.Volts;
 import static edu.wpi.first.units.Units.Watts;
 
+import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.Alert;
@@ -11,11 +12,19 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.VirtualPD;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
 public class RollerSystem extends SubsystemBase {
+
+  // PID gains
+  private LoggedTunableNumber kP;
+  private LoggedTunableNumber kD;
+  private LoggedTunableNumber kS;
+  private LoggedTunableNumber kV;
+
   private final RollerSystemIO io;
   protected final RollerSystemIOInputsAutoLogged inputs = new RollerSystemIOInputsAutoLogged();
 
@@ -49,6 +58,11 @@ public class RollerSystem extends SubsystemBase {
   public RollerSystem(String name, RollerSystemIO io) {
     this.io = io;
 
+    this.kP = new LoggedTunableNumber(name + "/kP");
+    this.kD = new LoggedTunableNumber(name + "/kD");
+    this.kS = new LoggedTunableNumber(name + "/kS");
+    this.kV = new LoggedTunableNumber(name + "/kV");
+
     VirtualPD.registerMotor(
         () -> Watts.of(Math.abs(inputs.supplyCurrentAmps * inputs.appliedVoltage)), name);
 
@@ -69,6 +83,13 @@ public class RollerSystem extends SubsystemBase {
         loggerKey + "/RunVoltage",
         Commands.runOnce(
             () -> runVolts(SmartDashboard.getNumber(loggerKey + "/Voltage", 0.0)), this));
+  }
+
+  /** Must call this once and only once in robotcontainer after each RollerSystem is created */
+  public void initPID(SlotConfigs newConfig) {
+    this.kP.initDefault(newConfig.kP);
+    this.kD.initDefault(newConfig.kD);
+    this.kS.initDefault(newConfig.kS);
   }
 
   public void periodic() {

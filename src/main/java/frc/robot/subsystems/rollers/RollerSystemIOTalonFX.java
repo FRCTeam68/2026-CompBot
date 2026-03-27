@@ -7,6 +7,8 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -37,6 +39,8 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
 
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
+  private final VelocityTorqueCurrentFOC velocityTorqueOut = new VelocityTorqueCurrentFOC(0);
+  private final VelocityVoltage velocityVoltage = new VelocityVoltage(0).withEnableFOC(true);
   private final NeutralOut neutralOut = new NeutralOut();
 
   /**
@@ -103,6 +107,11 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   @Override
   public void runVolts(double volts) {
     talon.setControl(voltageOut.withOutput(volts));
+  }
+
+  @Override
+  public void runVelocity(double velocity) {
+    talon.setControl(velocityVoltage.withVelocity(velocity));
   }
 
   @Override

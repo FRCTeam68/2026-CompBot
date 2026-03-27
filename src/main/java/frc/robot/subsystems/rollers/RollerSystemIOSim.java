@@ -45,6 +45,11 @@ public class RollerSystemIOSim implements RollerSystemIO {
   }
 
   @Override
+  public void runVelocity(double velocity) {
+    sim.setAngularVelocity(velocity);
+  }
+
+  @Override
   public void stop() {
     runVolts(0);
   }

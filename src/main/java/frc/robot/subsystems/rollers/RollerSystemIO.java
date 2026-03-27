@@ -23,6 +23,8 @@ public interface RollerSystemIO {
    */
   default void runVolts(double volts) {}
 
+  default void runVelocity(double velocity) {}
+
   /** Stop motor with neutral output. */
   default void stop() {}
 }
