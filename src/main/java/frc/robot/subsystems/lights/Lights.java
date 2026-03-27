@@ -35,9 +35,9 @@ public class Lights extends SubsystemBase {
   private final double defaultAnimationSpeed = 200;
 
   public static class Segment {
-    public static final LEDSegment All = new LEDSegment(8, 44, 1);
-    public static final LEDSegment Back = new LEDSegment(8, 15, 1);
-    public static final LEDSegment Side = new LEDSegment(16, 44, 1);
+    public static final LEDSegment All = new LEDSegment(8, 46, 1);
+    // public static final LEDSegment Back = new LEDSegment(8, 15, 1);
+    // public static final LEDSegment Side = new LEDSegment(16, 44, 1);
   }
 
   public static class Color {

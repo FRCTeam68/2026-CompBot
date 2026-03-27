@@ -50,6 +50,7 @@ import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.util.CanBusUtil;
+import frc.robot.util.LoggedTracerStatic;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
@@ -82,6 +83,8 @@ public class RobotSystem {
     final Flywheel flywheel;
     final Hood hood;
     final Turret turret;
+
+    LoggedTracerStatic.record("RobotSystemStart");
 
     switch (Constants.getMode()) {
       case REAL:
@@ -233,6 +236,8 @@ public class RobotSystem {
             autoshootPass::get);
 
     hood.initInTrenchBoxSupplier(shooter::inTrenchBox);
+
+    LoggedTracerStatic.record("RobotSystemEnd");
   }
 
   /**

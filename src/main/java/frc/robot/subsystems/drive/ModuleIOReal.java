@@ -28,6 +28,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.subsystems.drive.DriveConstants.ModuleConfig;
+import frc.robot.util.LoggedTracerStatic;
 import frc.robot.util.PhoenixUtil;
 import java.util.Queue;
 
@@ -82,6 +83,7 @@ public class ModuleIOReal implements ModuleIO {
   private final StatusSignal<Temperature> turnTempCelsius;
 
   public ModuleIOReal(ModuleConfig constants) {
+    LoggedTracerStatic.record("ModuleIORealStart");
     driveTalon = new TalonFX(constants.driveMotorId(), DriveConstants.canBus);
     turnTalon = new TalonFX(constants.turnMotorId(), DriveConstants.canBus);
     cancoder = new CANcoder(constants.encoderId(), DriveConstants.canBus);
@@ -184,6 +186,8 @@ public class ModuleIOReal implements ModuleIO {
         turnTempCelsius,
         turnAbsolutePosition,
         turnMagnetHealth);
+
+    LoggedTracerStatic.record("ModuleIORealEnd");
   }
 
   @Override

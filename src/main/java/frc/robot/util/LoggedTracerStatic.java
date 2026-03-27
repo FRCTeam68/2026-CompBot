@@ -25,8 +25,8 @@ public class LoggedTracerStatic {
 
   /** Save the time elapsed since the last reset or record. */
   public static void record(String epochName) {
-    double now = Timer.getFPGATimestamp();
-    Logger.recordOutput(
-        "LoggedTracerStatic/" + epochName + "MS", (now - startTime) * 1000.0, Milliseconds);
+    double delta = Timer.getFPGATimestamp() - startTime;
+    Logger.recordOutput("LoggedTracerStatic/" + epochName + "MS", (delta) * 1000.0, Milliseconds);
+    System.out.println(epochName + ": " + delta);
   }
 }

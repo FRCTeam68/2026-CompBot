@@ -27,6 +27,7 @@ import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import frc.robot.util.ElasticUtil;
 import frc.robot.util.ElasticUtil.Notification;
 import frc.robot.util.ElasticUtil.NotificationLevel;
+import frc.robot.util.LoggedTracerStatic;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -55,6 +56,7 @@ public class Vision extends SubsystemBase {
       Supplier<Boolean> gyroConnectedSupplier,
       Lights lights,
       VisionIO... io) {
+    LoggedTracerStatic.record("VisionStart");
     this.consumer = consumer;
     this.chassisSpeedSupplier = chassisSpeedSupplier;
     this.gyroConnectedSupplier = gyroConnectedSupplier;

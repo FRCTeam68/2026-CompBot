@@ -10,6 +10,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.Constants;
+import frc.robot.util.LoggedTracerStatic;
 import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
@@ -69,6 +70,7 @@ public class Module {
 
   public Module(ModuleIO io, int index) {
     this.io = io;
+    LoggedTracerStatic.record("ModuleStart");
     driveDisconnectedAlert =
         new Alert(
             "Disconnected drive motor on drive " + DriveConstants.moduleNames[index] + "!",
@@ -91,6 +93,16 @@ public class Module {
             AlertType.kWarning);
     inputsKey =
         "Drive/" + DriveConstants.moduleNames[index].replace(" ", "").replaceFirst("m", "M");
+
+    // init here so it is not done as first thing in robotPeriodic on boot
+    io.setDrivePID(
+        new Slot0Configs()
+            .withKS(drivekS.get())
+            .withKV(drivekV.get())
+            .withKP(drivekP.get())
+            .withKD(drivekD.get()));
+    io.setTurnPID(
+        new Slot0Configs().withKS(turnkS.get()).withKP(turnkP.get()).withKD(turnkD.get()));
   }
 
   public void updateInputs() {

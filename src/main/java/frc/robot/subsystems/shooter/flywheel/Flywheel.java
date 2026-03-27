@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.util.LoggedTracerStatic;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
 import lombok.Getter;
@@ -67,6 +68,7 @@ public class Flywheel extends SubsystemBase {
 
   public Flywheel(FlywheelIO flywheelIO) {
     this.io = flywheelIO;
+    LoggedTracerStatic.record("FlywheelStart");
   }
 
   public void periodic() {

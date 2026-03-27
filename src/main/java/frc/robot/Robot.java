@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobotBase;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -49,6 +50,7 @@ public class Robot extends LoggedRobot {
           AlertType.kWarning);
 
   public Robot() {
+    System.out.println("-----Start RobotInit:" + Timer.getFPGATimestamp());
     LoggedTracerStatic.reset();
     // Record metadata
     Logger.recordMetadata("TuningMode", Boolean.toString(Constants.tuningMode));
@@ -147,6 +149,7 @@ public class Robot extends LoggedRobot {
     // On the roboRIO 1 it is a no-op.
     RobotController.setBrownoutVoltage(6.0);
 
+    LoggedTracerStatic.record("BeforeHubShiftUtil");
     // Set up auto logging
     AutoLogOutputManager.addObject(new HubShiftUtil());
 
@@ -161,6 +164,12 @@ public class Robot extends LoggedRobot {
     // Uncomment the warmup command below if using pathplanner pathfinding
     // CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand().withName("PathplannerPathfindingWarmup"));
     LoggedTracerStatic.record("FinishedStartup");
+    System.out.println("-----Finish RobotInit:" + Timer.getFPGATimestamp());
+  }
+
+  @Override
+  public void robotInit() {
+    System.out.println("-----robotInit:" + Timer.getFPGATimestamp());
   }
 
   /** This function is called periodically during all modes. */
@@ -171,6 +180,7 @@ public class Robot extends LoggedRobot {
 
     // Update shift conditions
     LoggedTracer.reset();
+    LoggedTracerStatic.record("RobotPeriodic");
     HubShiftUtil.update();
     LoggedTracer.record("HubShiftUtil");
 

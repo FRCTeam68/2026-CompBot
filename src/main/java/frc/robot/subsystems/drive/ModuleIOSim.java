@@ -10,6 +10,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
+import frc.robot.util.LoggedTracerStatic;
 
 /** Physics sim implementation of module IO. Simulation is always based on voltage control. */
 public class ModuleIOSim implements ModuleIO {
@@ -33,6 +34,7 @@ public class ModuleIOSim implements ModuleIO {
   private double turnAppliedVolts = 0.0;
 
   public ModuleIOSim() {
+    LoggedTracerStatic.record("ModuleIOStart");
     // Enable wrapping for turn PID
     turnController.enableContinuousInput(-Math.PI, Math.PI);
   }
