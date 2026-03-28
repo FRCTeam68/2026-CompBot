@@ -19,6 +19,8 @@ public class ShooterConstants {
       new Translation3d(-0.160018476, 0.1335875408, 0.4431027206);
 
   public static final CANBus canBus = CanBusUtil.getCanivoreBus();
+  public static final double robotCircumference =
+      2 * Math.PI * shooterPosition.toTranslation2d().getNorm();
 
   /**
    * The amount of time it takes fuel to get from the top of the hub chute to the counting sensor.

@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -177,8 +178,21 @@ public class Shooter extends SubsystemBase {
     Rotation2d rotationToTarget = target.minus(getShooterFieldTranslation()).getAngle();
     // vx - toward target
     // vy - CW tangent to target
+    Translation2d rotationalVectorAngle =
+        getShooterFieldTranslation()
+            .minus(drivePoseSupplier.get().getTranslation())
+            .rotateBy(Rotation2d.kCCW_90deg);
+    Translation2d rotationalVector =
+        new Translation2d(
+            Units.radiansToRotations(driveVelocitySupplier.get().omegaRadiansPerSecond)
+                * ShooterConstants.robotCircumference,
+            rotationalVectorAngle.getAngle());
     ChassisSpeeds targetRelativeVelocity =
-        ChassisSpeeds.fromFieldRelativeSpeeds(driveVelocitySupplier.get(), rotationToTarget);
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+            driveVelocitySupplier
+                .get()
+                .plus(new ChassisSpeeds(rotationalVector.getX(), rotationalVector.getY(), 0)),
+            rotationToTarget);
     double linearMultiplier =
         targetRelativeVelocity.vxMetersPerSecond > 0
             ? towardMultiplier.get()
