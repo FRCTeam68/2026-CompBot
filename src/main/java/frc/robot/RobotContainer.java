@@ -93,7 +93,14 @@ public class RobotContainer {
     driverController.povDown().whileTrue(DriveCommands.autopilotDriveToHubArc());
 
     // Intake
-    driverController.leftTrigger().whileTrue(IntakeCommands.intakeAutomatic());
+    intakeSpin.setDefaultCommand(IntakeCommands.intakeDefault());
+
+    driverController
+        .leftTrigger()
+        .whileTrue(IntakeCommands.intakeAutomatic().onlyIf(() -> !robotSystem.autoIntake.get()));
+    driverController
+        .leftTrigger()
+        .whileTrue(IntakeCommands.dontIntake().onlyIf(() -> robotSystem.autoIntake.get()));
 
     driverController.b().whileTrue(IntakeCommands.outtake());
 
@@ -101,6 +108,7 @@ public class RobotContainer {
     operatorController.L1().whileTrue(IntakeCommands.agitate());
 
     driverController.povUp().onTrue(IntakeCommands.retract());
+
     operatorController.R1().onTrue(IntakeCommands.deploy(2));
 
     // Shooter

@@ -176,12 +176,11 @@ public class Flywheel extends SubsystemBase {
    */
   @AutoLogOutput(key = "Shooter/Flywheel/atSetpoint")
   public boolean atSetpoint() {
-    return switch (mode) {
-      case Velocity, BangBang ->
-          atSetpointDebouncer.calculate(
-              Math.abs(setpoint - getVelocity()) < setpointBandVelocity.get());
-      default -> false;
-    };
+    if (mode == ControlMode.Position || mode == ControlMode.BangBang) {
+      return atSetpointDebouncer.calculate(
+          Math.abs(setpoint - getVelocity()) < setpointBandVelocity.get());
+    }
+    return false;
   }
 
   /**

@@ -55,7 +55,7 @@ public class ShooterCommands {
               spindexer.stop();
               robotSystem.isShooting = false;
             })
-        .withName("ShootDefault");
+        .withName("Shooter_Default");
   }
 
   public static Command shoot(boolean manualMode) {
@@ -96,18 +96,18 @@ public class ShooterCommands {
               robotSystem.isShooting = false;
               shooter.shouldTargetPass = false;
             })
-        .withName("Shoot");
+        .withName("Shooter_Shoot");
   }
 
   public static Command dontShoot() {
-    return Commands.idle(feeder, spindexer).withName("DontShoot");
+    return Commands.idle(feeder, spindexer).withName("Shooter_DontShoot");
   }
 
   public static Command runStatic(
       double flywheelVelocity, double hoodElevation, double turretPosition) {
     return Commands.runOnce(
             () -> shooter.runStatic(flywheelVelocity, hoodElevation, turretPosition), shooter)
-        .withName("ShootStatic");
+        .withName("Shooter_Static");
   }
 
   public static Command runStatic(shotConfig config) {
@@ -116,7 +116,7 @@ public class ShooterCommands {
 
   public static Command stop() {
     return Commands.sequence(Commands.runOnce(() -> shooter.stop(), shooter))
-        .withName("ShooterStop");
+        .withName("Shooter_Stop");
   }
 
   public static Command bumpFlywheel(boolean increaseSpeed) {
@@ -125,7 +125,7 @@ public class ShooterCommands {
                 shooter.getFlywheel().bumpVelocity +=
                     (increaseSpeed) ? flywheelBumpStep : -flywheelBumpStep)
         .ignoringDisable(true)
-        .withName("BumpFlywheel");
+        .withName("Shooter_BumpFlywheel");
   }
 
   public static Command bumpTurret(boolean increaseAngle) {
@@ -133,28 +133,19 @@ public class ShooterCommands {
             () ->
                 shooter.getTurret().bumpAngle += (increaseAngle) ? turretBumpStep : -turretBumpStep)
         .ignoringDisable(true)
-        .withName("BumpFlywheel");
+        .withName("Shooter_BumpTurret");
   }
 
   public static Command setHoodForceDown(boolean value) {
     return Commands.runOnce(() -> shooter.getHood().setForceDown(value))
         .ignoringDisable(true)
-        .withName("ShooterSetHoodForceDown");
+        .withName("Shooter_SetHoodForceDown");
   }
 
   public static Command setHoldSetpoint(boolean value) {
     return Commands.runOnce(() -> shooter.holdSetpoint = value)
         .ignoringDisable(true)
-        .withName("ShooterSetHoldSetpoint");
-  }
-
-  /** Toggle the state of alwaysTargetPass. Optionally specify the value to set. */
-  public static Command toggleAlwaysTargetPass(boolean... value) {
-    return Commands.runOnce(
-            () -> robotSystem.alwaysTargetPass.set(!robotSystem.alwaysTargetPass.get()))
-        .onlyIf(() -> value.length == 0 || robotSystem.alwaysTargetPass.get() != value[0])
-        .ignoringDisable(true)
-        .withName("ShooterToggleNoPass");
+        .withName("Shooter_SetHoldSetpoint");
   }
 
   /** Toggle the state of forceManualShoot. Optionally specify the value to set. */
@@ -162,12 +153,12 @@ public class ShooterCommands {
     return Commands.runOnce(() -> shooter.forceManualShoot = !shooter.forceManualShoot)
         .onlyIf(() -> value.length == 0 || shooter.forceManualShoot != value[0])
         .ignoringDisable(true)
-        .withName("ShooterToggleManualShoot");
+        .withName("Shooter_ToggleManualShoot");
   }
 
   public static Command clearStaticSetpoint() {
     return Commands.runOnce(() -> shooter.staticSetpoint = false)
         .ignoringDisable(true)
-        .withName("ShooterClearStaticSetpoint");
+        .withName("Shooter_ClearStaticSetpoint");
   }
 }

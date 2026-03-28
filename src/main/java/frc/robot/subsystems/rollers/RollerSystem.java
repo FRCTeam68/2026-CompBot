@@ -20,7 +20,7 @@ public class RollerSystem extends SubsystemBase {
   private final Debouncer connectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
   private final Alert disconnectedAlert;
   private final Alert tempAlert;
-  private String loggerKey = "";
+  private final String loggerKey;
 
   @Getter private double setpointVolts = 0.0;
 
@@ -52,11 +52,13 @@ public class RollerSystem extends SubsystemBase {
     tempAlert = new Alert(name + " motor is too hot.", AlertType.kWarning);
 
     // Create logger key
-    String[] nameSplits = name.split(" ");
+    final String[] nameSplits = name.split(" ");
+    String tempKey = "";
     for (String nameSplit : nameSplits) {
-      loggerKey =
-          loggerKey.concat(nameSplit.substring(0, 1).toUpperCase().concat(nameSplit.substring(1)));
+      tempKey =
+          tempKey.concat(nameSplit.substring(0, 1).toUpperCase().concat(nameSplit.substring(1)));
     }
+    loggerKey = tempKey;
   }
 
   public void periodic() {

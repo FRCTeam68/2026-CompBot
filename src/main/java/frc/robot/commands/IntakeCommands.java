@@ -24,25 +24,24 @@ public class IntakeCommands {
   private static final HopperSensor hopperSensor = robotSystem.getHopperSensor();
 
   public static Command deploy(int slot) {
-    return Commands.sequence(
+    return Commands.parallel(
             stopSpin(),
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getExtended(), slot), intakePivot))
-        .withName("IntakeDeploy");
+        .withName("Intake_Deploy");
   }
 
   public static Command retract() {
-    return Commands.sequence(
+    return Commands.parallel(
             stopSpin(),
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getPackaged(), 1), intakePivot))
-        .withName("IntakeRetract");
+        .withName("Intake_Retract");
   }
 
   public static Command agitate(double... timeout) {
     final double waitTime = (timeout.length == 0) ? 0.0 : timeout[0];
     return Commands.sequence(
-            stopSpin(),
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getAgitate(), 1), intakePivot),
             Commands.runOnce(() -> intakeSpin.runVolts(4), intakeSpin),
@@ -55,7 +54,30 @@ public class IntakeCommands {
               intakePivot.runPosition(IntakePivot.getExtended(), 0);
               intakeSpin.stop();
             })
-        .withName("IntakeAgitate");
+        .withName("Intake_Agitate");
+  }
+
+  public static Command intakeDefault() {
+    return Commands.sequence(
+            Commands.runOnce(
+                () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
+            Commands.run(
+                () -> {
+                  if (robotSystem.autoIntake.get()) {
+                    if (hopperSensor.isConnected()) {
+                      if (hopperSensor.isNotEmpty()) {
+                        intakeSpin.runVolts(intakeSpinVoltsFast.get());
+                      } else {
+                        intakeSpin.runVolts(intakeSpinVoltsSlow.get());
+                      }
+                    } else {
+                      intakeSpin.runVolts(intakeSpinVoltsDefault);
+                    }
+                  }
+                },
+                intakeSpin))
+        .finallyDo(() -> intakeSpin.stop())
+        .withName("Intake_Default");
   }
 
   public static Command intakeStatic(boolean slowMode) {
@@ -67,45 +89,45 @@ public class IntakeCommands {
                     intakeSpin.runVolts(
                         slowMode ? intakeSpinVoltsSlow.get() : intakeSpinVoltsFast.get()),
                 intakeSpin))
-        .withName("IntakeOn");
+        .withName("Intake_Static");
   }
 
   public static Command intakeAutomatic() {
-    return Commands.sequence(
+    return Commands.parallel(
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
             Commands.run(
                 () -> {
-                  double volts;
                   if (hopperSensor.isConnected()) {
                     if (hopperSensor.isNotEmpty()) {
-                      volts = intakeSpinVoltsFast.get();
+                      intakeSpin.runVolts(intakeSpinVoltsFast.get());
                     } else {
-                      volts = intakeSpinVoltsSlow.get();
+                      intakeSpin.runVolts(intakeSpinVoltsSlow.get());
                     }
                   } else {
-                    volts = intakeSpinVoltsDefault;
+                    intakeSpin.runVolts(intakeSpinVoltsDefault);
                   }
-
-                  intakeSpin.runVolts(volts);
                 },
                 intakeSpin))
         .finallyDo(() -> intakeSpin.stop())
-        .withName("IntakeWhile");
+        .withName("Intake_Automatic");
   }
 
   public static Command outtake() {
-    return Commands.sequence(
+    return Commands.parallel(
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
-            Commands.waitUntil(() -> intakePivot.atSetpoint()),
             Commands.runOnce(() -> intakeSpin.runVolts(intakeSpinVoltsOuttake.get()), intakeSpin),
             Commands.idle())
         .finallyDo(() -> intakeSpin.stop())
-        .withName("Outtake");
+        .withName("Intake_Outtake");
+  }
+
+  public static Command dontIntake() {
+    return Commands.idle(intakeSpin).withName("Intake_DontIntake");
   }
 
   public static Command stopSpin() {
-    return Commands.runOnce(() -> intakeSpin.stop(), intakeSpin).withName("IntakeSpinStop");
+    return Commands.runOnce(() -> intakeSpin.stop(), intakeSpin).withName("Intake_StopSpin");
   }
 }

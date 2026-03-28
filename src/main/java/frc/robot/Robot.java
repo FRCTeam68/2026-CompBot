@@ -155,11 +155,12 @@ public class Robot extends LoggedRobot {
     robotContainer = new RobotContainer();
     LoggedTracerStatic.record("FinishedRobotContainer");
 
-    // Warmup pathplanner libraries
+    // Warmups
     CommandScheduler.getInstance()
         .schedule(FollowPathCommand.warmupCommand().withName("PathplannerFollowPathWarmup"));
     // Uncomment the warmup command below if using pathplanner pathfinding
     // CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand().withName("PathplannerPathfindingWarmup"));
+    ElasticUtil.selectTab("Auton");
     LoggedTracerStatic.record("FinishedStartup");
   }
 

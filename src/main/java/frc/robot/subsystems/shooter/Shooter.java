@@ -4,7 +4,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -23,6 +22,13 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
+  private static final LoggedTunableNumber towardMultiplier =
+      new LoggedTunableNumber("Shooter/TowardMultiplier", 1.1);
+  private static final LoggedTunableNumber awayMultiplier =
+      new LoggedTunableNumber("Shooter/AwayMultiplier", 1.2);
+  private static final LoggedTunableNumber angleMultiplier =
+      new LoggedTunableNumber("Shooter/AngleMultiplier", 1.05);
+
   // Subsystems
   @Getter private final Flywheel flywheel;
   @Getter private final Hood hood;
@@ -32,7 +38,6 @@ public class Shooter extends SubsystemBase {
   private final Supplier<Pose2d> drivePoseSupplier;
   private final Supplier<ChassisSpeeds> driveVelocitySupplier;
   private final Supplier<Boolean> inAllianceZoneSupplier;
-  private final Supplier<Boolean> alwaysTargetPass;
   private final Supplier<Boolean> autoshootPass;
 
   private Translation2d target = Translation2d.kZero;
@@ -49,13 +54,6 @@ public class Shooter extends SubsystemBase {
   @AutoLogOutput(key = "Shooter/ManualShoot")
   public boolean forceManualShoot = false;
 
-  private static final LoggedTunableNumber towardMultiplier =
-      new LoggedTunableNumber("Shooter/TowardMultiplier", 1.1);
-  private static final LoggedTunableNumber awayMultiplier =
-      new LoggedTunableNumber("Shooter/AwayMultiplier", 1.2);
-  private static final LoggedTunableNumber angleMultiplier =
-      new LoggedTunableNumber("Shooter/AngleMultiplier", 1.05);
-
   public Shooter(
       Flywheel flywheel,
       Hood hood,
@@ -63,7 +61,6 @@ public class Shooter extends SubsystemBase {
       Supplier<Pose2d> poseSupplier,
       Supplier<ChassisSpeeds> driveVelocitySupplier,
       Supplier<Boolean> inAllianceZoneSupplier,
-      Supplier<Boolean> alwaysTargetPass,
       Supplier<Boolean> autoshootPass) {
     this.flywheel = flywheel;
     this.hood = hood;
@@ -71,7 +68,6 @@ public class Shooter extends SubsystemBase {
     this.drivePoseSupplier = poseSupplier;
     this.driveVelocitySupplier = driveVelocitySupplier;
     this.inAllianceZoneSupplier = inAllianceZoneSupplier;
-    this.alwaysTargetPass = alwaysTargetPass;
     this.autoshootPass = autoshootPass;
   }
 
@@ -103,11 +99,9 @@ public class Shooter extends SubsystemBase {
       flightTime = ShooterConstants.DynamicShot.passShotFlightTime.get(getDistanceToTarget());
     }
 
-    // Run shooter to target dynamically
+    // Run shooter to target
     if (!staticSetpoint && !holdSetpoint) {
-      if (inAllianceZoneSupplier.get()
-          || autoshootPass.get()
-          || (!DriverStation.isAutonomous() && (shouldTargetPass || alwaysTargetPass.get()))) {
+      if (inAllianceZoneSupplier.get() || autoshootPass.get() || shouldTargetPass) {
         runDynamic();
       } else {
         // If not actively targeting lower hood
