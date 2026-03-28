@@ -1,6 +1,7 @@
 package frc.robot.subsystems.rollers;
 
 import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Watts;
 
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
@@ -10,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.util.VirtualPD;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
@@ -46,6 +48,9 @@ public class RollerSystem extends SubsystemBase {
    */
   public RollerSystem(String name, RollerSystemIO io) {
     this.io = io;
+
+    VirtualPD.registerMotor(
+        () -> Watts.of(Math.abs(inputs.supplyCurrentAmps * inputs.appliedVoltage)), name);
 
     // Create alert text
     disconnectedAlert = new Alert(name + " motor disconnected!", AlertType.kError);

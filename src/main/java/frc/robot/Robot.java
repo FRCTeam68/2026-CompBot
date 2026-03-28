@@ -20,6 +20,7 @@ import frc.robot.util.HubShiftUtil;
 import frc.robot.util.LoggedTracer;
 import frc.robot.util.LoggedTracerStatic;
 import frc.robot.util.PhoenixUtil;
+import frc.robot.util.VirtualPD;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
@@ -174,6 +175,10 @@ public class Robot extends LoggedRobot {
     LoggedTracer.reset();
     HubShiftUtil.update();
     LoggedTracer.record("HubShiftUtil");
+
+    if (Constants.tuningMode || Constants.getMode() == Constants.Mode.REPLAY) {
+      VirtualPD.logTotalCurrent();
+    }
 
     // Refresh all Phoenix signals
     PhoenixUtil.refreshAll();

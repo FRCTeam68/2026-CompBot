@@ -2,6 +2,7 @@ package frc.robot.subsystems.shooter.hood;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Watts;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
@@ -20,6 +21,7 @@ import frc.robot.util.ElasticUtil.Notification;
 import frc.robot.util.ElasticUtil.NotificationLevel;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
+import frc.robot.util.VirtualPD;
 import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.Setter;
@@ -85,6 +87,9 @@ public class Hood extends SubsystemBase {
 
   public Hood(HoodIO hoodIO) {
     this.io = hoodIO;
+
+    VirtualPD.registerMotor(
+        () -> Watts.of(Math.abs(inputs.supplyCurrentAmps * inputs.appliedVoltage)), "Hood");
 
     // Configure dashboard
     SmartDashboard.putData(
