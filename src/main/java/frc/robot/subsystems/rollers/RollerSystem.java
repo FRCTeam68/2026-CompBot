@@ -3,6 +3,7 @@ package frc.robot.subsystems.rollers;
 import static edu.wpi.first.units.Units.Volts;
 import static edu.wpi.first.units.Units.Watts;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
@@ -90,6 +91,12 @@ public class RollerSystem extends SubsystemBase {
     this.kP.initDefault(newConfig.kP);
     this.kD.initDefault(newConfig.kD);
     this.kS.initDefault(newConfig.kS);
+    this.kV.initDefault(newConfig.kV);
+  }
+
+  // must call this once and only once in robotcontainer after each RollerSystem is created
+  public void setPID(Slot0Configs newconfig) {
+    setPID(newconfig, null);
   }
 
   public void periodic() {

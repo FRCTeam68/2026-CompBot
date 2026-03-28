@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public final class Constants {
@@ -30,5 +31,14 @@ public final class Constants {
 
     /** Replaying from a log file. */
     REPLAY
+  }
+
+  public final class RollerSystem_Slot0Configs {
+    public static final Slot0Configs INTAKE =
+        new Slot0Configs().withKP(.2).withKI(0).withKD(0).withKS(0).withKV(0.13).withKA(0);
+    public static final Slot0Configs SPINDEXER =
+        new Slot0Configs().withKP(.2).withKI(0).withKD(0).withKS(0).withKV(0.13).withKA(0);
+    public static final Slot0Configs FEEDER =
+        new Slot0Configs().withKP(.2).withKI(0).withKD(0).withKS(0).withKV(0.13).withKA(0);
   }
 }

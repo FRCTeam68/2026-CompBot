@@ -5,6 +5,7 @@ import static frc.robot.util.PhoenixUtil.tryUntilOk;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
@@ -117,5 +118,18 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   @Override
   public void stop() {
     talon.setControl(neutralOut);
+  }
+
+  @Override
+  public void setPID(Slot0Configs config0) {
+    // slot0
+    config.Slot0.kP = config0.kP;
+    config.Slot0.kI = config0.kI;
+    config.Slot0.kD = config0.kD;
+    config.Slot0.kS = config0.kS;
+    config.Slot0.kV = config0.kV;
+    config.Slot0.kA = config0.kA;
+
+    tryUntilOk(5, () -> talon.getConfigurator().apply(config, 0.25));
   }
 }
