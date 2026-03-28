@@ -1,5 +1,6 @@
 package frc.robot.subsystems.rollers;
 
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 import static edu.wpi.first.units.Units.Watts;
 
@@ -79,11 +80,11 @@ public class RollerSystem extends SubsystemBase {
     }
 
     // Configure dashboard
-    SmartDashboard.putNumber(loggerKey + "/Voltage", 0.0);
+    SmartDashboard.putNumber(loggerKey + "/Velocity", 0.0);
     SmartDashboard.putData(
-        loggerKey + "/RunVoltage",
+        loggerKey + "/RunVelocity",
         Commands.runOnce(
-            () -> runVolts(SmartDashboard.getNumber(loggerKey + "/Voltage", 0.0)), this));
+            () -> runVelocity(SmartDashboard.getNumber(loggerKey + "/Velocity", 0.0)), this));
   }
 
   /** Must call this once and only once in robotcontainer after each RollerSystem is created */
@@ -96,7 +97,7 @@ public class RollerSystem extends SubsystemBase {
 
   // must call this once and only once in robotcontainer after each RollerSystem is created
   public void setPID(Slot0Configs newconfig) {
-    setPID(newconfig, null);
+    setPID(newconfig);
   }
 
   public void periodic() {
@@ -120,11 +121,17 @@ public class RollerSystem extends SubsystemBase {
     Logger.recordOutput(loggerKey + "/SetpointVolts", setpointVolts, Volts);
   }
 
+  public void runVelocity(double velocity) {
+    io.runVelocity(velocity);
+    Logger.recordOutput(loggerKey + "/SetpointVelocity", velocity, RotationsPerSecond);
+  }
+
   /** Stop motor with neutral output. */
   public void stop() {
     setpointVolts = 0.0;
     io.stop();
     Logger.recordOutput(loggerKey + "/SetpointVolts", 0.0, Volts);
+    Logger.recordOutput(loggerKey + "/SetpointVelocity", 0.0, RotationsPerSecond);
   }
 
   /**

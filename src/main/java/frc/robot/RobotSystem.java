@@ -130,7 +130,7 @@ public class RobotSystem {
                     40,
                     InvertedValue.Clockwise_Positive,
                     NeutralModeValue.Coast,
-                    4.0 * 5.0 * (64.0 / 16.0)));
+                    (64.0 / 16.0)));
         spindexer.setPID(Constants.RollerSystem_Slot0Configs.SPINDEXER);
 
         feeder =
