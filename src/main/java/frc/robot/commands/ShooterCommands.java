@@ -1,5 +1,8 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotSystem;
@@ -27,6 +30,21 @@ public class ShooterCommands {
   private static final Shooter shooter = robotSystem.getShooter();
   private static final RollerSystem spindexer = robotSystem.getSpindexer();
   private static final RollerSystem feeder = robotSystem.getFeeder();
+  // Tunable parameters for spindexer overcurrent handling
+  private static final LoggedTunableNumber spindexerOvercurrentThresholdLTN =
+      new LoggedTunableNumber("Shooter/SpindexerOvercurrentThreshold", 60.0);
+  private static final LoggedTunableNumber spindexerOvercurrentTimeLTN =
+      new LoggedTunableNumber("Shooter/SpindexerOvercurrentTime", 0.5);
+  private static final LoggedTunableNumber spindexerReverseVoltLTN =
+      new LoggedTunableNumber("Shooter/SpindexerReverseVolt", -12.0);
+  private static final LoggedTunableNumber spindexerReverseDurationLTN =
+      new LoggedTunableNumber("Shooter/SpindexerReverseDuration", 0.5);
+
+  private static boolean spindexerReverseActive = false;
+  private static double spindexerReverseStart = 0.0;
+  // Debouncer to detect sustained overcurrent (initialized with tunable time)
+  private static Debouncer spindexerOvercurrentDebouncer =
+      new Debouncer(spindexerOvercurrentTimeLTN.getAsDouble(), DebounceType.kRising);
 
   public static Command shootDefault() {
     return Commands.run(
@@ -38,11 +56,9 @@ public class ShooterCommands {
 
                 if (!shooter.holdSetpoint) {
                   if (shooter.atSetpoint() && shooter.inShootableLocation()) {
-                    feeder.runVolts(feederVolts.getAsDouble());
-                    spindexer.runVolts(spindexerVolts.getAsDouble());
+                    updateFeederSpindexer(true);
                   } else {
-                    feeder.stop();
-                    spindexer.stop();
+                    updateFeederSpindexer(false);
                   }
                 } else {
                   shooter.holdSetpoint = false;
@@ -60,6 +76,10 @@ public class ShooterCommands {
               feeder.stop();
               spindexer.stop();
               robotSystem.isShooting = false;
+              // Reset spindexer overcurrent state on command end (use current tunable debounce)
+              spindexerOvercurrentDebouncer =
+                  new Debouncer(spindexerOvercurrentTimeLTN.getAsDouble(), DebounceType.kRising);
+              spindexerReverseActive = false;
             })
         .withName("Shooter_Default");
   }
@@ -70,17 +90,14 @@ public class ShooterCommands {
               if (!shooter.holdSetpoint) {
                 if (drive.inAllianceZone() || !shooter.isTargetHub()) {
                   if (manualMode || shooter.forceManualShoot) {
-                    feeder.runVolts(feederVolts.getAsDouble());
-                    spindexer.runVolts(spindexerVolts.getAsDouble());
+                    updateFeederSpindexer(true);
                   } else {
                     if (shooter.atSetpoint()
                         && HubShiftUtil.shouldShoot()
                         && shooter.inShootableLocation()) {
-                      feeder.runVolts(feederVolts.getAsDouble());
-                      spindexer.runVolts(spindexerVolts.getAsDouble());
+                      updateFeederSpindexer(true);
                     } else {
-                      feeder.stop();
-                      spindexer.stop();
+                      updateFeederSpindexer(false);
                     }
                   }
                 }
@@ -101,8 +118,62 @@ public class ShooterCommands {
               spindexer.stop();
               robotSystem.isShooting = false;
               shooter.shouldTargetPass = false;
+              // Reset spindexer overcurrent state on command end (use current tunable debounce)
+              spindexerOvercurrentDebouncer =
+                  new Debouncer(spindexerOvercurrentTimeLTN.getAsDouble(), DebounceType.kRising);
+              spindexerReverseActive = false;
             })
         .withName("Shooter_Shoot");
+  }
+
+  // Helper to centralize feeder/spindexer control including overcurrent reversal
+  private static void updateFeederSpindexer(boolean runRequested) {
+    if (runRequested) {
+      double now = Timer.getFPGATimestamp();
+      double current = spindexer.getTorqueCurrent();
+
+      // Localize tunable values once per call
+      double reverseDuration = spindexerReverseDurationLTN.getAsDouble();
+      double reverseVolt = spindexerReverseVoltLTN.getAsDouble();
+      double threshold = spindexerOvercurrentThresholdLTN.getAsDouble();
+      double debounceTime = spindexerOvercurrentTimeLTN.getAsDouble();
+
+      if (spindexerReverseActive) {
+        if (now - spindexerReverseStart < reverseDuration) {
+          spindexer.runVolts(reverseVolt);
+          feeder.runVolts(reverseVolt);
+          return;
+        } else {
+          spindexerReverseActive = false;
+          spindexerOvercurrentDebouncer = new Debouncer(debounceTime, DebounceType.kRising);
+          spindexer.runVolts(spindexerVolts.getAsDouble());
+          feeder.runVolts(feederVolts.getAsDouble());
+          return;
+        }
+      }
+
+      // Not reversing: check for sustained overcurrent via debouncer
+      // If debounce time changed, reinitialize debouncer so it uses the new time
+      if (spindexerOvercurrentTimeLTN.hasChanged(ShooterCommands.class.hashCode())) {
+        spindexerOvercurrentDebouncer = new Debouncer(debounceTime, DebounceType.kRising);
+      }
+      boolean debounced = spindexerOvercurrentDebouncer.calculate(current > threshold);
+      if (debounced) {
+        spindexerReverseActive = true;
+        spindexerReverseStart = now;
+        spindexer.runVolts(reverseVolt);
+        feeder.runVolts(reverseVolt);
+      } else {
+        spindexer.runVolts(spindexerVolts.getAsDouble());
+        feeder.runVolts(feederVolts.getAsDouble());
+      }
+    } else {
+      feeder.stop();
+      spindexer.stop();
+      spindexerOvercurrentDebouncer =
+          new Debouncer(spindexerOvercurrentTimeLTN.getAsDouble(), DebounceType.kRising);
+      spindexerReverseActive = false;
+    }
   }
 
   public static Command dontShoot() {
