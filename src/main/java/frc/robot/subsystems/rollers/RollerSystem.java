@@ -1,6 +1,7 @@
 package frc.robot.subsystems.rollers;
 
 import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Watts;
 
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
@@ -10,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.util.VirtualPD;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
@@ -20,7 +22,7 @@ public class RollerSystem extends SubsystemBase {
   private final Debouncer connectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
   private final Alert disconnectedAlert;
   private final Alert tempAlert;
-  private String loggerKey = "";
+  private final String loggerKey;
 
   @Getter private double setpointVolts = 0.0;
 
@@ -47,23 +49,21 @@ public class RollerSystem extends SubsystemBase {
   public RollerSystem(String name, RollerSystemIO io) {
     this.io = io;
 
+    VirtualPD.registerMotor(
+        () -> Watts.of(Math.abs(inputs.supplyCurrentAmps * inputs.appliedVoltage)), name);
+
     // Create alert text
     disconnectedAlert = new Alert(name + " motor disconnected!", AlertType.kError);
     tempAlert = new Alert(name + " motor is too hot.", AlertType.kWarning);
 
     // Create logger key
-    String[] nameSplits = name.split(" ");
+    final String[] nameSplits = name.split(" ");
+    String tempKey = "";
     for (String nameSplit : nameSplits) {
-      loggerKey =
-          loggerKey.concat(nameSplit.substring(0, 1).toUpperCase().concat(nameSplit.substring(1)));
+      tempKey =
+          tempKey.concat(nameSplit.substring(0, 1).toUpperCase().concat(nameSplit.substring(1)));
     }
-
-    // Configure dashboard
-    SmartDashboard.putNumber(loggerKey + "/Voltage", 0.0);
-    SmartDashboard.putData(
-        loggerKey + "/RunVoltage",
-        Commands.runOnce(
-            () -> runVolts(SmartDashboard.getNumber(loggerKey + "/Voltage", 0.0)), this));
+    loggerKey = tempKey;
   }
 
   public void periodic() {
@@ -114,5 +114,15 @@ public class RollerSystem extends SubsystemBase {
    */
   public double getTorqueCurrent() {
     return inputs.torqueCurrentAmps;
+  }
+
+  /** Configure dashboard tuning controls for manual control. */
+  public void configureDashboardControls() {
+    SmartDashboard.putNumber(loggerKey + "/Voltage", 0.0);
+    SmartDashboard.putData(
+        loggerKey + "/RunVoltage",
+        Commands.runOnce(
+                () -> runVolts(SmartDashboard.getNumber(loggerKey + "/Voltage", 0.0)), this)
+            .withName("Dashboard" + loggerKey + "RunVolts"));
   }
 }

@@ -27,8 +27,8 @@ public class HubShiftUtil {
   private static Shooter shooter = robotSystem.getShooter();
 
   private static Optional<Boolean> blueActiveFirst = Optional.empty();
-  private static double teleopStartTime = -1.0;
-  private static double prevTeleopStartTime = 0.0;
+  private static double matchStartTime = -1.0;
+  private static double prevMatchStartTime = 0.0;
   private static Shift prevShift = Shift.Transition;
   private static Optional<Boolean> prevBlueActiveFirst = Optional.empty();
   private static LoggedDashboardChooser<Optional<Boolean>> activeFirstOverride =
@@ -44,10 +44,10 @@ public class HubShiftUtil {
       new LoggedNetworkBoolean("SmartDashboard/HubShift/Override", false);
 
   /**
-   * The remaining time in teleop mode. Before teleop starts, when not connected to FMS, or if not
-   * in practice mode this will return -1.
+   * The remaining time left in the mach. Before the match starts, when not connected to FMS, or if
+   * not in practice mode this will return -1.
    */
-  @Getter private static Supplier<Double> teleopTime = () -> -1.0;
+  @Getter private static Supplier<Double> matchTime = () -> -1.0;
 
   /**
    * The remaining time in the current shift. Before teleop starts, when not connected to FMS, or if
@@ -81,7 +81,7 @@ public class HubShiftUtil {
     if (activeFirstOverride.get().isPresent()) {
       blueActiveFirst = activeFirstOverride.get();
     } else {
-      String message = DriverStation.getGameSpecificMessage();
+      final String message = DriverStation.getGameSpecificMessage();
       if (message.length() > 0) {
         blueActiveFirst =
             switch (message.charAt(0)) {
@@ -95,7 +95,7 @@ public class HubShiftUtil {
     }
 
     // If conditions have changed
-    if (teleopStartTime != prevTeleopStartTime
+    if (matchStartTime != prevMatchStartTime
         || (shiftTime.get() != -1.0 && getActiveShift() != prevShift)
         || (blueActiveFirst.isPresent() ^ prevBlueActiveFirst.isPresent())
         || !blueActiveFirst.equals(prevBlueActiveFirst)) {
@@ -113,74 +113,77 @@ public class HubShiftUtil {
         SmartDashboard.putString("HubShift/HubActiveFirst", "");
       }
 
-      // Configure teleop time
-      teleopTime =
-          () ->
-              (teleopStartTime == -1) ? -1.0 : 140.0 - (Timer.getFPGATimestamp() - teleopStartTime);
-
       // If values are not seeded, set to default. Otherwise, set based on current shift
-      if (teleopStartTime == -1.0 || blueActiveFirst.isEmpty()) {
+      if (matchStartTime == -1.0 || (blueActiveFirst.isEmpty() && !DriverStation.isAutonomous())) {
         currentShift = Shift.Transition;
         currentActiveHub = Optional.empty();
         nextActiveHub = Optional.empty();
         shiftTime = () -> -1.0;
+        Logger.recordOutput("HubShift/CurrentShift", "");
       } else {
         currentShift = getActiveShift();
-        switch (currentShift) {
-          case Transition:
-            currentActiveHub = Optional.empty();
-            nextActiveHub =
-                blueActiveFirst.get() ? Optional.of(Alliance.Blue) : Optional.of(Alliance.Red);
-            shiftTime = () -> getTeleopTime().get() - Shift.Shift1.startTime;
-            Logger.recordOutput("HubShift/CurrentShift", "TRANSITION");
-            break;
+        if (currentShift == Shift.Auton) {
+          currentActiveHub = Optional.empty();
+          nextActiveHub = Optional.empty();
+          shiftTime = () -> Math.max(getMatchTime().get(), 0.0);
+          Logger.recordOutput("HubShift/CurrentShift", "AUTON");
+        } else {
+          switch (currentShift) {
+            case Transition:
+              currentActiveHub = Optional.empty();
+              nextActiveHub =
+                  blueActiveFirst.get() ? Optional.of(Alliance.Blue) : Optional.of(Alliance.Red);
+              shiftTime = () -> getMatchTime().get() - Shift.Shift1.startTime;
+              Logger.recordOutput("HubShift/CurrentShift", "TRANSITION");
+              break;
 
-          case Shift1:
-            currentActiveHub =
-                blueActiveFirst.get() ? Optional.of(Alliance.Blue) : Optional.of(Alliance.Red);
-            nextActiveHub =
-                blueActiveFirst.get() ? Optional.of(Alliance.Red) : Optional.of(Alliance.Blue);
-            shiftTime = () -> getTeleopTime().get() - Shift.Shift2.startTime;
-            Logger.recordOutput("HubShift/CurrentShift", "1");
-            break;
+            case Shift1:
+              currentActiveHub =
+                  blueActiveFirst.get() ? Optional.of(Alliance.Blue) : Optional.of(Alliance.Red);
+              nextActiveHub =
+                  blueActiveFirst.get() ? Optional.of(Alliance.Red) : Optional.of(Alliance.Blue);
+              shiftTime = () -> getMatchTime().get() - Shift.Shift2.startTime;
+              Logger.recordOutput("HubShift/CurrentShift", "1");
+              break;
 
-          case Shift2:
-            currentActiveHub =
-                blueActiveFirst.get() ? Optional.of(Alliance.Red) : Optional.of(Alliance.Blue);
-            nextActiveHub =
-                blueActiveFirst.get() ? Optional.of(Alliance.Blue) : Optional.of(Alliance.Red);
-            shiftTime = () -> getTeleopTime().get() - Shift.Shift3.startTime;
-            Logger.recordOutput("HubShift/CurrentShift", "2");
-            break;
+            case Shift2:
+              currentActiveHub =
+                  blueActiveFirst.get() ? Optional.of(Alliance.Red) : Optional.of(Alliance.Blue);
+              nextActiveHub =
+                  blueActiveFirst.get() ? Optional.of(Alliance.Blue) : Optional.of(Alliance.Red);
+              shiftTime = () -> getMatchTime().get() - Shift.Shift3.startTime;
+              Logger.recordOutput("HubShift/CurrentShift", "2");
+              break;
 
-          case Shift3:
-            currentActiveHub =
-                blueActiveFirst.get() ? Optional.of(Alliance.Blue) : Optional.of(Alliance.Red);
-            nextActiveHub =
-                blueActiveFirst.get() ? Optional.of(Alliance.Red) : Optional.of(Alliance.Blue);
-            shiftTime = () -> getTeleopTime().get() - Shift.Shift4.startTime;
-            Logger.recordOutput("HubShift/CurrentShift", "3");
-            break;
+            case Shift3:
+              currentActiveHub =
+                  blueActiveFirst.get() ? Optional.of(Alliance.Blue) : Optional.of(Alliance.Red);
+              nextActiveHub =
+                  blueActiveFirst.get() ? Optional.of(Alliance.Red) : Optional.of(Alliance.Blue);
+              shiftTime = () -> getMatchTime().get() - Shift.Shift4.startTime;
+              Logger.recordOutput("HubShift/CurrentShift", "3");
+              break;
 
-          case Shift4:
-            currentActiveHub =
-                blueActiveFirst.get() ? Optional.of(Alliance.Red) : Optional.of(Alliance.Blue);
-            nextActiveHub = Optional.empty();
-            shiftTime = () -> getTeleopTime().get() - Shift.EndGame.startTime;
-            Logger.recordOutput("HubShift/CurrentShift", "4");
-            break;
+            case Shift4:
+              currentActiveHub =
+                  blueActiveFirst.get() ? Optional.of(Alliance.Red) : Optional.of(Alliance.Blue);
+              nextActiveHub = Optional.empty();
+              shiftTime = () -> getMatchTime().get() - Shift.EndGame.startTime;
+              Logger.recordOutput("HubShift/CurrentShift", "4");
+              break;
 
-          case EndGame:
-            currentActiveHub = Optional.empty();
-            nextActiveHub = Optional.empty();
-            shiftTime = () -> Math.max(getTeleopTime().get(), 0.0);
-            Logger.recordOutput("HubShift/CurrentShift", "END GAME");
-            break;
+            default:
+              currentActiveHub = Optional.empty();
+              nextActiveHub = Optional.empty();
+              shiftTime = () -> Math.max(getMatchTime().get(), 0.0);
+              Logger.recordOutput("HubShift/CurrentShift", "END GAME");
+              break;
+          }
         }
       }
 
       // Update previous values
-      prevTeleopStartTime = teleopStartTime;
+      prevMatchStartTime = matchStartTime;
       prevShift = currentShift;
       prevBlueActiveFirst = blueActiveFirst;
     }
@@ -190,6 +193,8 @@ public class HubShiftUtil {
     // Log shift time
     Logger.recordOutput("HubShift/ShiftSec", shiftTime.get(), Seconds);
     Logger.recordOutput("HubShift/Override", override);
+    SmartDashboard.putNumber("AdjustedTime/MatchTime", Math.max(matchTime.get() + 1.0, 1.0));
+    SmartDashboard.putNumber("AdjustedTime/ShiftTime", shiftTime.get() + 1);
   }
 
   /**
@@ -200,10 +205,17 @@ public class HubShiftUtil {
    * <p>Call this once at disabled exit.
    */
   public static void seedMatchTime() {
-    if (!DriverStation.isAutonomous() && DriverStation.getMatchTime() > 5.0) {
-      teleopStartTime = Timer.getFPGATimestamp() - 140.0 + DriverStation.getMatchTime();
+    if (DriverStation.getMatchTime() > 1.0) {
+      if (DriverStation.isAutonomous()) {
+        matchStartTime = Timer.getFPGATimestamp() - 20.0 + DriverStation.getMatchTime();
+        matchTime = () -> 20.0 - (Timer.getFPGATimestamp() - matchStartTime);
+      } else {
+        matchStartTime = Timer.getFPGATimestamp() - 140.0 + DriverStation.getMatchTime();
+        matchTime = () -> 140.0 - (Timer.getFPGATimestamp() - matchStartTime);
+      }
     } else {
-      teleopStartTime = -1.0;
+      matchStartTime = -1.0;
+      matchTime = () -> -1.0;
     }
   }
 
@@ -279,17 +291,21 @@ public class HubShiftUtil {
    * <p>If teleop time hasn't been seeded this will return the transition shift.
    */
   private static Shift getActiveShift() {
-    double teleopTime = getTeleopTime().get();
+    if (DriverStation.isAutonomous()) {
+      return Shift.Auton;
+    }
 
-    if (teleopTime == -1.0 || teleopTime > Shift.Shift1.startTime) {
+    final double time = getMatchTime().get();
+
+    if (time == -1.0 || time > Shift.Shift1.startTime) {
       return Shift.Transition;
-    } else if (teleopTime > Shift.Shift2.startTime) {
+    } else if (time > Shift.Shift2.startTime) {
       return Shift.Shift1;
-    } else if (teleopTime > Shift.Shift3.startTime) {
+    } else if (time > Shift.Shift3.startTime) {
       return Shift.Shift2;
-    } else if (teleopTime > Shift.Shift4.startTime) {
+    } else if (time > Shift.Shift4.startTime) {
       return Shift.Shift3;
-    } else if (teleopTime > Shift.EndGame.startTime) {
+    } else if (time > Shift.EndGame.startTime) {
       return Shift.Shift4;
     } else {
       return Shift.EndGame;
@@ -297,6 +313,7 @@ public class HubShiftUtil {
   }
 
   public enum Shift {
+    Auton(160),
     Transition(140),
     Shift1(130),
     Shift2(105),

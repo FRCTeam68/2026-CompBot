@@ -2,6 +2,7 @@ package frc.robot.subsystems.shooter.flywheel;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Watts;
 
 import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.filter.Debouncer;
@@ -12,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
+import frc.robot.util.VirtualPD;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -67,6 +69,13 @@ public class Flywheel extends SubsystemBase {
 
   public Flywheel(FlywheelIO flywheelIO) {
     this.io = flywheelIO;
+
+    VirtualPD.registerMotor(
+        () -> Watts.of(Math.abs(inputs.leaderSupplyCurrentAmps * inputs.leaderAppliedVoltage)),
+        "Flywheel");
+    VirtualPD.registerMotor(
+        () -> Watts.of(Math.abs(inputs.followerSupplyCurrentAmps * inputs.followerAppliedVoltage)),
+        "Flywheel");
   }
 
   public void periodic() {
@@ -176,12 +185,11 @@ public class Flywheel extends SubsystemBase {
    */
   @AutoLogOutput(key = "Shooter/Flywheel/atSetpoint")
   public boolean atSetpoint() {
-    return switch (mode) {
-      case Velocity, BangBang ->
-          atSetpointDebouncer.calculate(
-              Math.abs(setpoint - getVelocity()) < setpointBandVelocity.get());
-      default -> false;
-    };
+    if (mode == ControlMode.Position || mode == ControlMode.BangBang) {
+      return atSetpointDebouncer.calculate(
+          Math.abs(setpoint - getVelocity()) < setpointBandVelocity.get());
+    }
+    return false;
   }
 
   /**

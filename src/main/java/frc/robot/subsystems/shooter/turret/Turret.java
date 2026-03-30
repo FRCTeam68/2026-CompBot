@@ -2,6 +2,7 @@ package frc.robot.subsystems.shooter.turret;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Watts;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
@@ -25,6 +26,7 @@ import frc.robot.util.ElasticUtil.Notification;
 import frc.robot.util.ElasticUtil.NotificationLevel;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
+import frc.robot.util.VirtualPD;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -81,6 +83,9 @@ public class Turret extends SubsystemBase {
   public Turret(Lights lights, TurretIO io) {
     this.lights = lights;
     this.io = io;
+
+    VirtualPD.registerMotor(
+        () -> Watts.of(Math.abs(inputs.supplyCurrentAmps * inputs.appliedVoltage)), "Turret");
 
     // Check if turret position could be ambiguous
     if (Constants.getMode() != Mode.SIM) {
@@ -237,9 +242,9 @@ public class Turret extends SubsystemBase {
    */
   @AutoLogOutput(key = "Shooter/Turret/atSetpoint")
   public boolean atSetpoint() {
-    return switch (mode) {
-      case Position -> Math.abs(setpoint - getPosition()) < setpointBandPosition.get();
-      default -> false;
-    };
+    if (mode == ControlMode.Position) {
+      return Math.abs(setpoint - getPosition()) < setpointBandPosition.get();
+    }
+    return false;
   }
 }

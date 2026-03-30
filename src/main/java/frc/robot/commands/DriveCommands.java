@@ -39,11 +39,11 @@ public class DriveCommands {
   private static final LoggedTunableNumber hubArcRadius =
       new LoggedTunableNumber("Drive/HubShot/ArcRadius", 2.5);
   private static final LoggedTunableNumber hubShotMaxLinearVelocity =
-      new LoggedTunableNumber("Drive/HubShot/MaxLinearVelocity", 1);
+      new LoggedTunableNumber("Drive/HubShot/MaxLinearVelocity", 1.5);
   private static final LoggedTunableNumber hubShotMaxAngularVelocity =
-      new LoggedTunableNumber("Drive/HubShot/MaxAngularVelocity", 4.0);
+      new LoggedTunableNumber("Drive/HubShot/MaxAngularVelocity", 5.0);
   private static final LoggedTunableNumber passShotMaxLinearVelocity =
-      new LoggedTunableNumber("Drive/PassShot/MaxLinearVelocity", 10.0);
+      new LoggedTunableNumber("Drive/PassShot/MaxLinearVelocity", 5.03);
   private static final LoggedTunableNumber passShotMaxAngularVelocity =
       new LoggedTunableNumber("Drive/PassShot/MaxAngularVelocity", 8.0);
 
@@ -56,7 +56,7 @@ public class DriveCommands {
     // Apply deadband
     double linearMagnitude =
         MathUtil.clamp(MathUtil.applyDeadband(Math.hypot(x, y), DEADBAND), 0.0, 1.0);
-    Rotation2d linearDirection = new Rotation2d(Math.atan2(y, x));
+    final Rotation2d linearDirection = new Rotation2d(Math.atan2(y, x));
 
     // Square magnitude for more precise control
     linearMagnitude = linearMagnitude * linearMagnitude;
@@ -144,7 +144,7 @@ public class DriveCommands {
       DoubleSupplier xSupplier, DoubleSupplier ySupplier, Supplier<Rotation2d> rotationSupplier) {
 
     // Configure PID controller
-    ProfiledPIDController angleController =
+    final ProfiledPIDController angleController =
         new ProfiledPIDController(
             DriveConstants.angularPID.kP,
             DriveConstants.angularPID.kI,
@@ -207,7 +207,7 @@ public class DriveCommands {
       DoubleSupplier xSupplier, DoubleSupplier ySupplier, Supplier<Translation2d> targetSupplier) {
 
     // Configure PID controller
-    ProfiledPIDController angleController =
+    final ProfiledPIDController angleController =
         new ProfiledPIDController(
             DriveConstants.angularPID.kP,
             DriveConstants.angularPID.kI,
@@ -293,11 +293,11 @@ public class DriveCommands {
   public static Command autopilotDriveToPose(
       Supplier<APTarget> targetSupplier, boolean staticConfig) {
     // Configure Autopilot controller
-    AtomicReference<Autopilot> autopilot =
+    final AtomicReference<Autopilot> autopilot =
         new AtomicReference<>(new Autopilot(DriveConstants.apConfigStatic));
 
     // Configure PID controller
-    ProfiledPIDController angleController =
+    final ProfiledPIDController angleController =
         new ProfiledPIDController(
             DriveConstants.angularPID.kP,
             DriveConstants.angularPID.kI,
@@ -306,7 +306,7 @@ public class DriveCommands {
                 DriveConstants.maxAngularVelocity, DriveConstants.maxAngularAcceleration));
     angleController.enableContinuousInput(-Math.PI, Math.PI);
 
-    List<Pose2d> trajectory = new LinkedList<>();
+    final List<Pose2d> trajectory = new LinkedList<>();
 
     return Commands.run(
             () -> {
@@ -398,15 +398,15 @@ public class DriveCommands {
   /** Drive to hub arc using autopilot. */
   public static Command autopilotDriveToHubArc() {
     // Configure Autopilot controller
-    AtomicReference<Autopilot> autopilot =
+    final AtomicReference<Autopilot> autopilot =
         new AtomicReference<>(
             new Autopilot(
                 DriveConstants.apConfigStatic.withBeelineRadius(
                     Meters.of(Double.POSITIVE_INFINITY))));
-    AtomicReference<APTarget> target = new AtomicReference<>();
+    final AtomicReference<APTarget> target = new AtomicReference<>();
 
     // Configure PID controller
-    ProfiledPIDController angleController =
+    final ProfiledPIDController angleController =
         new ProfiledPIDController(
             DriveConstants.angularPID.kP,
             DriveConstants.angularPID.kI,
@@ -415,7 +415,7 @@ public class DriveCommands {
                 DriveConstants.maxAngularVelocity, DriveConstants.maxAngularAcceleration));
     angleController.enableContinuousInput(-Math.PI, Math.PI);
 
-    List<Pose2d> trajectory = new LinkedList<>();
+    final List<Pose2d> trajectory = new LinkedList<>();
 
     return Commands.run(
             () -> {
@@ -506,10 +506,10 @@ public class DriveCommands {
 
   /** Automatically align with the trench opening. */
   public static Command trenchAlign(DoubleSupplier xSupplier, DoubleSupplier omegaSupplier) {
-    AtomicReference<Double> trenchCenter = new AtomicReference<Double>(0.0);
+    final AtomicReference<Double> trenchCenter = new AtomicReference<Double>(0.0);
 
     // Configure PID controller
-    ProfiledPIDController yController =
+    final ProfiledPIDController yController =
         new ProfiledPIDController(
             DriveConstants.linearPID.kP,
             DriveConstants.linearPID.kI,

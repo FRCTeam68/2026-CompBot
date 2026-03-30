@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.drive.Drive;
@@ -59,10 +60,10 @@ public class RobotSystem {
   public boolean isShooting = false;
   public final LoggedNetworkBoolean doTrenchAlign =
       new LoggedNetworkBoolean("SmartDashboard/Drive/DoTrenchAlign", false);
-  public final LoggedNetworkBoolean alwaysTargetPass =
-      new LoggedNetworkBoolean("SmartDashboard/Shooter/AlwaysTargetPass", false);
   public final LoggedNetworkBoolean autoshootPass =
       new LoggedNetworkBoolean("SmartDashboard/Shooter/AutoshootPass", true);
+  public final LoggedNetworkBoolean autoIntake =
+      new LoggedNetworkBoolean("SmartDashboard/Intake/AutoIntake", true);
 
   // Subsystems
   @Getter private final Drive drive;
@@ -78,9 +79,9 @@ public class RobotSystem {
   private final Field2d field = new Field2d();
 
   public RobotSystem() {
-    Flywheel flywheel;
-    Hood hood;
-    Turret turret;
+    final Flywheel flywheel;
+    final Hood hood;
+    final Turret turret;
 
     switch (Constants.getMode()) {
       case REAL:
@@ -228,7 +229,6 @@ public class RobotSystem {
             drive::getPose,
             drive::getFieldVelocity,
             drive::inAllianceZone,
-            alwaysTargetPass::get,
             autoshootPass::get);
 
     hood.initInTrenchBoxSupplier(shooter::inTrenchBox);
@@ -276,9 +276,11 @@ public class RobotSystem {
                 new Rotation3d(
                     0.0, 0.0, Units.degreesToRadians(shooter.getTurret().getPosition()))));
 
-    // Red alliance robot color: #F43636
-    // Blue alliance robot color: #3644F4
-    field.setRobotPose(drive.getPose());
-    SmartDashboard.putData("Field", field);
+    if (DriverStation.isDisabled() || !DriverStation.isFMSAttached()) {
+      // Red alliance robot color: #F43636
+      // Blue alliance robot color: #3644F4
+      field.setRobotPose(drive.getPose());
+      SmartDashboard.putData("Field", field);
+    }
   }
 }

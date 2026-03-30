@@ -2,6 +2,7 @@ package frc.robot.subsystems.intakePivot;
 
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Watts;
 
 import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.filter.Debouncer;
@@ -15,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PhoenixUtil.ControlMode;
+import frc.robot.util.VirtualPD;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -23,22 +25,22 @@ public class IntakePivot extends SubsystemBase {
   // Positions
   @Getter private static final double packaged = 0;
   @Getter private static final double extended = 0.271;
-  @Getter private static final double agitate = 0.12; // 0.173;
-  @Getter private static final double inBumperMaximum = 0.1;
+  @Getter private static final double agitate = 0.12;
   @Getter private static final double intakeForwardExtension = Units.inchesToMeters(12);
 
   // PID gains
-  private final LoggedTunableNumber kP0 =
-      new LoggedTunableNumber("IntakePivot/Slot0-Deploy/kP", 200);
-  private final LoggedTunableNumber kD0 = new LoggedTunableNumber("IntakePivot/Slot0-Deploy/kD", 0);
-  private final LoggedTunableNumber kP1 =
-      new LoggedTunableNumber("IntakePivot/Slot1-Retract/kP", 650);
-  private final LoggedTunableNumber kD1 =
-      new LoggedTunableNumber("IntakePivot/Slot1-Retract/kD", 0);
-  private final LoggedTunableNumber kP2 =
-      new LoggedTunableNumber("IntakePivot/Slot2-Agitate/kP", 650);
-  private final LoggedTunableNumber kD2 =
-      new LoggedTunableNumber("IntakePivot/Slot2-Agitiate/kD", 0);
+  private final LoggedTunableNumber[] kP =
+      new LoggedTunableNumber[] {
+        new LoggedTunableNumber("IntakePivot/Slot0-Deploy/kP", 200),
+        new LoggedTunableNumber("IntakePivot/Slot1-Retract/kP", 650),
+        new LoggedTunableNumber("IntakePivot/Slot2-DeployFirst/kP", 650)
+      };
+  private final LoggedTunableNumber[] kD =
+      new LoggedTunableNumber[] {
+        new LoggedTunableNumber("IntakePivot/Slot0-Deploy/kD", 0),
+        new LoggedTunableNumber("IntakePivot/Slot1-Retract/kD", 0),
+        new LoggedTunableNumber("IntakePivot/Slot2-DeployFirst/kD", 0)
+      };
   private final LoggedTunableNumber kS = new LoggedTunableNumber("IntakePivot/kS", 45);
 
   // Setpoint band
@@ -65,17 +67,12 @@ public class IntakePivot extends SubsystemBase {
   public IntakePivot(IntakePivotIO io) {
     this.io = io;
 
+    VirtualPD.registerMotor(
+        () -> Watts.of(Math.abs(inputs.supplyCurrentAmps * inputs.appliedVoltage)), "IntakePivot");
+
     // Configure dashboard
     SmartDashboard.putData(
         "IntakePivot/Zero", Commands.runOnce(() -> zero(), this).withName("DashboardIntakeZero"));
-    SmartDashboard.putData(
-        "IntakePivot/Extend",
-        Commands.runOnce(() -> runPosition(extended, 0), this)
-            .withName("DashboardIntakePivotExtend"));
-    SmartDashboard.putData(
-        "IntakePivot/Retract",
-        Commands.runOnce(() -> runPosition(packaged, 1), this)
-            .withName("DashboardIntakePivotRetract"));
   }
 
   public void periodic() {
@@ -90,17 +87,17 @@ public class IntakePivot extends SubsystemBase {
     motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
 
     // Update PID gains
-    if (kP0.hasChanged(hashCode())
-        | kD0.hasChanged(hashCode())
-        | kS.hasChanged(hashCode())
-        | kP1.hasChanged(hashCode())
-        | kD1.hasChanged(hashCode())
-        | kP2.hasChanged(hashCode())
-        | kD2.hasChanged(hashCode())) {
+    if (kP[0].hasChanged(hashCode())
+        | kD[0].hasChanged(hashCode())
+        | kP[1].hasChanged(hashCode())
+        | kD[1].hasChanged(hashCode())
+        | kP[2].hasChanged(hashCode())
+        | kD[2].hasChanged(hashCode())
+        | kS.hasChanged(hashCode())) {
       io.setPID(
-          new SlotConfigs().withKP(kP0.get()).withKD(kD0.get()).withKS(kS.get()),
-          new SlotConfigs().withKP(kP1.get()).withKD(kD1.get()).withKS(kS.get()),
-          new SlotConfigs().withKP(kP2.get()).withKD(kD2.get()).withKS(kS.get()));
+          new SlotConfigs().withKP(kP[0].get()).withKD(kD[0].get()).withKS(kS.get()),
+          new SlotConfigs().withKP(kP[1].get()).withKD(kD[1].get()).withKS(kS.get()),
+          new SlotConfigs().withKP(kP[2].get()).withKD(kD[2].get()).withKS(kS.get()));
     }
   }
 
@@ -181,14 +178,21 @@ public class IntakePivot extends SubsystemBase {
    */
   @AutoLogOutput(key = "IntakePivot/atSetpoint")
   public boolean atSetpoint() {
-    return switch (mode) {
-      case Position -> Math.abs(setpoint - getPosition()) < setpointBandPosition.get();
-      default -> false;
-    };
+    if (mode == ControlMode.Position) {
+      return Math.abs(setpoint - getPosition()) < setpointBandPosition.get();
+    }
+    return false;
   }
 
-  @AutoLogOutput(key = "IntakePivot/InsideBumper")
-  public boolean insideBumper() {
-    return getPosition() < getInBumperMaximum();
+  /** Configure dashboard tuning controls for manual control. */
+  public void configureDashboardControls() {
+    SmartDashboard.putData(
+        "IntakePivot/Extend",
+        Commands.runOnce(() -> runPosition(extended, 0), this)
+            .withName("DashboardIntakePivotExtend"));
+    SmartDashboard.putData(
+        "IntakePivot/Retract",
+        Commands.runOnce(() -> runPosition(packaged, 1), this)
+            .withName("DashboardIntakePivotRetract"));
   }
 }
