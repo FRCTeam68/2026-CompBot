@@ -94,7 +94,7 @@ public class IntakePivotIOReal implements IntakePivotIO {
 
     // CANcoder
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-    cancoderConfig.MagnetSensor.MagnetOffset = 0.411865234375;
+    cancoderConfig.MagnetSensor.MagnetOffset = 0.095947265625;
     cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
     tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
@@ -180,8 +180,9 @@ public class IntakePivotIOReal implements IntakePivotIO {
       Default gravity type: Elevator_Static
       Default static feedforward sign: UseVelocitySign
       */
-      // TODO: configure offset
-      newConfig[i].withGravityType(GravityTypeValue.Arm_Cosine).withGravityArmPositionOffset(0);
+      newConfig[i]
+          .withGravityType(GravityTypeValue.Arm_Cosine)
+          .withGravityArmPositionOffset(0.0044);
       switch (i) {
         case 0:
           talonConfig.Slot0 = Slot0Configs.from(newConfig[i]);

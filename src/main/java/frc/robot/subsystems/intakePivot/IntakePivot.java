@@ -23,10 +23,9 @@ import org.littletonrobotics.junction.Logger;
 
 public class IntakePivot extends SubsystemBase {
   // Positions
-  // TODO: may need to reconfigure
-  @Getter private static final double packaged = 0;
-  @Getter private static final double extended = 0.271;
-  @Getter private static final double agitate = 0.12;
+  @Getter private static final double extended = 0;
+  @Getter private static final double agitate = -0.151;
+  @Getter private static final double packaged = -0.271;
   @Getter private static final double intakeForwardExtension = Units.inchesToMeters(12);
 
   // PID gains
