@@ -19,6 +19,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MagnetHealthValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -67,7 +68,6 @@ public class IntakePivotIOReal implements IntakePivotIO {
   // private final PositionVoltage positionOut = new PositionVoltage(0).withEnableFOC(true);
   //   private final MotionMagicVoltage positionOut = new MotionMagicVoltage(0).withEnableFOC(true);
   private final PositionTorqueCurrentFOC positionOut = new PositionTorqueCurrentFOC(0);
-  //   private final MotionMagicTorqueCurrentFOC positionOut = new MotionMagicTorqueCurrentFOC(0);
   private final NeutralOut neutralOut = new NeutralOut();
 
   public IntakePivotIOReal() {
@@ -180,6 +180,8 @@ public class IntakePivotIOReal implements IntakePivotIO {
       Default gravity type: Elevator_Static
       Default static feedforward sign: UseVelocitySign
       */
+      // TODO: configure offset
+      newConfig[i].withGravityType(GravityTypeValue.Arm_Cosine).withGravityArmPositionOffset(0);
       switch (i) {
         case 0:
           talonConfig.Slot0 = Slot0Configs.from(newConfig[i]);

@@ -21,6 +21,7 @@ import frc.robot.commands.TestCommands;
 import frc.robot.commands.auton.Auton;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intakePivot.IntakePivot;
+import frc.robot.subsystems.intakeSpin.IntakeSpin;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants;
@@ -42,7 +43,7 @@ public class RobotContainer {
   private final Drive drive = robotSystem.getDrive();
   private final Vision vision = robotSystem.getVision();
   private final IntakePivot intakePivot = robotSystem.getIntakePivot();
-  private final RollerSystem intakeSpin = robotSystem.getIntakeSpin();
+  private final IntakeSpin intakeSpin = robotSystem.getIntakeSpin();
   private final Shooter shooter = robotSystem.getShooter();
   private final RollerSystem feeder = robotSystem.getFeeder();
   private final RollerSystem spindexer = robotSystem.getSpindexer();
