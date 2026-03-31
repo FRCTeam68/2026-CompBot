@@ -97,21 +97,13 @@ public class IntakePivot extends SubsystemBase {
         | kS.hasChanged(hashCode())
         | kG.hasChanged(hashCode())) {
       io.setPID(
-          new SlotConfigs()
-              .withKP(kP[0].get())
-              .withKD(kD[0].get())
-              .withKS(kS.get())
-              .withKG(kG.get()),
+          new SlotConfigs().withKP(kP[0].get()).withKD(kD[0].get()).withKS(kS.get()),
           new SlotConfigs()
               .withKP(kP[1].get())
               .withKD(kD[1].get())
               .withKS(kS.get())
               .withKG(kG.get()),
-          new SlotConfigs()
-              .withKP(kP[2].get())
-              .withKD(kD[2].get())
-              .withKS(kS.get())
-              .withKG(kG.get()));
+          new SlotConfigs().withKP(kP[2].get()).withKD(kD[2].get()).withKS(kS.get()));
     }
   }
 
