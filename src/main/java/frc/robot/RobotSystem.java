@@ -70,7 +70,8 @@ public class RobotSystem {
   @Getter private final Lights lights;
   @Getter private final Vision vision;
   @Getter private final IntakePivot intakePivot;
-  @Getter private final RollerSystem intakeSpin;
+  @Getter private final RollerSystem intakeSpin1;
+  @Getter private final RollerSystem intakeSpin2;
   @Getter private final Shooter shooter;
   @Getter private final RollerSystem spindexer;
   @Getter private final RollerSystem feeder;
@@ -110,14 +111,24 @@ public class RobotSystem {
         turret = new Turret(lights, new TurretIOReal());
 
         intakePivot = new IntakePivot(new IntakePivotIOReal());
-        intakeSpin =
+        intakeSpin1 =
             new RollerSystem(
-                "intakeSpin",
+                "intakeSpin1",
                 new RollerSystemIOTalonFX(
-                    22,
+                    30,
                     CanBusUtil.getRioBus(),
                     80,
                     InvertedValue.CounterClockwise_Positive,
+                    NeutralModeValue.Coast,
+                    24.0 / 18.0));
+        intakeSpin2 =
+            new RollerSystem(
+                "intakeSpin2",
+                new RollerSystemIOTalonFX(
+                    31,
+                    CanBusUtil.getRioBus(),
+                    80,
+                    InvertedValue.Clockwise_Positive,
                     NeutralModeValue.Coast,
                     24.0 / 18.0));
 
@@ -171,9 +182,12 @@ public class RobotSystem {
         turret = new Turret(lights, new TurretIOSim());
 
         intakePivot = new IntakePivot(new IntakePivotIOSim() {});
-        intakeSpin =
+        intakeSpin1 =
             new RollerSystem(
-                "intakeSpin", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 1.0, 0.001));
+                "intakeSpin1", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 1.0, 0.001));
+        intakeSpin2 =
+            new RollerSystem(
+                "intakeSpin2", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 1.0, 0.001));
 
         spindexer =
             new RollerSystem(
@@ -213,7 +227,8 @@ public class RobotSystem {
         turret = new Turret(lights, new TurretIO() {});
 
         intakePivot = new IntakePivot(new IntakePivotIO() {});
-        intakeSpin = new RollerSystem("intakeSpin", (new RollerSystemIO() {}));
+        intakeSpin1 = new RollerSystem("intakeSpin1", (new RollerSystemIO() {}));
+        intakeSpin2 = new RollerSystem("intakeSpin2", (new RollerSystemIO() {}));
 
         spindexer = new RollerSystem("spindexer", new RollerSystemIO() {});
         feeder = new RollerSystem("feeder", new RollerSystemIO() {});

@@ -92,6 +92,8 @@ public class IntakePivotIOReal implements IntakePivotIO {
     talonConfig.Feedback.RotorToSensorRatio = rotorToSensorReduction;
     talonConfig.Feedback.SensorToMechanismRatio = sensorToMechanismReduction;
 
+    talonConfig.
+
     // CANcoder
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     cancoderConfig.MagnetSensor.MagnetOffset = 0.411865234375;
@@ -183,6 +185,7 @@ public class IntakePivotIOReal implements IntakePivotIO {
       switch (i) {
         case 0:
           talonConfig.Slot0 = Slot0Configs.from(newConfig[i]);
+          talon
           break;
         case 1:
           talonConfig.Slot1 = Slot1Configs.from(newConfig[i]);

@@ -42,7 +42,8 @@ public class RobotContainer {
   private final Drive drive = robotSystem.getDrive();
   private final Vision vision = robotSystem.getVision();
   private final IntakePivot intakePivot = robotSystem.getIntakePivot();
-  private final RollerSystem intakeSpin = robotSystem.getIntakeSpin();
+  private final RollerSystem intakeSpin1 = robotSystem.getIntakeSpin1();
+  private final RollerSystem intakeSpin2 = robotSystem.getIntakeSpin2();
   private final Shooter shooter = robotSystem.getShooter();
   private final RollerSystem feeder = robotSystem.getFeeder();
   private final RollerSystem spindexer = robotSystem.getSpindexer();
@@ -93,7 +94,7 @@ public class RobotContainer {
     driverController.povDown().whileTrue(DriveCommands.autopilotDriveToHubArc());
 
     // Intake
-    intakeSpin.setDefaultCommand(IntakeCommands.intakeDefault());
+    intakeSpin1.setDefaultCommand(IntakeCommands.intakeDefault());
 
     driverController
         .leftTrigger()
@@ -183,7 +184,8 @@ public class RobotContainer {
     operatorController.setRumble(RumbleType.kBothRumble, 0);
     drive.stop();
     intakePivot.stop();
-    intakeSpin.stop();
+    intakeSpin1.stop();
+    intakeSpin2.stop();
     shooter.stop();
     feeder.stop();
     spindexer.stop();
@@ -209,7 +211,8 @@ public class RobotContainer {
   public void configureTuningControls() {
     LoggedNetworkString logLabel = new LoggedNetworkString("SmartDashboard/LogLabel", "");
 
-    intakeSpin.configureDashboardControls();
+    intakeSpin1.configureDashboardControls();
+    intakeSpin2.configureDashboardControls();
     shooter.configureDashboardControls();
     feeder.configureDashboardControls();
     spindexer.configureDashboardControls();

@@ -37,7 +37,8 @@ public class Auton {
   private static final Lights lights = robotSystem.getLights();
   private static final Vision vision = robotSystem.getVision();
   private static final IntakePivot intakePivot = robotSystem.getIntakePivot();
-  private static final RollerSystem intakeSpin = robotSystem.getIntakeSpin();
+  private static final RollerSystem intakeSpin1 = robotSystem.getIntakeSpin1();
+  private static final RollerSystem intakeSpin2 = robotSystem.getIntakeSpin2();
   private static final Shooter shooter = robotSystem.getShooter();
   private static final RollerSystem spindexer = robotSystem.getSpindexer();
   private static final RollerSystem feeder = robotSystem.getFeeder();
@@ -233,7 +234,7 @@ public class Auton {
 
               return myCommand1;
             },
-            Set.of(drive, intakePivot, intakeSpin, shooter, spindexer, feeder))
+            Set.of(drive, intakePivot, intakeSpin1, intakeSpin2, shooter, spindexer, feeder))
         .withName("Auton_CenterDefault");
   }
 
@@ -343,7 +344,7 @@ public class Auton {
                   .andThen(myCommand1)
                   .andThen(myCommand2);
             },
-            Set.of(drive, intakePivot, intakeSpin, shooter, spindexer, feeder))
+            Set.of(drive, intakePivot, intakeSpin1, intakeSpin2, shooter, spindexer, feeder))
         .withName("Auton_Trench");
   }
 
@@ -375,7 +376,7 @@ public class Auton {
 
               return myCommand1;
             },
-            Set.of(drive, intakePivot, intakeSpin, shooter, spindexer, feeder))
+            Set.of(drive, intakePivot, intakeSpin1, intakeSpin2, shooter, spindexer, feeder))
         .withName("Auton_Bump");
   }
 

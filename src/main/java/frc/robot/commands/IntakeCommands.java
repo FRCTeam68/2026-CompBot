@@ -20,7 +20,8 @@ public class IntakeCommands {
   // Subsystems
   private static final RobotSystem robotSystem = RobotSystem.getInstance();
   private static final IntakePivot intakePivot = robotSystem.getIntakePivot();
-  private static final RollerSystem intakeSpin = robotSystem.getIntakeSpin();
+  private static final RollerSystem intakeSpin1 = robotSystem.getIntakeSpin1();
+  private static final RollerSystem intakeSpin2 = robotSystem.getIntakeSpin2();
   private static final HopperSensor hopperSensor = robotSystem.getHopperSensor();
 
   public static Command deploy(int slot) {
@@ -44,15 +45,17 @@ public class IntakeCommands {
     return Commands.sequence(
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getAgitate(), 1), intakePivot),
-            Commands.runOnce(() -> intakeSpin.runVolts(4), intakeSpin),
+            Commands.runOnce(() -> intakeSpin1.runVolts(4), intakeSpin1),
+            Commands.runOnce(() -> intakeSpin2.runVolts(4), intakeSpin2),
             Commands.either(
-                Commands.idle(intakePivot, intakeSpin),
+                Commands.idle(intakePivot, intakeSpin1, intakeSpin2),
                 Commands.waitSeconds(waitTime),
                 () -> timeout.length == 0))
         .finallyDo(
             () -> {
               intakePivot.runPosition(IntakePivot.getExtended(), 0);
-              intakeSpin.stop();
+              intakeSpin1.stop();
+              intakeSpin2.stop();
             })
         .withName("Intake_Agitate");
   }
@@ -66,17 +69,25 @@ public class IntakeCommands {
                   if (robotSystem.autoIntake.get()) {
                     if (hopperSensor.isConnected()) {
                       if (hopperSensor.isNotEmpty()) {
-                        intakeSpin.runVolts(intakeSpinVoltsFast.get());
+                        intakeSpin1.runVolts(intakeSpinVoltsFast.get());
+                        intakeSpin2.runVolts(intakeSpinVoltsFast.get());
                       } else {
-                        intakeSpin.runVolts(intakeSpinVoltsSlow.get());
+                        intakeSpin1.runVolts(intakeSpinVoltsSlow.get());
+                        intakeSpin2.runVolts(intakeSpinVoltsSlow.get());
                       }
                     } else {
-                      intakeSpin.runVolts(intakeSpinVoltsDefault);
+                      intakeSpin1.runVolts(intakeSpinVoltsDefault);
+                      intakeSpin2.runVolts(intakeSpinVoltsDefault);
                     }
                   }
                 },
-                intakeSpin))
-        .finallyDo(() -> intakeSpin.stop())
+                intakeSpin1,
+                intakeSpin2))
+        .finallyDo(
+            () -> {
+              intakeSpin1.stop();
+              intakeSpin2.stop();
+            })
         .withName("Intake_Default");
   }
 
@@ -86,9 +97,14 @@ public class IntakeCommands {
                 () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
             Commands.runOnce(
                 () ->
-                    intakeSpin.runVolts(
+                    intakeSpin1.runVolts(
                         slowMode ? intakeSpinVoltsSlow.get() : intakeSpinVoltsFast.get()),
-                intakeSpin))
+                intakeSpin1),
+            Commands.runOnce(
+                () ->
+                    intakeSpin2.runVolts(
+                        slowMode ? intakeSpinVoltsSlow.get() : intakeSpinVoltsFast.get()),
+                intakeSpin2))
         .withName("Intake_Static");
   }
 
@@ -100,16 +116,24 @@ public class IntakeCommands {
                 () -> {
                   if (hopperSensor.isConnected()) {
                     if (hopperSensor.isNotEmpty()) {
-                      intakeSpin.runVolts(intakeSpinVoltsFast.get());
+                      intakeSpin1.runVolts(intakeSpinVoltsFast.get());
+                      intakeSpin2.runVolts(intakeSpinVoltsFast.get());
                     } else {
-                      intakeSpin.runVolts(intakeSpinVoltsSlow.get());
+                      intakeSpin1.runVolts(intakeSpinVoltsSlow.get());
+                      intakeSpin2.runVolts(intakeSpinVoltsSlow.get());
                     }
                   } else {
-                    intakeSpin.runVolts(intakeSpinVoltsDefault);
+                    intakeSpin1.runVolts(intakeSpinVoltsDefault);
+                    intakeSpin2.runVolts(intakeSpinVoltsDefault);
                   }
                 },
-                intakeSpin))
-        .finallyDo(() -> intakeSpin.stop())
+                intakeSpin1,
+                intakeSpin2))
+        .finallyDo(
+            () -> {
+              intakeSpin1.stop();
+              intakeSpin2.stop();
+            })
         .withName("Intake_Automatic");
   }
 
@@ -117,17 +141,29 @@ public class IntakeCommands {
     return Commands.parallel(
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
-            Commands.runOnce(() -> intakeSpin.runVolts(intakeSpinVoltsOuttake.get()), intakeSpin),
+            Commands.runOnce(() -> intakeSpin1.runVolts(intakeSpinVoltsOuttake.get()), intakeSpin1),
+            Commands.runOnce(() -> intakeSpin2.runVolts(intakeSpinVoltsOuttake.get()), intakeSpin2),
             Commands.idle())
-        .finallyDo(() -> intakeSpin.stop())
+        .finallyDo(
+            () -> {
+              intakeSpin1.stop();
+              intakeSpin2.stop();
+            })
         .withName("Intake_Outtake");
   }
 
   public static Command dontIntake() {
-    return Commands.idle(intakeSpin).withName("Intake_DontIntake");
+    return Commands.idle(intakeSpin1, intakeSpin2).withName("Intake_DontIntake");
   }
 
   public static Command stopSpin() {
-    return Commands.runOnce(() -> intakeSpin.stop(), intakeSpin).withName("Intake_StopSpin");
+    return Commands.runOnce(
+            () -> {
+              intakeSpin1.stop();
+              intakeSpin2.stop();
+            },
+            intakeSpin1,
+            intakeSpin2)
+        .withName("Intake_StopSpin");
   }
 }
