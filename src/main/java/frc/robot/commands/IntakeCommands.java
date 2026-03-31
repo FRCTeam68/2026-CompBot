@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotSystem;
 import frc.robot.subsystems.intakePivot.IntakePivot;
-import frc.robot.subsystems.rollers.RollerSystem;
+import frc.robot.subsystems.intakeSpin.IntakeSpin;
 import frc.robot.subsystems.sensors.HopperSensor;
 import frc.robot.util.LoggedTunableNumber;
 
@@ -20,7 +20,7 @@ public class IntakeCommands {
   // Subsystems
   private static final RobotSystem robotSystem = RobotSystem.getInstance();
   private static final IntakePivot intakePivot = robotSystem.getIntakePivot();
-  private static final RollerSystem intakeSpin = robotSystem.getIntakeSpin();
+  private static final IntakeSpin intakeSpin = robotSystem.getIntakeSpin();
   private static final HopperSensor hopperSensor = robotSystem.getHopperSensor();
 
   public static Command deploy(int slot) {

@@ -23,9 +23,9 @@ import org.littletonrobotics.junction.Logger;
 
 public class IntakePivot extends SubsystemBase {
   // Positions
-  @Getter private static final double packaged = 0;
-  @Getter private static final double extended = 0.271;
-  @Getter private static final double agitate = 0.12;
+  @Getter private static final double extended = 0;
+  @Getter private static final double agitate = -0.151;
+  @Getter private static final double packaged = -0.271;
   @Getter private static final double intakeForwardExtension = Units.inchesToMeters(12);
 
   // PID gains
@@ -42,6 +42,7 @@ public class IntakePivot extends SubsystemBase {
         new LoggedTunableNumber("IntakePivot/Slot2-DeployFirst/kD", 0)
       };
   private final LoggedTunableNumber kS = new LoggedTunableNumber("IntakePivot/kS", 45);
+  private final LoggedTunableNumber kG = new LoggedTunableNumber("IntakePivot/kG", 0);
 
   // Setpoint band
   private final LoggedTunableNumber setpointBandPosition =
@@ -93,10 +94,15 @@ public class IntakePivot extends SubsystemBase {
         | kD[1].hasChanged(hashCode())
         | kP[2].hasChanged(hashCode())
         | kD[2].hasChanged(hashCode())
-        | kS.hasChanged(hashCode())) {
+        | kS.hasChanged(hashCode())
+        | kG.hasChanged(hashCode())) {
       io.setPID(
           new SlotConfigs().withKP(kP[0].get()).withKD(kD[0].get()).withKS(kS.get()),
-          new SlotConfigs().withKP(kP[1].get()).withKD(kD[1].get()).withKS(kS.get()),
+          new SlotConfigs()
+              .withKP(kP[1].get())
+              .withKD(kD[1].get())
+              .withKS(kS.get())
+              .withKG(kG.get()),
           new SlotConfigs().withKP(kP[2].get()).withKD(kD[2].get()).withKS(kS.get()));
     }
   }
