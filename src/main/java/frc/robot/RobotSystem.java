@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.drive.Drive;
@@ -19,6 +20,10 @@ import frc.robot.subsystems.intakePivot.IntakePivot;
 import frc.robot.subsystems.intakePivot.IntakePivotIO;
 import frc.robot.subsystems.intakePivot.IntakePivotIOReal;
 import frc.robot.subsystems.intakePivot.IntakePivotIOSim;
+import frc.robot.subsystems.intakeSpin.IntakeSpin;
+import frc.robot.subsystems.intakeSpin.IntakeSpinIO;
+import frc.robot.subsystems.intakeSpin.IntakeSpinIOReal;
+import frc.robot.subsystems.intakeSpin.IntakeSpinIOSim;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.LightsIO;
 import frc.robot.subsystems.lights.LightsIOCANdle;
@@ -59,17 +64,17 @@ public class RobotSystem {
   public boolean isShooting = false;
   public final LoggedNetworkBoolean doTrenchAlign =
       new LoggedNetworkBoolean("SmartDashboard/Drive/DoTrenchAlign", false);
-  public final LoggedNetworkBoolean alwaysTargetPass =
-      new LoggedNetworkBoolean("SmartDashboard/Shooter/AlwaysTargetPass", false);
   public final LoggedNetworkBoolean autoshootPass =
       new LoggedNetworkBoolean("SmartDashboard/Shooter/AutoshootPass", true);
+  public final LoggedNetworkBoolean autoIntake =
+      new LoggedNetworkBoolean("SmartDashboard/Intake/AutoIntake", true);
 
   // Subsystems
   @Getter private final Drive drive;
   @Getter private final Lights lights;
   @Getter private final Vision vision;
   @Getter private final IntakePivot intakePivot;
-  @Getter private final RollerSystem intakeSpin;
+  @Getter private final IntakeSpin intakeSpin;
   @Getter private final Shooter shooter;
   @Getter private final RollerSystem spindexer;
   @Getter private final RollerSystem feeder;
@@ -78,9 +83,9 @@ public class RobotSystem {
   private final Field2d field = new Field2d();
 
   public RobotSystem() {
-    Flywheel flywheel;
-    Hood hood;
-    Turret turret;
+    final Flywheel flywheel;
+    final Hood hood;
+    final Turret turret;
 
     switch (Constants.getMode()) {
       case REAL:
@@ -109,17 +114,7 @@ public class RobotSystem {
         turret = new Turret(lights, new TurretIOReal());
 
         intakePivot = new IntakePivot(new IntakePivotIOReal());
-        intakeSpin =
-            new RollerSystem(
-                "intakeSpin",
-                new RollerSystemIOTalonFX(
-                    22,
-                    CanBusUtil.getRioBus(),
-                    80,
-                    InvertedValue.CounterClockwise_Positive,
-                    NeutralModeValue.Coast,
-                    24.0 / 18.0));
-        intakeSpin.setPID(Constants.RollerSystem_Slot0Configs.INTAKE);
+        intakeSpin = new IntakeSpin(new IntakeSpinIOReal());
 
         spindexer =
             new RollerSystem(
@@ -174,9 +169,7 @@ public class RobotSystem {
         turret = new Turret(lights, new TurretIOSim());
 
         intakePivot = new IntakePivot(new IntakePivotIOSim() {});
-        intakeSpin =
-            new RollerSystem(
-                "intakeSpin", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 1.0, 0.001));
+        intakeSpin = new IntakeSpin(new IntakeSpinIOSim() {});
 
         spindexer =
             new RollerSystem(
@@ -216,7 +209,7 @@ public class RobotSystem {
         turret = new Turret(lights, new TurretIO() {});
 
         intakePivot = new IntakePivot(new IntakePivotIO() {});
-        intakeSpin = new RollerSystem("intakeSpin", (new RollerSystemIO() {}));
+        intakeSpin = new IntakeSpin(new IntakeSpinIO() {});
 
         spindexer = new RollerSystem("spindexer", new RollerSystemIO() {});
         feeder = new RollerSystem("feeder", new RollerSystemIO() {});
@@ -232,7 +225,6 @@ public class RobotSystem {
             drive::getPose,
             drive::getFieldVelocity,
             drive::inAllianceZone,
-            alwaysTargetPass::get,
             autoshootPass::get);
 
     hood.initInTrenchBoxSupplier(shooter::inTrenchBox);
@@ -280,9 +272,11 @@ public class RobotSystem {
                 new Rotation3d(
                     0.0, 0.0, Units.degreesToRadians(shooter.getTurret().getPosition()))));
 
-    // Red alliance robot color: #F43636
-    // Blue alliance robot color: #3644F4
-    field.setRobotPose(drive.getPose());
-    SmartDashboard.putData("Field", field);
+    if (DriverStation.isDisabled() || !DriverStation.isFMSAttached()) {
+      // Red alliance robot color: #F43636
+      // Blue alliance robot color: #3644F4
+      field.setRobotPose(drive.getPose());
+      SmartDashboard.putData("Field", field);
+    }
   }
 }

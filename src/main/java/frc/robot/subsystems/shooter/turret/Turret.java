@@ -242,9 +242,9 @@ public class Turret extends SubsystemBase {
    */
   @AutoLogOutput(key = "Shooter/Turret/atSetpoint")
   public boolean atSetpoint() {
-    return switch (mode) {
-      case Position -> Math.abs(setpoint - getPosition()) < setpointBandPosition.get();
-      default -> false;
-    };
+    if (mode == ControlMode.Position) {
+      return Math.abs(setpoint - getPosition()) < setpointBandPosition.get();
+    }
+    return false;
   }
 }

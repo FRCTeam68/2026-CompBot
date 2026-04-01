@@ -12,6 +12,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.List;
 
 public class PathUtil {
+  /**
+   * Returns the path with the specified name. If no path exists this will return a path that sits
+   * at the origin and does nothing.
+   */
   public static PathPlannerPath getPath(String name) {
     try {
       return PathPlannerPath.fromPathFile(name);
@@ -26,10 +30,27 @@ public class PathUtil {
     }
   }
 
+  /**
+   * Get the starting pose for the specified path.
+   *
+   * @param name The name of the path to use.
+   * @return The starting pose for the specified path.
+   *     <li>If an error occurs, this will return a pose at the origin facing toward the positive X
+   *         axis.
+   */
   public static Pose2d getStartingPose(String name) {
     return getStartingPose(getPath(name));
   }
 
+  /**
+   * Get the starting pose for the specified path.
+   *
+   * @param name The name of the path to use.
+   * @param mirror If the path should be mirrored to the left side.
+   * @return The starting pose for the specified path.
+   *     <li>If an error occurs, this will return a pose at the origin facing toward the positive X
+   *         axis.
+   */
   public static Pose2d getStartingPose(String name, boolean mirror) {
     if (mirror) {
       return getStartingPose(getPath(name).mirrorPath());
@@ -39,9 +60,10 @@ public class PathUtil {
   }
 
   /**
-   * Get the starting pose from the first loaded path.
+   * Get the starting pose for the specified path.
    *
-   * @return The starting pose for the first path.
+   * @param path The path to use.
+   * @return The starting pose for the specified path.
    *     <li>If an error occurs, this will return a pose at the origin facing toward the positive X
    *         axis.
    */
@@ -56,10 +78,27 @@ public class PathUtil {
     return Pose2d.kZero;
   }
 
+  /**
+   * Get the ending pose for the specified path.
+   *
+   * @param name The name of the path to use.
+   * @return The ending pose for the specified path.
+   *     <li>If an error occurs, this will return a pose at the origin facing toward the positive X
+   *         axis.
+   */
   public static Pose2d getEndPose(String name) {
     return getEndPose(getPath(name));
   }
 
+  /**
+   * Get the ending pose for the specified path.
+   *
+   * @param name The name of the path to use.
+   * @param mirror If the path should be mirrored to the left side.
+   * @return The ending pose for the specified path.
+   *     <li>If an error occurs, this will return a pose at the origin facing toward the positive X
+   *         axis.
+   */
   public static Pose2d getEndPose(String name, boolean mirror) {
     if (mirror) {
       return getEndPose(getPath(name).mirrorPath());
@@ -69,9 +108,10 @@ public class PathUtil {
   }
 
   /**
-   * Get the starting pose from the first loaded path.
+   * Get the ending pose for the specified path.
    *
-   * @return The starting pose for the first path.
+   * @param path The path to use.
+   * @return The ending pose for the specified path.
    *     <li>If an error occurs, this will return a pose at the origin facing toward the positive X
    *         axis.
    */
@@ -87,11 +127,27 @@ public class PathUtil {
     return Pose2d.kZero;
   }
 
+  /**
+   * Builds a command to follow a path.
+   *
+   * @param name The name of the path to follow.
+   * @return A path following command for the given path
+   *     <li>If an error occurs, this will return a command that does nothing, finishing
+   *         immediately.
+   */
   public static Command followPath(String name) {
-
     return followPath(getPath(name));
   }
 
+  /**
+   * Builds a command to follow a path.
+   *
+   * @param name The name of the path to follow.
+   * @param mirror If the path should be mirrored to the left side.
+   * @return A path following command for the given path
+   *     <li>If an error occurs, this will return a command that does nothing, finishing
+   *         immediately.
+   */
   public static Command followPath(String name, boolean mirror) {
     if (mirror) {
       return followPath(getPath(name).mirrorPath());
@@ -101,14 +157,15 @@ public class PathUtil {
   }
 
   /**
-   * Builds a command to follow a path
+   * Builds a command to follow a path.
    *
-   * @param path The path to follow
-   * @return A path following command for the given path
+   * @param path The path to follow.
+   * @return A path following command for the given path.
    *     <li>If an error occurs, this will return a command that does nothing, finishing
    *         immediately.
    */
   public static Command followPath(PathPlannerPath path) {
+    LoggedTracerStatic.record("FollowPathMethod");
     try {
       return AutoBuilder.followPath(path);
     } catch (Exception e) {

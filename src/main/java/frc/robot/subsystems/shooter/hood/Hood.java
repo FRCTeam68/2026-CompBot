@@ -226,9 +226,9 @@ public class Hood extends SubsystemBase {
    */
   @AutoLogOutput(key = "Shooter/Hood/atSetpoint")
   public boolean atSetpoint() {
-    return switch (mode) {
-      case Position -> Math.abs(setpoint - getElevation()) < setpointBandPosition.get();
-      default -> false;
-    };
+    if (mode == ControlMode.Position) {
+      return Math.abs(setpoint - getElevation()) < setpointBandPosition.get();
+    }
+    return false;
   }
 }

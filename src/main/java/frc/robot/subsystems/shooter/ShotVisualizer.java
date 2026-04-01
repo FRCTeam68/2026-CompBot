@@ -2,7 +2,9 @@ package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
@@ -44,19 +46,19 @@ public class ShotVisualizer {
    * cycle times.
    */
   public static void visualize() {
-    List<Pose3d> trajectory = new LinkedList<>();
+    final List<Pose3d> trajectory = new LinkedList<>();
 
     // Only calculate trajectory point if the feeder is running
     if (feederSetpointSupplier.get() > 0.0) {
       double time = 0;
 
       // All calcuations are field relative
-      Translation3d initialPose =
+      final Translation3d initialPose =
           ShooterConstants.shooterPosition
               .rotateBy(new Rotation3d(robotPoseSupplier.get().getRotation()))
               .plus(new Translation3d(robotPoseSupplier.get().getTranslation()));
 
-      Translation3d initialVelocity =
+      final Translation3d initialVelocity =
           // Shooter velocity component
           new Translation3d(
                   Units.inchesToMeters(
@@ -71,21 +73,21 @@ public class ShotVisualizer {
                   new Translation3d(
                       fieldVelocitySupplier.get().vxMetersPerSecond,
                       fieldVelocitySupplier.get().vyMetersPerSecond,
-                      0.0));
-      // Chassis rotation velocity component
-      //   .plus(
-      //       new Translation3d(
-      //           new Translation2d(
-      //               Units.radiansToRotations(
-      //                       fieldVelocitySupplier.get().omegaRadiansPerSecond)
-      //                   * 2.0
-      //                   * ShooterConstants.shooterPosition.toTranslation2d().getNorm()
-      //                   * Math.PI,
-      //               ShooterConstants.shooterPosition
-      //                   .toTranslation2d()
-      //                   .getAngle()
-      //                   .rotateBy(robotPoseSupplier.get().getRotation())
-      //                   .rotateBy(Rotation2d.kCCW_90deg))));
+                      0.0))
+              // Chassis rotation velocity component
+              .plus(
+                  new Translation3d(
+                      new Translation2d(
+                          Units.radiansToRotations(
+                                  fieldVelocitySupplier.get().omegaRadiansPerSecond)
+                              * 2.0
+                              * ShooterConstants.shooterPosition.toTranslation2d().getNorm()
+                              * Math.PI,
+                          ShooterConstants.shooterPosition
+                              .toTranslation2d()
+                              .getAngle()
+                              .rotateBy(robotPoseSupplier.get().getRotation())
+                              .rotateBy(Rotation2d.kCCW_90deg))));
 
       // Loop over trajectory points
       while (trajectory.size() == 0 || trajectory.get(trajectory.size() - 1).getZ() > 0.0) {

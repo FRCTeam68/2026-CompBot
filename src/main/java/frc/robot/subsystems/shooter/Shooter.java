@@ -4,7 +4,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -23,6 +22,13 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
+  private static final LoggedTunableNumber towardMultiplier =
+      new LoggedTunableNumber("Shooter/TowardMultiplier", 1.1);
+  private static final LoggedTunableNumber awayMultiplier =
+      new LoggedTunableNumber("Shooter/AwayMultiplier", 1.2);
+  private static final LoggedTunableNumber angleMultiplier =
+      new LoggedTunableNumber("Shooter/AngleMultiplier", 1.05);
+
   // Subsystems
   @Getter private final Flywheel flywheel;
   @Getter private final Hood hood;
@@ -32,7 +38,6 @@ public class Shooter extends SubsystemBase {
   private final Supplier<Pose2d> drivePoseSupplier;
   private final Supplier<ChassisSpeeds> driveVelocitySupplier;
   private final Supplier<Boolean> inAllianceZoneSupplier;
-  private final Supplier<Boolean> alwaysTargetPass;
   private final Supplier<Boolean> autoshootPass;
 
   private Translation2d target = Translation2d.kZero;
@@ -46,12 +51,8 @@ public class Shooter extends SubsystemBase {
   @AutoLogOutput(key = "Shooter/StaticSetpoint")
   public boolean staticSetpoint = false;
 
-  public static final LoggedTunableNumber towardMultiplier =
-      new LoggedTunableNumber("Shooter/TowardMultiplier", 1.1);
-  public static final LoggedTunableNumber awayMultiplier =
-      new LoggedTunableNumber("Shooter/AwayMultiplier", 1.2);
-  public static final LoggedTunableNumber angleMultiplier =
-      new LoggedTunableNumber("Shooter/AngleMultiplier", 1.05);
+  @AutoLogOutput(key = "Shooter/ManualShoot")
+  public boolean forceManualShoot = false;
 
   public Shooter(
       Flywheel flywheel,
@@ -60,7 +61,6 @@ public class Shooter extends SubsystemBase {
       Supplier<Pose2d> poseSupplier,
       Supplier<ChassisSpeeds> driveVelocitySupplier,
       Supplier<Boolean> inAllianceZoneSupplier,
-      Supplier<Boolean> alwaysTargetPass,
       Supplier<Boolean> autoshootPass) {
     this.flywheel = flywheel;
     this.hood = hood;
@@ -68,30 +68,7 @@ public class Shooter extends SubsystemBase {
     this.drivePoseSupplier = poseSupplier;
     this.driveVelocitySupplier = driveVelocitySupplier;
     this.inAllianceZoneSupplier = inAllianceZoneSupplier;
-    this.alwaysTargetPass = alwaysTargetPass;
     this.autoshootPass = autoshootPass;
-
-    // Configure dashboard
-    SmartDashboard.putNumber("Shooter/FlywheelVelocity", 0.0);
-    SmartDashboard.putNumber("Shooter/HoodPosition", 0.0);
-    SmartDashboard.putNumber("Shooter/TurretPosition", 0.0);
-    SmartDashboard.putData(
-        "Shooter/RunStatic",
-        Commands.runOnce(
-            () -> {
-              runStatic(
-                  SmartDashboard.getNumber("Shooter/FlywheelVelocity", 0.0),
-                  SmartDashboard.getNumber("Shooter/HoodPosition", 0.0),
-                  SmartDashboard.getNumber("Shooter/TurretPosition", 0.0));
-            },
-            this));
-    SmartDashboard.putData(
-        "Shooter/Fountain",
-        Commands.runOnce(
-            () -> {
-              runStatic(ShooterConstants.StaticShot.fountain);
-            },
-            this));
   }
 
   public void periodic() {
@@ -107,14 +84,14 @@ public class Shooter extends SubsystemBase {
       if (drivePoseSupplier.get().getY() < FieldConstants.LinesHorizontal.center) {
         target =
             AllianceFlipUtil.apply(
-                (AllianceFlipUtil.shouldFlip())
+                (AllianceFlipUtil.isRedAlliance())
                     ? ShooterConstants.Target.passLeft
                     : ShooterConstants.Target.passRight);
         Logger.recordOutput("Shooter/Target", "Pass Right");
       } else {
         target =
             AllianceFlipUtil.apply(
-                (AllianceFlipUtil.shouldFlip())
+                (AllianceFlipUtil.isRedAlliance())
                     ? ShooterConstants.Target.passRight
                     : ShooterConstants.Target.passLeft);
         Logger.recordOutput("Shooter/Target", "Pass Left");
@@ -122,11 +99,9 @@ public class Shooter extends SubsystemBase {
       flightTime = ShooterConstants.DynamicShot.passShotFlightTime.get(getDistanceToTarget());
     }
 
-    // Run shooter to target dynamically
+    // Run shooter to target
     if (!staticSetpoint && !holdSetpoint) {
-      if (inAllianceZoneSupplier.get()
-          || autoshootPass.get()
-          || (!DriverStation.isAutonomous() && (shouldTargetPass || alwaysTargetPass.get()))) {
+      if (inAllianceZoneSupplier.get() || autoshootPass.get() || shouldTargetPass) {
         runDynamic();
       } else {
         // If not actively targeting lower hood
@@ -174,18 +149,16 @@ public class Shooter extends SubsystemBase {
 
   /** Run the shooter dynamically. */
   public void runDynamic() {
-    Rotation2d rotationToTarget = target.minus(getShooterFieldTranslation()).getAngle();
+    final Rotation2d rotationToTarget = target.minus(getShooterFieldTranslation()).getAngle();
     // vx - toward target
     // vy - CW tangent to target
-    ChassisSpeeds targetRelativeVelocity =
+    final ChassisSpeeds targetRelativeVelocity =
         ChassisSpeeds.fromFieldRelativeSpeeds(driveVelocitySupplier.get(), rotationToTarget);
-    double linearMultiplier =
+    final double linearMultiplier =
         targetRelativeVelocity.vxMetersPerSecond > 0
             ? towardMultiplier.get()
             : awayMultiplier.get();
-    // ? ShooterConstants.DynamicShot.linearTowardMultiplier
-    // : ShooterConstants.DynamicShot.linearAwayMultiplier;
-    double targetDistanceAdjusted =
+    final double targetDistanceAdjusted =
         getDistanceToTarget()
             - (targetRelativeVelocity.vxMetersPerSecond * flightTime * linearMultiplier);
 
@@ -224,10 +197,13 @@ public class Shooter extends SubsystemBase {
             drivePoseSupplier.get().getTranslation(), drivePoseSupplier.get().getRotation());
   }
 
-  /** Returns the distance in meters to the automatically selected target. */
+  /** Returns the distance in meters to the selected target. */
   @AutoLogOutput(key = "Shooter/DistanceToTarget", unit = "Meters")
   public double getDistanceToTarget() {
-    return target.minus(getShooterFieldTranslation()).getNorm();
+    final Translation2d shooterFieldTranslation = getShooterFieldTranslation();
+    return Math.hypot(
+        target.getX() - shooterFieldTranslation.getX(),
+        target.getY() - shooterFieldTranslation.getY());
   }
 
   /** Returns true if all shooter subsystems are at their individual setpoints. */
@@ -271,14 +247,14 @@ public class Shooter extends SubsystemBase {
    */
   @AutoLogOutput(key = "Shooter/InTrenchBox")
   public boolean inTrenchBox() {
-    Translation2d shooterTranslation = getShooterFieldTranslation();
+    final Translation2d shooterTranslation = getShooterFieldTranslation();
 
     // Adjust x limits based on velocity
-    double xOffestPos =
+    final double xOffestPos =
         (ShooterConstants.TrenchZone.halfXSize)
             + (-Math.min(0, driveVelocitySupplier.get().vxMetersPerSecond)
                 * ShooterConstants.TrenchZone.hoodLowerTime);
-    double xOffsetNeg =
+    final double xOffsetNeg =
         (-ShooterConstants.TrenchZone.halfXSize)
             - (Math.max(0, driveVelocitySupplier.get().vxMetersPerSecond)
                 * ShooterConstants.TrenchZone.hoodLowerTime);
@@ -299,7 +275,7 @@ public class Shooter extends SubsystemBase {
   /** Returns if the shooter is inside any tower. */
   @AutoLogOutput(key = "Shooter/InTowerBox")
   public boolean inTowerBox() {
-    Translation2d shooterTranslation = getShooterFieldTranslation();
+    final Translation2d shooterTranslation = getShooterFieldTranslation();
 
     // Check blue alliance
     return (shooterTranslation.getX() < ShooterConstants.TowerZone.xSize
@@ -322,16 +298,17 @@ public class Shooter extends SubsystemBase {
   /** Returns if the shooter is in a spot where pass shots would be blocked by the hub. */
   @AutoLogOutput(key = "Shooter/IsBehindHub")
   public boolean isBehindHub() {
-    Translation2d shooterTranslation = getShooterFieldTranslation();
-    double absLocalY = Math.abs(shooterTranslation.getY() - FieldConstants.LinesHorizontal.center);
-    double localXNeutral =
+    final Translation2d shooterTranslation = getShooterFieldTranslation();
+    final double absLocalY =
+        Math.abs(shooterTranslation.getY() - FieldConstants.LinesHorizontal.center);
+    final double localXNeutral =
         shooterTranslation.getX()
             - AllianceFlipUtil.applyX(FieldConstants.LinesVertical.neutralZoneNear);
-    double localXOpp =
+    final double localXOpp =
         shooterTranslation.getX()
             - AllianceFlipUtil.applyX(FieldConstants.LinesVertical.oppAllianceZone);
 
-    if (AllianceFlipUtil.shouldFlip()) {
+    if (AllianceFlipUtil.isRedAlliance()) {
       // Red alliance
       // Check general y position
       return absLocalY < ShooterConstants.BehindHubZone.halfBaseWidth
@@ -364,5 +341,22 @@ public class Shooter extends SubsystemBase {
                       < ShooterConstants.BehindHubZone.halfBaseWidth
                           - (ShooterConstants.BehindHubZone.slope * localXOpp));
     }
+  }
+
+  /** Configure dashboard tuning controls for manual control. */
+  public void configureDashboardControls() {
+    SmartDashboard.putNumber("Shooter/FlywheelVelocity", 0.0);
+    SmartDashboard.putNumber("Shooter/HoodPosition", 0.0);
+    SmartDashboard.putNumber("Shooter/TurretPosition", 0.0);
+    SmartDashboard.putData(
+        "Shooter/RunStatic",
+        Commands.runOnce(
+            () -> {
+              runStatic(
+                  SmartDashboard.getNumber("Shooter/FlywheelVelocity", 0.0),
+                  SmartDashboard.getNumber("Shooter/HoodPosition", 0.0),
+                  SmartDashboard.getNumber("Shooter/TurretPosition", 0.0));
+            },
+            this));
   }
 }

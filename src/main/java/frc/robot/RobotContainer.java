@@ -21,6 +21,7 @@ import frc.robot.commands.TestCommands;
 import frc.robot.commands.auton.Auton;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intakePivot.IntakePivot;
+import frc.robot.subsystems.intakeSpin.IntakeSpin;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants;
@@ -42,7 +43,7 @@ public class RobotContainer {
   private final Drive drive = robotSystem.getDrive();
   private final Vision vision = robotSystem.getVision();
   private final IntakePivot intakePivot = robotSystem.getIntakePivot();
-  private final RollerSystem intakeSpin = robotSystem.getIntakeSpin();
+  private final IntakeSpin intakeSpin = robotSystem.getIntakeSpin();
   private final Shooter shooter = robotSystem.getShooter();
   private final RollerSystem feeder = robotSystem.getFeeder();
   private final RollerSystem spindexer = robotSystem.getSpindexer();
@@ -73,66 +74,7 @@ public class RobotContainer {
 
     // Configure tuning dashboard buttons
     if (Constants.tuningMode) {
-      @SuppressWarnings("unused")
-      LoggedNetworkString logLabel = new LoggedNetworkString("SmartDashboard/LogLabel", "");
-      configureTestModeCommands();
-      // Drive
-      SmartDashboard.putData(
-          "Tuning/DriveLinear_Right",
-          DriveCommands.autopilotDriveToPose(
-              () ->
-                  new APTarget(drive.getPose().plus(new Transform2d(0, -2, Rotation2d.kZero)))
-                      .withEntryAngle(Rotation2d.kCW_90deg),
-              true));
-      SmartDashboard.putData(
-          "Tuning/DriveLinear_Left",
-          DriveCommands.autopilotDriveToPose(
-              () ->
-                  new APTarget(drive.getPose().plus(new Transform2d(0, 2, Rotation2d.kZero)))
-                      .withEntryAngle(Rotation2d.kCCW_90deg),
-              true));
-      SmartDashboard.putData(
-          "Tuning/DriveAngular_CW",
-          DriveCommands.autopilotDriveToPose(
-              () ->
-                  new APTarget(drive.getPose().plus(new Transform2d(0, 2, Rotation2d.kZero)))
-                      .withEntryAngle(Rotation2d.kCCW_90deg),
-              true));
-      SmartDashboard.putData(
-          "Tuning/DriveAngular_CCW",
-          DriveCommands.autopilotDriveToPose(
-              () ->
-                  new APTarget(drive.getPose().plus(new Transform2d(0, 2, Rotation2d.kZero)))
-                      .withEntryAngle(Rotation2d.kCCW_90deg),
-              true));
-      SmartDashboard.putData(
-          "Tuning/Drive SysId (Quasistatic Forward)",
-          drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-      SmartDashboard.putData(
-          "Tuning/Drive SysId (Quasistatic Reverse)",
-          drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-      SmartDashboard.putData(
-          "Tuning/Drive SysId (Dynamic Forward)",
-          drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-      SmartDashboard.putData(
-          "Tuning/Drive SysId (Dynamic Reverse)",
-          drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-      SmartDashboard.putData(
-          "Tuning/Drive Simple FF Characterization", TestCommands.feedforwardCharacterization());
-      SmartDashboard.putData(
-          "Tuning/wheelRadiusCharacterization", TestCommands.wheelRadiusCharacterization());
-      // Turret
-      SmartDashboard.putData(
-          "Tuning/Turret_1", ShooterCommands.runStatic(0, shooter.getHood().getElevation(), 1));
-      SmartDashboard.putData(
-          "Tuning/Turret_360", ShooterCommands.runStatic(0, shooter.getHood().getElevation(), 360));
-      // Hood
-      SmartDashboard.putData(
-          "Tuning/Hood_Min",
-          ShooterCommands.runStatic(0, Hood.getMinimum() + 3, shooter.getTurret().getPosition()));
-      SmartDashboard.putData(
-          "Tuning/Hood_Max",
-          ShooterCommands.runStatic(0, Hood.getMaximum() - 3, shooter.getTurret().getPosition()));
+      configureTuningControls();
     }
   }
 
@@ -152,7 +94,14 @@ public class RobotContainer {
     driverController.povDown().whileTrue(DriveCommands.autopilotDriveToHubArc());
 
     // Intake
-    driverController.leftTrigger().whileTrue(IntakeCommands.intakeAutomatic());
+    intakeSpin.setDefaultCommand(IntakeCommands.intakeDefault());
+
+    driverController
+        .leftTrigger()
+        .whileTrue(IntakeCommands.intakeAutomatic().onlyIf(() -> !robotSystem.autoIntake.get()));
+    driverController
+        .leftTrigger()
+        .whileTrue(IntakeCommands.dontIntake().onlyIf(() -> robotSystem.autoIntake.get()));
 
     driverController.b().whileTrue(IntakeCommands.outtake());
 
@@ -160,6 +109,7 @@ public class RobotContainer {
     operatorController.L1().whileTrue(IntakeCommands.agitate());
 
     driverController.povUp().onTrue(IntakeCommands.retract());
+
     operatorController.R1().onTrue(IntakeCommands.deploy(2));
 
     // Shooter
@@ -255,9 +205,75 @@ public class RobotContainer {
     robotSystem.visualization();
   }
 
-  /** Add test mode commands to dashboard. */
-  public void configureTestModeCommands() {
+  /** Add tuning mode commands to dashboard. */
+  @SuppressWarnings("unused")
+  public void configureTuningControls() {
+    LoggedNetworkString logLabel = new LoggedNetworkString("SmartDashboard/LogLabel", "");
+
+    intakeSpin.configureDashboardControls();
+    shooter.configureDashboardControls();
+    feeder.configureDashboardControls();
+    spindexer.configureDashboardControls();
+
     SmartDashboard.putData("Tuning/FunctionTest", TestCommands.functionTest());
+
+    // Drive
+    SmartDashboard.putData(
+        "Tuning/DriveLinear_Right",
+        DriveCommands.autopilotDriveToPose(
+            () ->
+                new APTarget(drive.getPose().plus(new Transform2d(0, -2, Rotation2d.kZero)))
+                    .withEntryAngle(Rotation2d.kCW_90deg),
+            true));
+    SmartDashboard.putData(
+        "Tuning/DriveLinear_Left",
+        DriveCommands.autopilotDriveToPose(
+            () ->
+                new APTarget(drive.getPose().plus(new Transform2d(0, 2, Rotation2d.kZero)))
+                    .withEntryAngle(Rotation2d.kCCW_90deg),
+            true));
+    SmartDashboard.putData(
+        "Tuning/DriveAngular_CW",
+        DriveCommands.autopilotDriveToPose(
+            () ->
+                new APTarget(drive.getPose().plus(new Transform2d(0, 2, Rotation2d.kZero)))
+                    .withEntryAngle(Rotation2d.kCCW_90deg),
+            true));
+    SmartDashboard.putData(
+        "Tuning/DriveAngular_CCW",
+        DriveCommands.autopilotDriveToPose(
+            () ->
+                new APTarget(drive.getPose().plus(new Transform2d(0, 2, Rotation2d.kZero)))
+                    .withEntryAngle(Rotation2d.kCCW_90deg),
+            true));
+    SmartDashboard.putData(
+        "Tuning/Drive SysId (Quasistatic Forward)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    SmartDashboard.putData(
+        "Tuning/Drive SysId (Quasistatic Reverse)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    SmartDashboard.putData(
+        "Tuning/Drive SysId (Dynamic Forward)",
+        drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    SmartDashboard.putData(
+        "Tuning/Drive SysId (Dynamic Reverse)",
+        drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    SmartDashboard.putData(
+        "Tuning/Drive Simple FF Characterization", TestCommands.feedforwardCharacterization());
+    SmartDashboard.putData(
+        "Tuning/wheelRadiusCharacterization", TestCommands.wheelRadiusCharacterization());
+    // Turret
+    SmartDashboard.putData(
+        "Tuning/Turret_1", ShooterCommands.runStatic(0, shooter.getHood().getElevation(), 1));
+    SmartDashboard.putData(
+        "Tuning/Turret_360", ShooterCommands.runStatic(0, shooter.getHood().getElevation(), 360));
+    // Hood
+    SmartDashboard.putData(
+        "Tuning/Hood_Min",
+        ShooterCommands.runStatic(0, Hood.getMinimum(), shooter.getTurret().getPosition()));
+    SmartDashboard.putData(
+        "Tuning/Hood_Max",
+        ShooterCommands.runStatic(0, Hood.getMaximum(), shooter.getTurret().getPosition()));
   }
 
   /**
