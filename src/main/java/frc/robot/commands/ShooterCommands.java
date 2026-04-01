@@ -9,7 +9,6 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants.shotConfig;
 import frc.robot.util.HubShiftUtil;
 import frc.robot.util.LoggedTunableNumber;
-import org.littletonrobotics.junction.AutoLogOutput;
 
 public class ShooterCommands {
   private static final LoggedTunableNumber feederVolts =
@@ -83,7 +82,7 @@ public class ShooterCommands {
                     if (shooter.atSetpoint()
                         && HubShiftUtil.shouldShoot()
                         && shooter.inShootableLocation()) {
-                      
+
                       // feeder.runVolts(feederVolts.getAsDouble());
                       // spindexer.runVolts(spindexerVolts.getAsDouble());
                       feeder.runVelocity(feederVelocity.getAsDouble());
