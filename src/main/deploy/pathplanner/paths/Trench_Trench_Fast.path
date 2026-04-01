@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.833,
-        "y": 0.536
+        "x": 5.833389635587788,
+        "y": 0.5355569080925511
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.288549768553114,
-        "y": 0.5360000000000003
+        "x": 4.288939404140902,
+        "y": 0.5355569080925513
       },
       "isLocked": false,
       "linkedName": "Trench Neutral Zone Approach"
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 3.1,
+    "maxAcceleration": 3.1,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
