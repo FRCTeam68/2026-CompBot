@@ -101,6 +101,16 @@ public class Module {
             AlertType.kWarning);
     inputsKey =
         "Drive/" + DriveConstants.moduleNames[index].replace(" ", "").replaceFirst("m", "M");
+
+    // init here so it is not done as first thing in robotPeriodic on boot
+    io.setDrivePID(
+        new Slot0Configs()
+            .withKS(drivekS.get())
+            .withKV(drivekV.get())
+            .withKP(drivekP.get())
+            .withKD(drivekD.get()));
+    io.setTurnPID(
+        new Slot0Configs().withKS(turnkS.get()).withKP(turnkP.get()).withKD(turnkD.get()));
   }
 
   public void updateInputs() {
