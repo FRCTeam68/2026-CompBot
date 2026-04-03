@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobotBase;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -51,6 +52,7 @@ public class Robot extends LoggedRobot {
 
   public Robot() {
     LoggedTracerStatic.reset();
+    LoggedTracerStatic.record("Robot Start");
     // Record metadata
     Logger.recordMetadata("TuningMode", Boolean.toString(Constants.tuningMode));
     Logger.recordMetadata("LowCeiling", Boolean.toString(Constants.lowCeiling));
@@ -148,13 +150,14 @@ public class Robot extends LoggedRobot {
     // On the roboRIO 1 it is a no-op.
     RobotController.setBrownoutVoltage(6.0);
 
-    // Set up auto logging
-    AutoLogOutputManager.addObject(new HubShiftUtil());
-
     // Instantiate our RobotContainer
     LoggedTracerStatic.record("UpToRobotContainer");
     robotContainer = new RobotContainer();
     LoggedTracerStatic.record("FinishedRobotContainer");
+
+    // Set up auto logging
+    AutoLogOutputManager.addObject(new HubShiftUtil());
+    LoggedTracerStatic.record("After HubShiftUtil");
 
     // Warmups
     CommandScheduler.getInstance()
@@ -163,6 +166,12 @@ public class Robot extends LoggedRobot {
     // CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand().withName("PathplannerPathfindingWarmup"));
     ElasticUtil.selectTab("Auton");
     LoggedTracerStatic.record("FinishedStartup");
+  }
+
+  @Override
+  public void robotInit() {
+    System.out.println("-----robotInit:" + Timer.getFPGATimestamp());
+    LoggedTracerStatic.record("RobotInit");
   }
 
   /** This function is called periodically during all modes. */

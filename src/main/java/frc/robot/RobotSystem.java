@@ -54,6 +54,7 @@ import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.util.CanBusUtil;
+import frc.robot.util.LoggedTracerStatic;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
@@ -87,6 +88,7 @@ public class RobotSystem {
     final Hood hood;
     final Turret turret;
 
+    LoggedTracerStatic.record("robotSystem constructor start");
     switch (Constants.getMode()) {
       case REAL:
         drive =
@@ -96,6 +98,7 @@ public class RobotSystem {
                 new ModuleIOReal(DriveConstants.moduleConfigs[1]),
                 new ModuleIOReal(DriveConstants.moduleConfigs[2]),
                 new ModuleIOReal(DriveConstants.moduleConfigs[3]));
+        LoggedTracerStatic.record("robotSystem after drive");
 
         lights = new Lights(new LightsIOCANdle());
 
@@ -112,9 +115,11 @@ public class RobotSystem {
         flywheel = new Flywheel(new FlywheelIOReal());
         hood = new Hood(new HoodIOReal());
         turret = new Turret(lights, new TurretIOReal());
+        LoggedTracerStatic.record("robotSystem after shooter components");
 
         intakePivot = new IntakePivot(new IntakePivotIOReal());
         intakeSpin = new IntakeSpin(new IntakeSpinIOReal());
+        LoggedTracerStatic.record("robotSystem after intake components");
 
         spindexer =
             new RollerSystem(
@@ -136,6 +141,7 @@ public class RobotSystem {
                     InvertedValue.CounterClockwise_Positive,
                     NeutralModeValue.Coast,
                     36.0 / 12.0));
+        LoggedTracerStatic.record("robotSystem after spindexer and feeder");
 
         hopperSensor =
             new HopperSensor(
@@ -225,6 +231,8 @@ public class RobotSystem {
             autoshootPass::get);
 
     hood.initInTrenchBoxSupplier(shooter::inTrenchBox);
+
+    LoggedTracerStatic.record("robotSystem constructor end");
   }
 
   /**
