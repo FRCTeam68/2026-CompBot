@@ -330,16 +330,16 @@ public class HubShiftUtil {
 
   private static void setLEDState() {
     if (DriverStation.isDisabled()) {
-      lights.setSolidColor(Color.Bright.ORANGE, Segment.All);
+      lights.setSolidColor(Color.Bright.RED, Segment.All);
     } else {
       if (shootingToStart(5) || shootingToStop(5)) {
-        lights.setStrobeAnimation(Color.Bright.ORANGE, Segment.All, 400);
+        lights.setStrobeAnimation(Color.Bright.RED, Segment.All, 400);
       } else if (shootingToStart(10) || shootingToStop(10)) {
-        lights.setStrobeAnimation(Color.Bright.ORANGE, Segment.All, 250);
+        lights.setStrobeAnimation(Color.Bright.RED, Segment.All, 250);
       } else if (shootingToStart(15) || shootingToStop(15)) {
-        lights.setStrobeAnimation(Color.Bright.ORANGE, Segment.All, 100);
+        lights.setStrobeAnimation(Color.Bright.RED, Segment.All, 100);
       } else {
-        lights.setSolidColor(Color.Bright.ORANGE, Segment.All);
+        lights.setSolidColor(Color.Bright.RED, Segment.All);
       }
     }
   }
