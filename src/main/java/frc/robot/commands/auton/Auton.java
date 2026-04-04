@@ -16,6 +16,7 @@ import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intakePivot.IntakePivot;
+import frc.robot.subsystems.intakeSpin.IntakeSpin;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.Lights.Color;
 import frc.robot.subsystems.lights.Lights.LEDSegment;
@@ -37,7 +38,7 @@ public class Auton {
   private static final Lights lights = robotSystem.getLights();
   private static final Vision vision = robotSystem.getVision();
   private static final IntakePivot intakePivot = robotSystem.getIntakePivot();
-  private static final RollerSystem intakeSpin = robotSystem.getIntakeSpin();
+  private static final IntakeSpin intakeSpin = robotSystem.getIntakeSpin();
   private static final Shooter shooter = robotSystem.getShooter();
   private static final RollerSystem spindexer = robotSystem.getSpindexer();
   private static final RollerSystem feeder = robotSystem.getFeeder();
