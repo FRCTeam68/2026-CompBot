@@ -12,8 +12,8 @@ public class IntakeCommands {
   private static final LoggedTunableNumber intakeSpinVoltsSlow =
       new LoggedTunableNumber("IntakeSpin/Slow", 6);
   private static final LoggedTunableNumber intakeSpinVoltsFast =
-      new LoggedTunableNumber("IntakeSpin/Fast", 10);
-  private static final double intakeSpinVoltsDefault = 8;
+      new LoggedTunableNumber("IntakeSpin/Fast", 8);
+  private static final double intakeSpinVoltsDefault = 7;
   private static final LoggedTunableNumber intakeSpinVoltsOuttake =
       new LoggedTunableNumber("IntakeSpin/Outtake", -10);
 
