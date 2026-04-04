@@ -25,14 +25,14 @@ public class IntakePivot extends SubsystemBase {
   // Positions
   @Getter private static final double extended = 0;
   @Getter private static final double agitate = -0.151;
-  @Getter private static final double packaged = -0.271;
+  @Getter private static final double packaged = -0.278;
   @Getter private static final double intakeForwardExtension = Units.inchesToMeters(12);
 
   // PID gains
   private final LoggedTunableNumber[] kP =
       new LoggedTunableNumber[] {
-        new LoggedTunableNumber("IntakePivot/Slot0-Deploy/kP", 200),
-        new LoggedTunableNumber("IntakePivot/Slot1-Retract/kP", 650),
+        new LoggedTunableNumber("IntakePivot/Slot0-Deploy/kP", 100),
+        new LoggedTunableNumber("IntakePivot/Slot1-Retract/kP", 800),
         new LoggedTunableNumber("IntakePivot/Slot2-DeployFirst/kP", 650)
       };
   private final LoggedTunableNumber[] kD =
@@ -41,8 +41,8 @@ public class IntakePivot extends SubsystemBase {
         new LoggedTunableNumber("IntakePivot/Slot1-Retract/kD", 0),
         new LoggedTunableNumber("IntakePivot/Slot2-DeployFirst/kD", 0)
       };
-  private final LoggedTunableNumber kS = new LoggedTunableNumber("IntakePivot/kS", 45);
-  private final LoggedTunableNumber kG = new LoggedTunableNumber("IntakePivot/kG", 0);
+  private final LoggedTunableNumber kS = new LoggedTunableNumber("IntakePivot/kS", 60);
+  private final LoggedTunableNumber kG = new LoggedTunableNumber("IntakePivot/kG", -80);
 
   // Setpoint band
   private final LoggedTunableNumber setpointBandPosition =

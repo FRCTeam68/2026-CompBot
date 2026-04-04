@@ -265,7 +265,8 @@ public class Auton {
                           delayShooterStart(mirror ? 270 : 90),
                           Commands.waitSeconds(1)
                               .andThen(IntakeCommands.deploy(2))
-                              .andThen(Commands.waitSeconds(0.3))
+                              .andThen(Commands.waitSeconds(0.2))
+                              .andThen(IntakeCommands.deploy(2))
                               .andThen(IntakeCommands.intakeAutomatic())),
                       Commands.either(
                           DriveCommands.autopilotDriveToPose(

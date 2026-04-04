@@ -12,7 +12,7 @@ public class IntakeCommands {
   private static final LoggedTunableNumber intakeSpinVoltsSlow =
       new LoggedTunableNumber("IntakeSpin/Slow", 6);
   private static final LoggedTunableNumber intakeSpinVoltsFast =
-      new LoggedTunableNumber("IntakeSpin/Fast", 8);
+      new LoggedTunableNumber("IntakeSpin/Fast", 6);
   private static final double intakeSpinVoltsDefault = 7;
   private static final LoggedTunableNumber intakeSpinVoltsOuttake =
       new LoggedTunableNumber("IntakeSpin/Outtake", -10);
@@ -59,8 +59,13 @@ public class IntakeCommands {
 
   public static Command intakeDefault() {
     return Commands.sequence(
-            Commands.runOnce(
-                () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
+            Commands.either(
+                Commands.runOnce(
+                    () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
+                Commands.none(),
+                () -> {
+                  return intakePivot.getPosition() < (IntakePivot.getPackaged() + 0.03);
+                }),
             Commands.run(
                 () -> {
                   if (robotSystem.autoIntake.get()) {

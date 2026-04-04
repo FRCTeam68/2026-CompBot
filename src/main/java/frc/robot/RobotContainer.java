@@ -98,10 +98,12 @@ public class RobotContainer {
 
     driverController
         .leftTrigger()
-        .whileTrue(IntakeCommands.intakeAutomatic().onlyIf(() -> !robotSystem.autoIntake.get()));
-    driverController
-        .leftTrigger()
-        .whileTrue(IntakeCommands.dontIntake().onlyIf(() -> robotSystem.autoIntake.get()));
+        .whileTrue(
+            Commands.either(
+                    IntakeCommands.dontIntake(),
+                    IntakeCommands.intakeAutomatic(),
+                    () -> robotSystem.autoIntake.get())
+                .withName("IntakeToggle"));
 
     driverController.b().whileTrue(IntakeCommands.outtake());
 
