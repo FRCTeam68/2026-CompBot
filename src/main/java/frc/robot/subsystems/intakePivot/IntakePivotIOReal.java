@@ -85,7 +85,7 @@ public class IntakePivotIOReal implements IntakePivotIO {
     // talonConfig.CurrentLimits.StatorCurrentLimit = 120;
     // talonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     talonConfig.TorqueCurrent.PeakForwardTorqueCurrent = 120;
-    talonConfig.TorqueCurrent.PeakReverseTorqueCurrent = -100;
+    talonConfig.TorqueCurrent.PeakReverseTorqueCurrent = -120;
     // Feedback
     talonConfig.Feedback.FeedbackRemoteSensorID = cancoder.getDeviceID();
     talonConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;

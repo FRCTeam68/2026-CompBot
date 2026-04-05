@@ -222,7 +222,10 @@ public class Auton {
                               0,
                               shooter.getHood().getElevation(),
                               shooter.getTurret().getPosition()),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.deploy(2))),
+                          Commands.waitSeconds(0.5)
+                              .andThen(IntakeCommands.deploy(2))
+                              .andThen(Commands.waitSeconds(0.2))
+                              .andThen(IntakeCommands.deploy(2))),
                       Commands.waitSeconds(3), // wait for fuel to be dumped into hopper
                       Commands.deadline(
                           PathUtil.followPath("Center_Depot_To").andThen(Commands.waitSeconds(0.2)),
@@ -307,7 +310,7 @@ public class Auton {
               // -----------------------------------------------------
               if ((!left && !autonOutpost.get()) || (left && !autonDepot.get())) {
                 // run double pass to nuetral zone
-                myCommand2 = Commands.sequence(neutralPath2Command, shootWithAgitation(99, 1.5));
+                myCommand2 = Commands.sequence(neutralPath2Command, shootWithAgitation(99, 0.9));
               } else {
                 // ----  now the 'plus' part of the single sweep plus
                 if (!left) {
