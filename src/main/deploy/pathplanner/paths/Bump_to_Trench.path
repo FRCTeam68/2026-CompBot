@@ -1,0 +1,63 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.087073770491803,
+        "y": 2.417581967213114
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.4113524590163933,
+        "y": 1.7778032786885236
+      },
+      "isLocked": false,
+      "linkedName": "BumpShot"
+    },
+    {
+      "anchor": {
+        "x": 3.2595564516129034,
+        "y": 0.5825483870967754
+      },
+      "prevControl": {
+        "x": 2.0446957958751986,
+        "y": 0.48190904283447933
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Trench Shoot"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.3816593886462917,
+      "rotationDegrees": -82.15909250640345
+    },
+    {
+      "waypointRelativePos": 0.7764192139737913,
+      "rotationDegrees": 0.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 1.0,
+    "maxAcceleration": 1.5,
+    "maxAngularVelocity": 100.0,
+    "maxAngularAcceleration": 200.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 1.0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": "TrenchBump",
+  "idealStartingState": {
+    "velocity": 1.0,
+    "rotation": -139.82076607809262
+  },
+  "useDefaultConstraints": false
+}

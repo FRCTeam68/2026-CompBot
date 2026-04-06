@@ -3,8 +3,9 @@
   "robotLength": 0.876,
   "holonomicMode": true,
   "pathFolders": [
-    "Center",
     "Bump",
+    "Center",
+    "TrenchBump",
     "Trench",
     "Tune"
   ],
