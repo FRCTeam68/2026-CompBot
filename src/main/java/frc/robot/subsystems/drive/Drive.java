@@ -235,6 +235,10 @@ public class Drive extends SubsystemBase {
     poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
   }
 
+  public void resetYaw() {
+    setPose(new Pose2d(getPose().getTranslation(), AllianceFlipUtil.apply(Rotation2d.kZero)));
+  }
+
   /** Returns a command to run a quasistatic test in the specified direction. */
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
     return run(() -> runCharacterization(0.0))

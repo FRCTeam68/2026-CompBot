@@ -1,7 +1,6 @@
 package frc.robot;
 
 import com.therekrab.autopilot.APTarget;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Alert;
@@ -22,13 +21,15 @@ import frc.robot.commands.auton.Auton;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intakePivot.IntakePivot;
 import frc.robot.subsystems.intakeSpin.IntakeSpin;
+import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.lights.Lights.Color;
+import frc.robot.subsystems.lights.Lights.Segment;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.HubShiftUtil;
-import frc.robot.util.geometry.AllianceFlipUtil;
 import org.littletonrobotics.junction.networktables.LoggedNetworkString;
 
 /**
@@ -47,6 +48,7 @@ public class RobotContainer {
   private final Shooter shooter = robotSystem.getShooter();
   private final RollerSystem feeder = robotSystem.getFeeder();
   private final RollerSystem spindexer = robotSystem.getSpindexer();
+  private final Lights lights = robotSystem.getLights();
 
   // Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
@@ -156,14 +158,21 @@ public class RobotContainer {
     driverController
         .back()
         .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(
-                                drive.getPose().getTranslation(),
-                                AllianceFlipUtil.apply(Rotation2d.kZero))))
+            Commands.runOnce(() -> drive.resetYaw(), drive)
+                .andThen(() -> lights.setSolidColor(Color.Bright.WHITE, Segment.All)));
+
+    // turn on megatag1 again to resync with april tags
+    driverController
+        .back()
+        .and(driverController.y())
+        .onTrue(
+            Commands.runOnce(() -> vision.enableMT1 = true)
+                .andThen(() -> lights.setStrobeAnimation(Color.Bright.WHITE, Segment.All, 400))
+                .andThen(Commands.waitSeconds(2))
+                .andThen(() -> lights.setSolidColor(Color.Bright.WHITE, Segment.All))
+                .andThen(Commands.runOnce(() -> vision.enableMT1 = false))
                 .ignoringDisable(true)
-                .withName("ResetRobotRotation"));
+                .withName("ResetRobotRotationViaMegaTag1"));
 
     driverController
         .start()
