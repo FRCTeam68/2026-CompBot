@@ -122,7 +122,7 @@ public class Auton {
                   || getSelectedStartPose().minus(drive.getPose()).getRotation().getDegrees()
                       > 20));
       hoodPoseAlert.set(Math.abs(shooter.getHood().getElevation() - Hood.getMaximum()) > 2.0);
-      intakePoseAlert.set(Math.abs(intakePivot.getPosition()) > 0.03);
+      intakePoseAlert.set(!intakePivot.isRetracted());
     } else {
       noAutoSelectedAlert.set(false);
       startingPoseAlert.set(false);

@@ -178,6 +178,14 @@ public class IntakePivot extends SubsystemBase {
     return inputs.torqueCurrentAmps;
   }
 
+  public boolean isRetracted() {
+    return getPosition() < (packaged + 0.08);
+  }
+
+  public boolean isExtended() {
+    return getPosition() > (extended - 0.08);
+  }
+
   /**
    * Returns true if the error is within the tolerance of the setpoint.
    *

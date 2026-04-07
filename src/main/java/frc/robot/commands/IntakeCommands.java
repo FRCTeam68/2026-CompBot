@@ -59,16 +59,15 @@ public class IntakeCommands {
 
   public static Command intakeDefault() {
     return Commands.sequence(
-            Commands.either(
-                Commands.runOnce(
-                    () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
-                Commands.none(),
-                () -> {
-                  return intakePivot.getPosition() < (IntakePivot.getPackaged() + 0.03);
-                }),
+
+            // Only run the deploy command if still packaged
+            Commands.runOnce(
+                    () -> intakePivot.runPosition(IntakePivot.getExtended(), 2), intakePivot)
+                .onlyIf(() -> intakePivot.isRetracted() && robotSystem.autoIntake.get()),
             Commands.run(
                 () -> {
-                  if (robotSystem.autoIntake.get()) {
+                  //  only spin by default if autoIntake is on and near deployed position.
+                  if (robotSystem.autoIntake.get() && intakePivot.isExtended()) {
                     if (hopperSensor.isConnected()) {
                       if (hopperSensor.isNotEmpty()) {
                         intakeSpin.runVolts(intakeSpinVoltsFast.get());
