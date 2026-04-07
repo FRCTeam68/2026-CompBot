@@ -67,7 +67,7 @@ public class RobotSystem {
   public final LoggedNetworkBoolean autoshootPass =
       new LoggedNetworkBoolean("SmartDashboard/Shooter/AutoshootPass", true);
   public final LoggedNetworkBoolean autoIntake =
-      new LoggedNetworkBoolean("SmartDashboard/Intake/AutoIntake", true);
+      new LoggedNetworkBoolean("SmartDashboard/Intake/AutoIntake", false);
 
   // Subsystems
   @Getter private final Drive drive;
