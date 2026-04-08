@@ -45,7 +45,6 @@ public class IntakeCommands {
             stopSpin(),
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getAgitate(), 1), intakePivot),
-            Commands.runOnce(() -> intakeSpin.runVolts(4), intakeSpin),
             Commands.either(
                 Commands.idle(intakePivot, intakeSpin),
                 Commands.waitSeconds(waitTime),

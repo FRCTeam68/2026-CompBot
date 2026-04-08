@@ -215,7 +215,7 @@ public class Auton {
             Commands.waitSeconds(shootSeconds),
             ShooterCommands.shoot(false),
             Commands.waitSeconds(agitateDelay).andThen(IntakeCommands.agitate()))
-        .finallyDo(() -> IntakeCommands.deploy(0))
+        .finallyDo(() -> IntakeCommands.deploy(0).andThen(IntakeCommands.intakeStatic(true)))
         .withName("Auton_ShootWithAgitation");
   }
 
@@ -281,7 +281,7 @@ public class Auton {
                               .andThen(IntakeCommands.deploy(2))
                               .andThen(Commands.waitSeconds(0.2))
                               .andThen(IntakeCommands.deploy(2))
-                              .andThen(IntakeCommands.intakeAutomatic())),
+                              .andThen(IntakeCommands.intakeStatic(true))),
                       Commands.either(
                           DriveCommands.autopilotDriveToPose(
                                   () -> new APTarget(trenchApproach).withoutEntryAngle(), false)
@@ -388,7 +388,7 @@ public class Auton {
                               .andThen(IntakeCommands.deploy(2))
                               .andThen(Commands.waitSeconds(0.2))
                               .andThen(IntakeCommands.deploy(2))
-                              .andThen(IntakeCommands.intakeAutomatic())),
+                              .andThen(IntakeCommands.intakeStatic(true))),
                       Commands.either(
                           DriveCommands.autopilotDriveToPose(
                                   () -> new APTarget(bumpApproach).withoutEntryAngle(), false)
@@ -407,7 +407,9 @@ public class Auton {
                   Commands.sequence(
                       Commands.deadline(
                           PathUtil.followPath("Trench_Bump_Sweep2", mirror),
-                          IntakeCommands.intakeStatic(false)),
+                          ShooterCommands.shoot(false)
+                              .withTimeout(1), // shoot for a bit before entering trench
+                          IntakeCommands.intakeStatic(true)),
                       DriveCommands.autopilotDriveToPose(
                               () -> new APTarget(bumpApproach).withoutEntryAngle(), false)
                           .withTimeout(7)
@@ -425,15 +427,15 @@ public class Auton {
               Command driveAndShootCommand =
                   Commands.sequence(
                       Commands.deadline(
-                          PathUtil.followPath("Bump_to_Trench", mirror),
-                          // Commands.waitSeconds(0.25).andThen(IntakeCommands.intakeStatic(true)),
+                          PathUtil.followPath("Bump_to_Trench", mirror)
+                              .andThen(Commands.waitSeconds(1)),
                           shootWithAgitation(6, 2.5)));
 
               Command driveAndShootCommand2 =
                   Commands.sequence(
+                      IntakeCommands.intakeStatic(true),
                       Commands.deadline(
                           PathUtil.followPath("Bump_to_Trench", mirror),
-                          // Commands.waitSeconds(0.25).andThen(IntakeCommands.intakeStatic(true)),
                           shootWithAgitation(6, 2.5)));
 
               return Commands.runOnce(() -> LoggedTracerStatic.record("CommandRun"))
