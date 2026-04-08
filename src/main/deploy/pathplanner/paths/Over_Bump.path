@@ -16,11 +16,11 @@
     },
     {
       "anchor": {
-        "x": 3.087073770491803,
+        "x": 3.0367540983606562,
         "y": 2.417581967213114
       },
       "prevControl": {
-        "x": 4.079090163934424,
+        "x": 4.028770491803277,
         "y": 2.41039344262295
       },
       "nextControl": null,
@@ -47,7 +47,7 @@
   },
   "goalEndState": {
     "velocity": 1.0,
-    "rotation": -139.82076607809262
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": "TrenchBump",

@@ -32,7 +32,7 @@ public class IntakeCommands {
   }
 
   public static Command retract() {
-    return Commands.parallel(
+    return Commands.sequence(
             stopSpin(),
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getPackaged(), 1), intakePivot))
@@ -42,6 +42,7 @@ public class IntakeCommands {
   public static Command agitate(double... timeout) {
     final double waitTime = (timeout.length == 0) ? 0.0 : timeout[0];
     return Commands.sequence(
+            stopSpin(),
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getAgitate(), 1), intakePivot),
             Commands.runOnce(() -> intakeSpin.runVolts(4), intakeSpin),
@@ -52,7 +53,6 @@ public class IntakeCommands {
         .finallyDo(
             () -> {
               intakePivot.runPosition(IntakePivot.getExtended(), 0);
-              intakeSpin.stop();
             })
         .withName("Intake_Agitate");
   }

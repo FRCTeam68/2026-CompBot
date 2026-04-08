@@ -178,10 +178,12 @@ public class IntakePivot extends SubsystemBase {
     return inputs.torqueCurrentAmps;
   }
 
+  @AutoLogOutput(key = "IntakePivot/isRetracted")
   public boolean isRetracted() {
     return getPosition() < (packaged + 0.08);
   }
 
+  @AutoLogOutput(key = "IntakePivot/isExtended")
   public boolean isExtended() {
     return getPosition() > (extended - 0.08);
   }

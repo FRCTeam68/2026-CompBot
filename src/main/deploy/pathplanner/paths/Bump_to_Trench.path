@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.087073770491803,
+        "x": 3.0367540983606562,
         "y": 2.417581967213114
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.4113524590163933,
-        "y": 1.7778032786885236
+        "x": 3.0776351331672975,
+        "y": 1.7150573505728928
       },
       "isLocked": false,
       "linkedName": "BumpShot"
@@ -20,8 +20,8 @@
         "y": 0.5825483870967754
       },
       "prevControl": {
-        "x": 2.0446957958751986,
-        "y": 0.48190904283447933
+        "x": 3.1450957030461963,
+        "y": 1.117549445931221
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,22 +30,18 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.3816593886462917,
-      "rotationDegrees": -82.15909250640345
-    },
-    {
-      "waypointRelativePos": 0.7764192139737913,
-      "rotationDegrees": 0.0
+      "waypointRelativePos": 0.05676855895196783,
+      "rotationDegrees": -178.1591047300307
     }
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.0,
-    "maxAcceleration": 1.5,
-    "maxAngularVelocity": 100.0,
-    "maxAngularAcceleration": 200.0,
+    "maxVelocity": 0.5,
+    "maxAcceleration": 0.5,
+    "maxAngularVelocity": 40.0,
+    "maxAngularAcceleration": 40.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
@@ -57,7 +53,7 @@
   "folder": "TrenchBump",
   "idealStartingState": {
     "velocity": 1.0,
-    "rotation": -139.82076607809262
+    "rotation": 180.0
   },
   "useDefaultConstraints": false
 }
