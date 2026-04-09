@@ -273,7 +273,7 @@ public class Auton {
                           PathUtil.followPath(
                               safe.get()
                                   ? "Trench_Sweep1_Straight_Safe"
-                                  : "Trench_Sweep1_Straight_Agressive",
+                                  : "Trench_Sweep1_Straight_Agressive_Sidestep",
                               // "Trench_Sweep1_Loop",
                               mirror),
                           delayShooterStart(mirror ? 270 : 90),
@@ -281,7 +281,7 @@ public class Auton {
                               .andThen(IntakeCommands.deploy(2))
                               .andThen(Commands.waitSeconds(0.2))
                               .andThen(IntakeCommands.deploy(2))
-                              .andThen(IntakeCommands.intakeStatic(true))),
+                              .andThen(IntakeCommands.intakeStatic(false))),
                       Commands.either(
                           DriveCommands.autopilotDriveToPose(
                                   () -> new APTarget(trenchApproach).withoutEntryAngle(), false)
@@ -388,7 +388,7 @@ public class Auton {
                               .andThen(IntakeCommands.deploy(2))
                               .andThen(Commands.waitSeconds(0.2))
                               .andThen(IntakeCommands.deploy(2))
-                              .andThen(IntakeCommands.intakeStatic(true))),
+                              .andThen(IntakeCommands.intakeStatic(false))),
                       Commands.either(
                           DriveCommands.autopilotDriveToPose(
                                   () -> new APTarget(bumpApproach).withoutEntryAngle(), false)

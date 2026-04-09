@@ -12,7 +12,7 @@ public class IntakeCommands {
   private static final LoggedTunableNumber intakeSpinVoltsSlow =
       new LoggedTunableNumber("IntakeSpin/Slow", 6);
   private static final LoggedTunableNumber intakeSpinVoltsFast =
-      new LoggedTunableNumber("IntakeSpin/Fast", 6);
+      new LoggedTunableNumber("IntakeSpin/Fast", 8);
   private static final double intakeSpinVoltsDefault = 7;
   private static final LoggedTunableNumber intakeSpinVoltsOuttake =
       new LoggedTunableNumber("IntakeSpin/Outtake", -10);
@@ -103,7 +103,8 @@ public class IntakeCommands {
                 () -> {
                   if (hopperSensor.isConnected()) {
                     if (hopperSensor.isNotEmpty()) {
-                      intakeSpin.runVolts(intakeSpinVoltsFast.get());
+                      intakeSpin.runVolts(
+                          intakeSpinVoltsSlow.get()); // yes, overriding to always run slow
                     } else {
                       intakeSpin.runVolts(intakeSpinVoltsSlow.get());
                     }

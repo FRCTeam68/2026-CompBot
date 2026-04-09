@@ -8,20 +8,36 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.59666393442623,
-        "y": 2.4391475409836056
+        "x": 4.9848442622950815,
+        "y": 2.4247704918032777
       },
       "isLocked": false,
       "linkedName": "BumpApproach"
     },
     {
       "anchor": {
-        "x": 3.0367540983606562,
+        "x": 3.6262131147540977,
         "y": 2.417581967213114
       },
       "prevControl": {
-        "x": 4.028770491803277,
-        "y": 2.41039344262295
+        "x": 4.021501160809203,
+        "y": 2.434031577659294
+      },
+      "nextControl": {
+        "x": 3.2599480743817946,
+        "y": 2.402340127004926
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.6701393442622954,
+        "y": 2.1156639344262285
+      },
+      "prevControl": {
+        "x": 3.2664435003780325,
+        "y": 2.40017498500618
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,8 +46,8 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.8905385735080033,
-      "rotationDegrees": 180.0
+      "waypointRelativePos": 1.4,
+      "rotationDegrees": -178.0
     }
   ],
   "constraintZones": [],
@@ -47,7 +63,7 @@
   },
   "goalEndState": {
     "velocity": 1.0,
-    "rotation": 180.0
+    "rotation": -155.2975697722288
   },
   "reversed": false,
   "folder": "TrenchBump",

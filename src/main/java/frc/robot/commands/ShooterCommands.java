@@ -15,7 +15,7 @@ public class ShooterCommands {
       new LoggedTunableNumber("Shooter/feederVolts", 12);
 
   private static final LoggedTunableNumber spindexerVolts =
-      new LoggedTunableNumber("Shooter/spindexerVolts", 12);
+      new LoggedTunableNumber("Shooter/spindexerVolts", 10);
   // private static final double feederVolts = 12;
   // private static final double spindexerVolts = 12;
   private static final double flywheelBumpStep = 0.5;
