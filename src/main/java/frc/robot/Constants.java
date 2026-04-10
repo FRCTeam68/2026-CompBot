@@ -4,9 +4,9 @@ import edu.wpi.first.wpilibj.RobotBase;
 
 public final class Constants {
   private static final Mode simType = Mode.SIM;
-  public static final boolean lowCeiling = true; // Keep shots below 9' to avoid ceiling
+  public static final boolean lowCeiling = false; // Keep shots below 9' to avoid ceiling
   public static final boolean tuningMode = false;
-  public static final boolean hootLogging = false;
+  public static final boolean hootLogging = true;
 
   public static final double loopPeriodSecs = 0.02;
   public static final double loopOverrunWarningSecs = 0.2;
