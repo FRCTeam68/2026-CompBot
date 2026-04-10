@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.6701393442622954,
-        "y": 2.1156639344262285
+        "x": 3.309918032788504,
+        "y": 2.417581967213114
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.2028852459016393,
-        "y": 1.2314754098360652
+        "x": 2.842663934427848,
+        "y": 1.5333934426229505
       },
       "isLocked": false,
       "linkedName": "BumpShot"
@@ -28,7 +28,12 @@
       "linkedName": "Trench Shoot"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.13245997088791647,
+      "rotationDegrees": -134.9721149676878
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -48,7 +53,7 @@
   "folder": "TrenchBump",
   "idealStartingState": {
     "velocity": 1.0,
-    "rotation": -155.2975697722288
+    "rotation": -175.9858243046943
   },
   "useDefaultConstraints": false
 }

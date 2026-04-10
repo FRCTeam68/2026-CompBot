@@ -428,7 +428,7 @@ public class Auton {
                   Commands.sequence(
                       Commands.deadline(
                           PathUtil.followPath("Bump_to_Trench", mirror)
-                              .andThen(Commands.waitSeconds(1)),
+                              .andThen(Commands.waitSeconds(1.5)),
                           shootWithAgitation(6, 2.5)));
 
               Command driveAndShootCommand2 =
