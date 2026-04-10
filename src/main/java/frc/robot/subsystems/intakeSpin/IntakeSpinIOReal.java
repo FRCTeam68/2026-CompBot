@@ -79,7 +79,7 @@ public class IntakeSpinIOReal implements IntakeSpinIO {
         leaderConfig.CurrentLimits.SupplyCurrentLowerLimit;
     tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(followerConfig, 0.25));
     followerTalon.setControl(
-        new Follower(leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed).withUpdateFreqHz(100));
+        new Follower(leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed).withUpdateFreqHz(200));
 
     position = leaderTalon.getPosition();
     velocity = leaderTalon.getVelocity();
