@@ -162,9 +162,17 @@ public class Shooter extends SubsystemBase {
         getDistanceToTarget()
             - (targetRelativeVelocity.vxMetersPerSecond * flightTime * linearMultiplier);
 
-    flywheel.runBangBang(
-        ShooterConstants.DynamicShot.hubShotFlywheelVelocity.get(targetDistanceAdjusted));
-    hood.runElvation(ShooterConstants.DynamicShot.hubShotHoodElevation.get(targetDistanceAdjusted));
+    if (isTargetHub) {
+      flywheel.runBangBang(
+          ShooterConstants.DynamicShot.hubShotFlywheelVelocity.get(targetDistanceAdjusted));
+      hood.runElvation(
+          ShooterConstants.DynamicShot.hubShotHoodElevation.get(targetDistanceAdjusted));
+    } else {
+      flywheel.runBangBang(
+          ShooterConstants.DynamicShot.passShotFlywheelVelocity.get(targetDistanceAdjusted));
+      hood.runElvation(
+          ShooterConstants.DynamicShot.passShotHoodElevation.get(targetDistanceAdjusted));
+    }
     turret.runPosition(
         rotationToTarget
             .minus(
