@@ -61,7 +61,9 @@ public class IntakePivotIOReal implements IntakePivotIO {
   private final StatusSignal<Temperature> tempCelsius;
   private final StatusSignal<MagnetHealthValue> magnetHealth;
   private final StatusSignal<Angle> absolutePosition;
-  private final StatusSignal<Boolean> fusedSensorOutOfSync;
+  private final StatusSignal<Boolean> faultStickyFusedSensorOutOfSync;
+  private final StatusSignal<Boolean> faultRotorFault1;
+  private final StatusSignal<Boolean> faultRotorFault2;
 
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true);
@@ -107,7 +109,9 @@ public class IntakePivotIOReal implements IntakePivotIO {
     tempCelsius = talon.getDeviceTemp();
     magnetHealth = cancoder.getMagnetHealth();
     absolutePosition = cancoder.getAbsolutePosition();
-    fusedSensorOutOfSync = talon.getStickyFault_FusedSensorOutOfSync();
+    faultStickyFusedSensorOutOfSync = talon.getStickyFault_FusedSensorOutOfSync();
+    faultRotorFault1 = talon.getFault_RotorFault1();
+    faultRotorFault2 = talon.getFault_RotorFault2();
 
     tryUntilOk(
         5,
@@ -121,7 +125,9 @@ public class IntakePivotIOReal implements IntakePivotIO {
                 torqueCurrent,
                 magnetHealth,
                 absolutePosition,
-                fusedSensorOutOfSync));
+                faultStickyFusedSensorOutOfSync,
+                faultRotorFault1,
+                faultRotorFault2));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon, cancoder));
     PhoenixUtil.registerSignals(
         canBus,
@@ -133,7 +139,9 @@ public class IntakePivotIOReal implements IntakePivotIO {
         tempCelsius,
         magnetHealth,
         absolutePosition,
-        fusedSensorOutOfSync);
+        faultStickyFusedSensorOutOfSync,
+        faultRotorFault1,
+        faultRotorFault2);
   }
 
   @Override
@@ -149,7 +157,9 @@ public class IntakePivotIOReal implements IntakePivotIO {
     inputs.tempCelsius = tempCelsius.getValueAsDouble();
     inputs.magnetHealth = magnetHealth.getValue();
     inputs.absolutePosition = absolutePosition.getValueAsDouble();
-    inputs.fusedSensorInSync = !fusedSensorOutOfSync.getValue();
+    inputs.fusedSensorInSync = !faultStickyFusedSensorOutOfSync.getValue();
+    inputs.faultRotorFault1 = faultRotorFault1.getValue();
+    inputs.faultRotorFault2 = faultRotorFault2.getValue();
   }
 
   @Override

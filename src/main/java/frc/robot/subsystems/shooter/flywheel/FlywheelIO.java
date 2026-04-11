@@ -18,6 +18,10 @@ public interface FlywheelIO {
     public double followerTorqueCurrentAmps = 0.0;
     public double leaderTempCelsius = 0.0;
     public double followerTempCelsius = 0.0;
+    public boolean leaderFaultRotorFault1 = false;
+    public boolean leaderFaultRotorFault2 = false;
+    public boolean followerFaultRotorFault1 = false;
+    public boolean followerFaultRotorFault2 = false;
   }
 
   default void updateInputs(FlyWheelIOInputs inputs) {}

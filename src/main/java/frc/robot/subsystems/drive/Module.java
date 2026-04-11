@@ -67,6 +67,7 @@ public class Module {
   private final Alert turnEncoderDisconnectedAlert;
   private final Alert driveTempAlert;
   private final Alert turnTempAlert;
+  private final Alert driveRotorFaultAlert;
 
   private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
 
@@ -99,6 +100,12 @@ public class Module {
         new Alert(
             "Turn motor too hot on drive " + DriveConstants.moduleNames[index] + ".",
             AlertType.kWarning);
+    driveRotorFaultAlert =
+        new Alert(
+            "Drive motor has rotor fault on drive "
+                + DriveConstants.moduleNames[index]
+                + ". The motor may not run properly.",
+            AlertType.kError);
     inputsKey =
         "Drive/" + DriveConstants.moduleNames[index].replace(" ", "").replaceFirst("m", "M");
   }
@@ -143,6 +150,7 @@ public class Module {
         !turnEncoderConnectedDebouncer.calculate(inputs.turnEncoderConnected));
     driveTempAlert.set(inputs.driveTempCelsius > Constants.warningTempCelsius);
     turnTempAlert.set(inputs.turnTempCelsius > Constants.warningTempCelsius);
+    driveRotorFaultAlert.set(inputs.driveFaultRotorFault1 || inputs.driveFaultRotorFault2);
   }
 
   /** Runs the module with the specified setpoint state. Mutates the state to optimize it. */

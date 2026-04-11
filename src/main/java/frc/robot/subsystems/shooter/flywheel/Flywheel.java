@@ -53,6 +53,14 @@ public class Flywheel extends SubsystemBase {
       new Alert("Flywheel leader (left) motor is too hot.", AlertType.kWarning);
   private final Alert followerTempAlert =
       new Alert("Flywheel follower (right) motor is too hot.", AlertType.kWarning);
+  private final Alert leaderRotorFaultAlert =
+      new Alert(
+          "Intake Spin leader (left) motor has a rotor fault. The motor may not run properly.",
+          AlertType.kError);
+  private final Alert followerRotorFaultAlert =
+      new Alert(
+          "Intake Spin leader (left) motor has a rotor fault. The motor may not run properly.",
+          AlertType.kError);
 
   // Debouncers
   private final Debouncer leaderConnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
@@ -88,6 +96,8 @@ public class Flywheel extends SubsystemBase {
     followerDisconnectedAlert.set(!followerConnectedDebouncer.calculate(inputs.followerConnected));
     leaderTempAlert.set(inputs.leaderTempCelsius > Constants.warningTempCelsius);
     followerTempAlert.set(inputs.followerTempCelsius > Constants.warningTempCelsius);
+    leaderRotorFaultAlert.set(inputs.leaderFaultRotorFault1 || inputs.leaderFaultRotorFault2);
+    followerRotorFaultAlert.set(inputs.followerFaultRotorFault1 || inputs.followerFaultRotorFault2);
 
     Logger.recordOutput("Shooter/Flywheel/ControlMode", mode.toString());
 

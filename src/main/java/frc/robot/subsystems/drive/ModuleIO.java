@@ -15,6 +15,8 @@ public interface ModuleIO {
     public double driveSupplyCurrentAmps = 0.0;
     public double driveTorqueCurrentAmps = 0.0;
     public double driveTempCelsius = 0.0;
+    public boolean driveFaultRotorFault1 = false;
+    public boolean driveFaultRotorFault2 = false;
 
     public boolean turnConnected = false;
     public Rotation2d turnPosition = Rotation2d.kZero;

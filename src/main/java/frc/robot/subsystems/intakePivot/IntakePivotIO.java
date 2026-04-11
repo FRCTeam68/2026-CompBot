@@ -19,6 +19,8 @@ public interface IntakePivotIO {
     public MagnetHealthValue magnetHealth = MagnetHealthValue.Magnet_Invalid;
     public double absolutePosition = 0.0;
     public boolean fusedSensorInSync = false;
+    public boolean faultRotorFault1 = false;
+    public boolean faultRotorFault2 = false;
   }
 
   default void updateInputs(IntakePivotIOInputs inputs) {}

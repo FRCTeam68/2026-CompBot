@@ -34,6 +34,8 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   private final StatusSignal<Current> supplyCurrent;
   private final StatusSignal<Current> torqueCurrent;
   private final StatusSignal<Temperature> tempCelsius;
+  private final StatusSignal<Boolean> faultRotorFault1;
+  private final StatusSignal<Boolean> faultRotorFault2;
 
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
@@ -76,15 +78,32 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
     supplyCurrent = talon.getSupplyCurrent();
     torqueCurrent = talon.getTorqueCurrent();
     tempCelsius = talon.getDeviceTemp();
+    faultRotorFault1 = talon.getFault_RotorFault1();
+    faultRotorFault2 = talon.getFault_RotorFault2();
 
     tryUntilOk(
         5,
         () ->
             BaseStatusSignal.setUpdateFrequencyForAll(
-                50, position, velocity, appliedVoltage, supplyCurrent, torqueCurrent));
+                50,
+                position,
+                velocity,
+                appliedVoltage,
+                supplyCurrent,
+                torqueCurrent,
+                faultRotorFault1,
+                faultRotorFault2));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon));
     PhoenixUtil.registerSignals(
-        canBus, position, velocity, appliedVoltage, supplyCurrent, torqueCurrent, tempCelsius);
+        canBus,
+        position,
+        velocity,
+        appliedVoltage,
+        supplyCurrent,
+        torqueCurrent,
+        tempCelsius,
+        faultRotorFault1,
+        faultRotorFault2);
   }
 
   @Override
@@ -98,6 +117,8 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
     inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
     inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();
     inputs.tempCelsius = tempCelsius.getValueAsDouble();
+    inputs.faultRotorFault1 = faultRotorFault1.getValue();
+    inputs.faultRotorFault2 = faultRotorFault2.getValue();
   }
 
   @Override

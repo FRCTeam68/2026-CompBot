@@ -12,6 +12,8 @@ public interface RollerSystemIO {
     public double supplyCurrentAmps = 0.0;
     public double torqueCurrentAmps = 0.0;
     public double tempCelsius = 0.0;
+    public boolean faultRotorFault1 = false;
+    public boolean faultRotorFault2 = false;
   }
 
   default void updateInputs(RollerSystemIOInputs inputs) {}
