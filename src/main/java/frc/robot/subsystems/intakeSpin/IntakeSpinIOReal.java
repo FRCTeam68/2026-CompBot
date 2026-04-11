@@ -50,7 +50,7 @@ public class IntakeSpinIOReal implements IntakeSpinIO {
   private final StatusSignal<Temperature> followerTempCelsius;
 
   // Control requests
-  private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
+  private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(false);
   private final NeutralOut neutralOut = new NeutralOut();
 
   public IntakeSpinIOReal() {
@@ -79,7 +79,7 @@ public class IntakeSpinIOReal implements IntakeSpinIO {
         leaderConfig.CurrentLimits.SupplyCurrentLowerLimit;
     tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(followerConfig, 0.25));
     followerTalon.setControl(
-        new Follower(leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed).withUpdateFreqHz(200));
+        new Follower(leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed).withUpdateFreqHz(100));
 
     position = leaderTalon.getPosition();
     velocity = leaderTalon.getVelocity();
@@ -96,7 +96,7 @@ public class IntakeSpinIOReal implements IntakeSpinIO {
         5,
         () ->
             BaseStatusSignal.setUpdateFrequencyForAll(
-                200, leaderAppliedVoltage, followerAppliedVoltage));
+                100, leaderAppliedVoltage, followerAppliedVoltage));
     tryUntilOk(
         5,
         () ->
