@@ -32,7 +32,7 @@ public final class DriveConstants {
   private static final double cof = 1.4;
 
   // Control Configuration
-  public static final double driveStatorCurrentLimitAmps = 50; // amps
+  public static final double driveStatorCurrentLimitAmps = 40; // amps
   public static final double turnStatorCurrentLimitAmps = 40; // amps
   public static final double maxLinearAcceleration = 22; // meters/second^2
   public static final double maxAngularAcceleration = 22;
