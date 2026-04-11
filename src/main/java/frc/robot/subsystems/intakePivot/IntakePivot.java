@@ -34,7 +34,7 @@ public class IntakePivot extends SubsystemBase {
   // PID gains
   private final LoggedTunableNumber[] kP =
       new LoggedTunableNumber[] {
-        new LoggedTunableNumber("IntakePivot/Slot0-Deploy/kP", 100),
+        new LoggedTunableNumber("IntakePivot/Slot0-Deploy/kP", 450),
         new LoggedTunableNumber("IntakePivot/Slot1-Retract/kP", 800),
         new LoggedTunableNumber("IntakePivot/Slot2-DeployFirst/kP", 650)
       };
