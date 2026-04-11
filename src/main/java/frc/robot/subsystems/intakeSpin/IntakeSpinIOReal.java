@@ -48,6 +48,10 @@ public class IntakeSpinIOReal implements IntakeSpinIO {
   private final StatusSignal<Current> followerTorqueCurrent;
   private final StatusSignal<Temperature> leaderTempCelsius;
   private final StatusSignal<Temperature> followerTempCelsius;
+  private final StatusSignal<Boolean> leaderFaultRotorFault1;
+  private final StatusSignal<Boolean> leaderFaultRotorFault2;
+  private final StatusSignal<Boolean> followerFaultRotorFault1;
+  private final StatusSignal<Boolean> followerFaultRotorFault2;
 
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true);
@@ -91,6 +95,10 @@ public class IntakeSpinIOReal implements IntakeSpinIO {
     followerTorqueCurrent = followerTalon.getTorqueCurrent();
     leaderTempCelsius = leaderTalon.getDeviceTemp();
     followerTempCelsius = followerTalon.getDeviceTemp();
+    leaderFaultRotorFault1 = leaderTalon.getFault_RotorFault1();
+    leaderFaultRotorFault2 = leaderTalon.getFault_RotorFault2();
+    followerFaultRotorFault1 = followerTalon.getFault_RotorFault1();
+    followerFaultRotorFault2 = followerTalon.getFault_RotorFault2();
 
     tryUntilOk(
         5,
@@ -107,7 +115,11 @@ public class IntakeSpinIOReal implements IntakeSpinIO {
                 leaderSupplyCurrent,
                 followerSupplyCurrent,
                 leaderTorqueCurrent,
-                followerTorqueCurrent));
+                followerTorqueCurrent,
+                leaderFaultRotorFault1,
+                leaderFaultRotorFault2,
+                followerFaultRotorFault1,
+                followerFaultRotorFault2));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(leaderTalon, followerTalon));
     PhoenixUtil.registerSignals(
         canBus,
@@ -118,7 +130,11 @@ public class IntakeSpinIOReal implements IntakeSpinIO {
         leaderSupplyCurrent,
         leaderTorqueCurrent,
         leaderTempCelsius,
-        followerTempCelsius);
+        followerTempCelsius,
+        leaderFaultRotorFault1,
+        leaderFaultRotorFault2,
+        followerFaultRotorFault1,
+        followerFaultRotorFault2);
   }
 
   @Override
@@ -137,6 +153,10 @@ public class IntakeSpinIOReal implements IntakeSpinIO {
     inputs.followerTorqueCurrentAmps = followerTorqueCurrent.getValueAsDouble();
     inputs.leaderTempCelsius = leaderTempCelsius.getValueAsDouble();
     inputs.followerTempCelsius = followerTempCelsius.getValueAsDouble();
+    inputs.leaderFaultRotorFault1 = leaderFaultRotorFault1.getValue();
+    inputs.leaderFaultRotorFault2 = leaderFaultRotorFault2.getValue();
+    inputs.followerFaultRotorFault1 = followerFaultRotorFault1.getValue();
+    inputs.followerFaultRotorFault2 = followerFaultRotorFault2.getValue();
   }
 
   @Override

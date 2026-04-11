@@ -58,6 +58,10 @@ public class IntakePivot extends SubsystemBase {
       new Alert("Intake pivot cancoder disconnected!", AlertType.kError);
   private final Alert motorTempAlert =
       new Alert("Intake pivot motor is too hot.", AlertType.kWarning);
+  private final Alert rotorFaultAlert =
+      new Alert(
+          "Intake pivot motor has a rotor fault. The motor may not run properly.",
+          AlertType.kError);
 
   // Debouncers
   private final Debouncer motorConnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
@@ -89,6 +93,7 @@ public class IntakePivot extends SubsystemBase {
     cancoderDisconnectedAlert.set(
         !cancoderDisconnectedDebouncer.calculate(inputs.cancoderConnected));
     motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
+    rotorFaultAlert.set(inputs.faultRotorFault1 || inputs.faultRotorFault2);
 
     // Update PID gains
     if (kP[0].hasChanged(hashCode())
