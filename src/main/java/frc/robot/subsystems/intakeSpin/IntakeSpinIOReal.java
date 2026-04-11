@@ -66,9 +66,9 @@ public class IntakeSpinIOReal implements IntakeSpinIO {
     leaderConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     // Current limits
     leaderConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    leaderConfig.CurrentLimits.SupplyCurrentLimit = 60;
+    leaderConfig.CurrentLimits.SupplyCurrentLimit = 30;
     leaderConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
-    leaderConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
+    leaderConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
     // Feedback
     leaderConfig.Feedback.SensorToMechanismRatio = reduction;
     tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(leaderConfig, 0.25));
@@ -128,7 +128,9 @@ public class IntakeSpinIOReal implements IntakeSpinIO {
         leaderAppliedVoltage,
         followerAppliedVoltage,
         leaderSupplyCurrent,
+        followerSupplyCurrent,
         leaderTorqueCurrent,
+        followerTorqueCurrent,
         leaderTempCelsius,
         followerTempCelsius,
         leaderFaultRotorFault1,
