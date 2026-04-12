@@ -73,11 +73,11 @@ public class ShooterConstants {
     public static final double minHubShotDistance = 0.92;
 
     private static final InterpConfig[] hubConfigHigh = {
-      InterpConfig.builder().distance(0.92).flywheel(49).hood(72).flightTime(1.1).build(),
-      InterpConfig.builder().distance(1.50).flywheel(49).hood(69).flightTime(1.083).build(),
-      InterpConfig.builder().distance(1.98).flywheel(50).hood(65).flightTime(1.017).build(),
-      InterpConfig.builder().distance(2.48).flywheel(51).hood(60).flightTime(1.033).build(),
-      InterpConfig.builder().distance(2.95).flywheel(52).hood(58).flightTime(1.033).build(),
+      InterpConfig.builder().distance(0.92).flywheel(48).hood(72).flightTime(1.1).build(),
+      InterpConfig.builder().distance(1.50).flywheel(48).hood(69).flightTime(1.083).build(),
+      InterpConfig.builder().distance(1.98).flywheel(49).hood(65).flightTime(1.017).build(),
+      InterpConfig.builder().distance(2.48).flywheel(50).hood(60).flightTime(1.033).build(),
+      InterpConfig.builder().distance(2.95).flywheel(51.5).hood(58).flightTime(1.033).build(),
       InterpConfig.builder().distance(3.53).flywheel(55).hood(55).flightTime(1.083).build(),
       InterpConfig.builder().distance(3.60).flywheel(55).hood(58).flightTime(1.12).build(),
       InterpConfig.builder().distance(3.99).flywheel(57).hood(58).flightTime(1.16).build(),
