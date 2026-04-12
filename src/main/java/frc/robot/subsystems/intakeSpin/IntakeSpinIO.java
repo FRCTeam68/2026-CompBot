@@ -1,5 +1,6 @@
 package frc.robot.subsystems.intakeSpin;
 
+import com.ctre.phoenix6.configs.SlotConfigs;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface IntakeSpinIO {
@@ -31,6 +32,20 @@ public interface IntakeSpinIO {
    * @param volts Voltage to run the motor at.
    */
   default void runVolts(double volts) {}
+
+  /**
+   * Run system to specified velocity (rotations per second).
+   *
+   * @param velocity rotations per second
+   * @param slot PID slot/index to use for closed-loop control (if applicable)
+   */
+  default void runVelocity(double velocity, int slot) {}
+
+  /**
+   * Configure PID slots on the motor controller. Accepts zero to three SlotConfigs corresponding to
+   * slot0, slot1, slot2.
+   */
+  default void setPID(SlotConfigs... newConfig) {}
 
   /** Stop motor with neutral output. */
   default void stop() {}

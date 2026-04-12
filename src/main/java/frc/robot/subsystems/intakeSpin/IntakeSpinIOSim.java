@@ -23,7 +23,8 @@ public class IntakeSpinIOSim implements IntakeSpinIO {
   public IntakeSpinIOSim() {
     sim =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(motor, 0.1, IntakeSpinIOReal.getReduction()), motor);
+            LinearSystemId.createDCMotorSystem(motor, 0.002, IntakeSpinIOReal.getReduction()),
+            motor);
   }
 
   @Override
@@ -50,6 +51,16 @@ public class IntakeSpinIOSim implements IntakeSpinIO {
 
   @Override
   public void runVolts(double volts) {
+    setInputVoltage(volts);
+  }
+
+  @Override
+  public void runVelocity(double velocity, int slot) {
+    // Simple simulation approximation: map desired rps to a voltage proportional to a nominal
+    // speed.
+    // Choose 100 rps as the nominal full-speed (12V) value unless tuned otherwise.
+    double nominalRPS = 100.0;
+    double volts = (velocity / nominalRPS) * 12.0;
     setInputVoltage(volts);
   }
 

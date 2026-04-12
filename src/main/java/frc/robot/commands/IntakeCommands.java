@@ -9,13 +9,13 @@ import frc.robot.subsystems.sensors.HopperSensor;
 import frc.robot.util.LoggedTunableNumber;
 
 public class IntakeCommands {
-  private static final LoggedTunableNumber intakeSpinVoltsSlow =
-      new LoggedTunableNumber("IntakeSpin/Slow", 6);
-  private static final LoggedTunableNumber intakeSpinVoltsFast =
-      new LoggedTunableNumber("IntakeSpin/Fast", 8);
-  private static final double intakeSpinVoltsDefault = 7;
-  private static final LoggedTunableNumber intakeSpinVoltsOuttake =
-      new LoggedTunableNumber("IntakeSpin/Outtake", -10);
+  private static final LoggedTunableNumber intakeSpinRpsSlow =
+      new LoggedTunableNumber("IntakeSpin/SlowRPS", 50);
+  private static final LoggedTunableNumber intakeSpinRpsFast =
+      new LoggedTunableNumber("IntakeSpin/FastRPS", 70);
+  private static final double intakeSpinRpsDefault = 60;
+  private static final LoggedTunableNumber intakeSpinRpsOuttake =
+      new LoggedTunableNumber("IntakeSpin/OuttakeRPS", -50);
 
   // Subsystems
   private static final RobotSystem robotSystem = RobotSystem.getInstance();
@@ -69,12 +69,12 @@ public class IntakeCommands {
                   if (robotSystem.autoIntake.get() && intakePivot.isExtended()) {
                     if (hopperSensor.isConnected()) {
                       if (hopperSensor.isNotEmpty()) {
-                        intakeSpin.runVolts(intakeSpinVoltsFast.get());
+                        intakeSpin.runVelocity(intakeSpinRpsFast.get());
                       } else {
-                        intakeSpin.runVolts(intakeSpinVoltsSlow.get());
+                        intakeSpin.runVelocity(intakeSpinRpsSlow.get());
                       }
                     } else {
-                      intakeSpin.runVolts(intakeSpinVoltsDefault);
+                      intakeSpin.runVelocity(intakeSpinRpsDefault);
                     }
                   }
                 },
@@ -89,8 +89,8 @@ public class IntakeCommands {
                 () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
             Commands.runOnce(
                 () ->
-                    intakeSpin.runVolts(
-                        slowMode ? intakeSpinVoltsSlow.get() : intakeSpinVoltsFast.get()),
+                    intakeSpin.runVelocity(
+                        slowMode ? intakeSpinRpsSlow.get() : intakeSpinRpsFast.get()),
                 intakeSpin))
         .withName("Intake_Static");
   }
@@ -103,13 +103,13 @@ public class IntakeCommands {
                 () -> {
                   if (hopperSensor.isConnected()) {
                     if (hopperSensor.isNotEmpty()) {
-                      intakeSpin.runVolts(
-                          intakeSpinVoltsSlow.get()); // yes, overriding to always run slow
+                      intakeSpin.runVelocity(
+                          intakeSpinRpsSlow.get()); // yes, overriding to always run slow
                     } else {
-                      intakeSpin.runVolts(intakeSpinVoltsSlow.get());
+                      intakeSpin.runVelocity(intakeSpinRpsSlow.get());
                     }
                   } else {
-                    intakeSpin.runVolts(intakeSpinVoltsDefault);
+                    intakeSpin.runVelocity(intakeSpinRpsDefault);
                   }
                 },
                 intakeSpin))
@@ -121,7 +121,7 @@ public class IntakeCommands {
     return Commands.parallel(
             Commands.runOnce(
                 () -> intakePivot.runPosition(IntakePivot.getExtended(), 0), intakePivot),
-            Commands.runOnce(() -> intakeSpin.runVolts(intakeSpinVoltsOuttake.get()), intakeSpin),
+            Commands.runOnce(() -> intakeSpin.runVelocity(intakeSpinRpsOuttake.get()), intakeSpin),
             Commands.idle())
         .finallyDo(() -> intakeSpin.stop())
         .withName("Intake_Outtake");

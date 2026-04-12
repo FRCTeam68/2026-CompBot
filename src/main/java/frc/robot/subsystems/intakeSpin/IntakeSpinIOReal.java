@@ -5,9 +5,14 @@ import static frc.robot.util.PhoenixUtil.tryUntilOk;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.configs.Slot2Configs;
+import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -55,6 +60,7 @@ public class IntakeSpinIOReal implements IntakeSpinIO {
 
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(false);
+  private final VelocityTorqueCurrentFOC velocityOut = new VelocityTorqueCurrentFOC(0.0);
   private final NeutralOut neutralOut = new NeutralOut();
 
   public IntakeSpinIOReal() {
@@ -69,6 +75,11 @@ public class IntakeSpinIOReal implements IntakeSpinIO {
     leaderConfig.CurrentLimits.SupplyCurrentLimit = 30;
     leaderConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
     leaderConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
+    leaderConfig.CurrentLimits.StatorCurrentLimitEnable = false;
+    leaderConfig.CurrentLimits.StatorCurrentLimit = 30;
+    leaderConfig.TorqueCurrent.PeakForwardTorqueCurrent = 40;
+    leaderConfig.TorqueCurrent.PeakReverseTorqueCurrent = 5;
+
     // Feedback
     leaderConfig.Feedback.SensorToMechanismRatio = reduction;
     tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(leaderConfig, 0.25));
@@ -81,6 +92,13 @@ public class IntakeSpinIOReal implements IntakeSpinIO {
         leaderConfig.CurrentLimits.SupplyCurrentLowerTime;
     followerConfig.CurrentLimits.SupplyCurrentLowerLimit =
         leaderConfig.CurrentLimits.SupplyCurrentLowerLimit;
+    followerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    followerConfig.CurrentLimits.StatorCurrentLimit = leaderConfig.CurrentLimits.StatorCurrentLimit;
+    followerConfig.TorqueCurrent.PeakForwardTorqueCurrent =
+        leaderConfig.TorqueCurrent.PeakForwardTorqueCurrent;
+    followerConfig.TorqueCurrent.PeakReverseTorqueCurrent =
+        leaderConfig.TorqueCurrent.PeakReverseTorqueCurrent;
+
     tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(followerConfig, 0.25));
     followerTalon.setControl(
         new Follower(leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed).withUpdateFreqHz(100));
@@ -104,7 +122,11 @@ public class IntakeSpinIOReal implements IntakeSpinIO {
         5,
         () ->
             BaseStatusSignal.setUpdateFrequencyForAll(
-                100, leaderAppliedVoltage, followerAppliedVoltage));
+                100,
+                leaderTorqueCurrent,
+                followerTorqueCurrent,
+                leaderAppliedVoltage,
+                followerAppliedVoltage));
     tryUntilOk(
         5,
         () ->
@@ -164,6 +186,30 @@ public class IntakeSpinIOReal implements IntakeSpinIO {
   @Override
   public void runVolts(double volts) {
     leaderTalon.setControl(voltageOut.withOutput(volts));
+  }
+
+  @Override
+  public void runVelocity(double velocity, int slot) {
+    // velocity is expected in rotations per second
+    leaderTalon.setControl(velocityOut.withVelocity(velocity).withSlot(slot));
+  }
+
+  @Override
+  public void setPID(SlotConfigs... newConfig) {
+    for (int i = 0; i < Math.min(newConfig.length, 3); i++) {
+      switch (i) {
+        case 0:
+          leaderConfig.Slot0 = Slot0Configs.from(newConfig[i]);
+          break;
+        case 1:
+          leaderConfig.Slot1 = Slot1Configs.from(newConfig[i]);
+          break;
+        case 2:
+          leaderConfig.Slot2 = Slot2Configs.from(newConfig[i]);
+          break;
+      }
+    }
+    tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(leaderConfig, 0.25));
   }
 
   @Override
