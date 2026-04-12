@@ -25,7 +25,7 @@ public class Shooter extends SubsystemBase {
   private static final LoggedTunableNumber towardMultiplier =
       new LoggedTunableNumber("Shooter/TowardMultiplier", 1.1);
   private static final LoggedTunableNumber awayMultiplier =
-      new LoggedTunableNumber("Shooter/AwayMultiplier", 1.2);
+      new LoggedTunableNumber("Shooter/AwayMultiplier", 1.15);
   private static final LoggedTunableNumber angleMultiplier =
       new LoggedTunableNumber("Shooter/AngleMultiplier", 1.05);
 
