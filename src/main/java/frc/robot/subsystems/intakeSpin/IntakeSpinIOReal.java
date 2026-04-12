@@ -69,6 +69,11 @@ public class IntakeSpinIOReal implements IntakeSpinIO {
     leaderConfig.CurrentLimits.SupplyCurrentLimit = 30;
     leaderConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
     leaderConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
+    leaderConfig.CurrentLimits.StatorCurrentLimitEnable = false;
+    leaderConfig.CurrentLimits.StatorCurrentLimit = 30;
+    leaderConfig.TorqueCurrent.PeakForwardTorqueCurrent = 40;
+    leaderConfig.TorqueCurrent.PeakReverseTorqueCurrent = 5;
+
     // Feedback
     leaderConfig.Feedback.SensorToMechanismRatio = reduction;
     tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(leaderConfig, 0.25));
@@ -81,6 +86,13 @@ public class IntakeSpinIOReal implements IntakeSpinIO {
         leaderConfig.CurrentLimits.SupplyCurrentLowerTime;
     followerConfig.CurrentLimits.SupplyCurrentLowerLimit =
         leaderConfig.CurrentLimits.SupplyCurrentLowerLimit;
+    followerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    followerConfig.CurrentLimits.StatorCurrentLimit = leaderConfig.CurrentLimits.StatorCurrentLimit;
+    followerConfig.TorqueCurrent.PeakForwardTorqueCurrent =
+        leaderConfig.TorqueCurrent.PeakForwardTorqueCurrent;
+    followerConfig.TorqueCurrent.PeakReverseTorqueCurrent =
+        leaderConfig.TorqueCurrent.PeakReverseTorqueCurrent;
+
     tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(followerConfig, 0.25));
     followerTalon.setControl(
         new Follower(leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed).withUpdateFreqHz(100));
