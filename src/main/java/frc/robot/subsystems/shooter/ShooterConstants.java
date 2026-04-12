@@ -23,7 +23,7 @@ public class ShooterConstants {
   /**
    * The amount of time it takes fuel to get from the top of the hub chute to the counting sensor.
    */
-  public static final double hubFilterTime = 1.5;
+  public static final double hubFilterTime = 0.5;
 
   public static class TrenchZone {
     // The maximum time for the hood to lower to underTrenchMinimum
