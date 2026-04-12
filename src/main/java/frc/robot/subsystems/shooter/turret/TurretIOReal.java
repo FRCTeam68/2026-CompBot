@@ -92,7 +92,7 @@ public class TurretIOReal implements TurretIO {
         Units.degreesToRotations(Turret.getMinimum());
 
     // CANcoder
-    cancoderConfig.MagnetSensor.MagnetOffset = -0.975341796875;
+    cancoderConfig.MagnetSensor.MagnetOffset = -0.016845703125;
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
     cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));

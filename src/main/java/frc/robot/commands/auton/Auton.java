@@ -317,7 +317,7 @@ public class Auton {
                           .onlyIf(
                               () -> drive.getPose().minus(shot).getTranslation().getNorm() > 0.5));
 
-              myCommand1 = Commands.sequence(neutralPath1Command, shootWithAgitation(4, 2.4));
+              myCommand1 = Commands.sequence(neutralPath1Command, shootWithAgitation(4.5, 2.4));
               // -----------------------------------------------------
               if ((!left && !autonOutpost.get()) || (left && !autonDepot.get())) {
                 // run double pass to nuetral zone
