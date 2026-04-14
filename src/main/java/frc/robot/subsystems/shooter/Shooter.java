@@ -23,9 +23,9 @@ import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
   private static final LoggedTunableNumber towardMultiplier =
-      new LoggedTunableNumber("Shooter/TowardMultiplier", 1.1);
+      new LoggedTunableNumber("Shooter/TowardMultiplier", 1.05);
   private static final LoggedTunableNumber awayMultiplier =
-      new LoggedTunableNumber("Shooter/AwayMultiplier", 1.15);
+      new LoggedTunableNumber("Shooter/AwayMultiplier", 0.95);
   private static final LoggedTunableNumber angleMultiplier =
       new LoggedTunableNumber("Shooter/AngleMultiplier", 1.05);
 
