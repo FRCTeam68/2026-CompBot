@@ -16,78 +16,78 @@
     },
     {
       "anchor": {
-        "x": 8.30594262295082,
-        "y": 1.7634262295081964
+        "x": 8.284377049180328,
+        "y": 1.6412213114754093
       },
       "prevControl": {
-        "x": 8.067087766763786,
-        "y": 0.2904879496881547
+        "x": 8.06872131147541,
+        "y": 0.41198360655737587
       },
       "nextControl": {
-        "x": 8.478467213114754,
-        "y": 2.827327868852459
+        "x": 8.404887066307234,
+        "y": 2.328128409098773
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.456901639344261,
-        "y": 3.3880327868852453
+        "x": 8.392204918032785,
+        "y": 3.5102377049180324
       },
       "prevControl": {
-        "x": 8.456901639344261,
-        "y": 3.1380327868852453
+        "x": 8.543163934430034,
+        "y": 3.172377049181822
       },
       "nextControl": {
-        "x": 8.456901639344261,
-        "y": 3.6380327868852453
+        "x": 8.203497602880478,
+        "y": 3.9325826483416324
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.764965909090909,
-        "y": 1.4892159090909092
+        "x": 6.954500000003805,
+        "y": 3.2514508196736243
       },
       "prevControl": {
-        "x": 8.320319672131147,
-        "y": 2.439147540983605
+        "x": 7.428942622954625,
+        "y": 3.632442622952314
       },
       "nextControl": {
-        "x": 7.370210108281803,
-        "y": 0.8139868082582331
+        "x": 6.344642067417429,
+        "y": 2.7617164192633505
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.833389635587788,
-        "y": 0.5355569080925511
+        "x": 6.034368852459018,
+        "y": 2.417581967213114
       },
       "prevControl": {
-        "x": 6.600295454545455,
-        "y": 0.5719090909090914
+        "x": 6.746032786889051,
+        "y": 3.0501721311490346
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Trench Neutral Zone Approach"
+      "linkedName": "BumpApproach"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.7672955974842767,
+      "waypointRelativePos": 0.7106918238993356,
       "rotationDegrees": 90.0
     },
     {
-      "waypointRelativePos": 2.0,
+      "waypointRelativePos": 1.4334788937409118,
       "rotationDegrees": 90.0
     },
     {
-      "waypointRelativePos": 2.6981132075471823,
-      "rotationDegrees": 90.0
+      "waypointRelativePos": 2.0809315866084552,
+      "rotationDegrees": -170.22099265705373
     }
   ],
   "constraintZones": [
@@ -116,11 +116,11 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 3.9,
-    "rotation": 0.0
+    "velocity": 2.0,
+    "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Trench",
+  "folder": "TrenchBump",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

@@ -20,6 +20,10 @@ import frc.robot.subsystems.intakePivot.IntakePivot;
 import frc.robot.subsystems.intakePivot.IntakePivotIO;
 import frc.robot.subsystems.intakePivot.IntakePivotIOReal;
 import frc.robot.subsystems.intakePivot.IntakePivotIOSim;
+import frc.robot.subsystems.intakeSpin.IntakeSpin;
+import frc.robot.subsystems.intakeSpin.IntakeSpinIO;
+import frc.robot.subsystems.intakeSpin.IntakeSpinIOReal;
+import frc.robot.subsystems.intakeSpin.IntakeSpinIOSim;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.LightsIO;
 import frc.robot.subsystems.lights.LightsIOCANdle;
@@ -63,14 +67,14 @@ public class RobotSystem {
   public final LoggedNetworkBoolean autoshootPass =
       new LoggedNetworkBoolean("SmartDashboard/Shooter/AutoshootPass", true);
   public final LoggedNetworkBoolean autoIntake =
-      new LoggedNetworkBoolean("SmartDashboard/Intake/AutoIntake", true);
+      new LoggedNetworkBoolean("SmartDashboard/Intake/AutoIntake", false);
 
   // Subsystems
   @Getter private final Drive drive;
   @Getter private final Lights lights;
   @Getter private final Vision vision;
   @Getter private final IntakePivot intakePivot;
-  @Getter private final RollerSystem intakeSpin;
+  @Getter private final IntakeSpin intakeSpin;
   @Getter private final Shooter shooter;
   @Getter private final RollerSystem spindexer;
   @Getter private final RollerSystem feeder;
@@ -110,16 +114,7 @@ public class RobotSystem {
         turret = new Turret(lights, new TurretIOReal());
 
         intakePivot = new IntakePivot(new IntakePivotIOReal());
-        intakeSpin =
-            new RollerSystem(
-                "intakeSpin",
-                new RollerSystemIOTalonFX(
-                    22,
-                    CanBusUtil.getRioBus(),
-                    80,
-                    InvertedValue.CounterClockwise_Positive,
-                    NeutralModeValue.Coast,
-                    24.0 / 18.0));
+        intakeSpin = new IntakeSpin(new IntakeSpinIOReal());
 
         spindexer =
             new RollerSystem(
@@ -130,7 +125,7 @@ public class RobotSystem {
                     40,
                     InvertedValue.Clockwise_Positive,
                     NeutralModeValue.Coast,
-                    4.0 * 5.0 * (64.0 / 16.0)));
+                    64.0 / 16.0));
         feeder =
             new RollerSystem(
                 "feeder",
@@ -171,9 +166,7 @@ public class RobotSystem {
         turret = new Turret(lights, new TurretIOSim());
 
         intakePivot = new IntakePivot(new IntakePivotIOSim() {});
-        intakeSpin =
-            new RollerSystem(
-                "intakeSpin", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 1.0, 0.001));
+        intakeSpin = new IntakeSpin(new IntakeSpinIOSim() {});
 
         spindexer =
             new RollerSystem(
@@ -213,7 +206,7 @@ public class RobotSystem {
         turret = new Turret(lights, new TurretIO() {});
 
         intakePivot = new IntakePivot(new IntakePivotIO() {});
-        intakeSpin = new RollerSystem("intakeSpin", (new RollerSystemIO() {}));
+        intakeSpin = new IntakeSpin(new IntakeSpinIO() {});
 
         spindexer = new RollerSystem("spindexer", new RollerSystemIO() {});
         feeder = new RollerSystem("feeder", new RollerSystemIO() {});

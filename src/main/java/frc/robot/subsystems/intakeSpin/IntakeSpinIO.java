@@ -1,11 +1,10 @@
-package frc.robot.subsystems.shooter.flywheel;
+package frc.robot.subsystems.intakeSpin;
 
-import com.ctre.phoenix6.configs.SlotConfigs;
 import org.littletonrobotics.junction.AutoLog;
 
-public interface FlywheelIO {
+public interface IntakeSpinIO {
   @AutoLog
-  static class FlyWheelIOInputs {
+  static class IntakeSpinIOInputs {
     public boolean leaderConnected = false;
     public boolean followerConnected = false;
     public double positionRots = 0.0;
@@ -24,7 +23,7 @@ public interface FlywheelIO {
     public boolean followerFaultRotorFault2 = false;
   }
 
-  default void updateInputs(FlyWheelIOInputs inputs) {}
+  default void updateInputs(IntakeSpinIOInputs inputs) {}
 
   /**
    * Run system at specified voltage.
@@ -33,27 +32,6 @@ public interface FlywheelIO {
    */
   default void runVolts(double volts) {}
 
-  /**
-   * Run system to specified velocity.
-   *
-   * <p><b>Units:</b> Mechanism rotations per second.
-   *
-   * @param velocity Goal velocity.
-   * @param slot PID gain slot to use during motion.
-   */
-  default void runVelocity(double velocity, int slot) {}
-
   /** Stop motor with neutral output. */
   default void stop() {}
-
-  /**
-   * Set PID slot configs.
-   *
-   * <p>Gravity type and static feedforward sign are ignored and use static values instead.
-   *
-   * <p><b>Available slots:</b> [0,2]
-   *
-   * @param newConfig PID gains
-   */
-  public default void setPID(SlotConfigs... newConfig) {}
 }

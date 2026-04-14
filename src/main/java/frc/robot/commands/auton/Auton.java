@@ -16,6 +16,7 @@ import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intakePivot.IntakePivot;
+import frc.robot.subsystems.intakeSpin.IntakeSpin;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.Lights.Color;
 import frc.robot.subsystems.lights.Lights.LEDSegment;
@@ -37,7 +38,7 @@ public class Auton {
   private static final Lights lights = robotSystem.getLights();
   private static final Vision vision = robotSystem.getVision();
   private static final IntakePivot intakePivot = robotSystem.getIntakePivot();
-  private static final RollerSystem intakeSpin = robotSystem.getIntakeSpin();
+  private static final IntakeSpin intakeSpin = robotSystem.getIntakeSpin();
   private static final Shooter shooter = robotSystem.getShooter();
   private static final RollerSystem spindexer = robotSystem.getSpindexer();
   private static final RollerSystem feeder = robotSystem.getFeeder();
@@ -57,6 +58,9 @@ public class Auton {
 
   private static final LoggedNetworkBoolean safe =
       new LoggedNetworkBoolean("SmartDashboard/Auton/Safe", true);
+
+  private static final LoggedNetworkBoolean bump =
+      new LoggedNetworkBoolean("SmartDashboard/Auton/Bump", false);
 
   private static final LoggedNetworkBoolean setStartingPose =
       new LoggedNetworkBoolean("SmartDashboard/Auton/SetStartingPose", false);
@@ -118,7 +122,7 @@ public class Auton {
                   || getSelectedStartPose().minus(drive.getPose()).getRotation().getDegrees()
                       > 20));
       hoodPoseAlert.set(Math.abs(shooter.getHood().getElevation() - Hood.getMaximum()) > 2.0);
-      intakePoseAlert.set(Math.abs(intakePivot.getPosition()) > 0.03);
+      intakePoseAlert.set(!intakePivot.isRetracted());
     } else {
       noAutoSelectedAlert.set(false);
       startingPoseAlert.set(false);
@@ -159,7 +163,11 @@ public class Auton {
             return Bump();
           case None:
           default:
-            return Trench();
+            if (bump.get()) {
+              return Trench_and_Bump();
+            } else {
+              return Trench();
+            }
         }
 
       case Center:
@@ -175,7 +183,11 @@ public class Auton {
             return Bump();
           case None:
           default:
-            return Trench();
+            if (bump.get()) {
+              return Trench_and_Bump();
+            } else {
+              return Trench();
+            }
         }
 
       default:
@@ -203,7 +215,7 @@ public class Auton {
             Commands.waitSeconds(shootSeconds),
             ShooterCommands.shoot(false),
             Commands.waitSeconds(agitateDelay).andThen(IntakeCommands.agitate()))
-        .finallyDo(() -> IntakeCommands.deploy(0))
+        .finallyDo(() -> IntakeCommands.deploy(0).andThen(IntakeCommands.intakeStatic(true)))
         .withName("Auton_ShootWithAgitation");
   }
 
@@ -221,7 +233,10 @@ public class Auton {
                               0,
                               shooter.getHood().getElevation(),
                               shooter.getTurret().getPosition()),
-                          Commands.waitSeconds(0.5).andThen(IntakeCommands.deploy(2))),
+                          Commands.waitSeconds(0.5)
+                              .andThen(IntakeCommands.deploy(2))
+                              .andThen(Commands.waitSeconds(0.2))
+                              .andThen(IntakeCommands.deploy(2))),
                       Commands.waitSeconds(3), // wait for fuel to be dumped into hopper
                       Commands.deadline(
                           PathUtil.followPath("Center_Depot_To").andThen(Commands.waitSeconds(0.2)),
@@ -258,14 +273,15 @@ public class Auton {
                           PathUtil.followPath(
                               safe.get()
                                   ? "Trench_Sweep1_Straight_Safe"
-                                  : "Trench_Sweep1_Straight_Agressive",
+                                  : "Trench_Sweep1_Straight_Agressive_Sidestep",
                               // "Trench_Sweep1_Loop",
                               mirror),
                           delayShooterStart(mirror ? 270 : 90),
                           Commands.waitSeconds(1)
                               .andThen(IntakeCommands.deploy(2))
-                              .andThen(Commands.waitSeconds(0.3))
-                              .andThen(IntakeCommands.intakeAutomatic())),
+                              .andThen(Commands.waitSeconds(0.2))
+                              .andThen(IntakeCommands.deploy(2))
+                              .andThen(IntakeCommands.intakeStatic(false))),
                       Commands.either(
                           DriveCommands.autopilotDriveToPose(
                                   () -> new APTarget(trenchApproach).withoutEntryAngle(), false)
@@ -301,11 +317,11 @@ public class Auton {
                           .onlyIf(
                               () -> drive.getPose().minus(shot).getTranslation().getNorm() > 0.5));
 
-              myCommand1 = Commands.sequence(neutralPath1Command, shootWithAgitation(4, 2.5));
+              myCommand1 = Commands.sequence(neutralPath1Command, shootWithAgitation(4.5, 2.4));
               // -----------------------------------------------------
               if ((!left && !autonOutpost.get()) || (left && !autonDepot.get())) {
                 // run double pass to nuetral zone
-                myCommand2 = Commands.sequence(neutralPath2Command, shootWithAgitation(99, 1.5));
+                myCommand2 = Commands.sequence(neutralPath2Command, shootWithAgitation(99, 0.9));
               } else {
                 // ----  now the 'plus' part of the single sweep plus
                 if (!left) {
@@ -345,6 +361,91 @@ public class Auton {
             },
             Set.of(drive, intakePivot, intakeSpin, shooter, spindexer, feeder))
         .withName("Auton_Trench");
+  }
+
+  // -----------------------------------------------------------------------------------------
+  private static Command Trench_and_Bump() {
+    return new DeferredCommand(
+            () -> {
+              LoggedTracerStatic.record("CommandInit");
+              boolean left = autonStartingPose.get() == StartingPose.Left;
+              boolean mirror = left;
+              Pose2d bumpApproach =
+                  AllianceFlipUtil.apply(PathUtil.getStartingPose("Over_Bump", mirror));
+              Pose2d shot = AllianceFlipUtil.apply(PathUtil.getEndPose("Over_Bump", mirror));
+
+              // these 2 paths will be mirrored
+              Command neutralPath1Command =
+                  Commands.sequence(
+                      Commands.deadline(
+                          PathUtil.followPath(
+                              safe.get()
+                                  ? "Trench_Bump_Sweep1_Safe"
+                                  : "Trench_Bump_Sweep1_Agressive",
+                              mirror),
+                          delayShooterStart(mirror ? 270 : 90),
+                          Commands.waitSeconds(1)
+                              .andThen(IntakeCommands.deploy(2))
+                              .andThen(Commands.waitSeconds(0.2))
+                              .andThen(IntakeCommands.deploy(2))
+                              .andThen(IntakeCommands.intakeStatic(false))),
+                      Commands.either(
+                          DriveCommands.autopilotDriveToPose(
+                                  () -> new APTarget(bumpApproach).withoutEntryAngle(), false)
+                              .withTimeout(7)
+                              .andThen(PathUtil.followPath("Over_Bump", mirror)),
+                          PathUtil.followPath("Over_Bump", mirror),
+                          () ->
+                              drive.getPose().minus(bumpApproach).getTranslation().getNorm() > 0.5),
+                      DriveCommands.autopilotDriveToPose(
+                              () -> new APTarget(shot).withoutEntryAngle(), false)
+                          .withTimeout(5)
+                          .onlyIf(
+                              () -> drive.getPose().minus(shot).getTranslation().getNorm() > 0.5));
+
+              Command neutralPath2Command =
+                  Commands.sequence(
+                      Commands.deadline(
+                          PathUtil.followPath("Trench_Bump_Sweep2", mirror),
+                          ShooterCommands.shoot(false)
+                              .withTimeout(1), // shoot for a bit before entering trench
+                          IntakeCommands.intakeStatic(true)),
+                      DriveCommands.autopilotDriveToPose(
+                              () -> new APTarget(bumpApproach).withoutEntryAngle(), false)
+                          .withTimeout(7)
+                          .onlyIf(
+                              () ->
+                                  drive.getPose().minus(bumpApproach).getTranslation().getNorm()
+                                      > 0.5),
+                      PathUtil.followPath("Over_Bump", mirror),
+                      DriveCommands.autopilotDriveToPose(
+                              () -> new APTarget(shot).withoutEntryAngle(), false)
+                          .withTimeout(5)
+                          .onlyIf(
+                              () -> drive.getPose().minus(shot).getTranslation().getNorm() > 0.5));
+
+              Command driveAndShootCommand =
+                  Commands.sequence(
+                      Commands.deadline(
+                          PathUtil.followPath("Bump_to_Trench", mirror)
+                              .andThen(Commands.waitSeconds(1.5)),
+                          shootWithAgitation(6, 2.5)));
+
+              Command driveAndShootCommand2 =
+                  Commands.sequence(
+                      IntakeCommands.intakeStatic(true),
+                      Commands.deadline(
+                          PathUtil.followPath("Bump_to_Trench", mirror),
+                          shootWithAgitation(6, 2.5)));
+
+              return Commands.runOnce(() -> LoggedTracerStatic.record("CommandRun"))
+                  .andThen(neutralPath1Command)
+                  .andThen(driveAndShootCommand)
+                  .andThen(neutralPath2Command)
+                  .andThen(driveAndShootCommand2);
+            },
+            Set.of(drive, intakePivot, intakeSpin, shooter, spindexer, feeder))
+        .withName("Auton_Trench_Bump");
   }
 
   private static Command Bump() {

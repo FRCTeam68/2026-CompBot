@@ -43,6 +43,7 @@ public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   private final RobotContainer robotContainer;
 
+  private static boolean robotYawSetCompleted = false;
   private static final double lowBatteryVoltage = 7.0;
   private final Alert lowBatteryAlert =
       new Alert(
@@ -224,12 +225,31 @@ public class Robot extends LoggedRobot {
     if (DriverStation.isFMSAttached()
         && !DriverStation.isAutonomous()
         && DriverStation.getMatchTime() == 0) robotContainer.saveLimelightRewind();
+
+    RobotSystem.getInstance().getVision().enableMT1 = true;
   }
 
   /** This function is called periodically when disabled. */
   @Override
   public void disabledPeriodic() {
     Auton.UpdateAlerts();
+
+    if (!robotYawSetCompleted) {
+      if (DriverStation.isAutonomous()) {
+        // do not need to run this in teleop.  Just use MT1 in tuning mode or use back+Y to trigger
+        // MT1 for 2 seconds
+
+        if (DriverStation.getAlliance().isPresent()) {
+          // checking for presence of alliance before calling resetYaw as this is done only once
+          // and drivestation connection may not be available yet by the time disabledPeriodic runs
+          // first.
+
+          RobotSystem.getInstance().getDrive().resetYaw();
+          System.out.println("robot Yaw set once");
+          robotYawSetCompleted = true;
+        }
+      }
+    }
   }
 
   /** This function is called once when the robot is enabled in any mode. */
@@ -238,6 +258,9 @@ public class Robot extends LoggedRobot {
     LoggedTracerStatic.reset();
     // This must be done here to reset time for repeated practice matches
     HubShiftUtil.seedMatchTime();
+
+    // disable MT1 while enabled.  Only use it is disabled mode to set Yaw.
+    RobotSystem.getInstance().getVision().enableMT1 = false;
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */

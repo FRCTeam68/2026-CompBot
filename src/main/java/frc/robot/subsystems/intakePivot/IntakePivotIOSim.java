@@ -25,7 +25,8 @@ public class IntakePivotIOSim implements IntakePivotIO {
   public IntakePivotIOSim() {
     sim =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(motor, .1, IntakePivotIOReal.getReduction()), motor);
+            LinearSystemId.createDCMotorSystem(motor, 0.1, IntakePivotIOReal.getReduction()),
+            motor);
   }
 
   @Override

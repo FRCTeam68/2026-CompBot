@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.833389635587788,
-        "y": 0.5355569080925511
+        "x": 3.309918032788504,
+        "y": 2.417581967213114
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.048834842200386,
-        "y": 0.5784876647138888
+        "x": 2.842663934427848,
+        "y": 1.5333934426229505
       },
       "isLocked": false,
-      "linkedName": "Trench Neutral Zone Approach"
+      "linkedName": "BumpShot"
     },
     {
       "anchor": {
@@ -20,35 +20,40 @@
         "y": 0.5825483870967754
       },
       "prevControl": {
-        "x": 4.700682290218884,
-        "y": 0.5358817924669492
+        "x": 2.706081967213115,
+        "y": 0.6995245901639329
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "Trench Shoot"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.13245997088791647,
+      "rotationDegrees": -134.9721149676878
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.1,
-    "maxAcceleration": 3.1,
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxVelocity": 0.5,
+    "maxAcceleration": 0.5,
+    "maxAngularVelocity": 40.0,
+    "maxAngularAcceleration": 40.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
+    "velocity": 1.0,
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Trench",
+  "folder": "TrenchBump",
   "idealStartingState": {
-    "velocity": 2.0,
-    "rotation": 0.0
+    "velocity": 1.0,
+    "rotation": -175.9858243046943
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

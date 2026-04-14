@@ -38,6 +38,7 @@ public class Hood extends SubsystemBase {
   private static final LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Hood/kP");
   private static final LoggedTunableNumber kD = new LoggedTunableNumber("Shooter/Hood/kD");
   private static final LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Hood/kS");
+  private static final LoggedTunableNumber kV = new LoggedTunableNumber("Shooter/Hood/kV");
 
   static {
     switch (Constants.getMode()) {
@@ -45,11 +46,13 @@ public class Hood extends SubsystemBase {
         kP.initDefault(500);
         kD.initDefault(0.0);
         kS.initDefault(0.4);
+        kV.initDefault(0.12);
       }
       case SIM -> {
         kP.initDefault(5);
         kD.initDefault(0.0);
         kS.initDefault(0.0);
+        kV.initDefault(0.0);
       }
     }
   }
@@ -122,7 +125,8 @@ public class Hood extends SubsystemBase {
 
     // Update PID gains
     if (kP.hasChanged(hashCode()) | kD.hasChanged(hashCode()) | kS.hasChanged(hashCode())) {
-      io.setPID(new SlotConfigs().withKP(kP.get()).withKD(kD.get()).withKS(kS.get()));
+      io.setPID(
+          new SlotConfigs().withKP(kP.get()).withKD(kD.get()).withKS(kS.get()).withKV(kV.get()));
     }
 
     // Update motion magic gains

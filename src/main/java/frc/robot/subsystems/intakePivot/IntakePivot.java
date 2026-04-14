@@ -23,16 +23,19 @@ import org.littletonrobotics.junction.Logger;
 
 public class IntakePivot extends SubsystemBase {
   // Positions
-  @Getter private static final double packaged = 0;
-  @Getter private static final double extended = 0.271;
-  @Getter private static final double agitate = 0.12;
+  @Getter private static final double extended = 0;
+  @Getter private static final double agitate = -0.161;
+
+  @Getter private static final double packaged = -0.284;
+  // -0.278 is target but it is coming up short at -0.271, so add 0.07
+
   @Getter private static final double intakeForwardExtension = Units.inchesToMeters(12);
 
   // PID gains
   private final LoggedTunableNumber[] kP =
       new LoggedTunableNumber[] {
-        new LoggedTunableNumber("IntakePivot/Slot0-Deploy/kP", 200),
-        new LoggedTunableNumber("IntakePivot/Slot1-Retract/kP", 650),
+        new LoggedTunableNumber("IntakePivot/Slot0-Deploy/kP", 450),
+        new LoggedTunableNumber("IntakePivot/Slot1-Retract/kP", 800),
         new LoggedTunableNumber("IntakePivot/Slot2-DeployFirst/kP", 650)
       };
   private final LoggedTunableNumber[] kD =
@@ -41,7 +44,8 @@ public class IntakePivot extends SubsystemBase {
         new LoggedTunableNumber("IntakePivot/Slot1-Retract/kD", 0),
         new LoggedTunableNumber("IntakePivot/Slot2-DeployFirst/kD", 0)
       };
-  private final LoggedTunableNumber kS = new LoggedTunableNumber("IntakePivot/kS", 45);
+  private final LoggedTunableNumber kS = new LoggedTunableNumber("IntakePivot/kS", 60);
+  private final LoggedTunableNumber kG = new LoggedTunableNumber("IntakePivot/kG", -80);
 
   // Setpoint band
   private final LoggedTunableNumber setpointBandPosition =
@@ -54,6 +58,10 @@ public class IntakePivot extends SubsystemBase {
       new Alert("Intake pivot cancoder disconnected!", AlertType.kError);
   private final Alert motorTempAlert =
       new Alert("Intake pivot motor is too hot.", AlertType.kWarning);
+  private final Alert rotorFaultAlert =
+      new Alert(
+          "Intake pivot motor has a rotor fault. The motor may not run properly.",
+          AlertType.kError);
 
   // Debouncers
   private final Debouncer motorConnectedDebouncer = new Debouncer(0.5, DebounceType.kRising);
@@ -85,6 +93,7 @@ public class IntakePivot extends SubsystemBase {
     cancoderDisconnectedAlert.set(
         !cancoderDisconnectedDebouncer.calculate(inputs.cancoderConnected));
     motorTempAlert.set(inputs.tempCelsius > Constants.warningTempCelsius);
+    rotorFaultAlert.set(inputs.faultRotorFault1 || inputs.faultRotorFault2);
 
     // Update PID gains
     if (kP[0].hasChanged(hashCode())
@@ -93,10 +102,15 @@ public class IntakePivot extends SubsystemBase {
         | kD[1].hasChanged(hashCode())
         | kP[2].hasChanged(hashCode())
         | kD[2].hasChanged(hashCode())
-        | kS.hasChanged(hashCode())) {
+        | kS.hasChanged(hashCode())
+        | kG.hasChanged(hashCode())) {
       io.setPID(
           new SlotConfigs().withKP(kP[0].get()).withKD(kD[0].get()).withKS(kS.get()),
-          new SlotConfigs().withKP(kP[1].get()).withKD(kD[1].get()).withKS(kS.get()),
+          new SlotConfigs()
+              .withKP(kP[1].get())
+              .withKD(kD[1].get())
+              .withKS(kS.get())
+              .withKG(kG.get()),
           new SlotConfigs().withKP(kP[2].get()).withKD(kD[2].get()).withKS(kS.get()));
     }
   }
@@ -167,6 +181,16 @@ public class IntakePivot extends SubsystemBase {
    */
   public double getTorqueCurrent() {
     return inputs.torqueCurrentAmps;
+  }
+
+  @AutoLogOutput(key = "IntakePivot/isRetracted")
+  public boolean isRetracted() {
+    return getPosition() < (packaged + 0.08);
+  }
+
+  @AutoLogOutput(key = "IntakePivot/isExtended")
+  public boolean isExtended() {
+    return getPosition() > (extended - 0.08);
   }
 
   /**

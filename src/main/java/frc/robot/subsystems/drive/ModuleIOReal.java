@@ -69,6 +69,8 @@ public class ModuleIOReal implements ModuleIO {
   private final StatusSignal<Current> driveSupplyCurrent;
   private final StatusSignal<Current> driveTorqueCurrent;
   private final StatusSignal<Temperature> driveTempCelsius;
+  private final StatusSignal<Boolean> driveFaultRotorFault1;
+  private final StatusSignal<Boolean> driveFaultRotorFault2;
 
   // Inputs from turn motor
   private final StatusSignal<Angle> turnAbsolutePosition;
@@ -138,6 +140,8 @@ public class ModuleIOReal implements ModuleIO {
     driveSupplyCurrent = driveTalon.getSupplyCurrent();
     driveTorqueCurrent = driveTalon.getTorqueCurrent();
     driveTempCelsius = driveTalon.getDeviceTemp();
+    driveFaultRotorFault1 = driveTalon.getFault_RotorFault1();
+    driveFaultRotorFault2 = driveTalon.getFault_RotorFault2();
 
     // Create turn status signals
     turnPosition = turnTalon.getPosition();
@@ -162,6 +166,8 @@ public class ModuleIOReal implements ModuleIO {
         driveAppliedVolts,
         driveSupplyCurrent,
         driveTorqueCurrent,
+        driveFaultRotorFault1,
+        driveFaultRotorFault2,
         turnVelocity,
         turnAppliedVolts,
         turnSupplyCurrent,
@@ -176,6 +182,8 @@ public class ModuleIOReal implements ModuleIO {
         driveSupplyCurrent,
         driveTorqueCurrent,
         driveTempCelsius,
+        driveFaultRotorFault1,
+        driveFaultRotorFault2,
         turnPosition,
         turnVelocity,
         turnAppliedVolts,
@@ -202,6 +210,8 @@ public class ModuleIOReal implements ModuleIO {
     inputs.driveSupplyCurrentAmps = driveSupplyCurrent.getValueAsDouble();
     inputs.driveTorqueCurrentAmps = driveTorqueCurrent.getValueAsDouble();
     inputs.driveTempCelsius = driveTempCelsius.getValueAsDouble();
+    inputs.driveFaultRotorFault1 = driveFaultRotorFault1.getValue();
+    inputs.driveFaultRotorFault2 = driveFaultRotorFault2.getValue();
 
     // Update turn motor inputs
     inputs.turnConnected =
@@ -213,7 +223,6 @@ public class ModuleIOReal implements ModuleIO {
     inputs.turnSupplyCurrentAmps = turnSupplyCurrent.getValueAsDouble();
     inputs.turnTorqueCurrentAmps = turnTorqueCurrent.getValueAsDouble();
     inputs.turnTempCelsius = turnTempCelsius.getValueAsDouble();
-    // inputs.turnEncoderSyncStickyFault = turnEncoderSyncStickyFault.getValue();
 
     // Update turn encoder inputs
     inputs.turnEncoderConnected =

@@ -46,7 +46,7 @@ public class Vision extends SubsystemBase {
   private final LEDSegment[] ledSegments;
 
   @AutoLogOutput(key = "Vision/EnableMT1")
-  public boolean enableMT1 = Constants.tuningMode;
+  public boolean enableMT1 = true;
 
   public Vision(
       VisionConsumer consumer,

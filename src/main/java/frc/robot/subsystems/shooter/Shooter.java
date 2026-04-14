@@ -23,9 +23,9 @@ import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
   private static final LoggedTunableNumber towardMultiplier =
-      new LoggedTunableNumber("Shooter/TowardMultiplier", 1.1);
+      new LoggedTunableNumber("Shooter/TowardMultiplier", 1.05);
   private static final LoggedTunableNumber awayMultiplier =
-      new LoggedTunableNumber("Shooter/AwayMultiplier", 1.2);
+      new LoggedTunableNumber("Shooter/AwayMultiplier", 0.95);
   private static final LoggedTunableNumber angleMultiplier =
       new LoggedTunableNumber("Shooter/AngleMultiplier", 1.05);
 
@@ -162,9 +162,17 @@ public class Shooter extends SubsystemBase {
         getDistanceToTarget()
             - (targetRelativeVelocity.vxMetersPerSecond * flightTime * linearMultiplier);
 
-    flywheel.runBangBang(
-        ShooterConstants.DynamicShot.hubShotFlywheelVelocity.get(targetDistanceAdjusted));
-    hood.runElvation(ShooterConstants.DynamicShot.hubShotHoodElevation.get(targetDistanceAdjusted));
+    if (isTargetHub) {
+      flywheel.runBangBang(
+          ShooterConstants.DynamicShot.hubShotFlywheelVelocity.get(targetDistanceAdjusted));
+      hood.runElvation(
+          ShooterConstants.DynamicShot.hubShotHoodElevation.get(targetDistanceAdjusted));
+    } else {
+      flywheel.runBangBang(
+          ShooterConstants.DynamicShot.passShotFlywheelVelocity.get(targetDistanceAdjusted));
+      hood.runElvation(
+          ShooterConstants.DynamicShot.passShotHoodElevation.get(targetDistanceAdjusted));
+    }
     turret.runPosition(
         rotationToTarget
             .minus(

@@ -1,17 +1,13 @@
-package frc.robot.subsystems.shooter.flywheel;
+package frc.robot.subsystems.intakeSpin;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.Slot1Configs;
-import com.ctre.phoenix6.configs.Slot2Configs;
-import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.NeutralOut;
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -23,11 +19,14 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.subsystems.shooter.ShooterConstants;
+import frc.robot.util.CanBusUtil;
 import frc.robot.util.PhoenixUtil;
 import lombok.Getter;
 
-public class FlywheelIOReal implements FlywheelIO {
+/** Generic roller IO implementation for a roller or series of rollers using a TalonFX. */
+public class IntakeSpinIOReal implements IntakeSpinIO {
+  private static final CANBus canBus = CanBusUtil.getRioBus();
+
   @Getter private static final double reduction = 1;
 
   // Hardware
@@ -55,22 +54,26 @@ public class FlywheelIOReal implements FlywheelIO {
   private final StatusSignal<Boolean> followerFaultRotorFault2;
 
   // Control requests
-  private final VoltageOut voltageOut = new VoltageOut(0).withEnableFOC(true);
-  private final VelocityTorqueCurrentFOC velocityOut = new VelocityTorqueCurrentFOC(0);
+  private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(false);
   private final NeutralOut neutralOut = new NeutralOut();
 
-  public FlywheelIOReal() {
-    leaderTalon = new TalonFX(25, ShooterConstants.canBus);
-    followerTalon = new TalonFX(26, ShooterConstants.canBus);
+  public IntakeSpinIOReal() {
+    leaderTalon = new TalonFX(30, canBus);
+    followerTalon = new TalonFX(31, canBus);
 
     // Motor output
     leaderConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     leaderConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     // Current limits
     leaderConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    leaderConfig.CurrentLimits.SupplyCurrentLimit = 80;
+    leaderConfig.CurrentLimits.SupplyCurrentLimit = 30;
     leaderConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
-    leaderConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
+    leaderConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
+    leaderConfig.CurrentLimits.StatorCurrentLimitEnable = false;
+    leaderConfig.CurrentLimits.StatorCurrentLimit = 50;
+    leaderConfig.TorqueCurrent.PeakForwardTorqueCurrent = 50;
+    leaderConfig.TorqueCurrent.PeakReverseTorqueCurrent = 5;
+
     // Feedback
     leaderConfig.Feedback.SensorToMechanismRatio = reduction;
     tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(leaderConfig, 0.25));
@@ -83,6 +86,13 @@ public class FlywheelIOReal implements FlywheelIO {
         leaderConfig.CurrentLimits.SupplyCurrentLowerTime;
     followerConfig.CurrentLimits.SupplyCurrentLowerLimit =
         leaderConfig.CurrentLimits.SupplyCurrentLowerLimit;
+    followerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    followerConfig.CurrentLimits.StatorCurrentLimit = leaderConfig.CurrentLimits.StatorCurrentLimit;
+    followerConfig.TorqueCurrent.PeakForwardTorqueCurrent =
+        leaderConfig.TorqueCurrent.PeakForwardTorqueCurrent;
+    followerConfig.TorqueCurrent.PeakReverseTorqueCurrent =
+        leaderConfig.TorqueCurrent.PeakReverseTorqueCurrent;
+
     tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(followerConfig, 0.25));
     followerTalon.setControl(
         new Follower(leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed).withUpdateFreqHz(100));
@@ -106,7 +116,7 @@ public class FlywheelIOReal implements FlywheelIO {
         5,
         () ->
             BaseStatusSignal.setUpdateFrequencyForAll(
-                100, leaderTorqueCurrent, followerTorqueCurrent));
+                100, leaderAppliedVoltage, followerAppliedVoltage));
     tryUntilOk(
         5,
         () ->
@@ -114,23 +124,25 @@ public class FlywheelIOReal implements FlywheelIO {
                 50,
                 position,
                 velocity,
-                leaderAppliedVoltage,
-                followerAppliedVoltage,
                 leaderSupplyCurrent,
                 followerSupplyCurrent,
+                leaderTorqueCurrent,
+                followerTorqueCurrent,
                 leaderFaultRotorFault1,
                 leaderFaultRotorFault2,
                 followerFaultRotorFault1,
                 followerFaultRotorFault2));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(leaderTalon, followerTalon));
     PhoenixUtil.registerSignals(
-        ShooterConstants.canBus,
+        canBus,
         position,
         velocity,
         leaderAppliedVoltage,
         followerAppliedVoltage,
         leaderSupplyCurrent,
+        followerSupplyCurrent,
         leaderTorqueCurrent,
+        followerTorqueCurrent,
         leaderTempCelsius,
         followerTempCelsius,
         leaderFaultRotorFault1,
@@ -140,7 +152,7 @@ public class FlywheelIOReal implements FlywheelIO {
   }
 
   @Override
-  public void updateInputs(FlyWheelIOInputs inputs) {
+  public void updateInputs(IntakeSpinIOInputs inputs) {
     inputs.leaderConnected =
         BaseStatusSignal.isAllGood(
             position, velocity, leaderAppliedVoltage, leaderSupplyCurrent, leaderTorqueCurrent);
@@ -167,35 +179,7 @@ public class FlywheelIOReal implements FlywheelIO {
   }
 
   @Override
-  public void runVelocity(double velocity, int slot) {
-    leaderTalon.setControl(velocityOut.withVelocity(velocity).withSlot(slot));
-  }
-
-  @Override
   public void stop() {
     leaderTalon.setControl(neutralOut);
-  }
-
-  @Override
-  public void setPID(SlotConfigs... newConfig) {
-    for (int i = 0; i < Math.min(newConfig.length, 3); i++) {
-      /*
-      Optionally add gravity type and static feedforward sign.
-      Default gravity type: Elevator_Static
-      Default static feedforward sign: UseVelocitySign
-      */
-      switch (i) {
-        case 0:
-          leaderConfig.Slot0 = Slot0Configs.from(newConfig[i]);
-          break;
-        case 1:
-          leaderConfig.Slot1 = Slot1Configs.from(newConfig[i]);
-          break;
-        case 2:
-          leaderConfig.Slot2 = Slot2Configs.from(newConfig[i]);
-          break;
-      }
-    }
-    tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(leaderConfig, 0.25));
   }
 }

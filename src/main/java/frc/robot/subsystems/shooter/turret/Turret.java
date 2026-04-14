@@ -33,17 +33,18 @@ import org.littletonrobotics.junction.Logger;
 
 public class Turret extends SubsystemBase {
   // Positions
-  @Getter private static final double minimum = 30;
+  @Getter private static final double minimum = 20;
   @Getter private static final double maximum = 360;
 
   // PID gains
-  private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Turret/kP", 70);
+  private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Turret/kP", 120);
   private LoggedTunableNumber kD = new LoggedTunableNumber("Shooter/Turret/kD", 0);
   private LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Turret/kS", .3);
+  private LoggedTunableNumber kV = new LoggedTunableNumber("Shooter/Turret/kV", .12);
 
   // Motion magic gains
   private LoggedTunableNumber mmVelocity =
-      new LoggedTunableNumber("Shooter/Turret/MotionMagic/Velocity", 800);
+      new LoggedTunableNumber("Shooter/Turret/MotionMagic/Velocity", 1200);
   private LoggedTunableNumber mmAcceleration =
       new LoggedTunableNumber("Shooter/Turret/MotionMagic/Acceleration", 5000);
   private LoggedTunableNumber mmJerk =
@@ -127,7 +128,8 @@ public class Turret extends SubsystemBase {
 
     // Update PID gains
     if (kP.hasChanged(hashCode()) | kD.hasChanged(hashCode()) | kS.hasChanged(hashCode())) {
-      io.setPID(new SlotConfigs().withKP(kP.get()).withKD(kD.get()).withKS(kS.get()));
+      io.setPID(
+          new SlotConfigs().withKP(kP.get()).withKD(kD.get()).withKS(kS.get()).withKV(kV.get()));
     }
 
     // Update motion magic gains
