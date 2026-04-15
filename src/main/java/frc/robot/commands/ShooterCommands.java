@@ -32,13 +32,21 @@ public class ShooterCommands {
   private static final RollerSystem feeder = robotSystem.getFeeder();
   // Tunable parameters for spindexer overcurrent handling
   private static final LoggedTunableNumber spindexerOvercurrentThresholdLTN =
-      new LoggedTunableNumber("Shooter/SpindexerOvercurrentThreshold", 60.0);
+      new LoggedTunableNumber("Shooter/SpindexerOvercurrentThreshold", 80.0);
   private static final LoggedTunableNumber spindexerOvercurrentTimeLTN =
-      new LoggedTunableNumber("Shooter/SpindexerOvercurrentTime", 0.5);
+      new LoggedTunableNumber("Shooter/SpindexerOvercurrentTime", 0.4);
   private static final LoggedTunableNumber spindexerReverseVoltLTN =
-      new LoggedTunableNumber("Shooter/SpindexerReverseVolt", -12.0);
+      new LoggedTunableNumber("Shooter/SpindexerReverseVolt", -9.0);
   private static final LoggedTunableNumber spindexerReverseDurationLTN =
-      new LoggedTunableNumber("Shooter/SpindexerReverseDuration", 0.5);
+      new LoggedTunableNumber("Shooter/SpindexerReverseDuration", 0.25);
+
+  @SuppressWarnings("unused")
+  private static final LoggedTunableNumber spindexerReverseTestCurrent =
+      new LoggedTunableNumber("Shooter/SpindexerReverseTestCurrent", 30);
+
+  @SuppressWarnings("unused")
+  private static final LoggedTunableNumber feederReverseTestCurrent =
+      new LoggedTunableNumber("Shooter/FeederReverseTestCurrent", 30);
 
   private static boolean spindexerReverseActive = false;
   private static double spindexerReverseStart = 0.0;
@@ -130,7 +138,12 @@ public class ShooterCommands {
   private static void updateFeederSpindexer(boolean runRequested) {
     if (runRequested) {
       double now = Timer.getFPGATimestamp();
-      double current = spindexer.getTorqueCurrent();
+      double spindexerCurrent = spindexer.getTorqueCurrent();
+      double feederCurrent = feeder.getTorqueCurrent();
+      // double spindexerCurrent =
+      //     spindexerReverseTestCurrent.getAsDouble(); // TODO: remove after testing
+      // double feederCurrent = feederReverseTestCurrent.getAsDouble(); // TODO: remove after
+      // testing
 
       // Localize tunable values once per call
       double reverseDuration = spindexerReverseDurationLTN.getAsDouble();
@@ -157,7 +170,9 @@ public class ShooterCommands {
       if (spindexerOvercurrentTimeLTN.hasChanged(ShooterCommands.class.hashCode())) {
         spindexerOvercurrentDebouncer = new Debouncer(debounceTime, DebounceType.kRising);
       }
-      boolean debounced = spindexerOvercurrentDebouncer.calculate(current > threshold);
+      boolean debounced =
+          spindexerOvercurrentDebouncer.calculate(
+              spindexerCurrent > threshold || feederCurrent > threshold);
       if (debounced) {
         spindexerReverseActive = true;
         spindexerReverseStart = now;
