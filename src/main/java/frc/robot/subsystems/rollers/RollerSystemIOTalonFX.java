@@ -68,6 +68,10 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
     config.CurrentLimits.SupplyCurrentLimit = currentLimitAmps;
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
+    config.CurrentLimits.StatorCurrentLimitEnable = false;
+    config.CurrentLimits.StatorCurrentLimit = 80;
+    config.TorqueCurrent.PeakForwardTorqueCurrent = 100;
+    config.TorqueCurrent.PeakReverseTorqueCurrent = 100;
     // Feedback
     config.Feedback.SensorToMechanismRatio = reduction;
     tryUntilOk(5, () -> talon.getConfigurator().apply(config, 0.25));

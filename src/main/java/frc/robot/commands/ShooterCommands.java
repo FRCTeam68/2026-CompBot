@@ -32,7 +32,7 @@ public class ShooterCommands {
   private static final RollerSystem feeder = robotSystem.getFeeder();
   // Tunable parameters for spindexer overcurrent handling
   private static final LoggedTunableNumber spindexerOvercurrentThresholdLTN =
-      new LoggedTunableNumber("Shooter/SpindexerOvercurrentThreshold", 80.0);
+      new LoggedTunableNumber("Shooter/SpindexerOvercurrentThreshold", 60.0);
   private static final LoggedTunableNumber spindexerOvercurrentTimeLTN =
       new LoggedTunableNumber("Shooter/SpindexerOvercurrentTime", 0.4);
   private static final LoggedTunableNumber spindexerReverseVoltLTN =
