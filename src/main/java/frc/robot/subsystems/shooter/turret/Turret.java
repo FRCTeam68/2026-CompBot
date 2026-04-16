@@ -37,14 +37,14 @@ public class Turret extends SubsystemBase {
   @Getter private static final double maximum = 360;
 
   // PID gains
-  private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Turret/kP", 120);
+  private LoggedTunableNumber kP = new LoggedTunableNumber("Shooter/Turret/kP", 70);
   private LoggedTunableNumber kD = new LoggedTunableNumber("Shooter/Turret/kD", 0);
   private LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Turret/kS", .3);
-  private LoggedTunableNumber kV = new LoggedTunableNumber("Shooter/Turret/kV", .12);
+  private LoggedTunableNumber kV = new LoggedTunableNumber("Shooter/Turret/kV", 0);
 
   // Motion magic gains
   private LoggedTunableNumber mmVelocity =
-      new LoggedTunableNumber("Shooter/Turret/MotionMagic/Velocity", 1200);
+      new LoggedTunableNumber("Shooter/Turret/MotionMagic/Velocity", 800);
   private LoggedTunableNumber mmAcceleration =
       new LoggedTunableNumber("Shooter/Turret/MotionMagic/Acceleration", 5000);
   private LoggedTunableNumber mmJerk =

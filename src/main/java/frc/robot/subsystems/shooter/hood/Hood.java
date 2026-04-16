@@ -46,7 +46,7 @@ public class Hood extends SubsystemBase {
         kP.initDefault(500);
         kD.initDefault(0.0);
         kS.initDefault(0.4);
-        kV.initDefault(0.12);
+        kV.initDefault(0);
       }
       case SIM -> {
         kP.initDefault(5);

@@ -73,10 +73,10 @@ public class ShooterConstants {
     public static final double minHubShotDistance = 0.92;
 
     private static final InterpConfig[] hubConfigHigh = {
-      InterpConfig.builder().distance(0.92).flywheel(48).hood(72).flightTime(1.1).build(),
-      InterpConfig.builder().distance(1.50).flywheel(48).hood(69).flightTime(1.083).build(),
-      InterpConfig.builder().distance(1.98).flywheel(49).hood(65).flightTime(1.017).build(),
-      InterpConfig.builder().distance(2.48).flywheel(50).hood(60).flightTime(1.033).build(),
+      InterpConfig.builder().distance(0.92).flywheel(47).hood(72).flightTime(1.1).build(),
+      InterpConfig.builder().distance(1.5).flywheel(47).hood(69).flightTime(1.083).build(),
+      InterpConfig.builder().distance(2.0).flywheel(47).hood(65).flightTime(1.017).build(),
+      InterpConfig.builder().distance(2.5).flywheel(49).hood(60).flightTime(1.033).build(),
       InterpConfig.builder().distance(2.95).flywheel(51.5).hood(58).flightTime(1.033).build(),
       InterpConfig.builder().distance(3.53).flywheel(55).hood(55).flightTime(1.083).build(),
       InterpConfig.builder().distance(3.60).flywheel(55).hood(58).flightTime(1.12).build(),
@@ -102,10 +102,10 @@ public class ShooterConstants {
     };
 
     private static final InterpConfig[] hubConfigLow = {
-      InterpConfig.builder().distance(0.92).flywheel(49).hood(72).flightTime(1.1).build(),
-      InterpConfig.builder().distance(1.501).flywheel(49).hood(66).flightTime(1.083).build(),
-      InterpConfig.builder().distance(1.998).flywheel(49).hood(64).flightTime(1.017).build(),
-      InterpConfig.builder().distance(2.5).flywheel(50).hood(60).flightTime(1.033).build(),
+      InterpConfig.builder().distance(0.92).flywheel(47).hood(72).flightTime(1.1).build(),
+      InterpConfig.builder().distance(1.5).flywheel(47).hood(69).flightTime(1.083).build(),
+      InterpConfig.builder().distance(2.0).flywheel(47).hood(65).flightTime(1.017).build(),
+      InterpConfig.builder().distance(2.5).flywheel(49).hood(60).flightTime(1.033).build(),
       InterpConfig.builder().distance(2.95).flywheel(52).hood(58).flightTime(1.033).build(),
       InterpConfig.builder().distance(3.53).flywheel(55).hood(55).flightTime(1.083).build(),
       InterpConfig.builder().distance(3.99).flywheel(55).hood(54).flightTime(1.05).build(),
