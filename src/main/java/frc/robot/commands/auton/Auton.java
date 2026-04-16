@@ -227,13 +227,14 @@ public class Auton {
 
               myCommand1 =
                   Commands.sequence(
+                      // Commands.runOnce(() -> drive.setPose(getSelectedStartPose())),
                       Commands.parallel(
                           PathUtil.followPath("Center_To_Depot1"),
                           ShooterCommands.runStatic(
                               0,
                               shooter.getHood().getElevation(),
                               shooter.getTurret().getPosition()),
-                          Commands.waitSeconds(0.5)
+                          Commands.waitSeconds(1)
                               .andThen(IntakeCommands.deploy(2))
                               .andThen(Commands.waitSeconds(0.2))
                               .andThen(IntakeCommands.deploy(2))
@@ -496,7 +497,7 @@ public class Auton {
           }
           break;
         case Center:
-          startPose = AllianceFlipUtil.apply(PathUtil.getStartingPose("Center_Outpost_To"));
+          startPose = AllianceFlipUtil.apply(PathUtil.getStartingPose("Center_To_Depot1"));
           break;
         case Right:
           if (autonSpecial.get() == Auton.Special.BumpSingleSweep) {
