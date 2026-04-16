@@ -93,7 +93,7 @@ public class IntakeSpinIOReal implements IntakeSpinIO {
     followerConfig.TorqueCurrent.PeakReverseTorqueCurrent =
         leaderConfig.TorqueCurrent.PeakReverseTorqueCurrent;
 
-    tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(followerConfig, 0.25));
+    tryUntilOk(5, () -> followerTalon.getConfigurator().apply(followerConfig, 0.25));
     followerTalon.setControl(
         new Follower(leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed).withUpdateFreqHz(100));
 
