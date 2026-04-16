@@ -228,7 +228,7 @@ public class Auton {
               myCommand1 =
                   Commands.sequence(
                       Commands.parallel(
-                          PathUtil.followPath("Center_Outpost_To"),
+                          PathUtil.followPath("Center_To_Depot1"),
                           ShooterCommands.runStatic(
                               0,
                               shooter.getHood().getElevation(),
@@ -236,16 +236,15 @@ public class Auton {
                           Commands.waitSeconds(0.5)
                               .andThen(IntakeCommands.deploy(2))
                               .andThen(Commands.waitSeconds(0.2))
-                              .andThen(IntakeCommands.deploy(2))),
-                      Commands.waitSeconds(3), // wait for fuel to be dumped into hopper
-                      Commands.deadline(
-                          PathUtil.followPath("Center_Depot_To").andThen(Commands.waitSeconds(0.2)),
-                          Commands.waitSeconds(1.5)
-                              .andThen(ShooterCommands.clearStaticSetpoint())
-                              .andThen(IntakeCommands.intakeStatic(false))),
-                      PathUtil.followPath("Center_Depot_From"),
-                      shootWithAgitation(99, 5));
-
+                              .andThen(IntakeCommands.deploy(2))
+                              .andThen(IntakeCommands.intakeStatic(true))),
+                      PathUtil.followPath("Depot1_to_Depot2"),
+                      PathUtil.followPath("Depot2_to_Tower"),
+                      // enable automatic control
+                      // The shooter will remain at the previous setpoint until it enters the
+                      // alliance zone
+                      ShooterCommands.clearStaticSetpoint(),
+                      shootWithAgitation(99, 3));
               return myCommand1;
             },
             Set.of(drive, intakePivot, intakeSpin, shooter, spindexer, feeder))
@@ -317,11 +316,11 @@ public class Auton {
                           .onlyIf(
                               () -> drive.getPose().minus(shot).getTranslation().getNorm() > 0.5));
 
-              myCommand1 = Commands.sequence(neutralPath1Command, shootWithAgitation(4.5, 2.4));
+              myCommand1 = Commands.sequence(neutralPath1Command, shootWithAgitation(4.9, 2.5));
               // -----------------------------------------------------
               if ((!left && !autonOutpost.get()) || (left && !autonDepot.get())) {
                 // run double pass to nuetral zone
-                myCommand2 = Commands.sequence(neutralPath2Command, shootWithAgitation(99, 0.9));
+                myCommand2 = Commands.sequence(neutralPath2Command, shootWithAgitation(99, 1.0));
               } else {
                 // ----  now the 'plus' part of the single sweep plus
                 if (!left) {
