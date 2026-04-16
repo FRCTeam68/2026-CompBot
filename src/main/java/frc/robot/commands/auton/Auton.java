@@ -229,7 +229,7 @@ public class Auton {
                   Commands.sequence(
                       // Commands.runOnce(() -> drive.setPose(getSelectedStartPose())),
                       Commands.parallel(
-                          PathUtil.followPath("Center_To_Depot1"),
+                          PathUtil.followPath("Center_to_Depot1"),
                           ShooterCommands.runStatic(
                               0,
                               shooter.getHood().getElevation(),
