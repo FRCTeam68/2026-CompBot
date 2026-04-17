@@ -227,7 +227,6 @@ public class Auton {
 
               myCommand1 =
                   Commands.sequence(
-                      // Commands.runOnce(() -> drive.setPose(getSelectedStartPose())),
                       Commands.parallel(
                           PathUtil.followPath("Center_to_Depot1"),
                           ShooterCommands.runStatic(
@@ -238,14 +237,19 @@ public class Auton {
                               .andThen(IntakeCommands.deploy(2))
                               .andThen(Commands.waitSeconds(0.2))
                               .andThen(IntakeCommands.deploy(2))
-                              .andThen(IntakeCommands.intakeStatic(true))),
+                              .andThen(IntakeCommands.intakeStatic(false))),
                       PathUtil.followPath("Depot1_to_Depot2"),
                       PathUtil.followPath("Depot2_to_Tower"),
-                      // enable automatic control
-                      // The shooter will remain at the previous setpoint until it enters the
-                      // alliance zone
                       ShooterCommands.clearStaticSetpoint(),
-                      shootWithAgitation(99, 3));
+                      shootWithAgitation(4.3, 2.1),
+                      Commands.parallel(
+                          ShooterCommands.runStatic(
+                              0,
+                              shooter.getHood().getElevation(),
+                              shooter.getTurret().getPosition()),
+                          PathUtil.followPath("Tower_Sweep_to_Outpost")),
+                      ShooterCommands.clearStaticSetpoint(),
+                      shootWithAgitation(99, 1.0));
               return myCommand1;
             },
             Set.of(drive, intakePivot, intakeSpin, shooter, spindexer, feeder))

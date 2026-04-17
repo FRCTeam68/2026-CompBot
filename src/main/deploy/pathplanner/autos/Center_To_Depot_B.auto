@@ -21,6 +21,12 @@
           "data": {
             "pathName": "Depot2_to_Tower"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Tower_Sweep_to_Outpost"
+          }
         }
       ]
     }
