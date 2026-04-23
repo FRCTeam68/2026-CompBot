@@ -10,23 +10,54 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PathUtil {
+  // Simple cache to avoid re-reading and reparsing path files on first use.
+  private static final Map<String, PathPlannerPath> pathCache = new ConcurrentHashMap<>();
+
   /**
    * Returns the path with the specified name. If no path exists this will return a path that sits
    * at the origin and does nothing.
    */
   public static PathPlannerPath getPath(String name) {
+    // Check cache first to avoid file IO on the first runtime call. If loading fails,
+    // fall back to a safe no-op path.
+    if (pathCache.containsKey(name)) {
+      return pathCache.get(name);
+    }
+
     try {
-      return PathPlannerPath.fromPathFile(name);
+      PathPlannerPath p = PathPlannerPath.fromPathFile(name);
+      pathCache.put(name, p);
+      return p;
     } catch (Exception e) {
       System.out.print("Error getting path with name \"" + name + "\": ");
       e.printStackTrace();
-      return new PathPlannerPath(
-          PathPlannerPath.waypointsFromPoses(Pose2d.kZero, Pose2d.kZero, Pose2d.kZero),
-          PathConstraints.unlimitedConstraints(12),
-          new IdealStartingState(0.0, Rotation2d.kZero),
-          new GoalEndState(0.0, Rotation2d.kZero));
+      PathPlannerPath fallback =
+          new PathPlannerPath(
+              PathPlannerPath.waypointsFromPoses(Pose2d.kZero, Pose2d.kZero, Pose2d.kZero),
+              PathConstraints.unlimitedConstraints(12),
+              new IdealStartingState(0.0, Rotation2d.kZero),
+              new GoalEndState(0.0, Rotation2d.kZero));
+      pathCache.put(name, fallback);
+      return fallback;
+    }
+  }
+
+  /** Preload one or more path files into the cache. Safe to call multiple times. */
+  public static void preload(String... names) {
+    if (names == null) {
+      return;
+    }
+    for (String n : names) {
+      try {
+        // getPath will populate the cache and swallow errors.
+        getPath(n);
+      } catch (Exception e) {
+        // ignore - getPath already prints errors
+      }
     }
   }
 

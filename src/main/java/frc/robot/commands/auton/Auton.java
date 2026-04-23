@@ -111,6 +111,12 @@ public class Auton {
       autonSpecial.addOption("Left_Tune_PP_3M_slow", Auton.Special.Left_Tune_PP_3M_slow);
       autonSpecial.addOption("Right_Tune_PP_3M_slow", Auton.Special.Right_Tune_PP_3M_slow);
     }
+
+    // Preload commonly-used first auton paths so the first scheduling doesn't incur file I/O /
+    // parser
+    // overhead while the robot is already enabled. This helps reduce the ~0.5s stall seen at
+    // autonomous start when the first PathPlanner path is requested.
+    PathUtil.preload("Trench_Sweep1_Straight_Safe", "Trench_Sweep1_Straight_Agressive_Sidestep");
   }
 
   public static void UpdateAlerts() {
