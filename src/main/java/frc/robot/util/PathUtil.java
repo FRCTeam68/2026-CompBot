@@ -16,6 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PathUtil {
   // Simple cache to avoid re-reading and reparsing path files on first use.
   private static final Map<String, PathPlannerPath> pathCache = new ConcurrentHashMap<>();
+  // Cache for mirrored paths so mirrorPath() is only computed once per path name.
+  private static final Map<String, PathPlannerPath> mirroredPathCache = new ConcurrentHashMap<>();
 
   /**
    * Returns the path with the specified name. If no path exists this will return a path that sits
@@ -44,6 +46,11 @@ public class PathUtil {
       pathCache.put(name, fallback);
       return fallback;
     }
+  }
+
+  /** Returns the mirrored version of the named path, computing it only once. */
+  public static PathPlannerPath getMirroredPath(String name) {
+    return mirroredPathCache.computeIfAbsent(name, n -> getPath(n).mirrorPath());
   }
 
   /** Preload one or more path files into the cache. Safe to call multiple times. */
@@ -83,11 +90,7 @@ public class PathUtil {
    *         axis.
    */
   public static Pose2d getStartingPose(String name, boolean mirror) {
-    if (mirror) {
-      return getStartingPose(getPath(name).mirrorPath());
-    } else {
-      return getStartingPose(getPath(name));
-    }
+    return getStartingPose(mirror ? getMirroredPath(name) : getPath(name));
   }
 
   /**
@@ -131,11 +134,7 @@ public class PathUtil {
    *         axis.
    */
   public static Pose2d getEndPose(String name, boolean mirror) {
-    if (mirror) {
-      return getEndPose(getPath(name).mirrorPath());
-    } else {
-      return getEndPose(getPath(name));
-    }
+    return getEndPose(mirror ? getMirroredPath(name) : getPath(name));
   }
 
   /**
@@ -180,11 +179,7 @@ public class PathUtil {
    *         immediately.
    */
   public static Command followPath(String name, boolean mirror) {
-    if (mirror) {
-      return followPath(getPath(name).mirrorPath());
-    } else {
-      return followPath(getPath(name));
-    }
+    return followPath(mirror ? getMirroredPath(name) : getPath(name));
   }
 
   /**
