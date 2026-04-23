@@ -231,6 +231,7 @@ public class Auton {
 
               myCommand1 =
                   Commands.sequence(
+                      Commands.waitSeconds(SmartDashboard.getNumber(FIRST_SWEEP_DELAY_KEY, 0.0)),
                       Commands.parallel(
                           PathUtil.followPath("Center_to_Depot1"),
                           ShooterCommands.runStatic(
@@ -386,6 +387,7 @@ public class Auton {
               // these 2 paths will be mirrored
               Command neutralPath1Command =
                   Commands.sequence(
+                      Commands.waitSeconds(SmartDashboard.getNumber(FIRST_SWEEP_DELAY_KEY, 0.0)),
                       Commands.deadline(
                           PathUtil.followPath(
                               safe.get()
