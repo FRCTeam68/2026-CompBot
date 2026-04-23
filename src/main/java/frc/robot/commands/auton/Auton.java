@@ -62,6 +62,16 @@ public class Auton {
   private static final LoggedNetworkBoolean bump =
       new LoggedNetworkBoolean("SmartDashboard/Auton/Bump", false);
 
+  // Pre-built sweep1 path commands to avoid AutoBuilder work at auton init time
+  private static final Command sweep1Safe =
+      PathUtil.followPath("Trench_Sweep1_Straight_Safe", false);
+  private static final Command sweep1SafeMirror =
+      PathUtil.followPath("Trench_Sweep1_Straight_Safe", true);
+  private static final Command sweep1Agg =
+      PathUtil.followPath("Trench_Sweep1_Straight_Agressive_Sidestep", false);
+  private static final Command sweep1AggMirror =
+      PathUtil.followPath("Trench_Sweep1_Straight_Agressive_Sidestep", true);
+
   private static final LoggedNetworkBoolean setStartingPose =
       new LoggedNetworkBoolean("SmartDashboard/Auton/SetStartingPose", false);
 
@@ -280,12 +290,9 @@ public class Auton {
               Command neutralPath1Command =
                   Commands.sequence(
                       Commands.deadline(
-                          PathUtil.followPath(
-                              safe.get()
-                                  ? "Trench_Sweep1_Straight_Safe"
-                                  : "Trench_Sweep1_Straight_Agressive_Sidestep",
-                              // "Trench_Sweep1_Loop",
-                              mirror),
+                          (safe.get()
+                              ? (mirror ? sweep1SafeMirror : sweep1Safe)
+                              : (mirror ? sweep1AggMirror : sweep1Agg)),
                           delayShooterStart(mirror ? 270 : 90),
                           Commands.waitSeconds(1)
                               .andThen(IntakeCommands.deploy(2))
