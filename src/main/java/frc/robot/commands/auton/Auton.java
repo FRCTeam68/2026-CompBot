@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
@@ -65,6 +66,8 @@ public class Auton {
   private static final LoggedNetworkBoolean setStartingPose =
       new LoggedNetworkBoolean("SmartDashboard/Auton/SetStartingPose", false);
 
+  private static final String FIRST_SWEEP_DELAY_KEY = "Auton/FirstSweepDelay";
+
   public static enum StartingPose {
     Left,
     Right,
@@ -98,6 +101,7 @@ public class Auton {
   private static final LEDSegment componentPoseLEDSegment = new LEDSegment(4, 4, 0);
 
   public static void initDashboardInputs() {
+    SmartDashboard.putNumber(FIRST_SWEEP_DELAY_KEY, 0.0);
     // Configure starting pose
     autonStartingPose.addOption("Left", Auton.StartingPose.Left);
     autonStartingPose.addOption("Center", Auton.StartingPose.Center);
@@ -273,6 +277,7 @@ public class Auton {
               // these 2 paths will be mirrored
               Command neutralPath1Command =
                   Commands.sequence(
+                      Commands.waitSeconds(SmartDashboard.getNumber(FIRST_SWEEP_DELAY_KEY, 0.0)),
                       Commands.deadline(
                           PathUtil.followPath(
                               safe.get()
