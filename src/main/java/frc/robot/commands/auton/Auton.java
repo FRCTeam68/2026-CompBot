@@ -126,7 +126,7 @@ public class Auton {
     // parser
     // overhead while the robot is already enabled. This helps reduce the ~0.5s stall seen at
     // autonomous start when the first PathPlanner path is requested.
-    PathUtil.preload("Trench_Sweep1_Straight_Safe", "Trench_Sweep1_Straight_Agressive_Sidestep");
+    PathUtil.preload("Trench_Trench_Slow", "Trench_Trench_Fast", "Trench_Sweep2");
   }
 
   public static void UpdateAlerts() {

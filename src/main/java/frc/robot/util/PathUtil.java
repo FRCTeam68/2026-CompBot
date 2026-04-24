@@ -62,6 +62,7 @@ public class PathUtil {
       try {
         // getPath will populate the cache and swallow errors.
         getPath(n);
+        getMirroredPath(n);
       } catch (Exception e) {
         // ignore - getPath already prints errors
       }
