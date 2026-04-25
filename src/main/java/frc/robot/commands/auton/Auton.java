@@ -407,12 +407,14 @@ public class Auton {
                               .andThen(PathUtil.followPath("Over_Bump", mirror)),
                           PathUtil.followPath("Over_Bump", mirror),
                           () ->
-                              drive.getPose().minus(bumpApproach).getTranslation().getNorm() > 0.5),
-                      DriveCommands.autopilotDriveToPose(
-                              () -> new APTarget(shot).withoutEntryAngle(), false)
-                          .withTimeout(5)
-                          .onlyIf(
-                              () -> drive.getPose().minus(shot).getTranslation().getNorm() > 0.5));
+                              drive.getPose().minus(bumpApproach).getTranslation().getNorm()
+                                  > 0.5));
+              //         ,
+              // DriveCommands.autopilotDriveToPose(
+              //         () -> new APTarget(shot).withoutEntryAngle(), false)
+              //     .withTimeout(5)
+              //     .onlyIf(
+              //         () -> drive.getPose().minus(shot).getTranslation().getNorm() > 0.5));
 
               Command neutralPath2Command =
                   Commands.sequence(
