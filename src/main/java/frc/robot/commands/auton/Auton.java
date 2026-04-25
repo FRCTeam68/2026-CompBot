@@ -494,6 +494,7 @@ public class Auton {
                 Commands.waitSeconds(startDelay.get()),
                 IntakeCommands.deploy(0),
                 ShooterCommands.shoot(false)),
+            IntakeCommands.intakeStatic(false),
             PathUtil.followPath(
                 "Third_Robot_Trench_Sweep", autonStartingPose.get() == StartingPose.Left),
             PathUtil.followPath(
