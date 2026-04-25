@@ -60,9 +60,9 @@ public final class DriveConstants {
           .withBeelineRadius(Inches.of(5));
 
   public static final APProfile apConfigDynamic =
-      new APProfile(new APConstraints(10, 8))
-          .withErrorXY(Inches.of(8))
-          .withErrorTheta(Degrees.of(10))
+      new APProfile(new APConstraints(15, 12))
+          .withErrorXY(Inches.of(10))
+          .withErrorTheta(Degrees.of(15))
           .withBeelineRadius(Inches.of(5));
 
   // PathPlanner configuration

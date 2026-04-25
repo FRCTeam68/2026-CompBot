@@ -31,7 +31,7 @@ public class ShooterConstants {
 
     // Default box size. xMin should be set big enough to allow ample time for the hood to go down
     // from 0 velocity.
-    public static final double halfXSize = Units.inchesToMeters(70) / 2.0;
+    public static final double halfXSize = Units.inchesToMeters(52) / 2.0;
     public static final double ySize =
         FieldConstants.LinesHorizontal.rightTrenchOpenStart + Units.inchesToMeters(12);
   }

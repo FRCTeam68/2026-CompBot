@@ -492,7 +492,7 @@ public class Auton {
     return Commands.sequence(
             Commands.deadline(
                 Commands.waitSeconds(startDelay.get()),
-                IntakeCommands.deploy(0),
+                Commands.waitSeconds(1).andThen(IntakeCommands.deploy(0)),
                 ShooterCommands.shoot(false)),
             IntakeCommands.intakeStatic(false),
             PathUtil.followPath(
@@ -602,7 +602,7 @@ public class Auton {
   public static void setStartingPose() {
     if (setStartingPose.get() || !vision.isAnyConnected() || Constants.getMode() == Mode.SIM) {
       if (Constants.getMode() != Mode.SIM) {
-        drive.setPose(new Pose2d(getSelectedStartPose().getTranslation(), drive.getRotation()));
+        drive.setPose(getSelectedStartPose());
       } else {
         drive.setPose(getSelectedStartPose());
       }
