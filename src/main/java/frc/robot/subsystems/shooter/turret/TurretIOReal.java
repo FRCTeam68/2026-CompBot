@@ -78,7 +78,7 @@ public class TurretIOReal implements TurretIO {
     talonConfig.CurrentLimits.SupplyCurrentLimit = 80;
     talonConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
     talonConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
-    talonConfig.CurrentLimits.StatorCurrentLimitEnable = false;
+    talonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     talonConfig.CurrentLimits.StatorCurrentLimit = 35;
     // Feedback
     talonConfig.Feedback.FeedbackRemoteSensorID = cancoder.getDeviceID();
