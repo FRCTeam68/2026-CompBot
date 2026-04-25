@@ -503,9 +503,10 @@ public class Auton {
               mirror.set(autonStartingPose.get() == StartingPose.Left);
               shot.set(
                   new APTarget(
-                          PathUtil.getEndPose(
-                              "Third_Robot_Trench_To_Shot",
-                              autonStartingPose.get() == StartingPose.Left))
+                          AllianceFlipUtil.apply(
+                              PathUtil.getEndPose(
+                                  "Third_Robot_Trench_To_Shot",
+                                  autonStartingPose.get() == StartingPose.Left)))
                       .withoutEntryAngle());
             })
         .withName("thirdRobotBumpAuton");
