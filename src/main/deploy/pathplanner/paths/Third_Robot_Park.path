@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.589750889679717,
+        "y": 0.47908659549228905
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.589750889679717,
+        "y": 0.47908659549228905
+      },
+      "isLocked": false,
+      "linkedName": "Third Robot Trench Start"
+    },
+    {
+      "anchor": {
+        "x": 8.635812574139978,
+        "y": 0.47908659549228905
+      },
+      "prevControl": {
+        "x": 7.635812574139978,
+        "y": 0.47908659549228905
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.1,
+    "maxAcceleration": 3.1,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "Third Robot Park",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}

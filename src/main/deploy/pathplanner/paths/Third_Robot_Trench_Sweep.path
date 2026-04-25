@@ -1,0 +1,135 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.589750889679717,
+        "y": 0.47908659549228905
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.589750889679717,
+        "y": 0.47908659549228894
+      },
+      "isLocked": false,
+      "linkedName": "Third Robot Trench Start"
+    },
+    {
+      "anchor": {
+        "x": 6.103143274853801,
+        "y": 0.8744663742690058
+      },
+      "prevControl": {
+        "x": 6.11470508419702,
+        "y": 0.44667942856986975
+      },
+      "nextControl": {
+        "x": 6.090321637426902,
+        "y": 1.348866959064327
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.840299707602339,
+        "y": 2.1053435672514613
+      },
+      "prevControl": {
+        "x": 5.85953216374269,
+        "y": 1.7206944444444443
+      },
+      "nextControl": {
+        "x": 5.821706707132618,
+        "y": 2.4772035766458904
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.795423976608187,
+        "y": 3.631118421052631
+      },
+      "prevControl": {
+        "x": 5.795423976608187,
+        "y": 3.3105774853801155
+      },
+      "nextControl": {
+        "x": 5.795423976608187,
+        "y": 4.243575003268177
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.757134502923977,
+        "y": 3.7721564327485373
+      },
+      "prevControl": {
+        "x": 7.133974990954014,
+        "y": 4.254602506531733
+      },
+      "nextControl": {
+        "x": 8.353340643274855,
+        "y": 3.3105774853801164
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.475058479532164,
+        "y": 2.4002412280701755
+      },
+      "prevControl": {
+        "x": 8.225124269005848,
+        "y": 2.387419590643274
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Third Robot Bump Approach"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 1.79,
+      "rotationDegrees": 110.0
+    },
+    {
+      "waypointRelativePos": 3.1,
+      "rotationDegrees": 90.0
+    },
+    {
+      "waypointRelativePos": 3.65,
+      "rotationDegrees": -10.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.1,
+    "maxAcceleration": 3.1,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 2.0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "Third Robot Trench",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}

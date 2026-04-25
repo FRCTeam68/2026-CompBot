@@ -118,7 +118,8 @@ public class PathUtil {
   public static Pose2d getEndPose(PathPlannerPath path) {
     try {
       List<Pose2d> poses = path.getPathPoses();
-      return poses.get(poses.size() - 1);
+      return new Pose2d(
+          poses.get(poses.size() - 1).getTranslation(), path.getGoalEndState().rotation());
     } catch (Exception e) {
       System.out.print("Error getting ending holonomic pose from path \"" + path.name + "\": ");
       e.printStackTrace();
