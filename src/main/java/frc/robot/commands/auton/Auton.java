@@ -76,10 +76,12 @@ public class Auton {
 
   public static enum Special {
     None,
-    BumpSingleSweep,
-    Left_Tune_PP_3M_slow,
-    Left_Tune_PP_3M_fast,
-    Right_Tune_PP_3M_slow
+    // BumpSingleSweep,
+    // Left_Tune_PP_3M_slow,
+    // Left_Tune_PP_3M_fast,
+    // Right_Tune_PP_3M_slow,
+    ThirdRobotPark,
+    ThirdRobotBump
   }
 
   private static final Alert noAutoSelectedAlert =
@@ -109,12 +111,12 @@ public class Auton {
 
     // Configure special
     autonSpecial.addDefaultOption("None", Auton.Special.None);
-    if (Constants.tuningMode) {
-      autonSpecial.addOption("BumpSingleSweep", Auton.Special.BumpSingleSweep);
-      autonSpecial.addOption("Left_Tune_PP_3M_fast", Auton.Special.Left_Tune_PP_3M_fast);
-      autonSpecial.addOption("Left_Tune_PP_3M_slow", Auton.Special.Left_Tune_PP_3M_slow);
-      autonSpecial.addOption("Right_Tune_PP_3M_slow", Auton.Special.Right_Tune_PP_3M_slow);
-    }
+    // if (Constants.tuningMode) {
+    //   autonSpecial.addOption("BumpSingleSweep", Auton.Special.BumpSingleSweep);
+    //   autonSpecial.addOption("Left_Tune_PP_3M_fast", Auton.Special.Left_Tune_PP_3M_fast);
+    //   autonSpecial.addOption("Left_Tune_PP_3M_slow", Auton.Special.Left_Tune_PP_3M_slow);
+    //   autonSpecial.addOption("Right_Tune_PP_3M_slow", Auton.Special.Right_Tune_PP_3M_slow);
+    // }
   }
 
   public static void UpdateAlerts() {
@@ -155,16 +157,20 @@ public class Auton {
     switch (autonStartingPose.get()) {
       case Left:
         switch (autonSpecial.get()) {
-          case Left_Tune_PP_3M_slow:
-            return PathUtil.followPath("Left_Tune_PP_3M_Forward_slow")
-                .andThen(Commands.waitSeconds(3))
-                .andThen(PathUtil.followPath("Left_Tune_PP_3M_Back_slow"));
-          case Left_Tune_PP_3M_fast:
-            return PathUtil.followPath("Left_Tune_PP_3M_Forward_fast")
-                .andThen(Commands.waitSeconds(3))
-                .andThen(PathUtil.followPath("Left_Tune_PP_3M_Back_fast"));
-          case BumpSingleSweep:
-            return Bump();
+            // case Left_Tune_PP_3M_slow:
+            //   return PathUtil.followPath("Left_Tune_PP_3M_Forward_slow")
+            //       .andThen(Commands.waitSeconds(3))
+            //       .andThen(PathUtil.followPath("Left_Tune_PP_3M_Back_slow"));
+            // case Left_Tune_PP_3M_fast:
+            //   return PathUtil.followPath("Left_Tune_PP_3M_Forward_fast")
+            //       .andThen(Commands.waitSeconds(3))
+            //       .andThen(PathUtil.followPath("Left_Tune_PP_3M_Back_fast"));
+            // case BumpSingleSweep:
+            //   return Bump();
+          case ThirdRobotBump:
+            return thirdRobotBump();
+          case ThirdRobotPark:
+            return thirdRobotPark();
           case None:
           default:
             if (bump.get()) {
@@ -179,12 +185,16 @@ public class Auton {
 
       case Right:
         switch (autonSpecial.get()) {
-          case Right_Tune_PP_3M_slow:
-            return PathUtil.followPath("Right_Tune_PP_3M_Forward_slow")
-                .andThen(Commands.waitSeconds(3))
-                .andThen(PathUtil.followPath("Right_Tune_PP_3M_Back_slow"));
-          case BumpSingleSweep:
-            return Bump();
+            // case Right_Tune_PP_3M_slow:
+            //   return PathUtil.followPath("Right_Tune_PP_3M_Forward_slow")
+            //       .andThen(Commands.waitSeconds(3))
+            //       .andThen(PathUtil.followPath("Right_Tune_PP_3M_Back_slow"));
+            // case BumpSingleSweep:
+            //   return Bump();
+          case ThirdRobotBump:
+            return thirdRobotBump();
+          case ThirdRobotPark:
+            return thirdRobotPark();
           case None:
           default:
             if (bump.get()) {
@@ -459,6 +469,179 @@ public class Auton {
         .withName("Auton_Trench_Bump");
   }
 
+  // -----------------------------------------------------------------------------------------
+  private static Command thirdRobotPark() {
+    return new DeferredCommand(
+            () -> {
+              LoggedTracerStatic.record("CommandInit");
+              boolean left = autonStartingPose.get() == StartingPose.Left;
+              boolean mirror = left;
+              Pose2d bumpApproach =
+                  AllianceFlipUtil.apply(PathUtil.getStartingPose("Over_Bump", mirror));
+              Pose2d shot = AllianceFlipUtil.apply(PathUtil.getEndPose("Over_Bump", mirror));
+
+              // these 2 paths will be mirrored
+              Command neutralPath1Command =
+                  Commands.sequence(
+                      Commands.waitSeconds(SmartDashboard.getNumber(FIRST_SWEEP_DELAY_KEY, 0.0)),
+                      Commands.deadline(
+                          PathUtil.followPath(
+                              safe.get()
+                                  ? "Trench_Bump_Sweep1_Safe"
+                                  : "Trench_Bump_Sweep1_Agressive",
+                              mirror),
+                          delayShooterStart(mirror ? 270 : 90),
+                          Commands.waitSeconds(1)
+                              .andThen(IntakeCommands.deploy(2))
+                              .andThen(Commands.waitSeconds(0.2))
+                              .andThen(IntakeCommands.deploy(2))
+                              .andThen(IntakeCommands.intakeStatic(false))),
+                      Commands.either(
+                          DriveCommands.autopilotDriveToPose(
+                                  () -> new APTarget(bumpApproach).withoutEntryAngle(), false)
+                              .withTimeout(7)
+                              .andThen(PathUtil.followPath("Over_Bump", mirror)),
+                          PathUtil.followPath("Over_Bump", mirror),
+                          () ->
+                              drive.getPose().minus(bumpApproach).getTranslation().getNorm() > 0.5),
+                      DriveCommands.autopilotDriveToPose(
+                              () -> new APTarget(shot).withoutEntryAngle(), false)
+                          .withTimeout(5)
+                          .onlyIf(
+                              () -> drive.getPose().minus(shot).getTranslation().getNorm() > 0.5));
+
+              Command neutralPath2Command =
+                  Commands.sequence(
+                      Commands.deadline(
+                          PathUtil.followPath("Trench_Bump_Sweep2", mirror),
+                          ShooterCommands.shoot(false)
+                              .withTimeout(1), // shoot for a bit before entering trench
+                          IntakeCommands.intakeStatic(true)),
+                      DriveCommands.autopilotDriveToPose(
+                              () -> new APTarget(bumpApproach).withoutEntryAngle(), false)
+                          .withTimeout(7)
+                          .onlyIf(
+                              () ->
+                                  drive.getPose().minus(bumpApproach).getTranslation().getNorm()
+                                      > 0.5),
+                      PathUtil.followPath("Over_Bump", mirror),
+                      DriveCommands.autopilotDriveToPose(
+                              () -> new APTarget(shot).withoutEntryAngle(), false)
+                          .withTimeout(5)
+                          .onlyIf(
+                              () -> drive.getPose().minus(shot).getTranslation().getNorm() > 0.5));
+
+              Command driveAndShootCommand =
+                  Commands.sequence(
+                      Commands.deadline(
+                          PathUtil.followPath("Bump_to_Trench", mirror)
+                              .andThen(Commands.waitSeconds(1.5)),
+                          shootWithAgitation(6, 2.5)));
+
+              Command driveAndShootCommand2 =
+                  Commands.sequence(
+                      IntakeCommands.intakeStatic(true),
+                      Commands.deadline(
+                          PathUtil.followPath("Bump_to_Trench", mirror),
+                          shootWithAgitation(6, 2.5)));
+
+              return Commands.runOnce(() -> LoggedTracerStatic.record("CommandRun"))
+                  .andThen(neutralPath1Command)
+                  .andThen(driveAndShootCommand)
+                  .andThen(neutralPath2Command)
+                  .andThen(driveAndShootCommand2);
+            },
+            Set.of(drive, intakePivot, intakeSpin, shooter, spindexer, feeder))
+        .withName("thirdRobotAuton");
+  }
+
+  // -----------------------------------------------------------------------------------------
+  private static Command thirdRobotBump() {
+    return new DeferredCommand(
+            () -> {
+              LoggedTracerStatic.record("CommandInit");
+              boolean left = autonStartingPose.get() == StartingPose.Left;
+              boolean mirror = left;
+              Pose2d bumpApproach =
+                  AllianceFlipUtil.apply(PathUtil.getStartingPose("Over_Bump", mirror));
+              Pose2d shot = AllianceFlipUtil.apply(PathUtil.getEndPose("Over_Bump", mirror));
+
+              // these 2 paths will be mirrored
+              Command neutralPath1Command =
+                  Commands.sequence(
+                      Commands.waitSeconds(SmartDashboard.getNumber(FIRST_SWEEP_DELAY_KEY, 0.0)),
+                      Commands.deadline(
+                          PathUtil.followPath(
+                              safe.get()
+                                  ? "Trench_Bump_Sweep1_Safe"
+                                  : "Trench_Bump_Sweep1_Agressive",
+                              mirror),
+                          delayShooterStart(mirror ? 270 : 90),
+                          Commands.waitSeconds(1)
+                              .andThen(IntakeCommands.deploy(2))
+                              .andThen(Commands.waitSeconds(0.2))
+                              .andThen(IntakeCommands.deploy(2))
+                              .andThen(IntakeCommands.intakeStatic(false))),
+                      Commands.either(
+                          DriveCommands.autopilotDriveToPose(
+                                  () -> new APTarget(bumpApproach).withoutEntryAngle(), false)
+                              .withTimeout(7)
+                              .andThen(PathUtil.followPath("Over_Bump", mirror)),
+                          PathUtil.followPath("Over_Bump", mirror),
+                          () ->
+                              drive.getPose().minus(bumpApproach).getTranslation().getNorm() > 0.5),
+                      DriveCommands.autopilotDriveToPose(
+                              () -> new APTarget(shot).withoutEntryAngle(), false)
+                          .withTimeout(5)
+                          .onlyIf(
+                              () -> drive.getPose().minus(shot).getTranslation().getNorm() > 0.5));
+
+              Command neutralPath2Command =
+                  Commands.sequence(
+                      Commands.deadline(
+                          PathUtil.followPath("Trench_Bump_Sweep2", mirror),
+                          ShooterCommands.shoot(false)
+                              .withTimeout(1), // shoot for a bit before entering trench
+                          IntakeCommands.intakeStatic(true)),
+                      DriveCommands.autopilotDriveToPose(
+                              () -> new APTarget(bumpApproach).withoutEntryAngle(), false)
+                          .withTimeout(7)
+                          .onlyIf(
+                              () ->
+                                  drive.getPose().minus(bumpApproach).getTranslation().getNorm()
+                                      > 0.5),
+                      PathUtil.followPath("Over_Bump", mirror),
+                      DriveCommands.autopilotDriveToPose(
+                              () -> new APTarget(shot).withoutEntryAngle(), false)
+                          .withTimeout(5)
+                          .onlyIf(
+                              () -> drive.getPose().minus(shot).getTranslation().getNorm() > 0.5));
+
+              Command driveAndShootCommand =
+                  Commands.sequence(
+                      Commands.deadline(
+                          PathUtil.followPath("Bump_to_Trench", mirror)
+                              .andThen(Commands.waitSeconds(1.5)),
+                          shootWithAgitation(6, 2.5)));
+
+              Command driveAndShootCommand2 =
+                  Commands.sequence(
+                      IntakeCommands.intakeStatic(true),
+                      Commands.deadline(
+                          PathUtil.followPath("Bump_to_Trench", mirror),
+                          shootWithAgitation(6, 2.5)));
+
+              return Commands.runOnce(() -> LoggedTracerStatic.record("CommandRun"))
+                  .andThen(neutralPath1Command)
+                  .andThen(driveAndShootCommand)
+                  .andThen(neutralPath2Command)
+                  .andThen(driveAndShootCommand2);
+            },
+            Set.of(drive, intakePivot, intakeSpin, shooter, spindexer, feeder))
+        .withName("thirdRobotAuton");
+  }
+
+  // -----------------------------------------------------------------------------------------
   private static Command Bump() {
     return new DeferredCommand(
             () -> {
@@ -498,25 +681,24 @@ public class Auton {
 
       switch (autonStartingPose.get()) {
         case Left:
-          if (autonSpecial.get() == Auton.Special.BumpSingleSweep) {
-            startPose =
-                AllianceFlipUtil.apply(PathUtil.getStartingPose("Right_Bump_Slice1A", true));
-          } else {
-            startPose =
-                AllianceFlipUtil.apply(
-                    PathUtil.getStartingPose("Trench_Sweep1_Straight_Safe", true));
-          }
+          // if (autonSpecial.get() == Auton.Special.BumpSingleSweep) {
+          //   startPose =
+          //       AllianceFlipUtil.apply(PathUtil.getStartingPose("Right_Bump_Slice1A", true));
+          // } else {
+          startPose =
+              AllianceFlipUtil.apply(PathUtil.getStartingPose("Trench_Sweep1_Straight_Safe", true));
+          // }
           break;
         case Center:
           startPose = AllianceFlipUtil.apply(PathUtil.getStartingPose("Center_to_Depot1"));
           break;
         case Right:
-          if (autonSpecial.get() == Auton.Special.BumpSingleSweep) {
-            startPose = AllianceFlipUtil.apply(PathUtil.getStartingPose("Right_Bump_Slice1A"));
-          } else {
-            startPose =
-                AllianceFlipUtil.apply(PathUtil.getStartingPose("Trench_Sweep1_Straight_Safe"));
-          }
+          // if (autonSpecial.get() == Auton.Special.BumpSingleSweep) {
+          //   startPose = AllianceFlipUtil.apply(PathUtil.getStartingPose("Right_Bump_Slice1A"));
+          // } else {
+          startPose =
+              AllianceFlipUtil.apply(PathUtil.getStartingPose("Trench_Sweep1_Straight_Safe"));
+          // }
           break;
         default:
           // do nothing, will return default pose of (0, 0)
