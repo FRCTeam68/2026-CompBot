@@ -69,7 +69,7 @@ public class IntakeSpinIOReal implements IntakeSpinIO {
     leaderConfig.CurrentLimits.SupplyCurrentLimit = 30;
     leaderConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
     leaderConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
-    leaderConfig.CurrentLimits.StatorCurrentLimitEnable = false;
+    leaderConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     leaderConfig.CurrentLimits.StatorCurrentLimit = 50;
     leaderConfig.TorqueCurrent.PeakForwardTorqueCurrent = 50;
     leaderConfig.TorqueCurrent.PeakReverseTorqueCurrent = 5;
