@@ -78,6 +78,8 @@ public class TurretIOReal implements TurretIO {
     talonConfig.CurrentLimits.SupplyCurrentLimit = 80;
     talonConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
     talonConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
+    talonConfig.CurrentLimits.StatorCurrentLimitEnable = false;
+    talonConfig.CurrentLimits.StatorCurrentLimit = 35;
     // Feedback
     talonConfig.Feedback.FeedbackRemoteSensorID = cancoder.getDeviceID();
     talonConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
@@ -92,7 +94,7 @@ public class TurretIOReal implements TurretIO {
         Units.degreesToRotations(Turret.getMinimum());
 
     // CANcoder
-    cancoderConfig.MagnetSensor.MagnetOffset = -0.2978515625;
+    cancoderConfig.MagnetSensor.MagnetOffset = -0.238037109375;
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
     cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
