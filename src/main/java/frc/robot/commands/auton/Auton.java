@@ -237,6 +237,19 @@ public class Auton {
         .withName("Auton_ShootWithAgitation");
   }
 
+  private static Command shootWithContinuousAgitation(
+      double shootSeconds, double firstAgitateDelay) {
+    return Commands.deadline(
+            Commands.waitSeconds(shootSeconds),
+            ShooterCommands.shoot(false),
+            Commands.waitSeconds(firstAgitateDelay)
+                .andThen(
+                    Commands.sequence(IntakeCommands.agitate(0.5), Commands.waitSeconds(0.5))
+                        .repeatedly()))
+        .finallyDo(() -> IntakeCommands.deploy(0).andThen(IntakeCommands.intakeStatic(true)))
+        .withName("Auton_ShootWithAgitation");
+  }
+
   // -----------------------------------------------------------------------------------------
   private static Command CenterDefault() {
     return new DeferredCommand(
@@ -500,7 +513,7 @@ public class Auton {
             PathUtil.followPath(
                 "Third_Robot_Trench_Over_Bump", autonStartingPose.get() == StartingPose.Left),
             DriveCommands.autopilotDriveToPose(() -> shot.get(), false),
-            shootWithAgitation(99, 4))
+            shootWithContinuousAgitation(99, 0.5))
         .beforeStarting(
             () -> {
               mirror.set(autonStartingPose.get() == StartingPose.Left);
