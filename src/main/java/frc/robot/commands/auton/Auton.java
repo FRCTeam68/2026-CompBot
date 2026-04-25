@@ -69,7 +69,7 @@ public class Auton {
       new LoggedNetworkBoolean("SmartDashboard/Auton/SetStartingPose", false);
 
   private static final LoggedNetworkNumber startDelay =
-      new LoggedNetworkNumber("Auton/FirstSweepDelay", 4.0);
+      new LoggedNetworkNumber("Auton/FirstSweepDelay", 3);
 
   public static enum StartingPose {
     Left,
