@@ -244,7 +244,9 @@ public class RobotSystem {
     Logger.recordOutput(
         "RobotPose/1_Intake",
         new Pose3d(
-            (intakePivot.getPosition() / IntakePivot.getExtended()) * Units.inchesToMeters(12),
+            Units.inchesToMeters(12)
+                - ((intakePivot.getPosition() / IntakePivot.getPackaged())
+                    * Units.inchesToMeters(12)),
             0,
             0,
             Rotation3d.kZero));

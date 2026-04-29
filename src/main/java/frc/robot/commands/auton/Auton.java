@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
@@ -69,7 +70,10 @@ public class Auton {
       new LoggedNetworkBoolean("SmartDashboard/Auton/SetStartingPose", false);
 
   private static final LoggedNetworkNumber startDelay =
-      new LoggedNetworkNumber("Auton/FirstSweepDelay", 3);
+      new LoggedNetworkNumber("Auton/StartDelay", 3);
+
+  private static final LoggedNetworkNumber bumpDelay =
+      new LoggedNetworkNumber("Auton/BumpDelay", 2);
 
   public static enum StartingPose {
     Left,
@@ -502,14 +506,19 @@ public class Auton {
   private static Command thirdRobotBump() {
     AtomicBoolean mirror = new AtomicBoolean(false);
     AtomicReference<APTarget> shot = new AtomicReference<APTarget>(new APTarget(Pose2d.kZero));
+    Timer timer = new Timer();
     return Commands.sequence(
             Commands.deadline(
-                Commands.waitSeconds(startDelay.get()),
-                Commands.waitSeconds(1).andThen(IntakeCommands.deploy(0)),
+                Commands.waitSeconds(startDelay.get()).onlyIf(() -> startDelay.get() > 0),
+                Commands.waitSeconds(Math.min(1, startDelay.get()))
+                    .andThen(IntakeCommands.deploy(0)),
                 ShooterCommands.shoot(false)),
             IntakeCommands.intakeStatic(false),
             PathUtil.followPath(
                 "Third_Robot_Trench_Sweep", autonStartingPose.get() == StartingPose.Left),
+            Commands.runOnce(() -> drive.stop())
+                .andThen(Commands.waitSeconds(bumpDelay.get()))
+                .onlyIf(() -> (bumpDelay.get() > 0)),
             PathUtil.followPath(
                 "Third_Robot_Trench_Over_Bump", autonStartingPose.get() == StartingPose.Left),
             DriveCommands.autopilotDriveToPose(() -> shot.get(), false),
@@ -524,6 +533,7 @@ public class Auton {
                                   "Third_Robot_Trench_To_Shot",
                                   autonStartingPose.get() == StartingPose.Left)))
                       .withoutEntryAngle());
+              timer.restart();
             })
         .withName("thirdRobotBumpAuton");
   }

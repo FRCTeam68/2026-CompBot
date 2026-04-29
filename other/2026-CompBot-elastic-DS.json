@@ -65,7 +65,7 @@
           {
             "title": "Special",
             "x": 0.0,
-            "y": 512.0,
+            "y": 384.0,
             "width": 288.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
@@ -78,7 +78,7 @@
           {
             "title": "Depot",
             "x": 160.0,
-            "y": 256.0,
+            "y": 128.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -95,7 +95,7 @@
           {
             "title": "Depot",
             "x": 0.0,
-            "y": 256.0,
+            "y": 128.0,
             "width": 160.0,
             "height": 128.0,
             "type": "Toggle Switch",
@@ -103,36 +103,6 @@
               "topic": "SmartDashboard/Auton/Depot",
               "period": 0.06,
               "data_type": "boolean"
-            }
-          },
-          {
-            "title": "Outpost",
-            "x": 0.0,
-            "y": 128.0,
-            "width": 160.0,
-            "height": 128.0,
-            "type": "Toggle Switch",
-            "properties": {
-              "topic": "SmartDashboard/Auton/Outpost",
-              "period": 0.06,
-              "data_type": "boolean"
-            }
-          },
-          {
-            "title": "Outpost",
-            "x": 160.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "SmartDashboard/Auton/Outpost",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
             }
           },
           {
@@ -237,7 +207,7 @@
           },
           {
             "title": "Set Starting Pose",
-            "x": 0.0,
+            "x": 288.0,
             "y": 640.0,
             "width": 160.0,
             "height": 128.0,
@@ -250,7 +220,7 @@
           },
           {
             "title": "Set Starting Pose",
-            "x": 160.0,
+            "x": 448.0,
             "y": 640.0,
             "width": 128.0,
             "height": 128.0,
@@ -268,7 +238,7 @@
           {
             "title": "Safe",
             "x": 0.0,
-            "y": 384.0,
+            "y": 256.0,
             "width": 160.0,
             "height": 128.0,
             "type": "Toggle Switch",
@@ -281,7 +251,7 @@
           {
             "title": "Safe",
             "x": 160.0,
-            "y": 384.0,
+            "y": 256.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -293,6 +263,60 @@
               "false_color": 4294198070,
               "true_icon": "None",
               "false_icon": "None"
+            }
+          },
+          {
+            "title": "Bump Delay",
+            "x": 0.0,
+            "y": 640.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "Auton/BumpDelay",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Bump Delay",
+            "x": 128.0,
+            "y": 640.0,
+            "width": 160.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Auton/BumpDelay",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Start Delay",
+            "x": 0.0,
+            "y": 512.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "Auton/StartDelay",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Start Delay",
+            "x": 128.0,
+            "y": 512.0,
+            "width": 160.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Auton/StartDelay",
+              "period": 0.06,
+              "data_type": "double"
             }
           }
         ]
