@@ -88,7 +88,8 @@ public class Auton {
     // Left_Tune_PP_3M_fast,
     // Right_Tune_PP_3M_slow,
     ThirdRobotPark,
-    ThirdRobotBump
+    ThirdRobotBump,
+    ThirdRobotTrench
   }
 
   private static final Alert noAutoSelectedAlert =
@@ -119,6 +120,7 @@ public class Auton {
     autonSpecial.addDefaultOption("None", Auton.Special.None);
     autonSpecial.addDefaultOption("Third Robot Park", Auton.Special.ThirdRobotPark);
     autonSpecial.addDefaultOption("Third Robot Bump", Auton.Special.ThirdRobotBump);
+    autonSpecial.addDefaultOption("Third Robot Trench", Auton.Special.ThirdRobotTrench);
     // if (Constants.tuningMode) {
     //   autonSpecial.addOption("BumpSingleSweep", Auton.Special.BumpSingleSweep);
     //   autonSpecial.addOption("Left_Tune_PP_3M_fast", Auton.Special.Left_Tune_PP_3M_fast);
@@ -515,12 +517,12 @@ public class Auton {
                 ShooterCommands.shoot(false)),
             IntakeCommands.intakeStatic(false),
             PathUtil.followPath(
-                "Third_Robot_Trench_Sweep", autonStartingPose.get() == StartingPose.Left),
+                "Third_Robot_Bump_Sweep", autonStartingPose.get() == StartingPose.Left),
             Commands.runOnce(() -> drive.stop())
                 .andThen(Commands.waitSeconds(bumpDelay.get()))
                 .onlyIf(() -> (bumpDelay.get() > 0)),
             PathUtil.followPath(
-                "Third_Robot_Trench_Over_Bump", autonStartingPose.get() == StartingPose.Left),
+                "Third_Robot_Over_Bump", autonStartingPose.get() == StartingPose.Left),
             DriveCommands.autopilotDriveToPose(() -> shot.get(), false),
             shootWithContinuousAgitation(99, 0.5))
         .beforeStarting(
@@ -530,7 +532,7 @@ public class Auton {
                   new APTarget(
                           AllianceFlipUtil.apply(
                               PathUtil.getEndPose(
-                                  "Third_Robot_Trench_To_Shot",
+                                  "Third_Robot_Bump_To_Shot",
                                   autonStartingPose.get() == StartingPose.Left)))
                       .withoutEntryAngle());
               timer.restart();
@@ -588,7 +590,7 @@ public class Auton {
                     PathUtil.getStartingPose("Trench_Sweep1_Straight_Safe", true));
           } else {
             startPose =
-                AllianceFlipUtil.apply(PathUtil.getStartingPose("Third_Robot_Trench_Sweep", true));
+                AllianceFlipUtil.apply(PathUtil.getStartingPose("Third_Robot_Bump_Sweep", true));
           }
           // }
           break;
@@ -603,8 +605,7 @@ public class Auton {
             startPose =
                 AllianceFlipUtil.apply(PathUtil.getStartingPose("Trench_Sweep1_Straight_Safe"));
           } else {
-            startPose =
-                AllianceFlipUtil.apply(PathUtil.getStartingPose("Third_Robot_Trench_Sweep"));
+            startPose = AllianceFlipUtil.apply(PathUtil.getStartingPose("Third_Robot_Bump_Sweep"));
           }
           // }
           break;

@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.589750889679717,
-        "y": 0.47908659549228905
+        "x": 7.430182748538011,
+        "y": 0.5539254385964909
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.589750889679717,
-        "y": 0.47908659549228905
+        "x": 5.974926900584796,
+        "y": 0.5667470760233916
       },
       "isLocked": false,
-      "linkedName": "Third Robot Trench Start"
+      "linkedName": "Third Robot Trench Approach"
     },
     {
       "anchor": {
-        "x": 8.635812574139978,
-        "y": 0.47908659549228905
+        "x": 2.942609649122807,
+        "y": 0.5667470760233915
       },
       "prevControl": {
-        "x": 7.635812574139978,
-        "y": 0.47908659549228916
+        "x": 3.808070175438597,
+        "y": 0.5539254385964911
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Third Robot Trench Shoot"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Third Robot Park",
+  "folder": "Third Robot Trench",
   "idealStartingState": {
-    "velocity": 0,
-    "rotation": -0.0
+    "velocity": 2.0,
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

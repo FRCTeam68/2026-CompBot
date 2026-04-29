@@ -45,7 +45,7 @@
     "rotation": -140.0
   },
   "reversed": false,
-  "folder": "Third Robot Trench",
+  "folder": "Third Robot Bump",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 180.0
