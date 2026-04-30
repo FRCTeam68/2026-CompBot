@@ -106,7 +106,8 @@ public class RobotSystem {
                 drive::getFieldVelocity,
                 drive::getGyroConnected,
                 lights,
-                new VisionIOLimelight(CameraInfo.LL_4));
+                new VisionIOLimelight(CameraInfo.LL_4),
+                new VisionIOLimelight(CameraInfo.LL_3G));
 
         flywheel = new Flywheel(new FlywheelIOReal());
         hood = new Hood(new HoodIOReal());

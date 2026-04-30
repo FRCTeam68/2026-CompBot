@@ -6,7 +6,7 @@ public class VisionConstants {
   // Camera information
   // Limelight 4 name must start with "limelight-four" to work with special functions.
   public static enum CameraInfo {
-    LL_3G("limelight-threeg", 999.0, 7),
+    LL_3G("limelight-threeg", 10.0, 7),
     // ip address: 10.0.68.9
     // Pose (meters / degrees): x:-0.291079 / y:0.273426 / z:0.31586
     //                          roll:0 / pitch:25 / yaw:174
