@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0322733918128653,
-        "y": 2.4643494152046777
+        "x": 2.2771293001186246,
+        "y": 2.641684460260973
       },
       "isLocked": false,
       "linkedName": "Third Robot Bump End"
     },
     {
       "anchor": {
-        "x": 1.186045321637427,
-        "y": 1.432207602339181
+        "x": 2.24485172004745,
+        "y": 3.835954922894425
       },
       "prevControl": {
-        "x": 1.897646198830408,
-        "y": 2.0861111111111112
+        "x": 2.7720521945432983,
+        "y": 3.211921708185054
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -140.0
+    "rotation": -177.3974377975001
   },
   "reversed": false,
   "folder": "Third Robot Bump",
