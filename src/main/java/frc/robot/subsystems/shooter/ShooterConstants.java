@@ -60,7 +60,7 @@ public class ShooterConstants {
 
   public static class StaticShot {
     public static final shotConfig hubArc =
-        shotConfig.builder().flywheelVelocity(55.0).hoodAngle(50.0).turretAngle(0.0).build();
+        shotConfig.builder().flywheelVelocity(49.0).hoodAngle(60.0).turretAngle(0.0).build();
     public static final shotConfig neutralZone =
         shotConfig.builder().flywheelVelocity(66.0).hoodAngle(46).turretAngle(0.0).build();
     public static final shotConfig oppAllianceZone =
