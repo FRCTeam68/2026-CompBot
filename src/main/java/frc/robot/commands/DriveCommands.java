@@ -46,6 +46,10 @@ public class DriveCommands {
       new LoggedTunableNumber("Drive/PassShot/MaxLinearVelocity", 10.0);
   private static final LoggedTunableNumber passShotMaxAngularVelocity =
       new LoggedTunableNumber("Drive/PassShot/MaxAngularVelocity", 8.0);
+  private static final LoggedTunableNumber demoModeaxLinearVelocity =
+      new LoggedTunableNumber("Drive/DemoMode/MaxLinearVelocity", 1.0);
+  private static final LoggedTunableNumber demoModeaxAngularVelocity =
+      new LoggedTunableNumber("Drive/DemoMode/MaxAngularVelocity", 1.0);
 
   // Subsystems
   private static final RobotSystem robotSystem = RobotSystem.getInstance();
@@ -68,6 +72,11 @@ public class DriveCommands {
   }
 
   private static double getAdjustedMaxLinearVelocity() {
+    // If demo mode toggle is enabled on the dashboard, use hub shot max linear velocity
+    if (robotSystem.demoMode.get()) {
+      return demoModeaxLinearVelocity.get();
+    }
+
     if (robotSystem.isShooting && !shooter.inTrenchBox()) {
       if (shooter.isTargetHub()) {
         return hubShotMaxLinearVelocity.get();
@@ -80,6 +89,11 @@ public class DriveCommands {
   }
 
   private static double getAdjustedMaxAngularVelocity() {
+    // If demo mode toggle is enabled on the dashboard, use hub shot max angular velocity
+    if (robotSystem.demoMode.get()) {
+      return demoModeaxAngularVelocity.get();
+    }
+
     if (robotSystem.isShooting && !shooter.inTrenchBox()) {
       if (shooter.isTargetHub()) {
         return hubShotMaxAngularVelocity.get();

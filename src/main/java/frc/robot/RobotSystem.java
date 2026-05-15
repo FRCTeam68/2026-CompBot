@@ -65,9 +65,11 @@ public class RobotSystem {
   public final LoggedNetworkBoolean doTrenchAlign =
       new LoggedNetworkBoolean("SmartDashboard/Drive/DoTrenchAlign", false);
   public final LoggedNetworkBoolean autoshootPass =
-      new LoggedNetworkBoolean("SmartDashboard/Shooter/AutoshootPass", true);
+      new LoggedNetworkBoolean("SmartDashboard/Shooter/AutoshootPass", false);
   public final LoggedNetworkBoolean autoIntake =
       new LoggedNetworkBoolean("SmartDashboard/Intake/AutoIntake", false);
+  public final LoggedNetworkBoolean demoMode =
+      new LoggedNetworkBoolean("SmartDashboard/Drive/DemoMode", false);
 
   // Subsystems
   @Getter private final Drive drive;
