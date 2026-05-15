@@ -69,7 +69,7 @@ public class RobotSystem {
   public final LoggedNetworkBoolean autoIntake =
       new LoggedNetworkBoolean("SmartDashboard/Intake/AutoIntake", false);
   public final LoggedNetworkBoolean demoMode =
-      new LoggedNetworkBoolean("SmartDashboard/Drive/DemoMode", false);
+      new LoggedNetworkBoolean("SmartDashboard/Drive/DemoMode", true);
 
   // Subsystems
   @Getter private final Drive drive;
