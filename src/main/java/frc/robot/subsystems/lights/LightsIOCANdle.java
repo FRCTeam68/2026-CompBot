@@ -69,6 +69,6 @@ public class LightsIOCANdle implements LightsIO {
   @Override
   public void setBrightness(double percent) {
     config.LED.BrightnessScalar = percent;
-    tryUntilOk(5, () -> candle.getConfigurator().apply(config, 0.25));
+    tryUntilOk(5, () -> candle.getConfigurator().apply(config.LED, 0.25));
   }
 }

@@ -186,16 +186,18 @@ public class FlywheelIOReal implements FlywheelIO {
       */
       switch (i) {
         case 0:
-          leaderConfig.Slot0 = Slot0Configs.from(newConfig[i]);
+          Slot0Configs slot0 = Slot0Configs.from(newConfig[i]);
+          tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(slot0, 0.25));
           break;
         case 1:
-          leaderConfig.Slot1 = Slot1Configs.from(newConfig[i]);
+          Slot1Configs slot1 = Slot1Configs.from(newConfig[i]);
+          tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(slot1, 0.25));
           break;
         case 2:
-          leaderConfig.Slot2 = Slot2Configs.from(newConfig[i]);
+          Slot2Configs slot2 = Slot2Configs.from(newConfig[i]);
+          tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(slot2, 0.25));
           break;
       }
     }
-    tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(leaderConfig, 0.25));
   }
 }

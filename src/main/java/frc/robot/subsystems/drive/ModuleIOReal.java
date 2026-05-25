@@ -269,19 +269,17 @@ public class ModuleIOReal implements ModuleIO {
 
   @Override
   public void setDrivePID(Slot0Configs config) {
-    driveConfig.Slot0 = config;
-    tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfig, 0.25));
+    tryUntilOk(5, () -> driveTalon.getConfigurator().apply(config, 0.25));
   }
 
   @Override
   public void setTurnPID(Slot0Configs config) {
-    turnConfig.Slot0 = config;
-    tryUntilOk(5, () -> turnTalon.getConfigurator().apply(turnConfig, 0.25));
+    tryUntilOk(5, () -> turnTalon.getConfigurator().apply(config, 0.25));
   }
 
   @Override
   public void setBrakeMode(boolean enabled) {
     driveConfig.MotorOutput.NeutralMode = enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast;
-    tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfig, 0.25));
+    tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfig.MotorOutput, 0.25));
   }
 }

@@ -195,22 +195,23 @@ public class IntakePivotIOReal implements IntakePivotIO {
           .withGravityArmPositionOffset(0.0044);
       switch (i) {
         case 0:
-          talonConfig.Slot0 = Slot0Configs.from(newConfig[i]);
+          Slot0Configs slot0 = Slot0Configs.from(newConfig[i]);
+          tryUntilOk(5, () -> talon.getConfigurator().apply(slot0, 0.25));
           break;
         case 1:
-          talonConfig.Slot1 = Slot1Configs.from(newConfig[i]);
+          Slot1Configs slot1 = Slot1Configs.from(newConfig[i]);
+          tryUntilOk(5, () -> talon.getConfigurator().apply(slot1, 0.25));
           break;
         case 2:
-          talonConfig.Slot2 = Slot2Configs.from(newConfig[i]);
+          Slot2Configs slot2 = Slot2Configs.from(newConfig[i]);
+          tryUntilOk(5, () -> talon.getConfigurator().apply(slot2, 0.25));
           break;
       }
     }
-    tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
   }
 
   @Override
   public void setMotionMagic(MotionMagicConfigs newConfig) {
-    talonConfig.MotionMagic = newConfig;
-    tryUntilOk(5, () -> talon.getConfigurator().apply(talonConfig, 0.25));
+    tryUntilOk(5, () -> talon.getConfigurator().apply(newConfig, 0.25));
   }
 }
