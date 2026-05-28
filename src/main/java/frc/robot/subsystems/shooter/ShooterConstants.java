@@ -52,7 +52,14 @@ public class ShooterConstants {
   }
 
   public static class Target {
-    public static final Translation2d hub = FieldConstants.defaultAprilTagType.getLayout().getTagPose(15).get().getTranslation().toTranslation2d().plus(new Translation2d(0,0));
+    public static final Translation2d hub =
+        FieldConstants.defaultAprilTagType
+            .getLayout()
+            .getTagPose(15)
+            .get()
+            .getTranslation()
+            .toTranslation2d()
+            .plus(new Translation2d(0, 0));
     public static final Translation2d passRight = new Translation2d(3, 2);
     public static final Translation2d passLeft =
         new Translation2d(passRight.getX(), FieldConstants.fieldWidth - passRight.getY());
