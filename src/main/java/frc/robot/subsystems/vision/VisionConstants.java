@@ -28,7 +28,7 @@ public class VisionConstants {
   }
 
   // Pose filtering thresholds
-  public static final double MT1MinTags = 2;
+  public static final double MT1MinTags = 1;
   public static final double MT1MaxLinearVelocity = 0.25; // Meters per second
   public static final double MT1MaxAngularVelocity =
       Units.degreesToRadians(1); // Radians per second
