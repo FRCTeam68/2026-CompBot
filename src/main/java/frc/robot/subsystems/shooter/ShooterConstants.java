@@ -55,7 +55,7 @@ public class ShooterConstants {
     public static final Translation2d hub =
         FieldConstants.defaultAprilTagType
             .getLayout()
-            .getTagPose(15)
+            .getTagPose(31)
             .get()
             .getTranslation()
             .toTranslation2d()
@@ -109,16 +109,13 @@ public class ShooterConstants {
     };
 
     private static final InterpConfig[] hubConfigLow = {
-      InterpConfig.builder().distance(0.92).flywheel(47).hood(72).flightTime(1.1).build(),
-      InterpConfig.builder().distance(1.5).flywheel(47).hood(69).flightTime(1.083).build(),
-      InterpConfig.builder().distance(2.0).flywheel(47).hood(65).flightTime(1.017).build(),
-      InterpConfig.builder().distance(2.5).flywheel(49).hood(60).flightTime(1.033).build(),
-      InterpConfig.builder().distance(2.95).flywheel(52).hood(58).flightTime(1.033).build(),
-      InterpConfig.builder().distance(3.53).flywheel(55).hood(55).flightTime(1.083).build(),
-      InterpConfig.builder().distance(3.99).flywheel(55).hood(54).flightTime(1.05).build(),
-      InterpConfig.builder().distance(4.57).flywheel(59).hood(46).flightTime(1.017).build(),
-      InterpConfig.builder().distance(5.05).flywheel(60).hood(46).flightTime(1.083).build(),
-      InterpConfig.builder().distance(5.5).flywheel(62).hood(46).flightTime(1.15).build()
+      InterpConfig.builder().distance(1.7).flywheel(40).hood(60).flightTime(1.083).build(),
+      InterpConfig.builder().distance(2.0).flywheel(40).hood(55).flightTime(1.017).build(),
+      InterpConfig.builder().distance(2.51).flywheel(42).hood(50).flightTime(1.033).build(),
+      InterpConfig.builder().distance(3).flywheel(44).hood(50).flightTime(1.033).build(),
+      InterpConfig.builder().distance(3.46).flywheel(48).hood(50).flightTime(1.083).build(),
+      InterpConfig.builder().distance(4.01).flywheel(50).hood(50).flightTime(1.05).build(),
+      InterpConfig.builder().distance(4.57).flywheel(59).hood(50).flightTime(1.017).build()
     };
 
     private static final InterpConfig[] passConfigLow = {
