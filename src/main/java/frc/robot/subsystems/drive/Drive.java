@@ -235,8 +235,9 @@ public class Drive extends SubsystemBase {
     poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
   }
 
+  /** Resets the current odometry rotation relative to the current alliance. */
   public void resetYaw() {
-    setPose(new Pose2d(getPose().getTranslation(), AllianceFlipUtil.apply(Rotation2d.kZero)));
+    poseEstimator.resetRotation(AllianceFlipUtil.apply(Rotation2d.kZero));
   }
 
   /** Returns a command to run a quasistatic test in the specified direction. */
@@ -302,6 +303,7 @@ public class Drive extends SubsystemBase {
     return gyroInputs.yawPosition;
   }
 
+  /** Returns the connected state of the gyro */
   public boolean getGyroConnected() {
     return gyroInputs.connected;
   }

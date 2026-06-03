@@ -176,7 +176,7 @@ public class HubShiftUtil {
               currentActiveHub = Optional.empty();
               nextActiveHub = Optional.empty();
               shiftTime = () -> Math.max(getMatchTime().get(), 0.0);
-              Logger.recordOutput("HubShift/CurrentShift", "END GAME");
+              Logger.recordOutput("HubShift/CurrentShift", "END\nGAME");
               break;
           }
         }
