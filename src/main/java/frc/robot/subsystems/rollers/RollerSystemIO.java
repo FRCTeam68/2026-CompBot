@@ -27,4 +27,7 @@ public interface RollerSystemIO {
 
   /** Stop motor with neutral output. */
   default void stop() {}
+
+  /** Set neutral mode of the motor (Brake/Coast). */
+  default void setBrakeMode(boolean enabled) {}
 }

@@ -158,21 +158,30 @@ public class ModuleIOReal implements ModuleIO {
     turnMagnetHealth = cancoder.getMagnetHealth();
 
     // Configure periodic frames
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        DriveConstants.odometryFrequency, drivePosition, turnPosition, turnAbsolutePosition);
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0,
-        driveVelocity,
-        driveAppliedVolts,
-        driveSupplyCurrent,
-        driveTorqueCurrent,
-        driveFaultRotorFault1,
-        driveFaultRotorFault2,
-        turnVelocity,
-        turnAppliedVolts,
-        turnSupplyCurrent,
-        turnTorqueCurrent,
-        turnMagnetHealth);
+    tryUntilOk(
+        5,
+        () ->
+            BaseStatusSignal.setUpdateFrequencyForAll(
+                DriveConstants.odometryFrequency,
+                drivePosition,
+                turnPosition,
+                turnAbsolutePosition));
+    tryUntilOk(
+        5,
+        () ->
+            BaseStatusSignal.setUpdateFrequencyForAll(
+                50.0,
+                driveVelocity,
+                driveAppliedVolts,
+                driveSupplyCurrent,
+                driveTorqueCurrent,
+                driveFaultRotorFault1,
+                driveFaultRotorFault2,
+                turnVelocity,
+                turnAppliedVolts,
+                turnSupplyCurrent,
+                turnTorqueCurrent,
+                turnMagnetHealth));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(driveTalon, turnTalon, cancoder));
     PhoenixUtil.registerSignals(
         DriveConstants.canBus,

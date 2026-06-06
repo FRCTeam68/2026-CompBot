@@ -27,11 +27,13 @@ public class RollerSystem extends SubsystemBase {
   @Getter private double setpointVolts = 0.0;
 
   /**
-   * Creates a generic roller system. Rollers can only be controlled through voltage.
+   * Creates a generic roller system. Rollers can only be controlled through voltage. If a system
+   * requires more advanced features (external sensor, velocity/position control, or multiple
+   * motors) a new subsystem should be created instead.
    *
    * <p>When using the name for logging key, spaces are removed and each word is capitalized.
    *
-   * <p>Examples:
+   * <p>Example:
    *
    * <blockquote>
    *

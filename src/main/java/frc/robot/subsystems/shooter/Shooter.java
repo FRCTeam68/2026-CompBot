@@ -208,10 +208,7 @@ public class Shooter extends SubsystemBase {
   /** Returns the distance in meters to the selected target. */
   @AutoLogOutput(key = "Shooter/DistanceToTarget", unit = "Meters")
   public double getDistanceToTarget() {
-    final Translation2d shooterFieldTranslation = getShooterFieldTranslation();
-    return Math.hypot(
-        target.getX() - shooterFieldTranslation.getX(),
-        target.getY() - shooterFieldTranslation.getY());
+    return target.getDistance(getShooterFieldTranslation());
   }
 
   /** Returns true if all shooter subsystems are at their individual setpoints. */

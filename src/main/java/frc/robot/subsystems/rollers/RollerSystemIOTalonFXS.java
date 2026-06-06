@@ -118,4 +118,13 @@ public class RollerSystemIOTalonFXS implements RollerSystemIO {
   public void stop() {
     talon.setControl(neutralOut);
   }
+
+  @Override
+  public void setBrakeMode(boolean enabled) {
+    talon
+        .getConfigurator()
+        .apply(
+            config.MotorOutput.withNeutralMode(
+                enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast));
+  }
 }
