@@ -102,7 +102,7 @@ public class RobotSystem {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                drive::getPose,
+                drive::getGyroOrientation,
                 drive::getFieldVelocity,
                 drive::getGyroConnected,
                 lights,
@@ -156,7 +156,7 @@ public class RobotSystem {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                drive::getPose,
+                drive::getGyroOrientation,
                 drive::getFieldVelocity,
                 drive::getGyroConnected,
                 lights);
@@ -194,7 +194,7 @@ public class RobotSystem {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                drive::getPose,
+                drive::getGyroOrientation,
                 drive::getFieldVelocity,
                 drive::getGyroConnected,
                 lights,

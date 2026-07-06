@@ -50,7 +50,7 @@ public class Vision extends SubsystemBase {
 
   public Vision(
       VisionConsumer consumer,
-      Supplier<Pose2d> poseSupplier,
+      Supplier<double[]> gyroOrientationSupplier,
       Supplier<ChassisSpeeds> chassisSpeedSupplier,
       Supplier<Boolean> gyroConnectedSupplier,
       Lights lights,
@@ -68,7 +68,7 @@ public class Vision extends SubsystemBase {
     disconnectedAlerts = new Alert[io.length];
     ledSegments = new LEDSegment[io.length];
     for (int i = 0; i < io.length; i++) {
-      this.io[i].initRotationSupplier(() -> poseSupplier.get().getRotation());
+      this.io[i].initOrientationSupplier(gyroOrientationSupplier);
       cameraInfo[i] = io[i].getCameraInfo();
       inputs[i] = new VisionIOInputsAutoLogged();
       connectedDebouncers[i] = new Debouncer(0.5, DebounceType.kRising);

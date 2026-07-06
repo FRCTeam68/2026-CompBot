@@ -1,7 +1,6 @@
 package frc.robot.subsystems.vision;
 
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.subsystems.vision.VisionConstants.CameraInfo;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLog;
@@ -34,12 +33,13 @@ public interface VisionIO {
   }
 
   /**
-   * Initalize robot rotation supplier. This must be called once for every camera to get accurate
-   * pose estimation.
+   * Initialize robot orientation supplier for MegaTag 2. This must be called once for every camera
+   * to get accurate pose estimation.
    *
-   * @param rotationSupplier Robot rotation
+   * @param orientationSupplier Supplier of [yaw°, yawRate°/s, pitch°, pitchRate°/s, roll°,
+   *     rollRate°/s]
    */
-  public default void initRotationSupplier(Supplier<Rotation2d> rotationSupplier) {}
+  public default void initOrientationSupplier(Supplier<double[]> gyroOrientationSupplier) {}
 
   public default void updateInputs(VisionIOInputs inputs) {}
 

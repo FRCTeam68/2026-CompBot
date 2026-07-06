@@ -1,7 +1,6 @@
 package frc.robot.subsystems.vision;
 
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
@@ -27,7 +26,8 @@ public class VisionIOLimelight implements VisionIO {
   private final DoubleArraySubscriber megatag1Subscriber;
   private final DoubleArraySubscriber megatag2Subscriber;
 
-  private Supplier<Rotation2d> rotationSupplier = () -> Rotation2d.kZero;
+  private Supplier<double[]> gyroOrientationSupplier =
+      () -> new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
   /**
    * Creates a new Limelight camera.
@@ -51,8 +51,8 @@ public class VisionIOLimelight implements VisionIO {
   }
 
   @Override
-  public void initRotationSupplier(Supplier<Rotation2d> rotationSupplier) {
-    this.rotationSupplier = rotationSupplier;
+  public void initOrientationSupplier(Supplier<double[]> gyroOrientationSupplier) {
+    this.gyroOrientationSupplier = gyroOrientationSupplier;
   }
 
   @Override
@@ -67,10 +67,8 @@ public class VisionIOLimelight implements VisionIO {
     inputs.ramUsage = hardwareSubscriber.get()[2];
     inputs.fps = hardwareSubscriber.get()[3];
 
-    // Update orientation for MegaTag 2
-    // TODO: should we publish more than just yaw
-    orientationPublisher.accept(
-        new double[] {rotationSupplier.get().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0});
+    // Update orientation for MegaTag 2 (yaw°, yawRate°/s, pitch°, pitchRate°/s, roll°, rollRate°/s)
+    orientationPublisher.accept(gyroOrientationSupplier.get());
 
     // Increases network traffic but recommended by Limelight
     NetworkTableInstance.getDefault().flush();

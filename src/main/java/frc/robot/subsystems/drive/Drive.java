@@ -306,6 +306,37 @@ public class Drive extends SubsystemBase {
     return gyroInputs.connected;
   }
 
+  public double[] getGyroOrientation() {
+    return new double[] {
+      getRotation().getDegrees(),
+      getYawVelocityDegreesPerSec(),
+      getPitchDegrees(),
+      getPitchVelocityDegreesPerSec(),
+      getRollDegrees(),
+      getRollVelocityDegreesPerSec()
+    };
+  }
+
+  public double getPitchDegrees() {
+    return gyroInputs.pitchPosition.getDegrees();
+  }
+
+  public double getRollDegrees() {
+    return gyroInputs.rollPosition.getDegrees();
+  }
+
+  public double getYawVelocityDegreesPerSec() {
+    return Units.radiansToDegrees(gyroInputs.yawVelocityRadPerSec);
+  }
+
+  public double getPitchVelocityDegreesPerSec() {
+    return Units.radiansToDegrees(gyroInputs.pitchVelocityRadPerSec);
+  }
+
+  public double getRollVelocityDegreesPerSec() {
+    return Units.radiansToDegrees(gyroInputs.rollVelocityRadPerSec);
+  }
+
   /** Adds a new timestamped vision measurement. */
   public void addVisionMeasurement(
       Pose2d visionRobotPoseMeters,
