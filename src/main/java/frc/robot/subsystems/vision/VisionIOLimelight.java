@@ -1,5 +1,7 @@
 package frc.robot.subsystems.vision;
 
+import static frc.robot.subsystems.vision.VisionConstants.*;
+
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
@@ -82,6 +84,8 @@ public class VisionIOLimelight implements VisionIO {
       for (int i = 11; i < rawSample.value.length; i += 7) {
         tagIds.add((int) rawSample.value[i]);
       }
+      int tagCount = (int) rawSample.value[7];
+      double avgDist = rawSample.value[9];
       poseObservations.add(
           new PoseObservation(
               // Timestamp, based on server timestamp of publish and latency
@@ -95,13 +99,24 @@ public class VisionIOLimelight implements VisionIO {
               rawSample.value.length >= 18 ? rawSample.value[17] : 0.0,
 
               // Tag count
-              (int) rawSample.value[7],
+              tagCount,
 
               // Average tag distance
-              rawSample.value[9],
+              avgDist,
 
               // Observation type
-              PoseObservationType.MEGATAG_1));
+              PoseObservationType.MEGATAG_1,
+
+              // Linear std dev (not used for MT1 — rotation is locked to gyro)
+              Double.POSITIVE_INFINITY,
+
+              // Angular std dev
+              tagCount > 0
+                  ? angularStdDevBaseline
+                      * (Math.pow(avgDist, 2.0) / tagCount)
+                      * angularStdDevMegatag1Factor
+                      * cameraInfo.MTStdDevFactor
+                  : Double.POSITIVE_INFINITY));
     }
 
     for (var rawSample : megatag2Subscriber.readQueue()) {
@@ -109,6 +124,8 @@ public class VisionIOLimelight implements VisionIO {
       for (int i = 11; i < rawSample.value.length; i += 7) {
         tagIds.add((int) rawSample.value[i]);
       }
+      int tagCount = (int) rawSample.value[7];
+      double avgDist = rawSample.value[9];
       poseObservations.add(
           new PoseObservation(
               // Timestamp, based on server timestamp of publish and latency
@@ -121,13 +138,24 @@ public class VisionIOLimelight implements VisionIO {
               0.0,
 
               // Tag count
-              (int) rawSample.value[7],
+              tagCount,
 
               // Average tag distance
-              rawSample.value[9],
+              avgDist,
 
               // Observation type
-              PoseObservationType.MEGATAG_2));
+              PoseObservationType.MEGATAG_2,
+
+              // Linear std dev
+              tagCount > 0
+                  ? linearStdDevBaseline
+                      * (Math.pow(avgDist, 2.0) / tagCount)
+                      * linearStdDevMegatag2Factor
+                      * cameraInfo.MTStdDevFactor
+                  : Double.POSITIVE_INFINITY,
+
+              // Angular std dev (not used for MT2 — rotation comes from gyro)
+              Double.POSITIVE_INFINITY));
     }
 
     // Save pose observations to inputs object

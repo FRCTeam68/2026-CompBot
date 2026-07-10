@@ -25,7 +25,9 @@ public interface VisionIO {
       double ambiguity,
       int tagCount,
       double averageTagDistance,
-      PoseObservationType type) {}
+      PoseObservationType type,
+      double linearStdDev,
+      double angularStdDev) {}
 
   public static enum PoseObservationType {
     MEGATAG_1,

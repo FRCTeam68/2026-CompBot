@@ -207,19 +207,13 @@ public class Vision extends SubsystemBase {
 
           // Only apply measurement if pose is not rejected
           if (!rejectPose) {
-            // Calculate standard deviations
-            final double linearStdDev = Double.POSITIVE_INFINITY;
-            final double angularStdDev =
-                angularStdDevBaseline
-                    * (Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount())
-                    * angularStdDevMegatag1Factor
-                    * cameraInfo[cameraIndex].MTStdDevFactor;
-
-            // Send vision observation
             consumer.accept(
                 observation.pose().toPose2d(),
                 observation.timestamp(),
-                VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
+                VecBuilder.fill(
+                    observation.linearStdDev(),
+                    observation.linearStdDev(),
+                    observation.angularStdDev()));
           }
 
         } else if (observation.type() == PoseObservationType.MEGATAG_2) {
@@ -241,19 +235,13 @@ public class Vision extends SubsystemBase {
 
           // Only apply measurement if pose is not rejected
           if (!rejectPose) {
-            // Calculate standard deviations
-            final double linearStdDev =
-                linearStdDevBaseline
-                    * (Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount())
-                    * linearStdDevMegatag2Factor
-                    * cameraInfo[cameraIndex].MTStdDevFactor;
-            final double angularStdDev = Double.POSITIVE_INFINITY;
-
-            // Send vision observation
             consumer.accept(
                 observation.pose().toPose2d(),
                 observation.timestamp(),
-                VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
+                VecBuilder.fill(
+                    observation.linearStdDev(),
+                    observation.linearStdDev(),
+                    observation.angularStdDev()));
           }
         }
       }
