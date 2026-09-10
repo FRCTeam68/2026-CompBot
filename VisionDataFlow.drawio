@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+  <diagram name="Vision Data Flow">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- LANE BACKGROUNDS -->
+        <mxCell id="bg1" value="&lt;b&gt;LANE 1: Hardware / NetworkTables&lt;/b&gt;"
+          style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;spacingLeft=10;spacingTop=5;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="10" y="10" width="1680" height="190" as="geometry" />
+        </mxCell>
+
+        <mxCell id="bg2" value="&lt;b&gt;LANE 2: VisionIOLimelight.updateInputs()&lt;/b&gt;"
+          style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;verticalAlign=top;spacingLeft=10;spacingTop=5;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="10" y="210" width="1680" height="390" as="geometry" />
+        </mxCell>
+
+        <mxCell id="bg3" value="&lt;b&gt;LANE 3: Vision.periodic()&lt;/b&gt;"
+          style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;spacingLeft=10;spacingTop=5;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="10" y="610" width="1680" height="680" as="geometry" />
+        </mxCell>
+
+        <mxCell id="bg4" value="&lt;b&gt;LANE 4: Outputs&lt;/b&gt;"
+          style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;spacingLeft=10;spacingTop=5;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="10" y="1300" width="1680" height="300" as="geometry" />
+        </mxCell>
+
+
+        <!-- === LANE 1: HARDWARE === -->
+
+        <mxCell id="h_ll3g" value="&lt;b&gt;Limelight LL_3G&lt;/b&gt;&lt;br/&gt;limelight-threeg&lt;br/&gt;10.0.68.9&lt;br/&gt;MTStdDevFactor = 0.5"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e4d78;fontColor=#ffffff;strokeColor=#1e4d78;fontSize=10;"
+          vertex="1" parent="1">
+          <mxGeometry x="80" y="65" width="200" height="85" as="geometry" />
+        </mxCell>
+
+        <mxCell id="h_ll4" value="&lt;b&gt;Limelight LL_4&lt;/b&gt;&lt;br/&gt;limelight-four&lt;br/&gt;10.0.68.8&lt;br/&gt;MTStdDevFactor = 1.0"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e4d78;fontColor=#ffffff;strokeColor=#1e4d78;fontSize=10;"
+          vertex="1" parent="1">
+          <mxGeometry x="330" y="65" width="200" height="85" as="geometry" />
+        </mxCell>
+
+        <mxCell id="h_nt" value="&lt;b&gt;NetworkTables Topics (per camera)&lt;/b&gt;&lt;br/&gt;&#x2192;  botpose_wpiblue  (MT1: x,y,z,rx,ry,rz,latency,tagCt,ambiguity,avgDist,avgArea)&lt;br/&gt;&#x2192;  botpose_orb_wpiblue  (MT2: same format, rotation from gyro)&lt;br/&gt;&#x2190;  robot_orientation  (yaw, yawRate, pitch, pitchRate, roll, rollRate)"
+          style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;align=left;spacingLeft=6;"
+          vertex="1" parent="1">
+          <mxGeometry x="620" y="40" width="420" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="h_gyro" value="&lt;b&gt;Gyro Orientation Supplier&lt;/b&gt;&lt;br/&gt;Supplier&lt;double[]&gt;&lt;br/&gt;(injected at construction)&lt;br/&gt;[yaw, yawRate, pitch, pitchRate,&lt;br/&gt;roll, rollRate]"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=9;"
+          vertex="1" parent="1">
+          <mxGeometry x="1120" y="50" width="240" height="100" as="geometry" />
+        </mxCell>
+
+
+        <!-- === LANE 2: VISIONIOLINE === -->
+
+        <mxCell id="io_mt1sub" value="&lt;b&gt;megatag1Subscriber&lt;/b&gt;&lt;br/&gt;DoubleArraySubscriber (NT)"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;"
+          vertex="1" parent="1">
+          <mxGeometry x="60" y="260" width="210" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="io_mt2sub" value="&lt;b&gt;megatag2Subscriber&lt;/b&gt;&lt;br/&gt;DoubleArraySubscriber (NT)"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;"
+          vertex="1" parent="1">
+          <mxGeometry x="60" y="335" width="210" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="io_opub" value="&lt;b&gt;orientationPublisher&lt;/b&gt;&lt;br/&gt;DoubleArrayPublisher &#x2192; camera"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;"
+          vertex="1" parent="1">
+          <mxGeometry x="60" y="410" width="210" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="io_parse" value="Parse double[] arrays&lt;br/&gt;Extract: pose, tagCount,&lt;br/&gt;ambiguity, avgDist, timestamp"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;"
+          vertex="1" parent="1">
+          <mxGeometry x="360" y="280" width="200" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="io_stddev" value="&lt;b&gt;StdDev Calculation&lt;/b&gt;&lt;br/&gt;MT1: linearStdDev=&#x221e;,  angularStdDev = baseline(0.06) &#xd7; dist&#xb2; / tagCount &#xd7; 1.0 &#xd7; camFactor&lt;br/&gt;MT2: linearStdDev = baseline(0.02) &#xd7; dist&#xb2; / tagCount &#xd7; 0.5 &#xd7; camFactor,  angularStdDev=&#x221e;"
+          style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;align=left;spacingLeft=6;"
+          vertex="1" parent="1">
+          <mxGeometry x="360" y="375" width="450" height="75" as="geometry" />
+        </mxCell>
+
+        <mxCell id="io_poseobs" value="&lt;b&gt;&amp;lt;&amp;lt;record&amp;gt;&amp;gt; PoseObservation&lt;/b&gt;&lt;hr/&gt;double timestamp&lt;br/&gt;Pose3d pose&lt;br/&gt;double ambiguity  &lt;i&gt;(MT1 only)&lt;/i&gt;&lt;br/&gt;int tagCount&lt;br/&gt;double averageTagDistance&lt;br/&gt;PoseObservationType type&lt;br/&gt;&amp;nbsp;&amp;nbsp;MEGATAG_1 | MEGATAG_2&lt;br/&gt;double linearStdDev&lt;br/&gt;double angularStdDev"
+          style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fffacd;strokeColor=#999999;fontSize=10;align=left;spacingLeft=8;"
+          vertex="1" parent="1">
+          <mxGeometry x="870" y="215" width="240" height="275" as="geometry" />
+        </mxCell>
+
+        <mxCell id="io_viinputs" value="&lt;b&gt;VisionIOInputs&lt;/b&gt; (@AutoLog)&lt;hr/&gt;boolean connected&lt;br/&gt;int pipelineIndex&lt;br/&gt;double cpuTempCelsius&lt;br/&gt;double cpuUsage&lt;br/&gt;double ramUsage&lt;br/&gt;double fps&lt;br/&gt;&lt;b&gt;PoseObservation[] poseObservations&lt;/b&gt;&lt;br/&gt;int[] tagIds"
+          style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#43a047;fontSize=10;align=left;spacingLeft=8;"
+          vertex="1" parent="1">
+          <mxGeometry x="1180" y="215" width="250" height="255" as="geometry" />
+        </mxCell>
+
+
+        <!-- === LANE 3: VISION.PERIODIC() === -->
+
+        <mxCell id="v_loginputs" value="Logger.processInputs()&lt;br/&gt;Logs all VisionIOInputs fields&lt;br/&gt;(connected, fps, tagIds, poseObservations...)"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#3f51b5;fontSize=9;"
+          vertex="1" parent="1">
+          <mxGeometry x="30" y="638" width="200" height="65" as="geometry" />
+        </mxCell>
+
+        <mxCell id="v_loop" value="For each camera:&lt;br/&gt;For each PoseObservation&lt;br/&gt;in poseObservations[]"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=2;"
+          vertex="1" parent="1">
+          <mxGeometry x="30" y="730" width="200" height="65" as="geometry" />
+        </mxCell>
+
+        <mxCell id="v_tagzero" value="tagCount&lt;br/&gt;== 0?"
+          style="rhombus;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;"
+          vertex="1" parent="1">
+          <mxGeometry x="300" y="718" width="130" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="v_discard" value="DISCARD&lt;br/&gt;(not logged)"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b85450;fontColor=#ffffff;strokeColor=#6d1f1f;fontSize=10;fontStyle=1;"
+          vertex="1" parent="1">
+          <mxGeometry x="300" y="860" width="130" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="v_branch" value="type?"
+          style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;"
+          vertex="1" parent="1">
+          <mxGeometry x="510" y="718" width="130" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="v_mt1enable" value="&lt;b&gt;enableMT1&lt;/b&gt;&lt;br/&gt;normally OFF (gyro provides rotation)&lt;br/&gt;auto-enables if gyro disconnects"
+          style="shape=callout;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9;"
+          vertex="1" parent="1">
+          <mxGeometry x="498" y="860" width="190" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="v_mt1filters" value="&lt;b&gt;MT1 Reject Conditions (ANY = REJECT):&lt;/b&gt;&lt;br/&gt;&#x2022; tagCount &lt; 2  (MT1MinTags)&lt;br/&gt;&#x2022; linear velocity &gt; 0.25 m/s&lt;br/&gt;&#x2022; angular velocity &gt; 1&#xb0;/s (0.01745 rad/s)&lt;br/&gt;&#x2022; |Z| &gt; 0.25 m&lt;br/&gt;&#x2022; X &lt; 0 or X &gt; field length (~16.5m)&lt;br/&gt;&#x2022; Y &lt; 0 or Y &gt; field width (~8.2m)"
+          style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff0f0;strokeColor=#b85450;fontSize=10;align=left;spacingLeft=8;"
+          vertex="1" parent="1">
+          <mxGeometry x="720" y="635" width="290" height="195" as="geometry" />
+        </mxCell>
+
+        <mxCell id="v_mt2filters" value="&lt;b&gt;MT2 Reject Conditions (ANY = REJECT):&lt;/b&gt;&lt;br/&gt;&#x2022; |Z| &gt; 0.25 m&lt;br/&gt;&#x2022; X &lt; 0 or X &gt; field length (~16.5m)&lt;br/&gt;&#x2022; Y &lt; 0 or Y &gt; field width (~8.2m)&lt;br/&gt;&lt;br/&gt;&lt;i&gt;No velocity check — gyro provides stable rotation&lt;/i&gt;"
+          style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff0f0;strokeColor=#b85450;fontSize=10;align=left;spacingLeft=8;"
+          vertex="1" parent="1">
+          <mxGeometry x="720" y="875" width="290" height="155" as="geometry" />
+        </mxCell>
+
+        <mxCell id="v_mt1accept" value="MT1 ACCEPTED"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1;"
+          vertex="1" parent="1">
+          <mxGeometry x="1090" y="640" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="v_mt1reject" value="MT1 REJECTED"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;fontStyle=1;"
+          vertex="1" parent="1">
+          <mxGeometry x="1090" y="765" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="v_mt2accept" value="MT2 ACCEPTED"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1;"
+          vertex="1" parent="1">
+          <mxGeometry x="1090" y="880" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="v_mt2reject" value="MT2 REJECTED"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;fontStyle=1;"
+          vertex="1" parent="1">
+          <mxGeometry x="1090" y="1000" width="160" height="50" as="geometry" />
+        </mxCell>
+
+
+        <!-- === LANE 4: OUTPUTS === -->
+
+        <mxCell id="o_logger" value="&lt;b&gt;AdvantageKit Logger (per camera)&lt;/b&gt;&lt;hr/&gt;Vision/{cam}/TagPoses&lt;br/&gt;Vision/{cam}/MegaTag1/RobotPose  (ALL)&lt;br/&gt;Vision/{cam}/MegaTag1/RobotPoseAccepted&lt;br/&gt;Vision/{cam}/MegaTag1/RobotPoseRejected&lt;br/&gt;Vision/{cam}/MegaTag2/RobotPose  (ALL)&lt;br/&gt;Vision/{cam}/MegaTag2/RobotPoseAccepted&lt;br/&gt;Vision/{cam}/MegaTag2/RobotPoseRejected&lt;br/&gt;Vision/Summary/... (all cameras combined)"
+          style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#3f51b5;fontSize=9;align=left;spacingLeft=6;"
+          vertex="1" parent="1">
+          <mxGeometry x="80" y="1320" width="400" height="230" as="geometry" />
+        </mxCell>
+
+        <mxCell id="o_consumer" value="&lt;b&gt;VisionConsumer.accept()&lt;/b&gt;&lt;hr/&gt;Pose2d visionRobotPoseMeters&lt;br/&gt;double timestampSeconds&lt;br/&gt;Matrix&lt;N3,N1&gt; stdDevs&lt;br/&gt;&amp;nbsp;= VecBuilder.fill(linStdDev, linStdDev, angStdDev)&lt;br/&gt;&lt;br/&gt;&lt;i&gt;accepted observations only&lt;/i&gt;&lt;br/&gt;&#x2192; SwerveDrivePoseEstimator"
+          style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;align=left;spacingLeft=6;"
+          vertex="1" parent="1">
+          <mxGeometry x="600" y="1320" width="360" height="210" as="geometry" />
+        </mxCell>
+
+        <mxCell id="o_leds" value="&lt;b&gt;LED Indicators&lt;/b&gt;&lt;hr/&gt;RED: camera disconnected&lt;br/&gt;BLUE: connected + observations seen&lt;br/&gt;GREEN: connected, no observations this cycle"
+          style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;align=left;spacingLeft=6;"
+          vertex="1" parent="1">
+          <mxGeometry x="1100" y="1320" width="310" height="150" as="geometry" />
+        </mxCell>
+
+
+        <!-- === EDGES === -->
+
+        <!-- Lane 1 internal -->
+        <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="h_ll3g" target="h_nt" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="h_ll4" target="h_nt" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Lane 1 → Lane 2 -->
+        <mxCell id="e3" value="MT1 pose double[]" style="edgeStyle=orthogonalEdgeStyle;fontSize=9;" edge="1" source="h_nt" target="io_mt1sub" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="MT2 pose double[]" style="edgeStyle=orthogonalEdgeStyle;fontSize=9;" edge="1" source="h_nt" target="io_mt2sub" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="gyro data" style="edgeStyle=orthogonalEdgeStyle;fontSize=9;dashed=1;" edge="1" source="h_gyro" target="io_opub" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Lane 2 internal -->
+        <mxCell id="e6" value="" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="io_mt1sub" target="io_parse" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="io_mt2sub" target="io_parse" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" value="builds" style="edgeStyle=orthogonalEdgeStyle;fontSize=9;" edge="1" source="io_parse" target="io_poseobs" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="io_stddev" target="io_poseobs" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" value="stored in array" style="edgeStyle=orthogonalEdgeStyle;fontSize=9;" edge="1" source="io_poseobs" target="io_viinputs" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Lane 2 → Lane 3 -->
+        <mxCell id="e11" value="updateInputs() completes" style="edgeStyle=orthogonalEdgeStyle;fontSize=9;" edge="1" source="io_viinputs" target="v_loginputs" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Lane 3 internal -->
+        <mxCell id="e12" value="" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="v_loginputs" target="v_loop" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" value="" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="v_loop" target="v_tagzero" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" value="YES" style="edgeStyle=orthogonalEdgeStyle;fontSize=9;exitX=0.5;exitY=1;exitDx=0;exitDy=0;strokeColor=#b85450;" edge="1" source="v_tagzero" target="v_discard" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" value="NO" style="edgeStyle=orthogonalEdgeStyle;fontSize=9;" edge="1" source="v_tagzero" target="v_branch" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" value="MEGATAG_1 &amp;&amp; enableMT1" style="edgeStyle=orthogonalEdgeStyle;fontSize=9;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="v_branch" target="v_mt1filters" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e17" value="MEGATAG_2" style="edgeStyle=orthogonalEdgeStyle;fontSize=9;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" source="v_branch" target="v_mt2filters" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e18" value="all pass" style="edgeStyle=orthogonalEdgeStyle;fontSize=9;strokeColor=#82b366;" edge="1" source="v_mt1filters" target="v_mt1accept" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e19" value="any fails" style="edgeStyle=orthogonalEdgeStyle;fontSize=9;strokeColor=#b85450;" edge="1" source="v_mt1filters" target="v_mt1reject" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e20" value="all pass" style="edgeStyle=orthogonalEdgeStyle;fontSize=9;strokeColor=#82b366;" edge="1" source="v_mt2filters" target="v_mt2accept" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e21" value="any fails" style="edgeStyle=orthogonalEdgeStyle;fontSize=9;strokeColor=#b85450;" edge="1" source="v_mt2filters" target="v_mt2reject" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Lane 3 → Lane 4 Logger (all outcomes) -->
+        <mxCell id="e22" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#3f51b5;" edge="1" source="v_mt1accept" target="o_logger" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e23" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#3f51b5;" edge="1" source="v_mt1reject" target="o_logger" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e24" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#3f51b5;" edge="1" source="v_mt2accept" target="o_logger" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e25" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#3f51b5;" edge="1" source="v_mt2reject" target="o_logger" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Lane 3 → Lane 4 Consumer (accepted only) -->
+        <mxCell id="e26" value="Pose2d + stdDevs" style="edgeStyle=orthogonalEdgeStyle;fontSize=9;strokeColor=#82b366;" edge="1" source="v_mt1accept" target="o_consumer" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e27" value="Pose2d + stdDevs" style="edgeStyle=orthogonalEdgeStyle;fontSize=9;strokeColor=#82b366;" edge="1" source="v_mt2accept" target="o_consumer" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
