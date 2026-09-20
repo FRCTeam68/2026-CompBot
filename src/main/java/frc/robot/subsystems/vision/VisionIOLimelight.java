@@ -112,7 +112,7 @@ public class VisionIOLimelight implements VisionIO {
 
               // Angular std dev
               tagCount > 0
-                  ? angularStdDevBaseline
+                  ? angularStdDevBaseline.get()
                       * (Math.pow(avgDist, 2.0) / tagCount)
                       * angularStdDevMegatag1Factor
                       * cameraInfo.MTStdDevFactor
@@ -148,7 +148,7 @@ public class VisionIOLimelight implements VisionIO {
 
               // Linear std dev
               tagCount > 0
-                  ? linearStdDevBaseline
+                  ? linearStdDevBaseline.get()
                       * (Math.pow(avgDist, 2.0) / tagCount)
                       * linearStdDevMegatag2Factor
                       * cameraInfo.MTStdDevFactor
