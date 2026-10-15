@@ -185,6 +185,7 @@ public class Vision extends SubsystemBase {
           boolean rejectPose =
               // Must see a minimum number of tags
               observation.tagCount() < MT1MinTags
+                  || observation.ambiguity() > 0.6
                   // Must not be moving too fast
                   || Math.hypot(
                           chassisSpeedSupplier.get().vxMetersPerSecond,
