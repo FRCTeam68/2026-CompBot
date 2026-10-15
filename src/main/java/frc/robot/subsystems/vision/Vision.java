@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
+import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.Lights.Color;
 import frc.robot.subsystems.lights.Lights.LEDSegment;
@@ -193,10 +194,12 @@ public class Vision extends SubsystemBase {
                   // Must have realistic Z coordinate
                   || Math.abs(observation.pose().getZ()) > maxZError
                   // Must be within the field boundaries
-                  || observation.pose().getX() < 0.0
-                  || observation.pose().getX() > FieldConstants.fieldLength
-                  || observation.pose().getY() < 0.0
-                  || observation.pose().getY() > FieldConstants.fieldWidth;
+                  || observation.pose().getX() < 0.0 + DriveConstants.fullWidth / 2
+                  || observation.pose().getX()
+                      > FieldConstants.fieldLength - DriveConstants.fullWidth / 2
+                  || observation.pose().getY() < 0.0 + DriveConstants.fullWidth / 2
+                  || observation.pose().getY()
+                      > FieldConstants.fieldWidth - DriveConstants.fullWidth / 2;
 
           robotPoseMT1.add(observation.pose());
           if (!rejectPose) {
@@ -218,13 +221,17 @@ public class Vision extends SubsystemBase {
 
         } else if (observation.type() == PoseObservationType.MEGATAG_2) {
           boolean rejectPose =
-              // Must have realistic Z coordinate
-              Math.abs(observation.pose().getZ()) > maxZError
+              // Must see at least 1 tag in MT2
+              observation.tagCount() == 0
+                  // Must have realistic Z coordinate
+                  || Math.abs(observation.pose().getZ()) > maxZError
                   // Must be within the field boundaries
-                  || observation.pose().getX() < 0.0
-                  || observation.pose().getX() > FieldConstants.fieldLength
-                  || observation.pose().getY() < 0.0
-                  || observation.pose().getY() > FieldConstants.fieldWidth;
+                  || observation.pose().getX() < 0.0 + DriveConstants.fullWidth / 2
+                  || observation.pose().getX()
+                      > FieldConstants.fieldLength - DriveConstants.fullWidth / 2
+                  || observation.pose().getY() < 0.0 + DriveConstants.fullWidth / 2
+                  || observation.pose().getY()
+                      > FieldConstants.fieldWidth - DriveConstants.fullWidth / 2;
 
           robotPoseMT2.add(observation.pose());
           if (!rejectPose) {

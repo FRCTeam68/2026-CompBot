@@ -18,12 +18,13 @@ public class VisionConstants {
     //                          roll:0 / pitch:20 / yaw:-120
 
     String name; // Must match name configured on coprocessor
-    double MTStdDevFactor; // April tag pose standard deviation multiplier
+    LoggedTunableNumber MTStdDevFactor; // April tag pose standard deviation multiplier
     int indicatorIndex;
 
-    CameraInfo(String name, double MTStdDevFactor, int indicatorIndex) {
+    CameraInfo(String name, double mtStdDevFactorDefault, int indicatorIndex) {
       this.name = name;
-      this.MTStdDevFactor = MTStdDevFactor;
+      this.MTStdDevFactor =
+          new LoggedTunableNumber("Vision/" + name + "/MTStdDevFactor", mtStdDevFactorDefault);
       this.indicatorIndex = indicatorIndex;
     }
   }
@@ -40,13 +41,15 @@ public class VisionConstants {
   // Standard deviation baselines, for 1 meter distance and 1 tag
   // (Adjusted automatically based on distance and # of tags)
   public static final LoggedTunableNumber linearStdDevBaseline =
-      new LoggedTunableNumber("Vision/LinearStdDevBaseline", 0.02);
+      new LoggedTunableNumber("Vision/LinearStdDevBaseline", 0.3); // 0.02
   public static final LoggedTunableNumber angularStdDevBaseline =
-      new LoggedTunableNumber("Vision/AngularStdDevBaseline", 0.06);
+      new LoggedTunableNumber("Vision/AngularStdDevBaseline", 0.1); // 0.06
 
   // Multipliers to apply for MegaTag 1 observations
-  public static final double angularStdDevMegatag1Factor = 1.0;
+  public static final LoggedTunableNumber angularStdDevMegatag1Factor =
+      new LoggedTunableNumber("Vision/AngularStdDevMegatag1Factor", 0.4);
 
   // Multipliers to apply for MegaTag 2 observations
-  public static final double linearStdDevMegatag2Factor = 1.0; // More stable than full 3D solve
+  public static final LoggedTunableNumber linearStdDevMegatag2Factor =
+      new LoggedTunableNumber("Vision/LinearStdDevMegatag2Factor", 0.25);
 }

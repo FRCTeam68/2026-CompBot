@@ -86,6 +86,23 @@ public class VisionIOLimelight implements VisionIO {
       }
       int tagCount = (int) rawSample.value[7];
       double avgDist = rawSample.value[9];
+
+      double angleStdDev =
+          angularStdDevBaseline.get()
+              + avgDist
+                  * avgDist
+                  * angularStdDevMegatag1Factor.get()
+                  * cameraInfo.MTStdDevFactor.get();
+      if (tagCount == 0) {
+        angleStdDev = Double.POSITIVE_INFINITY;
+      } else if (tagCount == 1) {
+        // Single-tag MT1 rotation is jittery; penalize it heavily so it doesn't spin your robot
+        angleStdDev *= 3;
+      } else if (tagCount >= 3) {
+        // Multi-tag solvePnP rotation is rock solid with 3 tags; reward it with higher trust
+        angleStdDev *= 0.5;
+      }
+
       poseObservations.add(
           new PoseObservation(
               // Timestamp, based on server timestamp of publish and latency
@@ -111,12 +128,7 @@ public class VisionIOLimelight implements VisionIO {
               Double.POSITIVE_INFINITY,
 
               // Angular std dev
-              tagCount > 0
-                  ? angularStdDevBaseline.get()
-                      * (Math.pow(avgDist, 2.0) / tagCount)
-                      * angularStdDevMegatag1Factor
-                      * cameraInfo.MTStdDevFactor
-                  : Double.POSITIVE_INFINITY));
+              angleStdDev));
     }
 
     for (var rawSample : megatag2Subscriber.readQueue()) {
@@ -126,6 +138,19 @@ public class VisionIOLimelight implements VisionIO {
       }
       int tagCount = (int) rawSample.value[7];
       double avgDist = rawSample.value[9];
+
+      double xyStdDev =
+          linearStdDevBaseline.get()
+              + avgDist
+                  * avgDist
+                  * linearStdDevMegatag2Factor.get()
+                  * cameraInfo.MTStdDevFactor.get();
+      if (tagCount == 0) {
+        xyStdDev = Double.POSITIVE_INFINITY;
+      } else if (tagCount >= 2) {
+        xyStdDev *= 0.8;
+      }
+
       poseObservations.add(
           new PoseObservation(
               // Timestamp, based on server timestamp of publish and latency
@@ -146,13 +171,8 @@ public class VisionIOLimelight implements VisionIO {
               // Observation type
               PoseObservationType.MEGATAG_2,
 
-              // Linear std dev
-              tagCount > 0
-                  ? linearStdDevBaseline.get()
-                      * (Math.pow(avgDist, 2.0) / tagCount)
-                      * linearStdDevMegatag2Factor
-                      * cameraInfo.MTStdDevFactor
-                  : Double.POSITIVE_INFINITY,
+              // calculated linear standard deviation
+              xyStdDev,
 
               // Angular std dev (not used for MT2 — rotation comes from gyro)
               Double.POSITIVE_INFINITY));
