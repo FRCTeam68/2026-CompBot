@@ -83,7 +83,7 @@ public class FlywheelIOReal implements FlywheelIO {
         leaderConfig.CurrentLimits.SupplyCurrentLowerTime;
     followerConfig.CurrentLimits.SupplyCurrentLowerLimit =
         leaderConfig.CurrentLimits.SupplyCurrentLowerLimit;
-    tryUntilOk(5, () -> leaderTalon.getConfigurator().apply(followerConfig, 0.25));
+    tryUntilOk(5, () -> followerTalon.getConfigurator().apply(followerConfig, 0.25));
     followerTalon.setControl(
         new Follower(leaderTalon.getDeviceID(), MotorAlignmentValue.Opposed).withUpdateFreqHz(100));
 
@@ -130,7 +130,9 @@ public class FlywheelIOReal implements FlywheelIO {
         leaderAppliedVoltage,
         followerAppliedVoltage,
         leaderSupplyCurrent,
+        followerSupplyCurrent,
         leaderTorqueCurrent,
+        followerTorqueCurrent,
         leaderTempCelsius,
         followerTempCelsius,
         leaderFaultRotorFault1,

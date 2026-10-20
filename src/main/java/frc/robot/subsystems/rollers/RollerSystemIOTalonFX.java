@@ -65,11 +65,11 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
     config.MotorOutput.NeutralMode = neutralModeValue;
     // Current limits
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = currentLimitAmps;
+    config.CurrentLimits.SupplyCurrentLimit = 40;
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
-    config.CurrentLimits.SupplyCurrentLowerLimit = 40;
-    config.CurrentLimits.StatorCurrentLimitEnable = false;
-    config.CurrentLimits.StatorCurrentLimit = 80;
+    config.CurrentLimits.SupplyCurrentLowerLimit = 20;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.CurrentLimits.StatorCurrentLimit = currentLimitAmps;
     config.TorqueCurrent.PeakForwardTorqueCurrent = 100;
     config.TorqueCurrent.PeakReverseTorqueCurrent = 100;
     // Feedback

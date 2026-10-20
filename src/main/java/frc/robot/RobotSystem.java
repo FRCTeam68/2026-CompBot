@@ -122,7 +122,7 @@ public class RobotSystem {
                 new RollerSystemIOTalonFX(
                     23,
                     CanBusUtil.getCanivoreBus(),
-                    40,
+                    35,
                     InvertedValue.Clockwise_Positive,
                     NeutralModeValue.Coast,
                     64.0 / 16.0));
@@ -132,7 +132,7 @@ public class RobotSystem {
                 new RollerSystemIOTalonFX(
                     24,
                     CanBusUtil.getCanivoreBus(),
-                    40,
+                    35,
                     InvertedValue.CounterClockwise_Positive,
                     NeutralModeValue.Coast,
                     36.0 / 12.0));
