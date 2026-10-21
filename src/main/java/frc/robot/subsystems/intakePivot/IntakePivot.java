@@ -44,7 +44,7 @@ public class IntakePivot extends SubsystemBase {
         new LoggedTunableNumber("IntakePivot/Slot1-Retract/kD", 0),
         new LoggedTunableNumber("IntakePivot/Slot2-DeployFirst/kD", 0)
       };
-  private final LoggedTunableNumber kS = new LoggedTunableNumber("IntakePivot/kS", 60);
+  private final LoggedTunableNumber kS = new LoggedTunableNumber("IntakePivot/kS", 8);
   private final LoggedTunableNumber kG = new LoggedTunableNumber("IntakePivot/kG", -80);
 
   // Setpoint band
