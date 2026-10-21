@@ -16,6 +16,8 @@ public interface VisionIO {
     public double fps = 0.0;
     public PoseObservation[] poseObservations = new PoseObservation[0];
     public int[] tagIds = new int[0];
+    // Camera pose in field coordinates (MegaTag2). Used for camera-to-robot transform calibration.
+    public Pose3d cameraPoseFieldMT2 = new Pose3d();
   }
 
   /** Represents a robot pose sample used for pose estimation. */

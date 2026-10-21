@@ -27,6 +27,7 @@ public class VisionIOLimelight implements VisionIO {
   private final DoubleSubscriber latencySubscriber;
   private final DoubleArraySubscriber megatag1Subscriber;
   private final DoubleArraySubscriber megatag2Subscriber;
+  private final DoubleArraySubscriber cameraPoseMT2Subscriber;
 
   private Supplier<double[]> gyroOrientationSupplier =
       () -> new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
@@ -50,6 +51,8 @@ public class VisionIOLimelight implements VisionIO {
     megatag1Subscriber = table.getDoubleArrayTopic("botpose_wpiblue").subscribe(new double[] {});
     megatag2Subscriber =
         table.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(new double[] {});
+    cameraPoseMT2Subscriber =
+        table.getDoubleArrayTopic("camerapose_field_orb_wpiblue").subscribe(new double[] {});
   }
 
   @Override
@@ -74,6 +77,10 @@ public class VisionIOLimelight implements VisionIO {
 
     // Increases network traffic but recommended by Limelight
     NetworkTableInstance.getDefault().flush();
+
+    // Update camera pose in field coordinates (MegaTag2) for extrinsic calibration
+    double[] camPoseRaw = cameraPoseMT2Subscriber.get();
+    inputs.cameraPoseFieldMT2 = (camPoseRaw.length >= 6) ? parsePose(camPoseRaw) : new Pose3d();
 
     // Read new pose observations from NetworkTables
     Set<Integer> tagIds = new HashSet<>();
