@@ -156,8 +156,12 @@ public class TurretIOReal implements TurretIO {
   }
 
   @Override
-  public void runPosition(double degrees, int slot) {
-    talon.setControl(positionOut.withPosition(Units.degreesToRotations(degrees)).withSlot(slot));
+  public void runPosition(double degrees, int slot, double feedForward) {
+    talon.setControl(
+        positionOut
+            .withPosition(Units.degreesToRotations(degrees))
+            .withSlot(slot)
+            .withFeedForward(feedForward));
   }
 
   @Override

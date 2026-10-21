@@ -36,8 +36,9 @@ public interface TurretIO {
    *
    * @param degrees Goal position.
    * @param slot PID gain slot to use during motion.
+   * @param feedForward Additional voltage added directly to motor output (V).
    */
-  default void runPosition(double degrees, int slot) {}
+  default void runPosition(double degrees, int slot, double feedForward) {}
 
   /** Stop motor with neutral output. */
   default void stop() {}

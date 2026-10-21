@@ -41,6 +41,8 @@ public class Turret extends SubsystemBase {
   private LoggedTunableNumber kD = new LoggedTunableNumber("Shooter/Turret/kD", 0);
   private LoggedTunableNumber kS = new LoggedTunableNumber("Shooter/Turret/kS", .3);
   private LoggedTunableNumber kV = new LoggedTunableNumber("Shooter/Turret/kV", 0);
+  private LoggedTunableNumber kVSetpointFF =
+      new LoggedTunableNumber("Shooter/Turret/kVSetpointFF", 0);
 
   // Motion magic gains
   private LoggedTunableNumber mmVelocity =
@@ -75,6 +77,7 @@ public class Turret extends SubsystemBase {
   private final Lights lights;
   private final LEDSegment ledSegment = new LEDSegment(1, 1, 0);
   @Getter private double setpoint = 0.0;
+  private double prevSetpoint = 0.0;
   @Getter private ControlMode mode = ControlMode.Neutral;
   private static boolean posistionAmbiguous = false;
 
@@ -127,7 +130,10 @@ public class Turret extends SubsystemBase {
     }
 
     // Update PID gains
-    if (kP.hasChanged(hashCode()) | kD.hasChanged(hashCode()) | kS.hasChanged(hashCode())) {
+    if (kP.hasChanged(hashCode())
+        | kD.hasChanged(hashCode())
+        | kS.hasChanged(hashCode())
+        | kV.hasChanged(hashCode())) {
       io.setPID(
           new SlotConfigs().withKP(kP.get()).withKD(kD.get()).withKS(kS.get()).withKV(kV.get()));
     }
@@ -166,12 +172,34 @@ public class Turret extends SubsystemBase {
    * @param degrees Goal position.
    */
   public void runPosition(double degrees) {
-    setpoint = MathUtil.inputModulus(degrees + bumpAngle, 0.0, 360.0);
+    double raw = MathUtil.inputModulus(degrees + bumpAngle, 0.0, 360.0);
+
+    // Snap dead-zone [0°, minimum) to whichever boundary is closer to the current position.
+    // Without this, a target near 0° from a turret near 360° causes MotionMagic to command a
+    // ~350° CCW rotation instead of a ~10° CW rotation to reach the equivalent 360° boundary.
+    if (raw < minimum) {
+      double distToMin = Math.abs(getPosition() - minimum);
+      double distToMax = Math.abs(getPosition() - maximum);
+      raw = (distToMin <= distToMax) ? minimum : maximum;
+    }
+    setpoint = raw;
+
+    // Velocity feedforward: scales the setpoint's angular rate (deg/s → RPS) by kVSetpointFF
+    // (V/RPS) to proactively apply voltage when chasing a moving target, reducing phase lag.
+    // kVSetpointFF defaults to 0 — tune it up on the robot until lag visibly improves.
+    double setpointDeltaDeg =
+        MathUtil.inputModulus(setpoint - prevSetpoint, -180.0, 180.0);
+    double feedForward =
+        Units.degreesToRotations(setpointDeltaDeg / Constants.loopPeriodSecs) * kVSetpointFF.get();
+    prevSetpoint = setpoint;
+
     mode = ControlMode.Position;
     if (posistionAmbiguous == false) {
-      io.runPosition(setpoint, 0);
+      io.runPosition(setpoint, 0, feedForward);
     }
     Logger.recordOutput("Shooter/Turret/SetpointPosition", setpoint, Degrees);
+    Logger.recordOutput(
+        "Shooter/Turret/SetpointVelocityDegPerSec", setpointDeltaDeg / Constants.loopPeriodSecs);
   }
 
   /** Stop motor with neutral output. */
