@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($cs = *)",
+      "PowerShell($sid = *)",
+      "Bash(ClaudeScope *)",
+      "Bash(MSYS_NO_PATHCONV=1 ClaudeScope *)",
+      "Bash(SID=\"*)",
+      "Bash(awk -F',' 'NF==2{total+=$2-$1; count++} END{printf \"%.1f sec across %d periods\\\\n\", total/1e6, count}')",
+      "Bash(sed 's/},{/\\\\n/g' /tmp/q24_low.json)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d['session_id']\\)\")",
+      "Bash(python3 -)",
+      "Read(//c//**)",
+      "Bash(./gradlew compileJava)",
+      "Read(//c/Users/Public/wpilib/**)",
+      "Read(//usr/local/**)",
+      "PowerShell(Get-Command ClaudeScope -ErrorAction SilentlyContinue)",
+      "PowerShell(python3 -c \"import pandas; print\\(pandas.__version__\\)\" 2>&1)",
+      "PowerShell(py --version 2>&1)",
+      "PowerShell(py -c \"import pandas; print\\(pandas.__version__\\)\" 2>&1)",
+      "Read(//c/Program Files/**)",
+      "Bash(py --version)",
+      "Bash(where python*)",
+      "Bash(python -c ' *)",
+      "Bash(python3)",
+      "Bash(PYTHONIOENCODING=utf-8 \"/c/Users/frc68/AppData/Local/Programs/Python/Python313/python.exe\" \"C:/FRC/2026/Code/2026-CompBot/other/calibration/find_windows_and_tags.py\")",
+      "Bash(python3 -c ' *)",
+      "Bash(PYTHONIOENCODING=utf-8 \"C:\\\\Users\\\\frc68\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\python.exe\" find_windows_and_tags.py)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); pts=d.get\\('/RealOutputs/Vision/limelight-four/TagPoses/0/translation/y',[]\\); [print\\(f't={p[\\\\\"timestamp\\\\\"]/1e6:.3f}s y={p[\\\\\"value\\\\\"]:.4f}'\\) for p in pts]\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d\\)\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(f['key'],'→',f['type']\\) for f in d['fields'][:60]]\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(f['key'],'->',f['type']\\) for f in d['fields'][:60]]\")"
+    ]
+  }
+}

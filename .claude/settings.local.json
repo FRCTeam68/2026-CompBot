@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(MSYS_NO_PATHCONV=1 \"C:/Users/frc68/.claude/plugins/cache/thefrc-suite/thefrc-suite/df63d24d0d2a/ClaudeScope/ClaudeScope.exe\" *)",
+      "Bash(\"C:/Users/frc68/.claude/plugins/cache/thefrc-suite/thefrc-suite/df63d24d0d2a/ClaudeScope/ClaudeScope.exe\" *)",
+      "Bash(/c/Users/frc68/.claude/plugins/cache/thefrc-suite/thefrc-suite/df63d24d0d2a/ClaudeScope/ClaudeScope.exe *)",
+      "Bash(CS=\"C:/Users/frc68/.claude/plugins/cache/thefrc-suite/thefrc-suite/df63d24d0d2a/ClaudeScope/ClaudeScope.exe\"*)",
+      "Bash(CS=\"/c/Users/frc68/.claude/plugins/cache/thefrc-suite/thefrc-suite/df63d24d0d2a/ClaudeScope/ClaudeScope.exe\"*)",
+      "Bash(export PATH=\"/c/Users/frc68/AppData/Local/Programs/Python/Python313:/c/Users/frc68/AppData/Local/Programs/Python/Python313/Scripts:$PATH\")",
+      "Bash(export PATH=\"/c/Users/frc68/AppData/Local/Programs/Python/Python313:$PATH\")",
+      "Bash(export PATH=\"/c/Users/frc68/AppData/Local/Programs/Python/Python313:*)",
+      "Bash(/c/Users/frc68/AppData/Local/Microsoft/WindowsApps/python3.exe -c \"import pandas; print\\('pandas ok'\\)\")",
+      "Bash(/c/Users/frc68/AppData/Local/Microsoft/WindowsApps/python3.exe -c ' *)",
+      "Bash('C:\\\\Users\\\\frc68\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\python.exe' -c ' *)",
+      "Bash(PYTHONIOENCODING=utf-8 \"C:\\\\Users\\\\frc68\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\python.exe\" calibrate_cameras.py \"C:\\\\Users\\\\Public\\\\Documents\\\\FRC\\\\Log Files\\\\2026\\\\13_shop\\\\spot1.wpilog\" \"C:\\\\Users\\\\Public\\\\Documents\\\\FRC\\\\Log Files\\\\2026\\\\13_shop\\\\spot2.wpilog\" \"C:\\\\Users\\\\Public\\\\Documents\\\\FRC\\\\Log Files\\\\2026\\\\13_shop\\\\spot3.wpilog\")",
+      "Bash(python other/calibration/calibrate_cameras.py 'C:/Users/Public/Documents/FRC/Log Files/2026/13_shop/spot1.wpilog' 'C:/Users/Public/Documents/FRC/Log Files/2026/13_shop/spot2.wpilog' 'C:/Users/Public/Documents/FRC/Log Files/2026/13_shop/spot3.wpilog')",
+      "Bash(python calibrate_cameras.py 'C:/Users/Public/Documents/FRC/Log Files/2026/13_shop/spot1.wpilog' 'C:/Users/Public/Documents/FRC/Log Files/2026/13_shop/spot2.wpilog' 'C:/Users/Public/Documents/FRC/Log Files/2026/13_shop/spot3.wpilog')",
+      "Bash(python3 c:/FRC/2026/Code/2026-CompBot/other/calibration/calibrate_cameras.py 'C:/Users/Public/Documents/FRC/Log Files/2026/13_shop/spot1.wpilog' 'C:/Users/Public/Documents/FRC/Log Files/2026/13_shop/spot2.wpilog' 'C:/Users/Public/Documents/FRC/Log Files/2026/13_shop/spot3.wpilog')",
+      "Bash(python3 -c \"import json; f=open\\('/c/Users/frc68/.claude/projects/c--FRC-2026-Code-2026-CompBot/085e84e1-272a-4376-9d64-1835cdb72c70.jsonl'\\); line=f.readline\\(\\); print\\(list\\(json.loads\\(line\\).keys\\(\\)\\)\\)\")",
+      "Read(//c/Users/Public/Documents/FRC/Log Files/2026/13_shop/**)",
+      "PowerShell(& \"C:\\\\Users\\\\frc68\\\\AppData\\\\Local\\\\Microsoft\\\\WindowsApps\\\\python.exe\" -c \"import pandas; print\\('ok'\\)\" 2>&1)",
+      "PowerShell(& \"C:\\\\Python313\\\\python.exe\" \"c:\\\\FRC\\\\2026\\\\Code\\\\2026-CompBot\\\\other\\\\calibration\\\\calibrate_cameras.py\" \"C:\\\\Users\\\\Public\\\\Documents\\\\FRC\\\\Log Files\\\\2026\\\\13_shop\\\\spot1.wpilog\" \"C:\\\\Users\\\\Public\\\\Documents\\\\FRC\\\\Log Files\\\\2026\\\\13_shop\\\\spot2.wpilog\" \"C:\\\\Users\\\\Public\\\\Documents\\\\FRC\\\\Log Files\\\\2026\\\\13_shop\\\\spot3.wpilog\")",
+      "PowerShell(& \"C:\\\\Users\\\\frc68\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\python.exe\" \"c:\\\\FRC\\\\2026\\\\Code\\\\2026-CompBot\\\\other\\\\calibration\\\\calibrate_cameras.py\" \"C:\\\\Users\\\\Public\\\\Documents\\\\FRC\\\\Log Files\\\\2026\\\\13_shop\\\\spot1.wpilog\" \"C:\\\\Users\\\\Public\\\\Documents\\\\FRC\\\\Log Files\\\\2026\\\\13_shop\\\\spot2.wpilog\" \"C:\\\\Users\\\\Public\\\\Documents\\\\FRC\\\\Log Files\\\\2026\\\\13_shop\\\\spot3.wpilog\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); v=list\\(d.values\\(\\)\\)[0]; print\\('LL3G slot0 y \\(first 5\\):', [round\\(s['value'],3\\) for s in v[:5]] if v else 'empty'\\)\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); v=list\\(d.values\\(\\)\\)[0]; print\\('LL4 slot0 y \\(first 5\\):', [round\\(s['value'],3\\) for s in v[:5]] if v else 'empty'\\)\")",
+      "Bash(python3 -c ' *)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('spot3:', d['session_id']\\)\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); v=list\\(d.values\\(\\)\\)[0]; [print\\(f'  ts={s[\\\\\"timestamp\\\\\"]/1e6:.3f}s  y={s[\\\\\"value\\\\\"]:.3f}'\\) for s in \\(v or []\\)]\")",
+      "Bash(PYTHONIOENCODING=utf-8 \"C:\\\\Users\\\\frc68\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\python.exe\" verify_stable_windows.py)",
+      "Bash(python3 compute_camera_offsets.py)",
+      "Bash(python compute_camera_offsets.py)"
+    ]
+  }
+}
